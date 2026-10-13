@@ -25,7 +25,7 @@ const RANKS=['البذرة الصاعدة','المستكشف','المحارب','
 // ---------- الحالة (متوافقة مع الإصدارات السابقة) ----------
 function fresh(){return{name:'عبّود',created:new Date().toISOString(),points:0,streak:0,lastDay:null,time:0,skills:{},mis:{},diag:null,quizzes:[],sessions:[]}}
 let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
-const norm=()=>{S.points=+S.points||0;S.ach=S.ach||{};S.daily=S.daily||{date:today(),n:0};S.goal=S.goal||10;S.quizzes=S.quizzes||[];S.mis=S.mis||{};S.skills=S.skills||{};S.review=S.review||{};S.games=S.games||{};S.dch=S.dch||null;S.labs=S.labs||{};S.reviewed=S.reviewed||0};norm();
+const norm=()=>{S.points=+S.points||0;S.time=+S.time||0;S.streak=+S.streak||0;S.created=S.created||new Date().toISOString();S.sessions=S.sessions||[];S.hearts=S.hearts==null?5:+S.hearts;S.hLost=S.hLost||0;S.ach=S.ach||{};S.daily=S.daily||{date:today(),n:0};S.goal=S.goal||10;S.quizzes=S.quizzes||[];S.mis=S.mis||{};S.skills=S.skills||{};S.review=S.review||{};S.games=S.games||{};S.dch=S.dch||null;S.labs=S.labs||{};S.reviewed=S.reviewed||0};norm();
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}hdr()};
 const sk=id=>S.skills[id]||(S.skills[id]={status:'untested',att:0,cor:0,best:null,time:0,run:0});
 function status(id){const s=sk(id).status;if(PRE[id])return s;if(s==='untested'&&locked(id))return'locked';return s}
@@ -43,7 +43,8 @@ function addPts(n,el){const before=level();S.points+=n;if(cur)sk(cur).lastAt=Dat
  if(level()>before){const L=FX.lvInfo(level());setTimeout(()=>{FX.mega();FX.modal(`${FX.rankImg(level(),140,'badge-big')}<h2>مستوى جديد: ${level()}</h2><p>أصبحت الآن <b>«${L.name}»</b><br>استمر يا ${esc(S.name)}، أنت تتقدم بسرعة!</p>`)},600)}}
 function countCorrect(){dailyN();S.daily.n++;if(S.daily.n===S.goal)setTimeout(()=>{FX.mega();FX.toast(I('target')+' حققت هدف اليوم! +30 XP');addPts(30)},900)}
 function progress(){const m=ALLSK.filter(i=>sk(i).status==='mastered').length;return Math.round(100*m/ALLSK.length)}
-function hdr(){$('#hpts').textContent=S.points;$('#hstreak').textContent=S.streak;$('#hlvl').textContent=level();$('#hname').textContent=S.name;
+function hearts(){const k=Math.floor((Date.now()-(S.hLost||0))/(20*60e3));if(k>0&&S.hearts<5){S.hearts=Math.min(5,S.hearts+k);S.hLost=Date.now()}return S.hearts}
+function hdr(){const hh=$('#hhearts');if(hh)hh.textContent=hearts();$('#hpts').textContent=S.points;$('#hstreak').textContent=S.streak;$('#hlvl').textContent=level();$('#hname').textContent=S.name;
  $('#hlvlname').textContent=FX.lvInfo(level()).name;$('#hrank').innerHTML=FX.rankImg(level(),30);const x=S.points%XPL;$('#hxp').style.width=(100*x/XPL)+'%';$('#hxpt').textContent=x+'/'+XPL;
  $('#hflame').classList.toggle('off',S.lastDay!==today());const rc=dueReviews().length,b=$('#revbadge');if(b){b.textContent=rc;b.hidden=!rc}}
 function noteMis(m,id){if(!m)return;const o=S.mis[m]||(S.mis[m]={n:0,skills:{}});o.n++;o.skills[id]=(o.skills[id]||0)+1}
@@ -87,7 +88,7 @@ let cur=null,leave=[];setInterval(()=>{if(cur&&document.visibilityState==='visib
 const MROW=(pose,msg)=>`<div class="mrow" id="mascot">${FX.MASCOT(pose||'think','m-img')}<div class="m-bubble ${msg?'show':''}">${esc(msg||'')}</div></div>`;
 // ---------- عرض سؤال ----------
 // mode: practice | test | diag (مع شريط الثقة)
-function renderItem(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,conf=2;
+function renderOld(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,conf=2;
  const draw=()=>{const s=item.steps[si];const multi=item.steps.length>1;
   el.innerHTML=(multi?`<div class="stepdots">${item.steps.map((_,i)=>`<i class="${i<=si?'on':''}"></i>`).join('')}</div><div class="muted">خطوة ${si+1} من ${item.steps.length}</div>`:'')+
   `<div class="q">${esc(s.q)}</div>`+
@@ -116,6 +117,40 @@ function renderItem(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,
    }});
  };
  const finish=(ok,b)=>done(ok,usedHint,b,conf);draw()}
+
+// ---------- v7: تدفق السؤال: اختر ← تحقّق ← ورقة ملاحظات خضراء/حمراء ← متابعة ----------
+const getBar=()=>{let b=$('#checkbar');if(!b){b=document.createElement('div');b.id='checkbar';document.body.appendChild(b)}return b};
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const c=$('#chk');if(c&&!c.disabled&&document.activeElement.tagName!=='INPUT'){e.preventDefault();c.click()}}});
+const mt=s=>esc(s).replace(/[\d,]*√[\d,]+/g,'<bdi class="m" dir="ltr">$&</bdi>');
+const PRAISE=['أحسنت!','ممتاز!','رائع!','إجابة صحيحة!','عمل متقن!'];
+function renderItem(el,id,item,mode,done){if(mode==='diag')return renderOld(el,id,item,mode,done);
+ let si=0,firstTry=true,usedHint=false;const bar=getBar();
+ const draw=()=>{const s=item.steps[si],multi=item.steps.length>1;let sel=-1,state='pick';
+  el.innerHTML=`<div class="qkind">${I(multi?'tiles':'pencil','sm')} ${multi?'خطوة '+(si+1)+' من '+item.steps.length:'اختر الإجابة الصحيحة'}</div>
+  <div class="qrow">${FX.MASCOT(si%2?'think':'read','')}<div class="q">${mt(s.q)}</div></div>
+  <div class="choices">${s.choices.map((c,i)=>`<button class="choice" data-i="${i}">${mt(c.t)}</button>`).join('')}</div>
+  ${mode==='practice'&&s.hint?`<button class="hintlink" id="hintb">${I('bulb','sm')} تلميح</button><div id="hintt"></div>`:''}`;
+  bar.className='checkbar';bar.innerHTML=`<div class="in"><div class="sheet"><span class="sh-ic"></span><div><div class="sh-t"></div><div class="sh-b"></div></div></div><button class="btn off" id="chk" disabled>تحقّق</button></div>`;
+  const chk=bar.querySelector('#chk'),cs=[...el.querySelectorAll('.choice')],last=si===item.steps.length-1;
+  const hb=el.querySelector('#hintb');if(hb)hb.onclick=()=>{usedHint=true;el.querySelector('#hintt').innerHTML=`<div class="fb hint">${I('bulb','sm')} ${esc(s.hint)}</div>`;hb.remove()};
+  cs.forEach(b=>b.onclick=()=>{if(state!=='pick')return;sel=+b.dataset.i;cs.forEach(x=>x.classList.toggle('sel',x===b));chk.disabled=false;chk.classList.remove('off')});
+  const sheet=(cls,ic,t,body,btn)=>{bar.className='checkbar '+cls;bar.querySelector('.sh-ic').innerHTML=I(ic);bar.querySelector('.sh-t').textContent=t;bar.querySelector('.sh-b').innerHTML=body;chk.textContent=btn;chk.disabled=false;chk.classList.remove('off');chk.focus({preventScroll:true})};
+  chk.onclick=()=>{const b=cs[sel];
+   if(state==='pick'){if(sel<0)return;const c=s.choices[sel];cs.forEach(x=>x.disabled=true);b.classList.remove('sel');
+    if(c.ok){b.classList.add('ok');state='ok';FX.mascot('celebrate');sheet('ok','check',pick(PRAISE),last&&item.explain?esc(item.explain):'','متابعة')}
+    else{firstTry=false;b.classList.add('bad');cs.forEach(x=>{if(s.choices[+x.dataset.i].ok)x.classList.add('ok')});noteMis(c.m,id);addReview(id,c.m);if(navigator.vibrate)try{navigator.vibrate(60)}catch(e){}
+     state='bad';sheet('bad','x','الإجابة الصحيحة:',`<b>${mt(s.a)}</b>${c.m?'<br>'+esc(c.m):''}`,'فهمت')}
+    return}
+   if(state==='ok'&&!last){si++;return draw()}
+   done(state==='ok'&&firstTry,usedHint,b)};
+ };draw()}
+const ltop=(close,h)=>`<div class="ltop"><a class="x" href="${close}" aria-label="إغلاق">${I('x')}</a><div class="lbar"><i id="lbar" style="width:0"></i></div><span class="hearts ${h?'':'inf'}" id="lh">${h?I('heart','sm')+' '+hearts():I('target','sm')}</span></div>`;
+const setBar=(n,N)=>{const b=$('#lbar');if(b)b.style.width=(100*n/N)+'%'};
+const mmss=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+function showDone(box,o){box.innerHTML=`<div class="done-screen">${FX.MASCOT(o.pose||'celebrate','')}<h1>${esc(o.title)}</h1>${o.sub?`<p class="muted">${o.sub}</p>`:''}
+ <div class="dstats"><div class="dstat" style="--c:var(--y)"><small>مجموع النقاط</small><b>${I('star','sm')} ${o.xp}</b></div><div class="dstat" style="--c:var(--g)"><small>${o.accL||'الدقة'}</small><b>${I('target','sm')} ${o.acc}</b></div><div class="dstat" style="--c:var(--b)"><small>الوقت</small><b>${I('clock','sm')} ${o.time}</b></div></div>
+ ${(o.extra||[]).map(([h,t])=>`<a class="btn sec wide" style="margin-top:14px" href="${h}">${t}</a>`).join('')}</div>`;
+ const bar=getBar();bar.className='checkbar';bar.innerHTML=`<div class="in"><a class="btn wide" id="chk" href="${o.next}">متابعة</a></div>`;setBar(1,1);document.querySelectorAll('.xp-pop,.toast').forEach(e=>e.remove());if(o.party)setTimeout(()=>FX.confetti(innerWidth/2,120,36,5),200)}
 // ---------- الصفحات ----------
 const V={};
 function nextStep(){for(const i of C.diagnostic_order)if(['weak','learning'].includes(sk(i).status))return i;
@@ -126,18 +161,25 @@ const baseStats=()=>({n:C.prerequisites.length,m:C.prerequisites.filter(p=>sk(p.
 const unitName=u=>u.title.replace(/^الوحدة [^:]+: /,'');
 const OLIVE=`<svg class="olive-tree" viewBox="0 0 120 120" aria-hidden="true"><path d="M58 118c2-20-6-30 0-48M60 80c8-6 14-6 20-14" stroke="#7c4a1e" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#4d7c0f"><ellipse cx="40" cy="44" rx="26" ry="18"/><ellipse cx="76" cy="38" rx="28" ry="20"/><ellipse cx="60" cy="22" rx="24" ry="16"/><ellipse cx="88" cy="60" rx="18" ry="12"/></g><g fill="#84cc16" opacity=".8"><ellipse cx="50" cy="34" rx="12" ry="7"/><ellipse cx="80" cy="30" rx="12" ry="7"/></g><g fill="#3f2a56"><circle cx="34" cy="50" r="3"/><circle cx="70" cy="44" r="3"/><circle cx="86" cy="62" r="3"/><circle cx="58" cy="26" r="3"/></g></svg>`;
 const tile=(href,icon,ttl,sub,cls,badge)=>`<a class="card tap tile ${cls||''}" href="${href}"><span class="tile-ic">${I(icon)}</span><span class="tile-t">${ttl}</span><span class="muted">${sub}</span>${badge||''}</a>`;
-V.home=()=>{const weak=C.diagnostic_order.filter(i=>sk(i).status==='weak');const next=nextStep();const L=FX.lvInfo(level());const dn=dailyN();const bs=baseStats();const rv=dueReviews().length;
- const hr=new Date().getHours(),greet=hr<12?'صباح الخير':hr<18?'أهلاً':'مساء الخير';const dchDone=S.dch&&S.dch.date===today()&&S.dch.done;
- return`<div class="card hero">${OLIVE}<div class="txt"><h1>${greet} يا ${esc(S.name)}</h1><p class="lv">${FX.rankImg(level(),34)}<span><b>${L.name}</b><br><small>المستوى ${level()}</small></span></p><p>كل يوم خطوة صغيرة = تقدّم كبير!</p>
- ${!S.diag?`<a class="btn gold" href="#/diag">${I('journey')} ابدأ رحلة تحديد المستوى</a>`:next?`<a class="btn gold" href="#/lesson/${next}">${I('play')} تابع: ${esc(short(title(next)))}</a>`:''}</div>${FX.MASCOT('welcome','hero-mascot float')}</div>
- <div class="two"><div class="card"><div class="row">${FX.ring(100*Math.min(dn,S.goal)/S.goal,92,dn+'/'+S.goal,'#ff9f1c')}<div><h3>${I('target')} هدف اليوم</h3><p class="muted">${dn>=S.goal?'أنجزته! بطل':'أجب '+(S.goal-dn)+' إجابات صحيحة أخرى اليوم'}</p></div></div></div>
- <div class="card"><div class="row">${FX.ring(progress(),92,null,'#22c55e')}<div><h3>${I('chart')} تقدّمك الكلي</h3><p class="muted">${nMast()} مهارة متقنة من ${ALLSK.length}</p></div></div></div></div>
- <div class="tiles4">${tile('#/daily','calendar','تحدي اليوم',dchDone?'أنجزته اليوم':'5 مسائل من الحياة',dchDone?'done':'hot')}${tile('#/review','review','مراجعة الأخطاء',rv?rv+' بانتظارك':'لا شيء الآن','',rv?`<span class="nbadge">${rv}</span>`:'')}${tile('#/lab','lab','المختبر','أدوات تلمسها بيدك')}${tile('#/game','race','سباق الأعداد','أفضل نتيجة: '+(S.games.race||0))}</div>
- <div class="grid"><div class="kpi">${I('star')}<b>${S.points}</b>نقطة</div><div class="kpi">${I('flame')}<b>${S.streak}</b>يوم متتالٍ</div><div class="kpi">${I('trophy')}<b>${Object.keys(S.ach).length}</b>إنجاز</div><div class="kpi">${I('clock')}<b>${Math.round(S.time/60)}</b>دقيقة</div></div>
- ${weak.length?`<div class="card"><h3>${I('dumbbell')} مهارات تحتاج تقوية</h3>${weak.map(i=>chip(i,short(title(i)))).join('')}</div>`:''}
- <h2 class="sec-title">${I('map')} رحلتك في الكتاب <a class="see" href="#/map">الخريطة ${I('arrow','sm')}</a></h2>
- <div class="ucards"><a class="ucard" href="#/map">${FX.cover('basics')}<div class="ucard-b"><b>الأساسيات (4–7)</b><span class="muted">${bs.m}/${bs.n}</span><div class="bar"><i style="width:${100*bs.m/bs.n}%"></i></div></div></a>
- ${C.semesters.map(s=>s.units.map(u=>{const st=unitStats(u);return`<a class="ucard" href="#/unit/${u.id}">${FX.cover(COVER[u.id])}<div class="ucard-b"><b>${esc(unitName(u))}</b><span class="muted">${s.id==='S1'?'ف1':'ف2'} · ${st.m}/${st.n}${FULL.has(u.id)?'':' · تمهيدي'}</span><div class="bar"><i style="width:${100*st.m/st.n}%"></i></div></div></a>`}).join('')).join('')}</div>`};
+const UC={base:['#58cc02','#58a700'],U1:['#ce82ff','#a568cc'],U2:['#1cb0f6','#1899d6'],U3:['#ff9600','#cc7900'],U4:['#ff4b4b','#ea2b2b'],U5:['#2b70c9','#1f5aa3'],U6:['#00b894','#00916f'],U7:['#e05fb6','#b8468f'],U8:['#8549ba','#6b3a95']};
+const OFF=[0,44,70,44,0,-44,-70,-44];let PI_=0;
+function pathSec(key,small,name,ids,guide,quiz,nx){const[c,cd]=UC[key];const mi=Math.min(2,ids.length-1),side=PI_++%2?'right':'left';
+ const nodes=ids.map((id,i)=>{const st=status(id),isCur=id===nx,cls=st==='mastered'?'done':(st==='locked'&&!isCur)?'locked':'';
+  const ic=st==='mastered'?'check':cls==='locked'?'lock':st==='weak'?'dumbbell':st==='learning'?'book':'star';
+  const off=(side==='left'?1:-1)*OFF[i%8];
+  return`<a class="pn ${cls}${isCur?' cur':''}" id="pn-${id}" style="transform:translateX(${off}px)" href="#/lesson/${id}" aria-label="${esc(title(id))}">${isCur?'<span class="start-bub">ابدأ</span>':''}<span class="disc">${I(ic)}</span><span class="lbl">${esc(short(title(id)))}</span></a>`}).join('');
+ const qn=quiz?`<a class="pn trophy ${sk(quiz).best>=80?'done':''}" style="transform:translateX(${(side==='left'?1:-1)*OFF[ids.length%8]}px)" href="#/quiz/${quiz}" aria-label="اختبار الوحدة"><span class="disc">${I('trophy')}</span><span class="lbl">اختبار الوحدة</span></a>`:'';
+ const poses=['read','pencil','think','teacher','idle','read2','encourage','welcome','celebrate'];
+ const m=ids.length>1?`<img class="path-m" src="img/zaytoun-${poses[PI_%poses.length]}.webp" alt="" style="top:${mi*104+20}px;${side==='left'?'left':'right'}:2%">`:'';
+ return`<section class="usec" style="--c:${c};--cd:${cd}"><div class="ubanner" style="background:${c};box-shadow:0 4px 0 ${cd}"><div><small>${small}</small><b>${esc(name)}</b></div>${guide?`<a class="guide" href="${guide}">${I('book')} الدليل</a>`:''}</div><div class="path">${nodes}${qn}${m}</div></section>`}
+V.home=()=>{PI_=0;const nx=nextStep()||(S.diag?null:C.prerequisites[0].id);const dn=dailyN();const rv=dueReviews().length;const dchDone=S.dch&&S.dch.date===today()&&S.dch.done;
+ const quests=`<div class="quests"><a class="quest q-y" href="#/ach">${I('target')}هدف اليوم<div class="qbar"><i style="width:${100*Math.min(dn,S.goal)/S.goal}%"></i></div><small>${Math.min(dn,S.goal)}/${S.goal}</small></a>
+  <a class="quest q-o" href="#/daily">${I('calendar')}تحدي اليوم<small>${dchDone?'أنجزته':'5 مسائل'}</small></a><a class="quest q-b" href="#/review">${I('review')}الأخطاء<small>${rv?rv+' للمراجعة':'لا شيء الآن'}</small></a></div>`;
+ const start=!S.diag?`<div class="card path-start">${FX.MASCOT('welcome','')}<div><h2>أهلاً ${esc(S.name)}!</h2><p class="muted">رحلة قصيرة تحدد من أين تبدأ، فلا تعيد ما تعرفه.</p><a class="btn" href="#/diag">ابدأ رحلة تحديد المستوى</a></div></div>`:'';
+ let h=quests+start+pathSec('base','قبل الصف الثامن','الأساسيات (مراجعة الصفوف 4–7)',C.prerequisites.map(p=>p.id),'#/map',null,nx);
+ C.semesters.forEach((s,si)=>s.units.forEach((u,ui)=>{h+=pathSec(u.id,`${si?'الفصل الثاني':'الفصل الأول'} · الوحدة ${u.id.slice(1)}`,unitName(u),u.lessons.filter(l=>!l.review).map(l=>l.id),'#/unit/'+u.id,u.id,nx)}));
+ setTimeout(()=>{const e=nx&&$('#pn-'+nx);if(e&&S.diag)e.scrollIntoView({block:'center'})},50);
+ return h+`<p class="unit-end">${I('flag','sm')} نهاية كتاب الصف الثامن</p>`};
 V.map=()=>{const lv={};C.prerequisites.forEach(p=>(lv[depth[p.id]]=lv[depth[p.id]]||[]).push(p.id));const nx=nextStep();
  const leg=['mastered','learning','weak','untested','locked'].map(s=>`<span class="chip st-${s}">${I(SI[s],'sm')}${SL[s]}</span>`).join('');
  const node=i=>`<a class="node st-${status(i)}${i===nx?' next':''}" href="#/lesson/${i}"><span class="dot">${status(i)==='mastered'?I('check'):status(i)==='locked'?I('lock'):i.replace(/^S\d-/,'')}</span>${esc(short(title(i)))}</a>`;
@@ -148,7 +190,7 @@ V.map=()=>{const lv={};C.prerequisites.forEach(p=>(lv[depth[p.id]]=lv[depth[p.id
   return`<div class="card"><a class="lesson-head" style="text-decoration:none;color:inherit" href="#/unit/${u.id}">${FX.cover(COVER[u.id])}<div><h3>${esc(u.title)}</h3><span class="muted">${st.m}/${st.n}${FULL.has(u.id)?'':' · تمهيدي'}</span></div></a><div class="tlevel">${u.lessons.filter(l=>!l.review).map(l=>node(l.id)).join('')}</div></div>`}).join('')).join('')}`};
 const toolFor=id=>Object.entries(LAB.T).filter(([k,t])=>t.skills.includes(id)||((window.CONTENT[id]||{}).tools||[]).includes(k)).map(([k,t])=>`<a class="btn sec" href="#/lab/${k}">${I(t.icon)} ${t.title}</a>`).join('');
 V.unit=id=>{const u=UNITS[id];if(!u)return'<p>غير موجود</p>';const best=sk(id).best,st=unitStats(u);
- return`<a class="back" href="#/map">${I('back','sm')} الخريطة</a><div class="banner">${FX.cover(COVER[id])}<div class="banner-t"><h1>${esc(u.title)}</h1><span>${esc(u.sem.name)} · ${st.m}/${st.n} متقنة</span></div></div>
+ return`<a class="back" href="#/home">${I('back','sm')} المسار</a><div class="banner" style="background:${UC[id][0]};box-shadow:0 4px 0 ${UC[id][1]}">${FX.cover(COVER[id])}<div class="banner-t"><h1>${esc(u.title)}</h1><span>${esc(u.sem.name)} · ${st.m}/${st.n} متقنة</span></div></div>
  ${FULL.has(id)?'':`<div class="soon">${I('warn','sm')} وحدة تمهيدية في هذا الإصدار: الأهداف وبعض التمارين متاحة، والشرح الكامل قريباً.</div>`}
  <div class="card"><h3>الدروس</h3>${u.lessons.map(l=>l.review?`<a class="lesson" href="#/quiz/${id}"><span><span class="num">${l.number}</span>${esc(l.title)} (اختبار الوحدة)</span>${I('quiz')}</a>`:
   `<a class="lesson" href="#/lesson/${l.id}"><span><span class="num">${l.number}</span>${esc(l.title)}</span><span class="chip st-${status(l.id)}">${I(SI[status(l.id)],'sm')}${SL[status(l.id)]}</span></a>`).join('')}</div>
@@ -157,7 +199,7 @@ V.unit=id=>{const u=UNITS[id];if(!u)return'<p>غير موجود</p>';const best=
  <a class="btn wide gold" href="#/quiz/${id}">${I('quiz')} اختبار الوحدة ${best!=null?'(أفضل نتيجة '+best+'%)':''}</a>`};
 V.lesson=id=>{const P_=PRE[id],L=LES[id];if(!P_&&!L)return'<p>غير موجود</p>';cur=id;const c=window.CONTENT[id],s=sk(id),st=status(id);
  const deps=P_?P_.depends_on:L.prerequisites,needed=P_?P_.needed_by_lessons:[];const tools=toolFor(id);
- let h=`<a class="back" href="${L?'#/unit/'+L.unit:'#/map'}">${I('back','sm')} رجوع</a><div class="banner">${FX.cover(L?COVER[L.unit]:'basics')}<div class="banner-t"><h1><span class="num">${L?L.number:id}</span>${esc(title(id))}</h1>
+ const uc=UC[L?L.unit:'base'];let h=`<a class="back" href="${L?'#/unit/'+L.unit:'#/map'}">${I('back','sm')} رجوع</a><div class="banner" style="background:${uc[0]};box-shadow:0 4px 0 ${uc[1]}">${FX.cover(L?COVER[L.unit]:'basics')}<div class="banner-t"><h1><span class="num">${L?L.number:id}</span>${esc(title(id))}</h1>
  <span class="chip st-${st}">${I(SI[st],'sm')}${SL[st]}</span>${s.best!=null?` · أفضل اختبار ${s.best}%`:''}</div></div>`;
  if(st==='locked')h+=`<div class="card fb bad">${I('lock')} هذا الدرس يعتمد على مهارات لم تُتقن بعد. ابدأ بها:<br>${deps.filter(d=>['weak','untested'].includes(sk(d).status)).map(d=>chip(d)).join('')}<br><button class="btn ghost" id="unl">افتحه على أي حال</button></div>`;
  if(deps&&deps.length)h+=`<div class="card"><h3>${I('tiles')} يعتمد على</h3>${deps.map(d=>chip(d)).join('')}</div>`;
@@ -168,38 +210,39 @@ V.lesson=id=>{const P_=PRE[id],L=LES[id];if(!P_&&!L)return'<p>غير موجود<
  if(needed&&needed.length)h+=`<div class="card"><h3>${I('rocket')} ستحتاجها في الصف الثامن</h3>${needed.map(d=>chip(d,LES[d]?LES[d].number+' '+LES[d].title:d)).join('')}</div>`;
  h+=`<a class="btn wide" href="#/practice/${id}">${I('dumbbell')} تدرّب (أسئلة غير محدودة)</a><a class="btn wide gold" href="#/quiz/${id}">${I('quiz')} اختبار الدرس (8 أسئلة · النجاح 80%)</a>`;
  setTimeout(()=>{const b=$('#unl');if(b)b.onclick=()=>{sk(id).unlocked=true;save();route()}});return h};
-V.practice=id=>{cur=id;setTimeout(()=>{let n=0,ok=0,combo=0;const box=$('#pbox'),cnt=$('#pcnt');
-  const nextQ=()=>renderItem(box,id,window.genFor(id),'practice',(first,hint,b)=>{n++;const s=sk(id);s.att++;
-   if(first){ok++;combo++;s.cor++;s.run=(s.run||0)+1;addPts(hint?5:10,b);countCorrect()}else{s.run=0;combo=0}
-   if(s.run>=5&&['untested','weak','locked'].includes(s.status)){s.status='learning';FX.toast(I('book')+' انتقلت إلى «قيد التعلّم»!')}
-   save();checkAch();cnt.innerHTML=`<span>${I('check','sm')} ${ok} / ${n}</span>${combo>=2?`<span class="combo">${I('flame','sm')} ×${combo}</span>`:''}${s.run>=5?'<a href="#/quiz/'+id+'">جاهز للاختبار</a>':''}`;nextQ()});nextQ()});
- return`<a class="back" href="#/lesson/${id}">${I('back','sm')} الدرس</a><h2>${I('dumbbell')} تدريب: ${esc(title(id))}</h2><div class="qtop" id="pcnt">أجب، وإن أخطأت ستعرف السبب.</div>${MROW('think','يلا نتدرّب!')}<div class="card qcard" id="pbox"></div><a class="btn sec wide" href="#/quiz/${id}">انتقل إلى الاختبار</a>`};
-function quizRun(box,pr,gens,N,onEnd,mode){let i=0,score=0;
- const nextQ=()=>{if(i>=N)return onEnd(score);pr.innerHTML=`<div class="qtop"><span>السؤال ${i+1} من ${N}</span><span>${I('check','sm')} ${score}</span></div><div class="bar"><i style="width:${100*i/N}%;animation:none;transition:width .4s"></i></div>`;
+V.practice=id=>{cur=id;const N=10;setTimeout(()=>{let n=0,ok=0,xp=0;const t0=Date.now(),box=$('#pbox');
+  const lh=()=>{const e=$('#lh');if(e)e.innerHTML=I('heart','sm')+' '+S.hearts};
+  const end=out=>showDone(box,{title:out?'نفدت القلوب':'أكملت التدريب!',sub:out?'راجع الشرح أو أخطاءك لتستعيد القلوب، ثم عد.':'',pose:out?'encourage':'celebrate',party:!out,xp,acc:Math.round(100*ok/Math.max(n,1))+'%',time:mmss(Math.round((Date.now()-t0)/1000)),next:'#/lesson/'+id,extra:out?[['#/review','مراجعة الأخطاء (تعيد القلوب)']]:[['#/practice/'+id,'تدرّب مرة أخرى'],['#/quiz/'+id,'اختبار الدرس']]});
+  const nextQ=()=>{setBar(n,N);lh();if(n>=N)return end(false);if(hearts()<=0)return end(true);
+   renderItem(box,id,window.genFor(id),'practice',(first,hint,b)=>{n++;const s=sk(id);s.att++;
+    if(first){ok++;s.cor++;s.run=(s.run||0)+1;const p=hint?5:10;xp+=p;addPts(p,b);countCorrect()}else{s.run=0;S.hearts=Math.max(0,S.hearts-1);S.hLost=Date.now()}
+    if(s.run>=5&&['untested','weak','locked'].includes(s.status)){s.status='learning';FX.toast(I('book')+' انتقلت إلى «قيد التعلّم»!')}
+    save();checkAch();nextQ()})};nextQ()});
+ return ltop('#/lesson/'+id,true)+`<div class="card qcard" id="pbox"></div>`};
+function quizRun(box,pr,gens,N,onEnd,mode){let i=0,score=0;const p0=S.points,t0=Date.now();
+ const nextQ=()=>{setBar(i,N);if(i>=N)return onEnd(score,S.points-p0,mmss(Math.round((Date.now()-t0)/1000)));if(pr)pr.innerHTML='';
   const gid=gens[i%gens.length];renderItem(box,gid,window.genFor(gid),mode||'test',(ok,_,b)=>{if(ok){score++;addPts(15,b);countCorrect()}i++;save();nextQ()})};nextQ()}
 V.quiz=id=>{cur=id;const unit=UNITS[id];const N=unit?10:8;const gens=unit?unit.lessons.filter(l=>!l.review).map(l=>l.id):[id];
- setTimeout(()=>quizRun($('#qbox'),$('#qpr'),gens,N,score=>{const pct=Math.round(100*score/N),s=sk(id),was=s.status;s.best=Math.max(s.best||0,pct);
+ setTimeout(()=>quizRun($('#qbox'),$('#qpr'),gens,N,(score,xp,tm)=>{const pct=Math.round(100*score/N),s=sk(id),was=s.status;s.best=Math.max(s.best||0,pct);
    S.quizzes.push({id,date:new Date().toISOString(),score:pct,n:N});
    (unit?gens:[id]).forEach(t=>{const x=sk(t);if(pct>=80)x.status='mastered';else if(pct>=50){if(x.status!=='mastered')x.status='learning'}else if(x.status!=='mastered')x.status='weak'});
    if(pct>=80&&was!=='mastered')addPts(50);save();$('#qpr').innerHTML='';
-   if(pct>=80){FX.mega();FX.mascot('celebrate','أسطورة!')}else FX.mascot(pct>=50?'celebrate':'encourage',pct>=50?'قريب جداً!':'سنتدرّب ونرجع أقوى');
-   $('#qbox').innerHTML=`<div class="center">${FX.ring(pct,130,pct+'%',pct>=80?'#22c55e':pct>=50?'#ff9f1c':'#e11d48')}<h2>${pct>=80?'أتقنتها!':pct>=50?'في الطريق الصحيح':'لا بأس'}</h2><p>${score} من ${N} صحيحة</p>
-   <p>${pct>=80?'ممتاز! هذه المهارة صارت متقنة':pct>=50?'تدرّب قليلاً ثم أعد الاختبار.':'الأخطاء طريق التعلم. راجع الشرح وتدرّب ثم حاول مجدداً.'}</p>
-   <a class="btn" href="#/practice/${unit?gens[0]:id}">${I('dumbbell')} تدرّب</a><a class="btn sec" href="#/${unit?'unit':'lesson'}/${id}">رجوع</a><a class="btn ghost" href="#/map">${I('map')} الخريطة</a></div>`;checkAch()}));
- return`<h2>${I('quiz')} اختبار: ${esc(title(id))}</h2><p class="muted">محاولة واحدة لكل سؤال، بدون تلميحات. النجاح ≥ 80%.</p><div id="qpr"></div>${MROW('read','بالتوفيق! أنت جاهز')}<div class="card qcard" id="qbox"></div>`};
+   if(pct>=80)FX.mega();
+   showDone($('#qbox'),{title:pct>=80?'أتقنتها!':pct>=50?'في الطريق الصحيح':'لا بأس، لنتدرّب',sub:`${score} من ${N} إجابات صحيحة · النجاح 80%`,pose:pct>=80?'celebrate':pct>=50?'encourage':'read',party:pct>=80,xp,acc:pct+'%',accL:'النتيجة',time:tm,next:`#/${unit?'unit':'lesson'}/${id}`,extra:[['#/practice/'+(unit?gens[0]:id),'تدرّب'],['#/home','مسار الدروس']]});checkAch()}));
+ return ltop(`#/${unit?'unit':'lesson'}/${id}`,false)+`<div id="qpr"></div><div class="card qcard" id="qbox"></div>`};
 // ---------- مراجعة الأخطاء ----------
 V.review=()=>{const due=dueReviews(),all=Object.keys(S.review);
  if(!due.length)return`<h1>${I('review')} مراجعة الأخطاء</h1><div class="card empty">${FX.MASCOT('read','empty-m float')}<h2>لا توجد أخطاء للمراجعة الآن</h2><p class="muted">كل سؤال تخطئ فيه يدخل هنا، ويعود لك بعد يوم ثم 3 أيام ثم أسبوع حتى تثبت المعلومة.${all.length?' لديك '+all.length+' مهارة مجدولة لاحقاً.':''}</p><a class="btn" href="#/daily">${I('calendar')} جرّب تحدي اليوم</a></div>`;
- setTimeout(()=>{let k=0,ok=0;const box=$('#rbox'),pr=$('#rpr');const nx=()=>{if(k>=due.length){box.innerHTML=`<div class="center">${FX.ring(100*ok/due.length,120,ok+'/'+due.length,'#22c55e')}<h2>انتهت المراجعة</h2><p class="muted">الإجابات الصحيحة تؤجَّل لموعد أبعد، والخاطئة تبقى للغد.</p><a class="btn" href="#/home">${I('home')} الرئيسية</a></div>`;pr.innerHTML='';if(ok===due.length)FX.mega();save();checkAch();return}
+ setTimeout(()=>{let k=0,ok=0;const box=$('#rbox'),pr=$('#rpr');const p0=S.points,t0=Date.now();const nx=()=>{setBar(k,due.length);if(k>=due.length){showDone(box,{title:'انتهت المراجعة',sub:'الإجابات الصحيحة تؤجَّل لموعد أبعد، والخاطئة تبقى للغد. كل إجابة صحيحة تعيد قلباً.',xp:S.points-p0,acc:ok+'/'+due.length,accL:'صحيحة',time:mmss(Math.round((Date.now()-t0)/1000)),next:'#/home'});pr.innerHTML='';if(ok===due.length)FX.mega();save();checkAch();return}
    const id=due[k],r=S.review[id];pr.innerHTML=`<div class="qtop"><span>${k+1} من ${due.length}</span><span>${esc(short(title(id)))}</span></div>`+(r.mis?`<div class="fb hint">${I('bulb','sm')} تذكير بخطئك السابق: ${esc(r.mis)}</div>`:'');
-   renderItem(box,id,window.genFor(id),'test',(o,_,b)=>{if(o){ok++;addPts(12,b);countCorrect()}reviewResult(id,o);k++;save();nx()})};nx()});
- return`<h1>${I('review')} مراجعة الأخطاء</h1><p class="muted">${due.length} سؤال من مهارات أخطأت فيها سابقاً.</p><div id="rpr"></div>${MROW('teacher','هذه المرة ستنجح!')}<div class="card qcard" id="rbox"></div>`};
+   renderItem(box,id,window.genFor(id),'test',(o,_,b)=>{if(o){ok++;addPts(12,b);countCorrect();S.hearts=Math.min(5,S.hearts+1)}reviewResult(id,o);k++;save();nx()})};nx()});
+ return ltop('#/home',false)+`<div id="rpr"></div><div class="card qcard" id="rbox"></div>`};
 // ---------- تحدي اليوم ----------
 V.daily=()=>{if(S.dch&&S.dch.date===today()&&S.dch.done)return`<h1>${I('calendar')} تحدي اليوم</h1><div class="card empty">${FX.MASCOT('celebrate','empty-m float')}<h2>أنجزت تحدي اليوم: ${S.dch.score}/5</h2><p class="muted">عد غداً لتحدٍّ جديد.</p><a class="btn" href="#/game">${I('race')} العب سباق الأعداد</a></div>`;
  const weak=ALLSK.filter(i=>['weak','learning'].includes(sk(i).status)&&window.hasGen(i));const gens=['STORY',weak[0]||'P01','STORY',weak[1]||'P04','STORY'];
- setTimeout(()=>quizRun($('#dbox'),$('#dpr'),gens,5,score=>{S.dch={date:today(),done:true,score};addPts(score*5+20);save();checkAch();$('#dpr').innerHTML='';if(score>=4)FX.mega();
-  $('#dbox').innerHTML=`<div class="center">${FX.ring(score*20,120,score+'/5','#ff9f1c')}<h2>${score>=4?'تحدٍّ قوي!':'أحسنت المحاولة'}</h2><p class="muted">+${score*5+20} XP مكافأة التحدي</p><a class="btn" href="#/home">${I('home')} الرئيسية</a></div>`}));
- return`<div class="banner">${FX.cover('scene-market')}<div class="banner-t"><h1>${I('calendar')} تحدي اليوم</h1><span>مسائل من السوق والملعب والبناء + مهاراتك الضعيفة</span></div></div><div id="dpr"></div>${MROW('pencil','مسائل من حياتنا!')}<div class="card qcard" id="dbox"></div>`};
+ setTimeout(()=>quizRun($('#dbox'),$('#dpr'),gens,5,(score,xp,tm)=>{S.dch={date:today(),done:true,score};addPts(score*5+20);save();checkAch();$('#dpr').innerHTML='';if(score>=4)FX.mega();
+  showDone($('#dbox'),{title:score>=4?'تحدٍّ قوي!':'أحسنت المحاولة',sub:'+'+(score*5+20)+' نقطة مكافأة التحدي',xp:xp+score*5+20,acc:score+'/5',accL:'صحيحة',time:tm,next:'#/home'})}));
+ return ltop('#/home',false)+`<div id="dpr"></div><div class="card qcard" id="dbox"></div>`};
 // ---------- المختبر واللعبة ----------
 const labCtx=key=>({reward:(n,el)=>{addPts(n,el);countCorrect();S.labs[key]=(S.labs[key]||0)+1;FX.burst(el);FX.mascot('celebrate',pick(FX.HAPPY));save();checkAch()},
  miss:(id,m)=>{noteMis(m,id);if(m)addReview(id,m);FX.mascot('encourage',pick(FX.SAD));save()},best:(k,v)=>{S.games[k]=Math.max(S.games[k]||0,v);save();return S.games[k]},onLeave:f=>leave.push(f)});
@@ -260,7 +303,11 @@ function placementResult(fresh){const d=S.diag,r=d.res||{},g=t=>C.diagnostic_ord
  ${w.length?`<a class="btn wide gold" href="#/lesson/${w[0]}">${I('play')} ابدأ بأول مهارة: ${esc(short(title(w[0])))}</a>`:`<a class="btn wide" href="#/map">${I('map')} اذهب إلى الخريطة</a>`}`}
 // ---------- الإنجازات ----------
 V.ach=()=>{checkAch();const on=ACH.filter(a=>S.ach[a[0]]).length;const L=FX.lvInfo(level());
- return`<h1>${I('trophy')} إنجازاتي</h1><div class="card lvcard">${FX.rankImg(level(),96,'float')}<div><h2>${L.name}</h2><p>المستوى ${level()} · ${XPL-S.points%XPL} نقطة للمستوى التالي</p><div class="bar"><i style="width:${100*(S.points%XPL)/XPL}%"></i></div></div>${FX.ring(100*on/ACH.length,80,on+'/'+ACH.length,'#f59e0b')}</div>
+ return`<div class="prof"><div class="av">${FX.MASCOT('idle','')}</div><div><h1>${esc(S.name)}</h1><p>${L.name} · المستوى ${level()}</p></div></div>
+ <div class="pstats"><div class="pstat" style="color:var(--o)">${I('flame')}<div><b style="color:var(--tx)">${S.streak}</b><small>يوم متتالٍ</small></div></div><div class="pstat" style="color:var(--yd)">${I('star')}<div><b style="color:var(--tx)">${S.points}</b><small>مجموع النقاط</small></div></div>
+ <div class="pstat" style="color:var(--g)">${I('check')}<div><b style="color:var(--tx)">${nMast()}</b><small>مهارة متقنة</small></div></div><div class="pstat" style="color:var(--b)">${I('trophy')}<div><b style="color:var(--tx)">${on}</b><small>إنجاز</small></div></div></div>
+ <div class="menu">${[['#/report','chart','تقرير التقدم والإعدادات'],['#/diag','journey','رحلة تحديد المستوى'],['#/map','map','خريطة المهارات'],['#/sky','sky','سماء المهارات'],['#/coach','chat','المدرب'],['#/review','review','مراجعة الأخطاء']].map(([h,ic,t])=>`<a href="${h}">${I(ic)}${t}<span class="chev">${I('back','sm')}</span></a>`).join('')}</div>
+ <h2>${I('trophy')} الإنجازات</h2><div class="card lvcard">${FX.rankImg(level(),96,'float')}<div><h2>${L.name}</h2><p>المستوى ${level()} · ${XPL-S.points%XPL} نقطة للمستوى التالي</p><div class="bar"><i style="width:${100*(S.points%XPL)/XPL}%"></i></div></div>${FX.ring(100*on/ACH.length,80,on+'/'+ACH.length,'#f59e0b')}</div>
  <div class="badges">${ACH.map(a=>`<div class="badge ${S.ach[a[0]]?'on':''}"><span class="medal-w">${medal(a[1],!!S.ach[a[0]])}</span><b>${a[2]}</b><small>${a[3]}</small></div>`).join('')}</div>
  <div class="card"><h3>${I('crown')} سلّم المستويات</h3><div class="ladder">${Array.from({length:9},(_,i)=>{const x=FX.lvInfo(i+1);return`<div class="rung ${i+1<=level()?'on':''}">${FX.rankImg(i+1,58)}<span>${i+1}. ${x.name}</span></div>`}).join('')}</div></div>
  <div class="card"><h3>${I('target')} هدف اليوم</h3><p class="muted">عدد الإجابات الصحيحة المطلوبة يومياً:</p>${[5,10,15,20].map(g=>`<button class="btn ${S.goal===g?'':'sec'}" data-g="${g}">${g}</button>`).join('')}</div>`+
@@ -286,7 +333,7 @@ V.report=()=>{cur=null;const rows=ALLSK.filter(i=>S.skills[i]&&(S.skills[i].att|
 const TABS={home:'home',map:'home',unit:'home',lesson:'home',practice:'home',quiz:'home',daily:'home',review:'home',diag:'diag',lab:'lab',game:'lab',ach:'ach',report:'report'};
 function route(){const [_,v,arg]=(location.hash||'#/home').split('/');const f=V[v]||V.home;cur=null;leave.forEach(fn=>{try{fn()}catch(e){}});leave=[];
  if(v!=='diag'){V.diag.go=false;V.diag.intro=false}
- const app=$('#app');app.innerHTML=`<div class="page">${f(decodeURIComponent(arg||''))}</div>`;window.scrollTo(0,0);
+ const cb=$('#checkbar');if(cb)cb.remove();document.body.classList.toggle('focus',['practice','quiz','review','daily'].includes(v));const app=$('#app');app.innerHTML=`<div class="page">${f(decodeURIComponent(arg||''))}</div>`;window.scrollTo(0,0);
  const tab=TABS[v]||'home';
  document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on',a.dataset.t===tab));hdr()}
 const setTheme=t=>{document.documentElement.dataset.theme=t;$('#theme').innerHTML=I(t==='dark'?'sun':'moon')};
@@ -294,6 +341,7 @@ $('#theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'
 setTheme(document.documentElement.dataset.theme||'light');
 document.querySelectorAll('[data-ic]').forEach(e=>e.insertAdjacentHTML('afterbegin',I(e.dataset.ic)));
 if(window.V4)window.V4({V,S:()=>S,save,addPts,countCorrect,noteMis,addReview,sk,status,title,short,ALLSK,PRE,LES,UNITS,STATIONS,C,esc,pick,today,checkAch,chip,level,ACH,setCur:id=>{cur=id},onLoad:f=>LOADH.push(f),onPts:f=>PTSH.push(f),tabs:o=>Object.assign(TABS,o)});
+Object.assign(TABS,{home:'home',map:'ach',unit:'home',lesson:'home',diag:'home',report:'ach',sky:'ach',coach:'ach',friends:'friends',ach:'ach',lab:'lab',game:'lab'});
 checkAch();window.addEventListener('hashchange',route);route();
 window.__APP={S:()=>S,ALLSK};
 })();

@@ -53,3 +53,6 @@ const lvInfo=l=>{const i=Math.min(l,9);return{name:LV[i-1],img:`img/rank-${Math.
 const rankImg=(l,size,cls)=>{const L=lvInfo(l);return`<img class="rank ${L.top?'legend':''} ${cls||''}" src="${L.img}" alt="${L.name}" width="${size||40}" height="${size||40}">`};
 window.FX={MASCOT,mascot,confetti,burst,mega,pop,bump,modal,toast,ring,radar,cover,lvInfo,rankImg,HAPPY,SAD,reduced};
 })();
+
+// v7: احتفالات هادئة: لا قصاصات ورق ولا انفجارات إلا في شاشة إتمام الدرس
+(function(){const F=window.FX;if(!F)return;const c=F.confetti,m=F.mega;F.burst=()=>{};const pp=F.pop;F.pop=function(){if(document.body.classList.contains('focus'))return;return pp&&pp.apply(this,arguments)};const tt=F.toast;F.toast=function(h){if(document.querySelector('.done-screen')||document.body.classList.contains('focus'))return setTimeout(()=>{if(!document.body.classList.contains('focus'))tt(h)},0);return tt.apply(this,arguments)};F.confetti=function(){if(document.querySelector('.done-screen'))return c&&c.apply(this,arguments)};F.mega=function(){if(document.querySelector('.done-screen'))return m&&m.apply(this,arguments)}})();

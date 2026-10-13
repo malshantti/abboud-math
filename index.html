@@ -3,23 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#5b3df5">
+<meta name="theme-color" content="#58cc02">
 <title>رياضيات عبّود – الصف الثامن</title>
 <link rel="icon" href="img/zaytoun-welcome.webp">
-<link rel="preload" href="fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/baloo-arabic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui7.css">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2f7d4f">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script>try{var t=localStorage.getItem('abboud_theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 <header class="top">
   <div class="top-row">
-    <a href="#/home" class="brand"><img src="img/zaytoun-welcome.webp" alt="" class="logo-img"><span>رياضيات <span id="hname">عبّود</span></span></a>
+    <a href="#/home" class="brand"><img src="img/zaytoun-welcome.webp" alt="" class="logo-img"><span id="hname" hidden>عبّود</span></a>
     <div class="stats">
-      <span class="pill" title="أيام متتالية"><span class="flame" id="hflame" data-ic="flame"></span><b id="hstreak">0</b></span>
-      <span class="pill" title="النقاط"><span data-ic="star"></span><b id="hpts">0</b></span>
+      <span class="pill streak" title="أيام متتالية"><span class="flame" id="hflame" data-ic="flame"></span><b id="hstreak">0</b></span>
+      <span class="pill gems" title="نقاط الخبرة"><span data-ic="star"></span><b id="hpts">0</b></span>
+      <span class="pill hearts" title="القلوب"><span data-ic="heart"></span><b id="hhearts">5</b></span>
       <button class="themebtn" id="theme" aria-label="تبديل الوضع الليلي"></button>
     </div>
   </div>
@@ -27,12 +28,11 @@
 </header>
 <main id="app"><noscript>يحتاج هذا الموقع إلى تفعيل JavaScript.</noscript></main>
 <nav class="tabs" aria-label="التنقل">
-  <a href="#/home" data-t="home" data-ic="home"><span>الرئيسية</span></a>
-  <a href="#/diag" data-t="diag" data-ic="journey"><span>الرحلة</span></a>
-  <a href="#/play" data-t="play" data-ic="compass"><span>مغامرات</span></a>
+  <a href="#/home" data-t="home" data-ic="home"><span>الدروس</span></a>
+  <a href="#/play" data-t="play" data-ic="compass"><span>المغامرات</span></a>
   <a href="#/lab" data-t="lab" data-ic="lab"><span>المختبر</span></a>
-  <a href="#/ach" data-t="ach" data-ic="trophy"><span>إنجازاتي</span></a>
-  <a href="#/report" data-t="report" data-ic="chart"><span>التقرير</span></a>
+  <a href="#/friends" data-t="friends" data-ic="trophy"><span>الترتيب</span></a>
+  <a href="#/ach" data-t="ach" data-ic="user"><span>ملفي</span></a>
 </nav>
 <script src="data.js"></script>
 <script src="content.js"></script>
