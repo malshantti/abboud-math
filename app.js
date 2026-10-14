@@ -332,6 +332,7 @@ V.report=()=>{cur=null;const rows=ALLSK.filter(i=>S.skills[i]&&(S.skills[i].att|
 // ---------- التوجيه ----------
 const TABS={home:'home',map:'home',unit:'home',lesson:'home',practice:'home',quiz:'home',daily:'home',review:'home',diag:'diag',lab:'lab',game:'lab',ach:'ach',report:'report'};
 function route(){const [_,v,arg]=(location.hash||'#/home').split('/');const f=V[v]||V.home;cur=null;leave.forEach(fn=>{try{fn()}catch(e){}});leave=[];
+ document.body.dataset.route=v;
  if(v!=='diag'){V.diag.go=false;V.diag.intro=false}
  const cb=$('#checkbar');if(cb)cb.remove();document.body.classList.toggle('focus',['practice','quiz','review','daily'].includes(v));const app=$('#app');app.innerHTML=`<div class="page">${f(decodeURIComponent(arg||''))}</div>`;window.scrollTo(0,0);
  const tab=TABS[v]||'home';
@@ -342,6 +343,7 @@ setTheme(document.documentElement.dataset.theme||'light');
 document.querySelectorAll('[data-ic]').forEach(e=>e.insertAdjacentHTML('afterbegin',I(e.dataset.ic)));
 if(window.V4)window.V4({V,S:()=>S,save,addPts,countCorrect,noteMis,addReview,sk,status,title,short,ALLSK,PRE,LES,UNITS,STATIONS,C,esc,pick,today,checkAch,chip,level,ACH,setCur:id=>{cur=id},onLoad:f=>LOADH.push(f),onPts:f=>PTSH.push(f),tabs:o=>Object.assign(TABS,o)});
 Object.assign(TABS,{home:'home',map:'ach',unit:'home',lesson:'home',diag:'home',report:'ach',sky:'ach',coach:'ach',friends:'friends',ach:'ach',lab:'lab',game:'lab'});
+if(window.ZAYTOUN_UI)window.ZAYTOUN_UI({V,S:()=>S,save,sk,status,title,ALLSK,PRE,LES,UNITS,C,esc,level,nextStep,dailyN,dueReviews,progress,route,tabs:o=>Object.assign(TABS,o)});
 checkAch();window.addEventListener('hashchange',route);route();
 window.__APP={S:()=>S,ALLSK};
 })();

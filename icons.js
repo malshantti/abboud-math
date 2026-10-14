@@ -67,6 +67,7 @@ compass:'<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/
 folder:'<path class="f" d="M3 7h7l2 2h9v10H3z"/><path d="M3 5h6l2 2h10v12H3zM3 9h18"/>',
 keypad:'<rect class="f" x="4" y="3" width="16" height="18" rx="2"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01"/>',
 olive:'<ellipse class="f" cx="12" cy="14" rx="6" ry="7"/><ellipse cx="12" cy="14" rx="6" ry="7"/><path d="M12 7c0-3 2-4 5-4-1 3-3 4-5 4z"/>',
+seed:'<path d="M12 21V11M12 15C5 15 3 11 3 6c6 0 9 3 9 9ZM12 11c0-5 3-8 9-8 0 5-3 8-9 8Z"/><path class="f" d="M12 15C5 15 3 11 3 6c6 0 9 3 9 9ZM12 11c0-5 3-8 9-8 0 5-3 8-9 8Z"/>',
 };
 window.ICON=(n,cls)=>`<svg class="ic ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||P.star}</svg>`;
 window.ICONS=Object.keys(P);

@@ -1,13 +1,13 @@
 {
- "name": "رياضيات عبود: الصف الثامن",
- "short_name": "رياضيات عبود",
+ "name": "زيتون — رياضيات الصف الثامن",
+ "short_name": "زيتون",
  "lang": "ar",
  "dir": "rtl",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
- "background_color": "#fff8e7",
- "theme_color": "#2f7d4f",
+ "background_color": "#f8f9f5",
+ "theme_color": "#647b43",
  "icons": [
   {
    "src": "icon-192.png",

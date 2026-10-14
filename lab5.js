@@ -16,7 +16,7 @@ T.trig={title:'مستكشف المثلث القائم',icon:'triangle',skills:['
    <text x="${x0+4}" y="${(y0+yC)/2}" class="py-l">المقابل ${D(opp)}</text><text x="${(xA+x0)/2-40}" y="${(y0+yC)/2-14}" text-anchor="end" class="py-l">الوتر ${h}</text>`;
    root.querySelector('#tre').innerHTML=`جا س = المقابل ÷ الوتر = <b>${D(opp/h)}</b> · جتا س = المجاور ÷ الوتر = <b>${D(adj/h)}</b> · ظا س = المقابل ÷ المجاور = <b>${D(opp/adj)}</b><br>جتا(90° − ${a}°) = جتا${90-a}° = ${D(Math.cos(rad(90-a)))} = جا${a}°`};
   root.querySelector('#trA').oninput=draw;root.querySelector('#trH').oninput=draw;
-  root.querySelector('#trGo').onclick=()=>{const a=+root.querySelector('#trA').value,v=parseFloat((root.querySelector('#trIn').value||'').replace(',','.').replace('٫','.'));
+  root.querySelector('#trGo').onclick=()=>{const a=+root.querySelector('#trA').value,v=window.AR_NUM.number(root.querySelector('#trIn').value||'');
    const tv={جا:Math.sin,جتا:Math.cos,ظا:Math.tan}[task.fn](rad(task.a));
    if(a!==task.a){fb(root,false,`اضبط الزاوية على ${task.a}° أولاً.`);return}
    if(Math.abs(v-tv)<0.015){fb(root,true,`صحيح! ${task.fn}${task.a}° ≈ ${D(tv)}`);ctx.reward(10,root.querySelector('#trsvg'));newT()}
@@ -39,7 +39,7 @@ T.prob={title:'محاكي النرد والقرص',icon:'question',skills:['S2-8
    if(last)s+=`<text x="170" y="20" text-anchor="middle" font-size="16" font-weight="700">آخر نتيجة: ${last}</text>`;root.querySelector('#prsvg').innerHTML=s;
    const[k,t]=theo();root.querySelector('#pre').innerHTML=`عدد الرميات ${n} · مرات وقوع الحادث ${hit} · التكرار النسبي = ${n?D(hit/n):'—'}<br>الاحتمال النظري ل(ح) = ع(ح) ÷ ع(Ω) = ${k}/${t} ≈ ${D(k/t)}`};
   const roll=c=>{for(let i=0;i<c;i++){const x=R(1,N());cnt[x]++;n++;if(ev()[1](x))hit++;last=x}draw();
-   if(n>=100&&!checked){checked=true;const g=(root.querySelector('#prG').value||'').trim().replace(',','.');const[k,t]=theo();let v=NaN;if(/^\d+\/\d+$/.test(g)){const[a,b]=g.split('/').map(Number);v=a/b}else v=parseFloat(g);
+   if(n>=100&&!checked){checked=true;const g=window.AR_NUM.normalize(root.querySelector('#prG').value||'').trim();const[k,t]=theo();let v=NaN;if(/^\d+\/\d+$/.test(g)){const[a,b]=g.split('/').map(Number);v=a/b}else v=parseFloat(g);
     if(Math.abs(v-k/t)<1e-6){fb(root,true,`توقّعك صحيح: ${k}/${t}. لاحظ أن التكرار النسبي ${D(hit/n)} قريب منه، ويقترب أكثر كلما زادت الرميات.`);ctx.reward(10,root.querySelector('#prsvg'))}
     else if(g){fb(root,false,`الاحتمال النظري ${k}/${t}: عدد عناصر الحادث ÷ عدد عناصر Ω.`);ctx.miss('S2-8-1',window.MISC.probDen||'')}}};
   root.querySelector('#prM').onchange=fillE;root.querySelector('#prE').onchange=reset;root.querySelector('#pr1').onclick=()=>roll(1);root.querySelector('#pr100').onclick=()=>roll(100);root.querySelector('#pr0').onclick=reset;fillE()}};
@@ -53,8 +53,8 @@ T.pie={title:'بنّاء القطاعات الدائرية',icon:'chart',skills:
    root.querySelector('#pGo').onclick=check;root.querySelector('#pNew').onclick=nw;draw([])};
   const draw=angs=>{let a0=-90,s='<circle r="100" fill="none" stroke="#999" stroke-dasharray="4 4"/>';angs.forEach((g,i)=>{if(!(g>0))return;const a1=a0+g,l=g>180?1:0,p=(a)=>[100*Math.cos(rad(a)),100*Math.sin(rad(a))];const[x0,y0]=p(a0),[x1,y1]=p(a1);
     s+=g>=360?`<circle r="100" fill="${col[i]}"/>`:`<path d="M0 0L${x0} ${y0}A100 100 0 ${l} 1 ${x1} ${y1}Z" fill="${col[i]}" stroke="#fff"/>`;const[mx,my]=p((a0+a1)/2);s+=`<text x="${mx*.6}" y="${my*.6+4}" text-anchor="middle" fill="#fff" font-size="12">${g}°</text>`;a0=a1});root.querySelector('#psvg').innerHTML=s};
-  const check=()=>{const tot=data.reduce((a,b)=>a+b,0),v=[...root.querySelectorAll('#pRows input')].map(x=>+x.value),right=data.map(d=>d/tot*360);draw(v);
-   const bad=v.map((x,i)=>Math.abs(x-right[i])>0.5?i:-1).filter(i=>i>=0);const sum=v.reduce((a,b)=>a+b,0);
+  const check=()=>{const tot=data.reduce((a,b)=>a+b,0),v=[...root.querySelectorAll('#pRows input')].map(x=>window.AR_NUM.number(x.value)),right=data.map(d=>d/tot*360);draw(v);
+   const bad=v.map((x,i)=>!Number.isFinite(x)||Math.abs(x-right[i])>0.5?i:-1).filter(i=>i>=0);const sum=v.reduce((a,b)=>a+b,0);
    if(!bad.length){fb(root,true,`أحسنت! مجموع الزوايا = 360°.`);if(!done){done=true;ctx.reward(10,root.querySelector('#psvg'))}}
    else{const i=bad[0],m=Math.abs(v[i]-data[i]/tot*100)<0.5?window.MISC.pie100:'زاوية القطاع = (التكرار ÷ المجموع) × 360°.';fb(root,false,`راجع قطاع «${names[i]}»: (${data[i]} ÷ ${tot}) × 360°. ${sum!==360?'مجموع زواياك '+sum+'° وليس 360°. ':''}${m}`);ctx.miss('S1-4-1',m)}};
   nw()}};

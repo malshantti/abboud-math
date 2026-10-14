@@ -60,7 +60,7 @@ function recLine(strokes,H){if(!strokes.length)return'';H=H||80;
    if(dev>ch*.07&&dev<ch*.3&&b.w<b.h*.55){const mid=s[s.length>>1],cxl=(a0[0]+a1[0])/2;return mid[0]<cxl?'(':')'}}
   const r=classify(g.s);if(r.ch==='1'&&n===1){const q=classify(g.s,'023456789'.split(''));return q.ch}if(r.ch==='x'&&b.h<med*.62)return'×';if(r.ch==='+'&&n===1)return classify(g.s,'0123456789()/'.split('')).ch;return r.ch}).join('')}
 // ---------- محلل التعابير ----------
-function parse(src){const s=src.replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/[س]/g,'x').replace(/[×*·]/g,'*').replace(/÷/g,':');let i=0;
+function parse(src){const s=window.AR_NUM.normalize(src).replace(/\s+/g,'').replace(/[س]/g,'x').replace(/[×*·]/g,'*').replace(/÷/g,':');let i=0;
  const peek=()=>s[i],eat=c=>{if(s[i]===c){i++;return true}return false};
  function E(){let a=T_();for(;;){if(eat('+')){const b=T_(),A=a;a=x=>A(x)+b(x)}else if(eat('-')){const b=T_(),A=a;a=x=>A(x)-b(x)}else return a}}
  function T_(){let a=U();for(;;){if(eat('*')){const b=U(),A=a;a=x=>A(x)*b(x)}else if(eat('/')||eat(':')){const b=U(),A=a;a=x=>A(x)/b(x)}else if(peek()&&/[0-9x(.]/.test(peek())){const b=F(),A=a;a=x=>A(x)*b(x)}else return a}}
@@ -73,7 +73,7 @@ const close=(a,b)=>Math.abs(a-b)<1e-6*Math.max(1,Math.abs(a),Math.abs(b));
 function root(l){const g=x=>l.L(x)-l.R(x);const g0=g(0),g1=g(1),g2=g(2);if(!close(g2-2*g1+g0,0))return{nonlin:true};const k=g1-g0;if(close(k,0))return close(g0,0)?{all:true}:{none:true};return{x:-g0/k}}
 const XS=[-2.5,-1,0.5,1.75,3];const same=(f,g)=>XS.every(x=>close(f(x),g(x)));
 // task:{type:'eq'|'expr'|'num',start,traps:[{line,mis}]}
-function check(task,lines){const st=parseLine(task.start);const ref=task.type==='eq'?root(st):null;const out=[];
+function check(task,lines){lines=lines.map(window.AR_NUM.normalize);const st=parseLine(task.start);const ref=task.type==='eq'?root(st):null;const out=[];
  for(let k=0;k<lines.length;k++){const t=lines[k];if(!t.trim()){out.push({k,ok:null});continue}let l;try{l=parseLine(t)}catch(e){out.push({k,ok:false,err:'لم أستطع قراءة السطر: '+e.message});return{lines:out,stop:k}}
   let ok;if(task.type==='eq'){if(!l.eq)ok=false;else{const r=root(l);ok=r.x!=null&&close(r.x,ref.x)}}
   else{const f=l.eq?l.R:l.f;ok=task.type==='num'?close(f(0),st.f(0)):same(f,st.f);if(l.eq&&ok)ok=task.type==='num'?close(l.L(0),st.f(0)):same(l.L,st.f)}
@@ -95,6 +95,6 @@ function Pad(cv,onEnd){const ctx=cv.getContext('2d');let strokes=[],curS=null;co
  cv.addEventListener('pointermove',e=>{if(!curS)return;const p=pos(e),l=curS[curS.length-1];if(dist(p,l)>1.5){curS.push(p);draw()}});
  const up=()=>{if(!curS)return;strokes.push(curS);curS=null;draw();clearTimeout(tm);tm=setTimeout(()=>onEnd&&onEnd(),550)};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
  fit();return{fit,undo(){strokes.pop();draw();onEnd&&onEnd()},clear(){strokes=[];draw()},rec(){return recLine(strokes,cv.getBoundingClientRect().height)},get n(){return strokes.length},strokes:()=>strokes}}
-const pretty=t=>t.replace(/-/g,'−').replace(/\*/g,'×').replace(/x/g,'س');
+const pretty=t=>window.AR_NUM.arabic(t).replace(/-/g,'−').replace(/\*/g,'×').replace(/x/g,'س');
 window.HW={GL,classify,recLine,parse,parseLine,check,Pad,pretty,norm};
 })();

@@ -144,7 +144,7 @@ V.board=k=>{const ti=Math.min(BT.length-1,Math.max(0,parseInt(k)||0)),t=BT[ti];A
   ins.forEach((e,i)=>e.onfocus=()=>{focus=i;document.querySelectorAll('.bline').forEach((b,j)=>b.classList.toggle('foc',j===i))});
   document.querySelectorAll('.bl-undo').forEach((b,i)=>b.onclick=()=>pads[i].undo());document.querySelectorAll('.bl-clr').forEach((b,i)=>b.onclick=()=>{pads[i].clear();ins[i].value='';ins[i].dataset.raw='';mark(i,null)});
   const raw=e=>(e.dataset.raw!=null&&HW.pretty(e.dataset.raw)===e.value?e.dataset.raw:e.value.replace(/−/g,'-').replace(/س/g,'x'));
-  document.querySelectorAll('.kp button').forEach(b=>b.onclick=()=>{const e=ins[focus],k=b.dataset.k;if(k==='del')e.value=e.value.slice(0,-1);else if(k==='clr')e.value='';else e.value+=k;e.dataset.raw=null;mark(focus,null)});
+  document.querySelectorAll('.kp button').forEach(b=>b.onclick=()=>{const e=ins[focus],k=b.dataset.k;if(k==='del')e.value=e.value.slice(0,-1);else if(k==='clr')e.value='';else e.value+=window.AR_NUM.arabic(k);e.dataset.raw=null;mark(focus,null)});
   $('#kpt').onclick=()=>$('#kp').classList.toggle('open');window.addEventListener('resize',()=>pads.forEach(p=>p.fit()),{once:true});
   $('#bchk').onclick=()=>{const lines=ins.map(raw);const r=HW.check(t,lines);const fb=$('#bfb');r.lines.forEach(l=>l.ok!=null&&mark(l.k,l.ok));
    if(r.stop>=0){const l=r.lines[r.stop];A.noteMis(l.mis,t.skill);if(l.mis)A.addReview(t.skill,l.mis);FX.mascot('encourage');
