@@ -195,9 +195,9 @@ window.COACH={adapters:{local:LocalCoach,remote:RemoteCoach},async ask(ctx){cons
 V.coach=()=>{const s=S();const misTop=Object.entries(s.mis).sort((a,b)=>b[1].n-a[1].n)[0];const skill=misTop?Object.keys(misTop[1].skills)[0]:pick(['P01','P04','P10','P11']);A.setCur(skill);
  setTimeout(async()=>{const box=$('#cbox'),act=$('#cact');const add=h=>{box.insertAdjacentHTML('beforeend',h);box.lastElementChild.classList.add('in');box.scrollTop=box.scrollHeight};
   const typing=async ctx=>{add(ZB('think','<span class="dots"><i></i><i></i><i></i></span>','short typ'));const t=await window.COACH.ask(ctx);await new Promise(r=>setTimeout(r,500));box.querySelector('.typ')?.remove();add(ZB('teacher',esc(t),'short'))};
-  await typing({stage:'hello'});const round=()=>{const it=window.genFor(skill),st=it.steps[0];add(ZB('pencil',`سؤال من «${esc(A.short(A.title(skill)))}»:<br><b class="mx2">${esc(st.q)}</b>`));
+  await typing({stage:'hello'});const round=()=>{const it=window.genFor(skill),st=it.steps[0];add(ZB('pencil',`سؤال من «${esc(A.short(A.title(skill)))}»:<br><b class="mx2">${(window.MT||esc)(st.q)}</b>`));
    const misK=m=>Object.keys(window.MISC).find(k=>window.MISC[k]===m);
-   act.innerHTML=`<div class="opts">${st.choices.map((c,i)=>`<button class="opt" data-i="${i}">${esc(c.t)}</button>`).join('')}</div>`;
+   act.innerHTML=`<div class="opts">${st.choices.map((c,i)=>`<button class="opt" data-i="${i}">${(window.MT||esc)(c.t)}</button>`).join('')}</div>`;
    act.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const c=st.choices[+b.dataset.i],choice={ok:!!c.ok,m:c.m||'',mk:misK(c.m)};add(AB('اخترت: '+esc(c.t)));add(ZB('think','لماذا اخترت هذا الجواب؟','short'));
     act.innerHTML=`<div class="qr">${['حسبتها خطوة بخطوة','تذكّرت قاعدة','خمّنت','لست متأكداً'].map(q=>`<button class="chip qrb">${q}</button>`).join('')}</div><form class="cin" id="cform"><input id="ctext" placeholder="أو اكتب سببك بكلماتك..." aria-label="سببك"><button class="ib" aria-label="إرسال">${I('send','sm')}</button></form>`;
     const send=async reason=>{if(!reason)return;add(AB(esc(reason)));act.innerHTML='';s.coach.n++;A.save();await typing({stage:'why',item:{q:st.q,hint:st.hint},choice,reason});

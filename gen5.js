@@ -3,7 +3,7 @@
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),NZ=(a,b)=>{let x=0;while(!x)x=R(a,b);return x},pick=a=>a[Math.floor(Math.random()*a.length)];
 const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b)[a,b]=[b,a%b];return a||1};
 const M=n=>n<0?'−'+(-n):''+n,P=n=>n<0?'('+M(n)+')':''+n,sg=n=>n<0?'− '+(-n):'+ '+n;
-const D=x=>{const r=Math.round(x*1000)/1000;return M(r).replace('.',',')};// كسر عشري بالفاصلة كما في الكتاب
+const D=x=>{const r=Math.round(x*100)/100;return M(r).replace('.',',')};// كسر عشري بالفاصلة كما في الكتاب
 const fr=(n,d)=>{if(d<0){n=-n;d=-d}const g=gcd(n,d);n/=g;d/=g;return d===1?M(n):(n<0?'−':'')+Math.abs(n)+'/'+d};
 const sq=n=>{let o=1,i=n;for(let k=2;k*k<=i;k++)while(i%(k*k)===0){i/=k*k;o*=k}return i===1?''+o:(o===1?'':o)+'√'+i};
 Object.assign(MIS,{corr:'في التطابق والتشابه تُكتب الرؤوس المتناظرة بالترتيب نفسه: الرأس الأول يناظر الأول، وهكذا.',incl:'في الحالة (ض، ز، ض) يجب أن تكون الزاوية محصورة بين الضلعين.',aaa:'تساوي الزوايا الثلاث لا يكفي للتطابق؛ قد يكون أحد المثلثين تكبيراً للآخر (تشابه).',
@@ -14,7 +14,7 @@ Object.assign(MIS,{corr:'في التطابق والتشابه تُكتب الر�
  slant:'ارتفاع متوازي الأضلاع هو العمود على القاعدة، وليس الضلع المائل.',arcArea:'طول القوس = (هـ ÷ 360°) × 2π نق، أما مساحة القطاع = (هـ ÷ 360°) × π نق².',cylTotal:'المساحة الكلية للأسطوانة = الجانبية + مساحة القاعدتين.',coneL:'المساحة الجانبية للمخروط = π نق ل حيث ل الراسم، وليس الارتفاع ع.',
  hypDen:'في جا وجتا يكون الوتر في المقام دائماً.',compl90:'جاس = جتا(90° − س): الزاويتان متتامتان (مجموعهما 90°).',elev:'ارتفاع الشيء = البعد الأفقي × ظا(الزاوية)، لأن الارتفاع مقابل والبعد مجاور.',excl:'الحادثان المنفصلان تقاطعهما Ø، فاحتمال تقاطعهما صفر.',diffP:'ل(ح١ − ح٢) = ل(ح١) − ل(ح١ ∩ ح٢) وليس ل(ح١) − ل(ح٢).'});
 function mc(q,a,ds,hint){a=''+a;const seen=new Set([a]);const ch=[{t:a,ok:true}];(ds||[]).forEach(d=>{const t=''+d[0];if(!seen.has(t)&&ch.length<4){seen.add(t);ch.push({t,m:d[1]||''})}});
- let g=0;while(ch.length<3&&g++<40){const n=parseFloat(a.replace('−','-').replace(',','.'));if(isNaN(n))break;const t=(Number.isInteger(n)?M(n+NZ(-4,4)):D(n+NZ(-4,4)/2))+a.replace(/^[−\d.,]+/,'');if(!seen.has(t)){seen.add(t);ch.push({t,m:''})}}
+ let g=0;while(ch.length<3&&g++<40){const t=window.PERT(a);if(t===null)break;if(!seen.has(t)){seen.add(t);ch.push({t,m:''})}}
  for(let i=ch.length-1;i>0;i--){const j=R(0,i);[ch[i],ch[j]]=[ch[j],ch[i]]}return{q,a,choices:ch,hint:hint||''}}
 const one=(s,ex)=>({steps:[s],explain:ex||''});const two=(a,b,ex)=>({steps:[a,b],explain:ex||''});
 const TR=[[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25],[12,16,20]];
@@ -50,8 +50,8 @@ G['S1-3-5']=()=>{const t=R(0,2);
  const d1=R(4,15),d2=R(1,4),h=pick([1.5,1.6,1.8]);return one(mc(`مرآة مستوية تبعد ${d1}م عن أسفل إشارة و ${d2}م عن شخص طوله ${D(h)}م. ارتفاع الإشارة = ؟ (زاوية السقوط = زاوية الانعكاس)`,D(h*d1/d2)+'م',[[D(h+d1-d2)+'م',MIS.sim],[D(h*d2/d1)+'م',MIS.corr]],'ع ÷ '+d1+' = '+D(h)+' ÷ '+d2))};
 // 4-1 القطاعات الدائرية
 G['S1-4-1']=()=>{const t=R(0,2),tot=pick([120,180,240,360,720]),f=pick([2,3,4,5,6,8,10,12].filter(x=>tot%x===0)),n=tot/f;
- if(t===0)return one(mc(`في استبانة شملت ${tot} شخصاً، اختار ${n} منهم الرياضة. زاوية قطاعهم = ؟`,360/f+'°',[[100/f+'°',MIS.pie100],[n+'°',MIS.pie]],'(عدد عناصر القطاع ÷ العدد الكلي) × 360°'));
- if(t===1){const ang=pick([30,45,60,72,90,120]);return one(mc(`مُثّل ${tot} شخصاً بالقطاعات الدائرية، وزاوية أحد القطاعات ${ang}°. كم شخصاً يمثل؟`,''+tot*ang/360,[[''+tot*ang/100,MIS.pie100],[''+ang,MIS.pie]],`(${ang} ÷ 360) × ${tot}`))}
+ if(t===0)return one(mc(`في استبانة شملت ${tot} شخصاً، اختار ${n} منهم الرياضة. زاوية قطاعهم = ؟`,360/f+'°',[[D(100/f)+'°',MIS.pie100],[n+'°',MIS.pie]],'(عدد عناصر القطاع ÷ العدد الكلي) × 360°'));
+ if(t===1){const ang=pick([30,45,60,72,90,120].filter(x=>tot*x%360===0));return one(mc(`مُثّل ${tot} شخصاً بالقطاعات الدائرية، وزاوية أحد القطاعات ${ang}°. كم شخصاً يمثل؟`,''+tot*ang/360,[[D(tot*ang/100),MIS.pie100],[''+ang,MIS.pie]],`(${ang} ÷ 360) × ${tot}`))}
  const a=pick([90,120,150]),b=pick([60,90]);return one(mc(`ثلاثة قطاعات دائرية: زاوية الأول ${a}° والثاني ${b}°. زاوية الثالث = ؟`,360-a-b+'°',[[180-a-b>0?180-a-b+'°':'0°',MIS.tri360],[a+b+'°','مجموع زوايا القطاعات 360°.']],'360° − مجموع الزاويتين.'))};
 // 4-2 مقاييس التشتت
 G['S1-4-2']=()=>{const t=R(0,2);
@@ -76,7 +76,7 @@ G['S2-5-3']=()=>{const t=R(0,2),a=R(1,5),b=NZ(-9,9),c=NZ(-9,9),d=b*b-4*a*c;
  if(t===0)return one(mc(`مميز المعادلة ${eq} = ؟`,M(d),[[M(b*b+4*a*c),MIS.discSign],[M(-b*b-4*a*c),MIS.discSign]],'المميز = ب² − 4أج'));
  if(t===1)return one(mc(`عدد الجذور الحقيقية للمعادلة ${eq}:`,d>0?'جذران حقيقيان مختلفان':d===0?'جذر واحد مكرر':'لا توجد جذور حقيقية',[['جذران حقيقيان مختلفان',MIS.discSign],['جذر واحد مكرر',MIS.discSign],['لا توجد جذور حقيقية',MIS.discSign]],'احسب المميز ثم حدّد إشارته.'));
  let p=NZ(-6,6),q=NZ(-6,6),A=pick([1,2]);if(p+q===0||p===-q)q=p+1||2;const B=-A*(p+q),Cc=A*p*q;// جذران صحيحان
- return one(mc(`باستخدام القانون العام، جذرا المعادلة ${A===1?'':A}${X}² ${sg(B)}${X} ${sg(Cc)} = 0 هما:`,p===q?`${X} = ${M(p)} (مكرر)`:`${X} = ${M(Math.max(p,q))} أو ${X} = ${M(Math.min(p,q))}`,[[p===q?`${X} = ${M(-p)} (مكرر)`:`${X} = ${M(-Math.min(p,q))} أو ${X} = ${M(-Math.max(p,q))}`,MIS.formula],[`${X} = ${M(Math.max(p,q)*A)} أو ${X} = ${M(Math.min(p,q)*A)}`,MIS.formula],[`${X} = ${M(p*q)} أو ${X} = ${M(p+q)}`,MIS.formula],[`${X} = ${M(p+1)} أو ${X} = ${M(q-1)}`,MIS.discSign]],'س = (−ب ± √(ب² − 4أج)) ÷ 2أ'))};
+ return one(mc(`باستخدام القانون العام، جذرا المعادلة ${A===1?'':A}${X}² ${Math.abs(B)===1?(B<0?'−':'+')+' ':sg(B)}${X} ${sg(Cc)} = 0 هما:`,p===q?`${X} = ${M(p)} (مكرر)`:`${X} = ${M(Math.max(p,q))} أو ${X} = ${M(Math.min(p,q))}`,[[p===q?`${X} = ${M(-p)} (مكرر)`:`${X} = ${M(-Math.min(p,q))} أو ${X} = ${M(-Math.max(p,q))}`,MIS.formula],[A===1?`${X} = ${M(2*Math.max(p,q))} أو ${X} = ${M(2*Math.min(p,q))}`:`${X} = ${M(Math.max(p,q)*A)} أو ${X} = ${M(Math.min(p,q)*A)}`,MIS.formula],[`${X} = ${M(p*q)} أو ${X} = ${M(p+q)}`,MIS.formula],[`${X} = ${M(p+1)} أو ${X} = ${M(q-1)}`,MIS.discSign]],'س = (−ب ± √(ب² − 4أج)) ÷ 2أ'))};
 // 5-4 / 5-5 المكعبات
 const cube=(sum)=>{const c=pick([1,2,3]),k=R(1,5),v=pick(['س','ص','أ','م']),A=c===1?v:c+v,A2=c===1?v+'²':c*c+v+'²',AB=c*k===1?v:c*k+v;
  const q=`${c**3===1?'':c**3}${v}³ ${sum?'+':'−'} ${k**3}`;
@@ -86,14 +86,14 @@ G['S2-5-4']=()=>Math.random()<.8?cube(false):one(mc('حجم صخرة مكعبة 
 G['S2-5-5']=()=>cube(true);
 // 5-6 معادلتان خطيتان
 G['S2-5-6']=()=>{let x=NZ(-6,6),y=NZ(-6,6);while(x===y)y=NZ(-6,6);const a=NZ(1,5),b=NZ(-4,4),c=NZ(1,4),d=NZ(-4,4);if(a*d-b*c===0)return G['S2-5-6']();
- const e1=`${a===1?'':a}س ${sg(b).replace(/ 1$/,'')}ص = ${M(a*x+b*y)}`,e2=`${c===1?'':c}س ${sg(d).replace(/ 1$/,'')}ص = ${M(c*x+d*y)}`;
+ const e1=`${a===1?'':a}س ${sg(b).replace(/ 1$/,' ')}ص = ${M(a*x+b*y)}`,e2=`${c===1?'':c}س ${sg(d).replace(/ 1$/,' ')}ص = ${M(c*x+d*y)}`;
  return one(mc(`حل المعادلتين: ${e1} ، ${e2}`,`س = ${M(x)}، ص = ${M(y)}`,[[`س = ${M(y)}، ص = ${M(x)}`,MIS.swapXY],[`س = ${M(-x)}، ص = ${M(-y)}`,MIS.moveSign],[`س = ${M(x)}، ص = ${M(-y)}`,MIS.moveSign]],'بالتعويض أو الحذف، ثم تحقق بالتعويض في المعادلتين.'))};
 // 6-1 متوازي الأضلاع
 G['S2-6-1']=()=>{const t=R(0,1),b=R(4,15),h=R(3,10),s=h+R(1,4);
  if(t===0)return one(mc(`متوازي أضلاع طول قاعدته ${b}سم، وارتفاعه ${h}سم، وطول ضلعه المائل ${s}سم. مساحته = ؟`,b*h+'سم²',[[b*s+'سم²',MIS.slant],[b*h/2+'سم²',MIS.half],[2*(b+s)+'سم²',MIS.perim]],'المساحة = القاعدة × الارتفاع'));
  const A=R(5,40)*2;return one(mc(`مساحة متوازي أضلاع ${A}سم². مساحة المثلث المشترك معه في القاعدة والارتفاع = ؟`,A/2+'سم²',[[A*2+'سم²','مساحة متوازي الأضلاع = 2 × مساحة المثلث.'],[A+'سم²',MIS.half]],'نصف مساحة متوازي الأضلاع'))};
 // 6-2 القطاع الدائري
-G['S2-6-2']=()=>{const t=R(0,2),r=pick([3,6,9,12,4,8]),h=pick([30,45,60,90,120,40,80]);const f=(n,d)=>{const s=fr(n,d);return s==='1'?'π':s+'π'};
+G['S2-6-2']=()=>{const t=R(0,2),r=pick([3,6,9,12,4,8]),h=pick([30,45,60,90,120,40,80]);const f=(n,d)=>{const s=fr(n,d);return s==='1'?'π':s.includes('/')?'('+s+')π':s+'π'};
  if(t===0)return one(mc(`قطاع دائري زاويته ${h}° في دائرة نق = ${r}سم. طول قوسه = ؟`,f(h*2*r,360)+' سم',[[f(h*r*r,360)+' سم',MIS.arcArea],[f(h*r,360)+' سم',MIS.diam]],'(هـ ÷ 360°) × 2π نق'));
  if(t===1)return one(mc(`قطاع دائري زاويته ${h}° في دائرة نق = ${r}سم. مساحته = ؟`,f(h*r*r,360)+' سم²',[[f(h*2*r,360)+' سم²',MIS.arcArea],[f(h*4*r*r,360)+' سم²',MIS.diam]],'(هـ ÷ 360°) × π نق²'));
  const L=R(3,20),rr=R(2,10);return one(mc(`قطاع دائري طول قوسه ${L}سم ونصف قطر دائرته ${rr}سم. مساحته = ؟`,D(L*rr/2)+'سم²',[[D(L*rr)+'سم²',MIS.half],[D(L*rr*rr/2)+'سم²',MIS.arcArea]],'½ × طول القوس × نق'))};
@@ -109,7 +109,7 @@ G['S2-6-4']=()=>{const t=R(0,2),r=R(1,7),h=R(2,10);
 // 6-5 المخروط
 G['S2-6-5']=()=>{const t=R(0,2),[a,b,c]=pick([[3,4,5],[6,8,10],[5,12,13],[9,12,15]]),r=a,h=b,l=c;
  if(t===0)return one(mc(`مخروط نصف قطر قاعدته ${r}سم وارتفاعه ${h}سم. مساحته الجانبية = ؟`,r*l+'π سم²',[[r*h+'π سم²',MIS.coneL],[r*l+r*r+'π سم²','هذه المساحة الكلية.']],`ل² = ${r}² + ${h}²، ثم π نق ل`));
- if(t===1){const R3=R(1,6),H=3*R(1,4);return one(mc(`مخروط نق = ${R3}سم، ع = ${H}سم. حجمه = ؟`,R3*R3*H/3+'π سم³',[[R3*R3*H+'π سم³',MIS.cone3],[R3*H/3+'π سم³','']],'⅓ π نق² ع'))}
+ if(t===1){const R3=R(1,6),H=3*R(1,4);return one(mc(`مخروط نق = ${R3}سم، ع = ${H}سم. حجمه = ؟`,R3*R3*H/3+'π سم³',[[R3*R3*H+'π سم³',MIS.cone3],[R3*H/3+'π سم³','نسيت تربيع نصف القطر: الحجم = ⅓ π نق² ع.']],'⅓ π نق² ع'))}
  return one(mc(`مخروط نق = ${r}سم، وراسمه ${l}سم. مساحته الكلية = ؟`,r*l+r*r+'π سم²',[[r*l+'π سم²','الكلية = الجانبية + مساحة القاعدة.'],[r*l+2*r*r+'π سم²','للمخروط قاعدة واحدة فقط.']],'π نق ل + π نق²'))};
 // 7-1 النسب المثلثية
 G['S2-7-1']=()=>{const[a,b,c]=pick(TR),fn=pick(['جا','جتا','ظا']);const V={جا:fr(a,c),جتا:fr(b,c),ظا:fr(a,b)};
@@ -117,13 +117,13 @@ G['S2-7-1']=()=>{const[a,b,c]=pick(TR),fn=pick(['جا','جتا','ظا']);const V
 // 7-2 الزوايا الخاصة والمتممة
 G['S2-7-2']=()=>{const t=R(0,2);
  if(t===0){const T={'جا30°':'1/2','جتا60°':'1/2','ظا45°':'1','جا60°':'√3/2','جتا30°':'√3/2','ظا60°':'√3','ظا30°':'1/√3','جا45°':'1/√2'};const k=pick(Object.keys(T));
-  return one(mc(`${k} = ؟`,T[k],Object.values(T).filter(v=>v!==T[k]).slice(0,4).map(v=>[v,MIS.compl90]),'تذكّر جدول الزوايا الخاصة 30°، 45°، 60°.'))}
+  return one(mc(`${k} = ؟`,T[k],(()=>{const sw=k.startsWith('جتا')?k.replace('جتا','جا'):k.startsWith('جا')?k.replace('جا','جتا'):null;const cv=sw&&T[sw]!==T[k]?T[sw]:null;const vs=[...new Set(Object.values(T))].filter(v=>v!==T[k]&&v!==cv);const o=[];if(cv)o.push([cv,'خلطت بين جا وجتا: جا30° = جتا60° = 1/2، و جتا30° = جا60° = √3/2.']);vs.sort(()=>Math.random()-.5).slice(0,3-o.length).forEach(v=>o.push([v,'راجع جدول الزوايا الخاصة 30°، 45°، 60°.']));return o})(),'تذكّر جدول الزوايا الخاصة 30°، 45°، 60°.'))}
  if(t===1){const x=R(10,80),v=D(Math.round(Math.sin(x*Math.PI/180)*100)/100);return one(mc(`إذا كان جا${x}° = ${v}، فإن جتا${90-x}° = ؟`,v,[[D(1-parseFloat(v.replace(',','.'))),MIS.compl90],[D(Math.round(Math.cos(x*Math.PI/180)*100)/100),MIS.compl90]],`جتا${90-x}° = جا(90° − ${90-x}°)`))}
- const s=pick([0.6,0.8,0.5]),o=R(2,9)*(s===0.5?1:3);return one(mc(`أ ب ج مثلث قائم الزاوية في ب، فيه ب ج = ${o}سم، جاأ = ${D(s)}. طول أ ج = ؟`,D(o/s)+'سم',[[D(o*s)+'سم',MIS.hypDen],[D(o+s)+'سم','']],`${D(s)} = ${o} ÷ أ ج`))};
+ const s=pick([0.6,0.8,0.5]),o=R(2,9)*(s===0.5?1:3);return one(mc(`أ ب ج مثلث قائم الزاوية في ب، فيه ب ج = ${o}سم، جاأ = ${D(s)}. طول أ ج = ؟`,D(o/s)+'سم',[[D(o*s)+'سم',MIS.hypDen],[D(o+s)+'سم','لا نجمع طول الضلع مع النسبة؛ جا = المقابل ÷ الوتر.']],`${D(s)} = ${o} ÷ أ ج`))};
 // 7-3 زوايا الارتفاع والانخفاض
 const TAN={30:0.58,36:0.73,45:1,51:1.23,32:0.62,60:1.73,40:0.84},SIN={30:0.5,45:0.71,60:0.87};
 G['S2-7-3']=()=>{const t=R(0,1);
- if(t===0){const a=pick(Object.keys(TAN)),d=R(5,40);return one(mc(`من نقطة تبعد ${d}م عن قاعدة شجرة، كانت زاوية ارتفاع قمتها ${a}°. ارتفاع الشجرة = ؟ (ظا${a}° ≈ ${D(TAN[a])})`,D(d*TAN[a])+'م',[[D(d/TAN[a])+'م',MIS.elev],[D(d*(SIN[a]||TAN[a]/1.3))+'م','استخدم ظا لأن المعطى المجاور والمطلوب المقابل.']],'الارتفاع = البعد × ظا الزاوية'))}
+ if(t===0){const a=pick(Object.keys(TAN)),d=R(5,40);return one(mc(`من نقطة تبعد ${d}م عن قاعدة شجرة، كانت زاوية ارتفاع قمتها ${a}°. ارتفاع الشجرة = ؟ (ظا${a}° ≈ ${D(TAN[a])})`,D(d*TAN[a])+'م',[[D(d/TAN[a])+'م',MIS.elev],[D(d*Math.round(Math.cos(a*Math.PI/180)*100)/100)+'م','استخدمت جتا؛ نستخدم ظا لأن المعطى المجاور والمطلوب المقابل.']],'الارتفاع = البعد × ظا الزاوية'))}
  const a=pick([30,45,60]),h=R(1,6);return one(mc(`طائرة على ارتفاع ${h}كم رصدت قارباً بزاوية انخفاض ${a}°. البعد بين الطائرة والقارب = ؟ (جا${a}° ≈ ${D(SIN[a])})`,D(h/SIN[a])+'كم',[[D(h*SIN[a])+'كم',MIS.hypDen],[D(h/TAN[a])+'كم','البعد المطلوب هو الوتر، فنستخدم جا.']],'زاوية الانخفاض = زاوية الارتفاع من القارب (بالتبادل)؛ جا = الارتفاع ÷ البعد'))};
 // 8-1 احتمال الحادث
 G['S2-8-1']=()=>{const t=R(0,2);
@@ -132,17 +132,17 @@ G['S2-8-1']=()=>{const t=R(0,2);
  if(t===1){const ev=pick([['ظهور الصورة مرتين','1/4'],['ظهور الصورة مرة واحدة فقط','1/2'],['ظهور الكتابة مرة على الأقل','3/4']]);return one(mc(`لدى إلقاء قطعة نقد منتظمة مرتين، ل(${ev[0]}) = ؟`,ev[1],[['1/3',MIS.probDen],['2/4'===ev[1]?'1/4':'2/3',MIS.probDen]],'Ω = {ص ص، ص ك، ك ص، ك ك}'))}
  const a=R(1,6),b=R(1,6),c=R(1,6),T=a+b+c;return one(mc(`علبة فيها ${a} عصير ليمون و ${b} تفاح و ${c} عنب، اختيرت علبة عشوائياً. ل(تفاح) = ؟`,fr(b,T),[[fr(b,a+c),MIS.probDen],[fr(1,3),'ليست العلب بعدد متساوٍ من كل نوع.']],'عدد علب التفاح ÷ العدد الكلي'))};
 // 8-2 قوانين الاحتمالات
-G['S2-8-2']=()=>{const t=R(0,1),a=R(2,6),b=R(2,6),c=R(0,Math.min(a,b)-1);
- if(t===0)return one(mc(`ل(ح١) = 0,${a}، ل(ح٢) = 0,${b}، ل(ح١ ∩ ح٢) = 0,${c}. ل(ح١ ∪ ح٢) = ؟`,D((a+b-c)/10),[[D((a+b)/10),MIS.unionP],[D((a+b+c)/10),MIS.unionP]],'ل(ح١) + ل(ح٢) − ل(ح١ ∩ ح٢)'));
+G['S2-8-2']=()=>{const t=R(0,1),a=R(2,6),b=R(2,6),c=R(Math.max(0,a+b-10),Math.min(a,b)-1);
+ if(t===0)return one(mc(`ل(ح١) = 0,${a}، ل(ح٢) = 0,${b}، ل(ح١ ∩ ح٢) = ${D(c/10)}. ل(ح١ ∪ ح٢) = ؟`,D((a+b-c)/10),[[D((a+b)/10),MIS.unionP],[D(Math.abs(a-b)/10),MIS.unionP]].filter(x=>parseFloat(x[0].replace(',','.'))<=1),'ل(ح١) + ل(ح٢) − ل(ح١ ∩ ح٢)'));
  const u=a+b-c;return one(mc(`ل(ح١) = 0,${a}، ل(ح٢) = 0,${b}، ل(ح١ ∪ ح٢) = ${D(u/10)}. هل ح١، ح٢ منفصلان؟`,c===0?'نعم، ل(ح١ ∩ ح٢) = 0':`لا، ل(ح١ ∩ ح٢) = ${D(c/10)}`,[[c===0?'لا، ل(ح١ ∩ ح٢) = 0,1':'نعم، ل(ح١ ∩ ح٢) = 0',MIS.excl],['لا يمكن الحكم',MIS.excl]],'أوجد ل(ح١ ∩ ح٢) من قانون الاتحاد'))};
 // 8-3 المتممة والفرق
-G['S2-8-3']=()=>{const t=R(0,2),a=R(3,8),b=R(2,7),c=R(1,Math.min(a,b)-1||1);
+G['S2-8-3']=()=>{const t=R(0,2),a=R(3,8),b=R(2,7),c=R(Math.max(1,a+b-10),Math.min(a,b)-1||1);
  if(t===0)return one(mc(`إذا كان ل(ح) = 0,${a}، فإن ل(ح̄) = ؟`,D(1-a/10),[[D(a/10),MIS.compl],[D(1+a/10),MIS.probGT1]],'ل(ح̄) = 1 − ل(ح)'));
- if(t===1)return one(mc(`ل(ح١) = 0,${a}، ل(ح٢) = 0,${b}، ل(ح١ ∩ ح٢) = 0,${c}. ل(ح١ − ح٢) = ؟`,D((a-c)/10),[[D(Math.abs(a-b)/10),MIS.diffP],[D((a+b-c)/10),MIS.unionP]],'ل(ح١) − ل(ح١ ∩ ح٢)'));
- const n=R(2,4);return one(mc(`لدى إلقاء قطعة نقد ${n} مرات، ما احتمال ظهور الصورة مرة واحدة على الأقل؟`,fr(2**n-1,2**n),[[fr(1,2**n),MIS.compl],[fr(1,2),'']],`ح̄ = عدم ظهور أي صورة، ل(ح̄) = 1/${2**n}`))};
+ if(t===1)return one(mc(`ل(ح١) = 0,${a}، ل(ح٢) = 0,${b}، ل(ح١ ∩ ح٢) = 0,${c}. ل(ح١ − ح٢) = ؟`,D((a-c)/10),[[D(Math.abs(a-b)/10),MIS.diffP],[D((a+b-c)/10),MIS.unionP]].filter(x=>parseFloat(x[0].replace(',','.'))<=1),'ل(ح١) − ل(ح١ ∩ ح٢)'));
+ const n=R(2,4);return one(mc(`لدى إلقاء قطعة نقد ${n===2?'مرتين':n+' مرات'}، ما احتمال ظهور الصورة مرة واحدة على الأقل؟`,fr(2**n-1,2**n),[[fr(1,2**n),MIS.compl],[fr(1,2),'']],`ح̄ = عدم ظهور أي صورة، ل(ح̄) = 1/${2**n}`))};
 // تطبيع الرموز في كل الأسئلة لتوافق الكتاب: π بدل ط، والفاصلة العشرية «,»، و ج بدل جـ
-const NRM=s=>typeof s!=='string'?s:s.replace(/(\d)\.(\d)/g,'$1,$2').replace(/(?<![\u0621-\u065f\u0670\u0640])ط(?![\u0621-\u065f\u0670\u0640])/g,'π').replace(/جـ/g,'ج').replace(/\u2066?([\d,]*√[\d,]+)\u2069?/g,'\u2066$1\u2069');
-const ofor=window.genFor;window.genFor=id=>{const it=ofor(id);(it.steps||[]).forEach(s=>{s.q=NRM(s.q);s.a=NRM(s.a);s.hint=NRM(s.hint);(s.choices||[]).forEach(c=>{c.t=NRM(c.t);if(!c.ok&&!c.m)c.m='هذا ليس الناتج الصحيح. '+(s.hint?'تذكّر: '+NRM(s.hint):'راجع خطوات الحل في الكتاب.');if(c.m)c.m=NRM(c.m)})});(it.steps||[]).forEach(s=>{const ts=(s.choices||[]).map(c=>c.t);if(ts.length===2&&!ts.some(t=>/^(لا|نعم|نسبي|غير نسبي)/.test(t))){for(const c of ['−('+s.a+')',s.a+' + 1','2('+s.a+')'])if(!ts.includes(c)){s.choices.splice(R(0,2),0,{t:c,m:'انتبه للإشارة والمعاملات. '+(s.hint?'تذكّر: '+s.hint:'')});break}}});it.explain=NRM(it.explain);return it};
+const NRM0=s=>typeof s!=='string'?s:s.replace(/(\d+)[.,](\d{5,})(?![\d.]|\.\.)/g,(m,i,f)=>{const v=+(i+'.'+f);return ''+(+v.toFixed(2))}).replace(/(\d)\.(\d)/g,'$1,$2').replace(/(^|[\s(=×÷+:،|])-(?=\d|[سص])/g,'$1−').replace(/\+ −(\d+)\)/g,'− $1)').replace(/([+×÷−]) −(\d+(?:[.,\/]\d+)?)(?![\d\/]|[سص])/g,'$1 (−$2)').replace(/(^|[\s(+−=×])1(?=[سص](?![\u0621-\u064a]))/g,'$1').replace(/(^|[^\d,.])0[.,]0(?![\d])/g,'$10');const NRM=s=>typeof s!=='string'?s:NRM0(s).replace(/(?<![\u0621-\u065f\u0670\u0640])ط(?![\u0621-\u065f\u0670\u0640])/g,'π').replace(/جـ/g,'ج').replace(/\u2066?([\d,]*√[\d,]+)\u2069?/g,'\u2066$1\u2069');
+const ofor=window.genFor;window.genFor=id=>{const it=ofor(id);(it.steps||[]).forEach(s=>{s.q=NRM(s.q);s.a=NRM(s.a);s.hint=NRM(s.hint);(s.choices||[]).forEach(c=>{c.t=NRM(c.t);if(!c.ok&&!c.m)c.m='هذه الإجابة لا تحقق المطلوب؛ أعد الحساب خطوة بخطوة. '+(s.hint?'تذكّر: '+NRM(s.hint):'راجع خطوات الحل في الكتاب.');if(c.m)c.m=NRM(c.m)})});(it.steps||[]).forEach(s=>{const val=t=>{const x=String(t).replace(/مكرر\)/,'').replace(/(س = (−?\d+)) أو س = \2$/,'$1 (').replace(/\s+/g,'');const f=x.match(/^(−?)(\d+)\/(\d+)$/);if(f)return ''+(+(f[1]?-1:1)*f[2]/f[3]).toFixed(6);const n=x.match(/^(−?\d+(?:,\d+)?)(.*)$/);return n?''+parseFloat(n[1].replace('−','-').replace(',','.'))+'|'+n[2]:x};const okc=s.choices.find(c=>c.ok);const seenV=new Set([val(okc.t)]);s.choices=s.choices.filter(c=>{if(c.ok)return true;const v=val(c.t);if(seenV.has(v))return false;seenV.add(v);return true});const ts=s.choices.map(c=>c.t);if(ts.length===2&&!ts.some(t=>/^(لا|نعم|نسبي|غير نسبي|متساويان)/.test(t))&&!/أيهما أكبر/.test(s.q)){for(let k=0;k<20;k++){const c0=window.PERT(s.a),c=c0&&NRM(c0);if(c&&!seenV.has(val(c))&&!s.choices.some(o=>o.t===c)){s.choices.splice(R(0,2),0,{t:NRM(c),m:'راجع الحساب خطوة بخطوة. '+(s.hint?'تذكّر: '+s.hint:'')});break}}}if(/أيهما أكبر/.test(s.q)&&s.choices.length<3)s.choices.push({t:'متساويان',m:'العددان غير متساويين؛ وحّد الصورة ثم قارن.'})});it.explain=NRM(it.explain);return it};
 window.NRM=NRM;Object.keys(MIS).forEach(k=>MIS[k]=NRM(MIS[k]));
 window.GEN5=['S1-3-1','S1-3-2','S1-3-3','S1-3-4','S1-3-5','S1-4-1','S1-4-2','S2-5-1','S2-5-2','S2-5-3','S2-5-4','S2-5-5','S2-5-6','S2-6-1','S2-6-2','S2-6-3','S2-6-4','S2-6-5','S2-7-1','S2-7-2','S2-7-3','S2-8-1','S2-8-2','S2-8-3'];
 })();

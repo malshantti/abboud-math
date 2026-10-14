@@ -91,9 +91,9 @@ const MROW=(pose,msg)=>`<div class="mrow" id="mascot">${FX.MASCOT(pose||'think',
 function renderOld(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,conf=2;
  const draw=()=>{const s=item.steps[si];const multi=item.steps.length>1;
   el.innerHTML=(multi?`<div class="stepdots">${item.steps.map((_,i)=>`<i class="${i<=si?'on':''}"></i>`).join('')}</div><div class="muted">خطوة ${si+1} من ${item.steps.length}</div>`:'')+
-  `<div class="q">${esc(s.q)}</div>`+
+  `<div class="q">${mt(s.q)}</div>`+
   (mode==='diag'?`<div class="conf" role="radiogroup" aria-label="كم أنت متأكد؟"><span>كم أنت متأكد قبل أن تجيب؟</span><div class="conf-seg">${[[1,'أخمّن'],[2,'متأكد نوعاً ما'],[3,'متأكد جداً']].map(([v,t])=>`<button role="radio" aria-checked="${v===conf}" class="cseg ${v===conf?'on':''}" data-c="${v}">${t}</button>`).join('')}</div></div>`:'')+
-  `<div class="choices">${s.choices.map((c,i)=>`<button class="choice" data-i="${i}">${esc(c.t)}</button>`).join('')}</div>`+
+  `<div class="choices">${s.choices.map((c,i)=>`<button class="choice" data-i="${i}">${mt(c.t)}</button>`).join('')}</div>`+
   (mode==='practice'?`<button class="btn ghost" id="hintb">${I('bulb')} تلميح</button>`:'')+(mode==='diag'?`<button class="btn ghost" id="idk">${I('question')} لا أعرف</button>`:'')+`<div id="fb" aria-live="polite"></div>`;
   const fb=el.querySelector('#fb');
   el.querySelectorAll('.cseg').forEach(b=>b.onclick=()=>{conf=+b.dataset.c;el.querySelectorAll('.cseg').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
@@ -121,7 +121,7 @@ function renderOld(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,c
 // ---------- v7: تدفق السؤال: اختر ← تحقّق ← ورقة ملاحظات خضراء/حمراء ← متابعة ----------
 const getBar=()=>{let b=$('#checkbar');if(!b){b=document.createElement('div');b.id='checkbar';document.body.appendChild(b)}return b};
 document.addEventListener('keydown',e=>{if(e.key==='Enter'){const c=$('#chk');if(c&&!c.disabled&&document.activeElement.tagName!=='INPUT'){e.preventDefault();c.click()}}});
-const mt=s=>esc(s).replace(/[\d,]*√[\d,]+/g,'<bdi class="m" dir="ltr">$&</bdi>');
+const mt=s=>esc(s).replace(/−?[\d,]*√[\d,]+(?:\/[\d,]+)?|−?\d+(?:,\d+)?\/\d+|−\d+(?:,\d+)?/g,'<bdi class="m" dir="ltr">$&</bdi>');window.MT=mt;// الكسر والعدد السالب يُعرضان كوحدة واحدة باتجاه ثابت
 const PRAISE=['أحسنت!','ممتاز!','رائع!','إجابة صحيحة!','عمل متقن!'];
 function renderItem(el,id,item,mode,done){if(mode==='diag')return renderOld(el,id,item,mode,done);
  let si=0,firstTry=true,usedHint=false;const bar=getBar();
@@ -208,7 +208,7 @@ V.lesson=id=>{const P_=PRE[id],L=LES[id];if(!P_&&!L)return'<p>غير موجود<
  if(tools)h+=`<div class="card"><h3>${I('lab')} جرّبها بيدك في المختبر</h3>${tools}</div>`;
  if(L)h+=`<div class="card"><h3>${I('warn')} أخطاء شائعة</h3><ul>${UNITS[L.unit].misconceptions.slice(0,4).map(m=>`<li>${esc(m)}</li>`).join('')}</ul></div>`;
  if(needed&&needed.length)h+=`<div class="card"><h3>${I('rocket')} ستحتاجها في الصف الثامن</h3>${needed.map(d=>chip(d,LES[d]?LES[d].number+' '+LES[d].title:d)).join('')}</div>`;
- h+=`<a class="btn wide" href="#/practice/${id}">${I('dumbbell')} تدرّب (أسئلة غير محدودة)</a><a class="btn wide gold" href="#/quiz/${id}">${I('quiz')} اختبار الدرس (8 أسئلة · النجاح 80%)</a>`;
+ h+=`<a class="btn wide" href="#/practice/${id}">${I('dumbbell')} تدرّب</a><a class="btn wide gold" href="#/quiz/${id}">${I('quiz')} اختبار الدرس (8 أسئلة · النجاح 80%)</a>`;
  setTimeout(()=>{const b=$('#unl');if(b)b.onclick=()=>{sk(id).unlocked=true;save();route()}});return h};
 V.practice=id=>{cur=id;const N=10;setTimeout(()=>{let n=0,ok=0,xp=0;const t0=Date.now(),box=$('#pbox');
   const lh=()=>{const e=$('#lh');if(e)e.innerHTML=I('heart','sm')+' '+S.hearts};
