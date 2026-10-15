@@ -30,6 +30,10 @@ window.CATALOG = {
     {grade: 8, subject: 'math', status: 'active', path: 'g8/math/',
      title: 'رياضيات الصف الثامن', desc: 'دروس المنهاج الفلسطيني بجزأيه، مختبر تفاعلي، ومغامرات مع زيتون.'},
     {grade: 8, subject: 'english', status: 'active', path: 'g8/english/',
-     title: 'الإنجليزية للصف الثامن', desc: 'وحدات كتاب English for Palestine 8 مع الصوت لكل كلمة وجملة، ومسار تأسيس للحروف والأصوات.'}
+     title: 'الإنجليزية للصف الثامن', desc: 'وحدات كتاب English for Palestine 8 مع الصوت لكل كلمة وجملة، ومسار تأسيس للحروف والأصوات.'},
+    {grade: 6, subject: 'math', status: 'active', path: 'g6/math/',
+     title: 'رياضيات الصف السادس', desc: 'دروس المنهاج الفلسطيني بجزأيه بصور الكتاب، مختبر تفاعلي، ومغامرات مع زيتون.'},
+    {grade: 6, subject: 'english', status: 'active', path: 'g6/english/',
+     title: 'الإنجليزية للصف السادس', desc: 'وحدات كتاب English for Palestine 6 مع الصوت لكل كلمة وجملة، ومسار تأسيس للحروف والأصوات.'}
   ]
 };
