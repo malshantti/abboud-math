@@ -34,6 +34,14 @@ window.CATALOG = {
     {grade: 6, subject: 'math', status: 'active', path: 'g6/math/',
      title: 'رياضيات الصف السادس', desc: 'دروس المنهاج الفلسطيني بجزأيه بصور الكتاب، مختبر تفاعلي، ومغامرات مع زيتون.'},
     {grade: 6, subject: 'english', status: 'active', path: 'g6/english/',
-     title: 'الإنجليزية للصف السادس', desc: 'وحدات كتاب English for Palestine 6 مع الصوت لكل كلمة وجملة، ومسار تأسيس للحروف والأصوات.'}
+     title: 'الإنجليزية للصف السادس', desc: 'وحدات كتاب English for Palestine 6 مع الصوت لكل كلمة وجملة، ومسار تأسيس للحروف والأصوات.'},
+    {grade: 6, subject: 'arabic', status: 'active', path: 'g6/arabic/',
+     title: 'اللغة العربية للصف السادس', desc: 'نصوص «لغتنا الجميلة» بجزأيه بصفحات الكتاب، القواعد والإملاء، ومختبر للهمزة والإعراب.'},
+    {grade: 6, subject: 'science', status: 'active', path: 'g6/science/',
+     title: 'العلوم والحياة للصف السادس', desc: 'دروس الكتاب بجزأيه بأنشطته وأشكاله، ومحاكاة تفاعلية لكل فكرة.'},
+    {grade: 8, subject: 'arabic', status: 'active', path: 'g8/arabic/',
+     title: 'اللغة العربية للصف الثامن', desc: 'نصوص «لغتنا الجميلة» بجزأيه بصفحات الكتاب، القواعد والبلاغة والإملاء، ومختبر للإعراب.'},
+    {grade: 8, subject: 'science', status: 'active', path: 'g8/science/',
+     title: 'العلوم والحياة للصف الثامن', desc: 'دروس الكتاب بجزأيه بأنشطته وأشكاله، ومحاكاة للطاقة والذرة والموجات والدارات.'}
   ]
 };
