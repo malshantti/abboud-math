@@ -72,6 +72,8 @@ function seedQ(u,types,listen){const ss=(u.seeds||[]).filter(x=>types.includes(x
   return{type:'build',prompt:L?'استمع ثم رتّب الكلمات لتكوين الجملة.':'رتّب الكلمات لتكوين جملة صحيحة'+(x.grammar?' ('+x.grammar+')':'')+'.',audio:L?x.answer:'',ans,full:x.answer,tiles:sh(tk),skill:L?'listening':'grammar',opts:[],why:{}}}
  if(x.type==='dialogue_order'){const src=(u.dialogues||[]).flatMap(d=>d.lines);const ls=x.lines.slice(0,5).map(t=>src.find(l=>l.en===t)||{sp:'',en:t});return ls.length>=3?{type:'order',prompt:'استمع إلى الحوار ثم رتّب الجمل كما سمعتها.',lines:ls,ans:ls.map((_,i)=>i),skill:'listening',opts:[],why:{}}:null}
  return null}
+function picQ(u){const I=window.EN_IMG||{};const all=Object.entries(I).flatMap(([k,v])=>v.filter(x=>x.words.length).map(x=>({...x,u:k})));const mine=all.filter(x=>x.u===u.id);if(!mine.length)return null;const t=pk(mine);const pool=all.filter(x=>x.b===t.b&&x.f!==t.f&&x.words[0]!==t.words[0]);if(pool.length<3)return null;const ds=sh(pool).slice(0,3);const opts=sh([t,...ds]);
+ return{type:'pic',prompt:'استمع واختر الصورة المناسبة.',audio:t.words[0].replace(/\s*\(.*?\)/,''),full:t.words[0],opts:opts.map(x=>x.f),pages:Object.fromEntries(opts.map(x=>[x.f,x.p])),labels:Object.fromEntries(opts.map(x=>[x.f,x.words[0]])),ans:t.f,why:{},skill:'listening'}}
 function forUnit(u,kind){
  if(u.kind){const it=u.items;if(u.kind==='grammar'){if(!kind||kind==='grammar'||R()<.6)return G[u.id]();return R()<.5?sentenceQ(it):vocabQ(it,'spell')}
   if(kind==='spell')return vocabQ(it,'spell');
@@ -83,12 +85,12 @@ function forUnit(u,kind){
  const all=[...(u.sentences||[]),...(u.dialogues||[]).flatMap(d=>d.lines.map(l=>({en:l.en}))),...(u.grammar||[]).flatMap(g=>(g.examples||[]).map(en=>({en})))];
  const V=u.vocab||[];
  const P={grammar:[[3,()=>G[u.id]&&G[u.id]()],[1,()=>seedQ(u,['grammar_reorder'],false)]],
-  listen:[[2,()=>seedQ(u,['meaning_mcq'])],[2,()=>seedQ(u,['gap_fill'],true)],[2,()=>vocabQ(V,'listen')],[2,()=>sentenceQ(all)],[1,()=>orderQ(pk(u.dialogues.length?u.dialogues:[null]))],[1,()=>textQ(pk(u.texts.length?u.texts:[null]))],[1,()=>seedQ(u,['grammar_reorder'],true)]],
+  listen:[[2,()=>picQ(u)],[2,()=>seedQ(u,['meaning_mcq'])],[2,()=>seedQ(u,['gap_fill'],true)],[2,()=>vocabQ(V,'listen')],[2,()=>sentenceQ(all)],[1,()=>orderQ(pk(u.dialogues.length?u.dialogues:[null]))],[1,()=>textQ(pk(u.texts.length?u.texts:[null]))],[1,()=>seedQ(u,['grammar_reorder'],true)]],
   spell:[[1,()=>vocabQ(V.filter(x=>x.en.split(' ').length<=2),'spell')]],
   order:[[2,()=>orderQ(pk(u.dialogues.length?u.dialogues:[null]))],[1,()=>seedQ(u,['dialogue_order'])]]};
  P.mix=[...P.grammar.map(([w,f])=>[w*0.8,f]),[2,()=>seedQ(u,['meaning_mcq','gap_fill'])],...P.listen,[1,P.spell[0][1]]];
  const pickW=L=>{let t=L.reduce((a,x)=>a+x[0],0)*R();for(const x of L){t-=x[0];if(t<=0)return x[1]}return L[0][1]};
  const L=P[kind]||P.mix;for(let t=0;t<12;t++){const q=pickW(t<8?L:P.mix)();if(q&&!valid(q))return q}return null}
-function valid(q){if(!q)return'null';if(q.type==='spell')return q.ans?'':'noans';if(q.type==='order')return q.lines&&q.lines.length>=3?'':'order';if(q.type==='build')return q.tiles&&q.tiles.length>=3?'':'build';if(!q.opts||q.opts.length<2)return'few';if(new Set(q.opts).size!==q.opts.length)return'dup';if(!q.opts.includes(q.ans))return'noans';if(q.opts.some(o=>!o||/undefined|NaN/.test(o)))return'bad';if(/undefined/.test(q.en||'')||/undefined/.test(q.full||''))return'undef';return''}
-window.GEN={forUnit,G,vocabQ,sentenceQ,orderQ,valid,setRng:f=>{R=f},hasGrammar:id=>!!G[id]};
+function valid(q){if(!q)return'null';if(q.type==='spell')return q.ans?'':'noans';if(q.type==='order')return q.lines&&q.lines.length>=3?'':'order';if(q.type==='build')return q.tiles&&q.tiles.length>=3?'':'build';if(q.type==='pic')return q.opts.length>=4&&new Set(q.opts).size===q.opts.length&&q.opts.includes(q.ans)&&new Set(q.opts.map(o=>q.labels[o])).size===q.opts.length?'':'pic';if(!q.opts||q.opts.length<2)return'few';if(new Set(q.opts).size!==q.opts.length)return'dup';if(!q.opts.includes(q.ans))return'noans';if(q.opts.some(o=>!o||/undefined|NaN/.test(o)))return'bad';if(/undefined/.test(q.en||'')||/undefined/.test(q.full||''))return'undef';return''}
+window.GEN={picQ,forUnit,G,vocabQ,sentenceQ,orderQ,valid,setRng:f=>{R=f},hasGrammar:id=>!!G[id]};
 })();
