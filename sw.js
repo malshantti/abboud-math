@@ -1,25 +1,14 @@
-// عامل الخدمة: تخزين كل ملفات الموقع للعمل دون اتصال (مسارات نسبية تعمل تحت أي مجلد فرعي)
-const V='zaytoun-v8-20261014-review-fixes',F=['./',"app.js","cases.js","content.js","content5.js","data.js","fonts/OFL.txt","fonts/baloo-arabic.woff2","fonts/baloo-latin.woff2","fonts/cairo-arabic.woff2","fonts/cairo-latin.woff2","fx.js","gen.js","gen5.js","hw.js","icon-192.png","icon-512.png","icons.js","img/cover-basics.webp","img/cover-scene-explorer.webp","img/cover-scene-glass.webp","img/cover-scene-house.webp","img/cover-scene-market.webp","img/cover-scene-tower.webp","img/cover-scene-triangle.webp","img/cover-scene-village.webp","img/cover-u1.webp","img/cover-u2.webp","img/cover-u3.webp","img/cover-u4.webp","img/cover-u5.webp","img/cover-u6.webp","img/cover-u7.webp","img/cover-u8.webp","img/rank-1.webp","img/rank-2.webp","img/rank-3.webp","img/rank-4.webp","img/rank-5.webp","img/rank-6.webp","img/rank-7.webp","img/rank-8.webp","img/zaytoun-celebrate.webp","img/zaytoun-encourage.webp","img/zaytoun-idle.webp","img/zaytoun-pencil.webp","img/zaytoun-read.webp","img/zaytoun-read2.webp","img/zaytoun-teacher.webp","img/zaytoun-think.webp","img/zaytoun-welcome.webp","index.html","lab.js","lab5.js","manifest.webmanifest","style.css","ui7.css","v4.js","zaytoun.js","numerals.js","zaytoun.css","adventures.css","laboratory.css","units.css","typography.css","lesson-visuals.css","lesson-visuals.js","img/zaytoun-garden-v2.webp","img/zaytoun-discovery-v2.webp"];
+// عامل خدمة صفحة الدخول. كل مادة لها عامل خدمة خاص في مجلدها (مثل g8/math/sw.js) بنطاق ذلك المجلد.
+// يحذف ذاكرة الموقع القديم (zaytoun-*) الذي كان على الجذر، ولا يلمس ذاكرة المواد.
+const V='entry-v1-20261015',F=['./','index.html','entry.css','entry.js','catalog.js','manifest.webmanifest','assets/fonts/baloo-arabic.woff2','assets/fonts/baloo-latin.woff2','assets/fonts/cairo-arabic.woff2','assets/fonts/cairo-latin.woff2','assets/img/zaytoun-welcome.webp','assets/img/zaytoun-think.webp','assets/icon-192.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(F)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>(k.startsWith('entry-')&&k!==V)||k.startsWith('zaytoun-')).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
- if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
- const network=()=>fetch(e.request).then(res=>{if(res.ok){const copy=res.clone();caches.open(V).then(c=>c.put(e.request,copy))}return res});
- // Fresh application code online; the full cached site remains available offline.
- if(e.request.mode==='navigate'||/\.(?:js|css)$/.test(new URL(e.request.url).pathname)){
-  e.respondWith(network().catch(()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||(e.request.mode==='navigate'?caches.match('./index.html'):Response.error()))));
- }else e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(r=>r||network()).catch(()=>Response.error()));
+ const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin)return;
+ const base=new URL('./',self.registration.scope).pathname,rel=u.pathname.slice(base.length);
+ // طلبات المواد تمرّ إلى الشبكة أو إلى عامل خدمة المادة؛ نخدم من ذاكرتها عند انقطاع الاتصال
+ if(/^g\d+\//.test(rel)){e.respondWith(fetch(e.request).catch(()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||(e.request.mode==='navigate'?caches.match(new URL(rel.split('/').slice(0,2).join('/')+'/index.html',self.registration.scope).href):Response.error()))));return}
+ const network=()=>fetch(e.request).then(res=>{if(res.ok){const c=res.clone();caches.open(V).then(x=>x.put(e.request,c))}return res});
+ if(e.request.mode==='navigate'||/\.(?:js|css)$/.test(u.pathname))e.respondWith(network().catch(()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||(e.request.mode==='navigate'?caches.match('./index.html'):Response.error()))));
+ else e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(r=>r||network()).catch(()=>Response.error()));
 });
-
-
-
-
-
-
-
-
-
-
-
-
-

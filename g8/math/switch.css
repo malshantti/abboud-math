@@ -1,0 +1,5 @@
+.switch-subject{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px 10px;border-radius:14px;border:1.5px solid var(--line);border-bottom-width:3px;background:var(--card);color:var(--gd)!important;font:700 12.5px Baloo,Cairo,sans-serif;text-decoration:none}
+.switch-subject:hover{background:var(--gl)}.switch-subject:active{transform:translateY(2px);border-bottom-width:1.5px}
+.brand-symbol svg{color:var(--g);display:block}
+.top .switch-mini{display:none}
+@media(max-width:899px){.side-brand .switch-subject{display:none}.top .switch-mini{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:12px;border:1.5px solid var(--line);border-bottom-width:3px;color:var(--gd);background:var(--card)}}
