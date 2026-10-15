@@ -44,7 +44,7 @@ T.bs={title:'ميزان المعادلات',icon:'scale',skills:['P11','S1-3-1',
    root.querySelector('#bse').innerHTML=`<b>${a===1?'':a}س${b+L?' + '+(b+L):''} = ${c}</b>${tilt?' <span class="bad-t">(غير متوازن!)</span>':''}`;
    root.querySelector('#bsd').disabled=!(b+L===0&&a>1&&!tilt);root.querySelector('#bs1').disabled=(b+L===0)||(c===0)||!!tilt};
   const log=t=>{root.querySelector('#bslog').insertAdjacentHTML('beforeend',`<li>${t}</li>`)};
-  const nw=()=>{a=R(1,4);x=R(1,5);b=R(1,7);c=a*x+b;L=0;root.querySelector('#bslog').innerHTML='';root.querySelector('#bsq').textContent=pick(['اشترى عبود '+a+' دفاتر متساوية السعر وقلماً بـ '+b+' قرشًا فدفع '+c+' قرشًا. كم سعر الدفتر؟','على الميزان '+a+' صناديق متساوية و '+b+' أوزان صغيرة، وفي الكفة الأخرى '+c+' أوزان. كم وزن الصندوق؟']);draw();root.querySelector('.lab-fb').className='lab-fb'};
+  const nw=()=>{a=R(1,4);x=R(1,5);b=R(1,7);c=a*x+b;L=0;root.querySelector('#bslog').innerHTML='';root.querySelector('#bsq').textContent=pick(['اشترى سامي '+a+' دفاتر متساوية السعر وقلماً بـ '+b+' قرشًا فدفع '+c+' قرشًا. كم سعر الدفتر؟','على الميزان '+a+' صناديق متساوية و '+b+' أوزان صغيرة، وفي الكفة الأخرى '+c+' أوزان. كم وزن الصندوق؟']);draw();root.querySelector('.lab-fb').className='lab-fb'};
   root.querySelector('#bsn').onclick=nw;
   root.querySelector('#bs1').onclick=()=>{if(b>0)b--;else L--;c--;log('طرحنا 1 من الطرفين');draw();check()};
   root.querySelector('#bsl').onclick=()=>{if(b+L<=0)return;L--;draw();ctx.miss('P11','عند نقل حد إلى الطرف الآخر تتغير إشارته (أو نطرح من الطرفين).');fb(root,false,'مال الميزان! ما نفعله بطرف يجب أن نفعله بالآخر.');setTimeout(()=>{L++;draw();root.querySelector('.lab-fb').className='lab-fb'},1800)};

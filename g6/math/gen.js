@@ -273,7 +273,7 @@ G.STORY=()=>{const t=R(0,4);
  if(t===1){const pr=R(1,9)*20,d=pick([10,20,25,50]);return one(mc(`محل يعلن خصم ${d}% على حقيبة ثمنها ${pr} دينارًا. كم السعر بعد الخصم؟`,''+(pr-pr*d/100),[[''+(pr-d),MIS.discSub],[''+(pr*d/100),'هذا مقدار الخصم، والمطلوب السعر بعده.']],''))}
  if(t===2){const a=R(3,8),b=R(2,5);return one(mc(`حقل مستطيل طوله ${a*10} م وعرضه ${b*10} م. نريد سياجًا حوله. كم مترًا نحتاج؟`,2*(a+b)*10+' م',[[a*b*100+' م',MIS.perim],[(a+b)*10+' م','المحيط = 2 × (الطول + العرض).']],''))}
  if(t===3){const k=R(2,6);return one(mc(`كل 4 أشجار زيتون تعطي 3 تنكات زيت. كم تنكة تعطي ${4*k} شجرة؟`,''+3*k,[[''+(4*k-1),MIS.propAdd],[''+4*k,'التناسب: 4 أشجار ← 3 تنكات.']],''))}
- const xs=Array.from({length:4},()=>R(5,20));while(xs.reduce((a,b)=>a+b,0)%4)xs[0]++;return one(mc(`علامات عبّود في أربعة اختبارات قصيرة: ${lst(xs)}. ما الوسط الحسابي لعلاماته؟`,''+xs.reduce((a,b)=>a+b,0)/4,[[''+xs.reduce((a,b)=>a+b,0),'اقسم المجموع على 4.']],''))};
+ const xs=Array.from({length:4},()=>R(5,20));while(xs.reduce((a,b)=>a+b,0)%4)xs[0]++;return one(mc(`علامات سامي في أربعة اختبارات قصيرة: ${lst(xs)}. ما الوسط الحسابي لعلاماته؟`,''+xs.reduce((a,b)=>a+b,0)/4,[[''+xs.reduce((a,b)=>a+b,0),'اقسم المجموع على 4.']],''))};
 window.GEN=G;window.MISC=MIS;
 window.genFor=function(id){if(G[id])return G[id]();const u=id.match(/^S\d-(\d)-/);if(u&&G['U'+u[1]])return G['U'+u[1]]();return G.P01()};
 window.hasGen=id=>!!G[id];

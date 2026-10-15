@@ -26,8 +26,8 @@ const DORD=()=>[...C.diagnostic_order,...STATIONS.filter(s=>s.g8).flatMap(s=>s.s
 const deps0=id=>PRE[id]?PRE[id].depends_on||[]:(LES[id]&&LES[id].prerequisites)||[];
 const RANKS=['البذرة الصاعدة','المستكشف','المحارب','صانع الأدوات','الفارس','المهندس','العبقري','البطل'];
 // ---------- الحالة (متوافقة مع الإصدارات السابقة) ----------
-function fresh(){return{name:'عبّود',created:new Date().toISOString(),points:0,streak:0,lastDay:null,time:0,skills:{},mis:{},diag:null,quizzes:[],sessions:[]}}
-let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
+function fresh(){return{name:(()=>{try{const c=window.PROFILES&&PROFILES.current();return c&&c.name||'صديقي'}catch(e){return'صديقي'}})(),created:new Date().toISOString(),points:0,streak:0,lastDay:null,time:0,skills:{},mis:{},diag:null,quizzes:[],sessions:[]}}
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()};try{const _c=window.PROFILES&&PROFILES.current&&PROFILES.current();if(_c&&_c.name)S.name=_c.name}catch(e){}
 const norm=()=>{S.points=+S.points||0;S.time=+S.time||0;S.streak=+S.streak||0;S.created=S.created||new Date().toISOString();S.sessions=S.sessions||[];S.hearts=S.hearts==null?5:+S.hearts;S.hLost=S.hLost||0;S.ach=S.ach||{};S.daily=S.daily||{date:today(),n:0};S.goal=S.goal||10;S.quizzes=S.quizzes||[];S.mis=S.mis||{};S.skills=S.skills||{};S.review=S.review||{};S.games=S.games||{};S.dch=S.dch||null;S.labs=S.labs||{};S.reviewed=S.reviewed||0};norm();
 const save=()=>{if(window.__noSave)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}hdr()};
 const sk=id=>S.skills[id]||(S.skills[id]={status:'untested',att:0,cor:0,best:null,time:0,run:0});

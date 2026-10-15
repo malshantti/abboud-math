@@ -31,7 +31,7 @@ V.teach=topic=>{const c=CS.make(CS.TOPICS.includes(topic)?topic:null),v=c.v[0];A
      add(ZB('celebrate',`شكراً يا أستاذ ${esc(S().name)}! الآن فهمت خطئي: <i>${esc(CS.mis(v.mis))}</i>`));reward(pts,b2,CS.skill[c.topic]);FX.confetti(innerWidth/2,200,70,8);
      act.innerHTML=`<div class="center"><p><b>${errs===0?'شرح مثالي!':'أحسنت التعليم!'}</b> +${pts} XP · أخطاؤك أثناء الشرح: ${errs}</p><a class="btn" href="#/teach/${c.topic}" onclick="setTimeout(()=>dispatchEvent(new HashChangeEvent('hashchange')),0)">${I('refresh')} مسألة أخرى</a> <a class="btn ghost" href="#/teach">${I('book')} موضوع آخر</a></div>`})})};
   order()});
- return`${back('#/play','المغامرات')}${banner('scene-explorer','user','عبود هو المعلم','زيتون محتار. علّمه وستفهم أنت أكثر!')}
+ return`${back('#/play','المغامرات')}${banner('scene-explorer','user','أنت المعلم','زيتون محتار. علّمه وستفهم أنت أكثر!')}
  <div class="chips-row">${CS.TOPICS.map(t=>`<a class="chip ${t===c.topic?'st-mastered':''}" href="#/teach/${t}">${esc(CS.T[t]().tname)}</a>`).join('')}</div>
  <div class="card teach"><div class="tcount muted">${I('medal','sm')} علّمت زيتون ${S().teach.n} مرة · الموضوع: <b>${esc(c.tname)}</b></div><div id="tbox" class="dlgbox"></div><div id="tact" class="act"></div></div>`};
 // ================= 2) محقق الأخطاء =================
@@ -64,7 +64,7 @@ const mcq=(q,a,ds,hint)=>({q,a:''+a,ch:shuf([{t:''+a,ok:1},...ds.filter((d,i,arr
 const pyT=()=>pick([[3,4,5],[6,8,10],[5,12,13],[9,12,15]]);
 const CH=[
  {id:1,name:'بستان الزيتون',part:'grove',skill:'P15',ic:'olive',
-  intro:[['g','يا عبود، بستان جدّك تُرك سنوات. لنُعِد زراعته قبل موسم المطر.'],['z','وأنا زيتونة! سأساعد إخوتي الأشجار.'],['a','ماذا نحتاج أن نعرف أولاً؟'],['g','مساحة الأرض، وكم شجرة نزرع.']],
+  intro:[['g','بستان جدّك تُرك سنوات. لنُعِد زراعته قبل موسم المطر.'],['z','وأنا زيتونة! سأساعد إخوتي الأشجار.'],['a','ماذا نحتاج أن نعرف أولاً؟'],['g','مساحة الأرض، وكم شجرة نزرع.']],
   tasks:[()=>{const l=5*R(4,8),w=5*R(2,5);return mcq(`أرض البستان مستطيلة: طولها ${l} م وعرضها ${w} م. ما مساحتها؟`,l*w+' م²',[[2*(l+w)+' م²',window.MISC.perim],[l+w+' م²',window.MISC.perim]],'المساحة = الطول × العرض.')},
    ()=>{const n=R(16,40)*25;return mcq(`نزرع شجرة لكل 25 م². كم شجرة نحتاج لأرض مساحتها ${n} م²؟`,n/25,[[n-25,''],[n*25,'نقسم المساحة على نصيب الشجرة الواحدة.']],'المساحة ÷ 25.')},
    ()=>{const k=R(3,8);return mcq(`كل 4 أشجار تعطي 3 تنكات زيت. كم تنكة تعطي ${4*k} شجرة؟`,3*k,[[4*k-1,window.MISC.additive],[4*k,'']],'التناسب: 4 ← 3، إذن '+4*k+' ← ؟ (اضرب في '+k+').')}],
@@ -98,7 +98,7 @@ const CH=[
   tasks:[()=>{const xs=Array.from({length:5},()=>R(2,9)*10);const s=xs.reduce((a,b)=>a+b,0);const m=Math.round(s/5*10)/10;return mcq(`محصول 5 عائلات (كغ): ${xs.join('، ')}. الوسط الحسابي = ؟`,m,[[[...xs].sort((a,b)=>a-b)[2],window.MISC.median],[s,window.MISC.mean]],'المجموع ÷ 5.')},
    ()=>{const xs=Array.from({length:5},()=>R(1,20)*5);const md=[...xs].sort((a,b)=>a-b)[2];return mcq(`الكميات: ${xs.join('، ')}. الوسيط = ؟`,md,[[xs[2],'رتّب القيم أولاً ثم خذ الوسطى.'],[Math.round(xs.reduce((a,b)=>a+b,0)/5),window.MISC.median]],'رتّب تصاعدياً وخذ القيمة الثالثة.')},
    ()=>{const g=R(1,4),t=g+R(2,6);return mcq(`في سلة ${t} حبات زيتون، منها ${g} سوداء والباقي خضراء. احتمال سحب حبة خضراء = ؟`,(t-g)+'/'+t,[[g+'/'+t,window.MISC.compl],['1/'+t,'عُدّ كل الحبات الخضراء، لا حبة واحدة.']],'عدد الخضراء ÷ العدد الكلي.')}],
-  outro:'غنّت القرية ودبكت. لقد أعدت بناء القرية كلها يا عبود!'}];
+  outro:'غنّت القرية ودبكت. لقد أعدت بناء القرية كلها!'}];
 function villageSVG(done,fresh){const on=k=>done[k]?'built'+(fresh===k?' rise':''):'ghost';
  const tree=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect x="-3" y="-4" width="6" height="18" rx="2" fill="#7a5230"/><ellipse cx="0" cy="-12" rx="16" ry="12" fill="#6d9b3a"/><ellipse cx="-7" cy="-16" rx="9" ry="7" fill="#89b84a"/><circle cx="5" cy="-9" r="2" fill="#2f4a12"/><circle cx="-4" cy="-6" r="1.8" fill="#2f4a12"/></g>`;
  const house=(x,y,c)=>`<g transform="translate(${x} ${y})"><rect x="0" y="0" width="34" height="26" fill="${c}" stroke="#a78657"/><path d="M-4 1L17-16 38 1z" fill="#c2410c"/><rect x="13" y="12" width="8" height="14" fill="#7a5230"/><rect x="4" y="6" width="7" height="6" fill="#fde68a" class="win"/><rect x="24" y="6" width="7" height="6" fill="#fde68a" class="win"/></g>`;
@@ -226,7 +226,7 @@ V.friends=()=>{const s=S();if(s.week.id!==weekId())s.week={id:weekId(),xp:0};con
 setTimeout(()=>{},0);
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#invite'))FX.modal(`${FX.MASCOT('think','empty-m')}<h2>يحتاج اتصالاً بالإنترنت</h2><p>دعوة الأصدقاء والفرق الحقيقية تحتاج خادماً وحسابات بإذن الأهل. هذه الميزة غير مفعّلة بعد في الوضع التجريبي.</p>`)});
 // ================= مركز المغامرات + الرئيسية =================
-const ADV=[['#/teach','scene-explorer','user','عبود هو المعلم','علّم زيتون واكتشف خطأه',()=>S().teach.n+' درس'],['#/detective','scene-tower','search','محقق الأخطاء','اكشف السطر الخاطئ',()=>drank(S().det.solved).name],
+const ADV=[['#/teach','scene-explorer','user','أنت المعلم','علّم زيتون واكتشف خطأه',()=>S().teach.n+' درس'],['#/detective','scene-tower','search','محقق الأخطاء','اكشف السطر الخاطئ',()=>drank(S().det.solved).name],
  ['#/village','scene-village','house','قصة القرية','ابنِ القرية بالرياضيات',()=>CH.filter(c=>S().village.done[c.part]).length+'/6'],['#/board','scene-house','pen','لوحة الكتابة','اكتب خطواتك بيدك',()=>S().board.done+' حل'],
  ['#/sky','scene-glass','sky','سماء النجوم','مهاراتك كنجوم تلمع وتخفت',()=>''],['#/coach','scene-market','chat','المدرب: لماذا؟','حوار يسألك عن السبب',()=>''],['#/friends','scene-triangle','users','تحديات الأصدقاء','وضع تجريبي',()=>'تجريبي']];
 const advCards=()=>`<div class="adv">${ADV.map(([h,img,ic,t,d,f])=>`<a class="advc" href="${h}">${FX.cover(img)}<span class="adv-ic">${I(ic)}</span><div class="adv-b"><b>${t}</b><span>${d}</span>${f()?`<small>${f()}</small>`:''}</div></a>`).join('')}</div>`;
