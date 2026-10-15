@@ -81,12 +81,12 @@ T.pct={title:'شبكة المئة',icon:'chart',skills:['S2-6-1','S2-6-2','P05']
 // ===== الدائرة والنسبة التقريبية π =====
 T.circ={title:'عجلة الدائرة',icon:'target',skills:['S2-7-5','S2-7-6','S2-7-7'],desc:'غيّر نصف القطر، ودحرج الدائرة دورة كاملة لترى أن محيطها يساوي π × القطر تقريبًا، وشاهد مساحتها π نق².',
  html:()=>`<div class="lab-task" id="ciT"></div><label class="sl">نصف القطر نق = <b id="civ">2</b> سم<input type="range" min="1" max="7" value="2" id="ciR"></label>
- <svg viewBox="0 0 340 170" class="pyth" id="cisvg"></svg><div class="center eqn" id="cie"></div>
+ <svg viewBox="0 0 560 190" class="pyth" id="cisvg"></svg><div class="center eqn" id="cie"></div>
  <div class="lab-row"><button class="btn sec" id="ciroll">دحرج الدائرة</button></div>
  <div class="row" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"><input id="ciIn" inputmode="decimal" placeholder="جوابك" style="max-width:120px"><button class="btn" id="ciGo">تحقق</button><button class="btn sec" id="cin">${I('refresh')}</button></div><div class="lab-fb"></div>`,
  init(root,ctx){let tk,roll=0;const D=x=>(Math.round(x*100)/100+'').replace('.',',');const r=()=>+root.querySelector('#ciR').value;
-  const draw=()=>{const n=r();root.querySelector('#civ').textContent=n;const k=7,cx=20+n*k+roll*2*Math.PI*n*k,cy=120-n*k;
-   root.querySelector('#cisvg').innerHTML=`<line x1="10" y1="120" x2="335" y2="120" class="b-str"/><line x1="${20+n*k}" y1="128" x2="${20+n*k+2*Math.PI*n*k}" y2="128" class="b-base" style="stroke-width:4"/>
+  const draw=()=>{const n=r();root.querySelector('#civ').textContent=n;const k=10,cx=20+n*k+roll*2*Math.PI*n*k,cy=170-n*k;
+   root.querySelector('#cisvg').innerHTML=`<line x1="10" y1="170" x2="555" y2="170" class="b-str"/><line x1="${20+n*k}" y1="178" x2="${20+n*k+2*Math.PI*n*k}" y2="178" class="b-base" style="stroke-width:4"/>
     <circle cx="${cx}" cy="${cy}" r="${n*k}" class="b-pan" style="fill-opacity:.35"/><line x1="${cx}" y1="${cy}" x2="${cx+n*k*Math.cos(-roll*2*Math.PI)}" y2="${cy+n*k*Math.sin(-roll*2*Math.PI)}" class="b-str" style="stroke-width:2"/><circle cx="${cx}" cy="${cy}" r="2.5"/>`;
    root.querySelector('#cie').innerHTML=`ق = ${2*n} سم · المحيط = π × ق ≈ 3,14 × ${2*n} = <b>${D(3.14*2*n)}</b> سم · المساحة = π نق² ≈ <b>${D(3.14*n*n)}</b> سم²`};
   root.querySelector('#ciR').oninput=()=>{roll=0;draw()};
