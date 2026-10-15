@@ -6,6 +6,8 @@
 <script>
 /* روابط قديمة (#/lesson/...) كانت على الجذر: نحوّلها إلى موقع رياضيات الصف الثامن الجديد */
 (function(){var h=location.hash||'';if(/^#\/[a-z]/i.test(h)){location.replace('g8/math/'+location.search+h);}})();
+/* لا دخول دون ملف طالب */
+(function(){try{var s=JSON.parse(localStorage.getItem('bustan_session')||'null');if(!s||s.pending||localStorage.getItem('bustan_owner')!==s.id){location.replace('login.html');}}catch(e){}})();
 try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')||'light'}catch(e){}
 </script>
 <meta name="theme-color" content="#647b43">
@@ -36,10 +38,7 @@ try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')|
       <img src="assets/img/zaytoun-welcome.webp" alt="زيتون يرحّب بك" width="150" height="176">
     </section>
     <section id="resume" class="resume hidden" aria-live="polite"></section>
-    <div class="name">
-      <label for="sname">اسمك (اختياري)</label>
-      <input id="sname" type="text" maxlength="24" autocomplete="given-name" placeholder="مثلًا: عبّود">
-    </div>
+    <div class="userbar" id="userbar"></div>
     <div class="step" id="s1h"><span class="n">١</span><div><h2>اختر الصف</h2><p>من الصف الأول حتى الثاني عشر</p></div></div>
     <div class="grid grades" id="grades" role="group" aria-labelledby="s1h"></div>
     <div class="step off" id="s2h"><span class="n">٢</span><div><h2 id="s2t">اختر المادة</h2><p id="s2p">اختر الصف أولًا</p></div></div>
@@ -47,6 +46,7 @@ try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')|
   </main>
   <p class="foot">المنهاج الفلسطيني · نضيف صفوفًا ومواد جديدة تباعًا</p>
 </div>
+<script src="profiles.js"></script>
 <script src="catalog.js"></script>
 <script src="entry.js"></script>
 <script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>

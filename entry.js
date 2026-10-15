@@ -25,15 +25,13 @@ const active=(g,s)=>{const e=entry(g,s);return e&&e.status==='active'?e:null};
 const gradeActive=g=>C.entries.some(e=>e.grade===g&&e.status==='active');
 const gname=g=>(C.grades.find(x=>x.id===g)||{}).name||'';
 const sname=s=>(C.subjects.find(x=>x.id===s)||{}).name||'';
-// الاسم: من صفحة الدخول أو من تقدّم رياضيات الصف الثامن
-let app=null;try{app=JSON.parse(get('abboud_math_v1')||'null')}catch(e){}
-const nameIn=$('#sname');nameIn.value=get('bustan_student_name')||(app&&app.name)||'';
-const greet=()=>{const n=nameIn.value.trim();$('#hello').textContent=n?`أهلًا ${n}، مرحبًا في البستان`:'أهلًا بك في البستان'};greet();
-nameIn.addEventListener('input',()=>{set('bustan_student_name',nameIn.value.trim());greet()});
+// الطالب الحالي (من صفحة الدخول)
+const me=window.PROFILES&&PROFILES.current();
+const myName=me?me.name:'';
+$('#hello').textContent=myName?`أهلًا ${myName}، مرحبًا في البستان`:'أهلًا بك في البستان';
+ICON.user='<circle cx="9" cy="8" r="3.5"/><path d="M3 20c.5-3.5 3-5.5 6-5.5s5.5 2 6 5.5M16 7h5M19 4l2 3-2 3"/>';ICON.out='<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10"/>';
+if(me)$('#userbar').innerHTML=`<img src="${PROFILES.avatarSrc(me.avatar)}" alt="" width="46" height="46"><span class="un"><b>${esc(me.name)}</b><small>${PROFILES.list().length>1?'ملفات هذا الجهاز: '+AR(PROFILES.list().length):'ملفك على هذا الجهاز'}</small></span><a class="btn ghost sm" href="login.html?switch=1">${svg('user',18)} تبديل المستخدم</a><a class="btn ghost sm" href="login.html?logout=1">${svg('out',18)} خروج</a>`;
 function go(e){
- const n=nameIn.value.trim();if(n){set('bustan_student_name',n);
-  // نحدّث الاسم داخل تقدّم المادة إن وُجد، دون المساس بأي بيانات أخرى
-  if(e.grade===8&&e.subject==='math'){try{const st=JSON.parse(get('abboud_math_v1')||'null');if(st&&st.name!==n){st.name=n;set('abboud_math_v1',JSON.stringify(st))}}catch(x){}}}
  set('bustan_last',JSON.stringify({grade:e.grade,subject:e.subject,path:e.path,t:Date.now()}));
  location.href=e.path;
 }

@@ -3,3 +3,12 @@
 .brand-symbol svg{color:var(--g);display:block}
 .top .switch-mini{display:none}
 @media(max-width:899px){.side-brand .switch-subject{display:none}.top .switch-mini{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:12px;border:1.5px solid var(--line);border-bottom-width:3px;color:var(--gd);background:var(--card)}}
+.side-brand .switch-subject{margin-top:6px;padding:6px 8px;font-size:12px}
+.side-brand .user-switch{margin-top:10px}
+@media(max-width:899px){.top .switch-mini{width:32px;height:32px;margin-inline-start:2px}}
+.tabs .side-brand a.switch-subject{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:6px;min-height:0!important;height:auto!important;margin:6px 0 0!important;padding:6px 8px!important;border-radius:12px!important;font:700 12.5px/1.4 Baloo,Cairo,sans-serif!important;background:var(--card)!important;color:var(--gd)!important;border:1.5px solid var(--line)!important;border-bottom-width:3px!important}
+.tabs .side-brand a.switch-subject span{font:inherit!important;margin:0!important;white-space:nowrap}
+.tabs .side-brand a.switch-subject svg{width:15px;height:15px;flex:none}
+.tabs .side-brand a.switch-subject:hover{background:var(--gl)!important}
+.tabs .side-brand a.user-switch{margin-top:12px!important}
+@media(max-width:430px){.top .header-divider,.top #page-label{display:none}.top .brand .header-label{white-space:nowrap}.top .stats{gap:6px}}
