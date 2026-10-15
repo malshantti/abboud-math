@@ -26,13 +26,13 @@ const allUnits=()=>E.units;
 const unitStatus=id=>{const u=S.units[id];if(!u)return'new';if(u.quiz.best!=null&&u.quiz.best>=80)return'mastered';return u.lesson||u.prac.n?'learning':'new'};
 const stLabel={new:'لم تبدأ',learning:'قيد التعلّم',mastered:'متقنة'};
 function speedBar(){const r=AU.rate();return `<div class="speed" role="group" aria-label="سرعة الصوت"><button type="button" data-rate="1" class="${r>=1?'on':''}">سرعة عادية</button><button type="button" data-rate="0.75" class="${r<1?'on':''}">${ICS.slow} بطيئة</button></div>`}
-function page(label,html,tab){$('#page-label').textContent=label;app.innerHTML=html;document.querySelectorAll('.tabs a[data-t]').forEach(a=>a.classList.toggle('on',a.dataset.t===tab));window.scrollTo(0,0);hdr()}
+function page(label,html,tab){$('#page-label').textContent=label;app.innerHTML=html;const t=(window.EN_SEC_TABS||{})[location.hash.slice(2).split('/')[0]]||tab;document.querySelectorAll('.tabs a[data-t]').forEach(a=>a.classList.toggle('on',a.dataset.t===t));window.scrollTo(0,0);hdr()}
 document.addEventListener('click',e=>{const zb=e.target.closest('.zbtn');if(zb){AU.zay(+zb.dataset.z);return}const ab=e.target.closest('.arb');if(ab){e.preventDefault();AU.playAr(ab.dataset.ar,{btn:ab});return}const b=e.target.closest('.au');if(b){e.preventDefault();if(b.classList.contains('playing')){AU.stop();return}AU.play(b.dataset.say,{btn:b,voice:b.dataset.v});return}
  const r=e.target.closest('[data-rate]');if(r){AU.setRate(+r.dataset.rate);document.querySelectorAll('.speed button').forEach(x=>x.classList.toggle('on',(+x.dataset.rate<1)===(+r.dataset.rate<1)));return}});
 const FEM=/^(nadia|tina|huda|grandma|mum|mother|sara|sarah|rania|lina|maha|reem|amal|layla|leila|mrs|miss|ms|woman|girl|aunt|noor|nour|hana|dana|salma|maryam|fatima|aisha|zeina|samira|sana|muna|rasha|suha|wafa|basma|lubna|ruba|hiba|jenny|alba|teacher \(f\))/i;
 const gOf=l=>l.g?(/^f/i.test(l.g)?'f':'m'):(FEM.test(l.sp||'')?'f':'m');
 /* ---------- الصفحة الرئيسية ---------- */
-let zWel=0;function home(){day();if(!zWel++)setTimeout(()=>AU.zay(0),600);const us=allUnits();const ms=us.filter(u=>unitStatus(u.id)==='mastered').length;
+let zWel=0;function homeLegacy(){day();if(!zWel++)setTimeout(()=>AU.zay(0),600);const us=allUnits();const ms=us.filter(u=>unitStatus(u.id)==='mastered').length;
  const pl=S.place;const sem=n=>us.filter(u=>u.sem===n);
  const card=u=>{const st=unitStatus(u.id),q=S.units[u.id]&&S.units[u.id].quiz.best;return `<a class="card tap ucard-en st-${st}" href="#/u/${u.id}"><span class="un">${u.n}</span><span class="ut">${EN(u.title,'b')}<small>${u.revision?'مراجعة':stLabel[st]}${q!=null?' · أفضل نتيجة '+q+'%':''}</small></span>${st==='mastered'?I('check','ic'):''}</a>`};
  page('رحلتي',`
@@ -46,7 +46,7 @@ let zWel=0;function home(){day();if(!zWel++)setTimeout(()=>AU.zay(0),600);const 
  <div class="card kpis"><div><b>${ms}</b><small>وحدات متقنة</small></div><div><b>${S.wrong.length}</b><small>أسئلة للمراجعة</small></div><div><b>${S.min||0}</b><small>دقيقة تعلّم</small></div></div>
  ${S.wrong.length?`<a class="btn wide" href="#/review">${I('review','ic')} راجع أخطائي</a>`:''}`,'home')}
 /* ---------- التأسيس ---------- */
-function found(){page('التأسيس',`<h1 class="h1">مسار التأسيس</h1><p class="muted">هذا المسار ليس من الكتاب المدرسي؛ أُعدّ لتقوية الأساسيات قبل دروس الصف الثامن وفي أثنائها.</p>${speedBar()}
+function foundLegacy(){page('التأسيس',`<h1 class="h1">مسار التأسيس</h1><p class="muted">هذا المسار ليس من الكتاب المدرسي؛ أُعدّ لتقوية الأساسيات قبل دروس الصف الثامن وفي أثنائها.</p>${speedBar()}
  <div class="ugrid">${E.found.map((f,i)=>{const st=unitStatus(f.id);return `<a class="card tap ucard-en st-${st}" href="#/f/${f.id}"><span class="un">${i+1}</span><span class="ut"><b>${esc(f.ar)}</b><small>${EN(f.title)} · ${stLabel[st]}</small></span>${st==='mastered'?I('check','ic'):''}</a>`}).join('')}</div>`,'found')}
 function fmod(id){const f=E.byId[id];if(!f)return go('#/found');const u=U(id);u.lesson=1;save();
  const it=f.items;const vl=xs=>`<ul class="vlist">${xs.map(x=>`<li>${AUB(x.en)}<span class="vw">${EN(x.en,'b')}${x.ar?`<small>${esc(x.ar)}</small>`:''}</span></li>`).join('')}</ul>`;
@@ -132,8 +132,9 @@ function answer(ok,given,btn){const s=SES,q=s.qs[s.i];if(q.done)return;q.done=1;
  $('#fb').innerHTML=`<div class="fb-en ${ok?'ok':'bad'}" role="status"><b>${ok?'إجابة صحيحة':'ليست صحيحة هذه المرة'}</b>${why?`<p>${esc(why)}</p>`:''}${!ok&&q.type==='spell'?`<p>كتبت: <span dir="ltr" lang="en" class="given">${esc(given)}</span></p>`:''}<p class="corr">${AUB(q.type==='order'?q.lines[0].en:q.type==='spell'?q.ans:correct)}<span dir="ltr" lang="en">${esc(correct).replace(/\n/g,'<br>')}</span>${arA?` <b>= ${esc(q.ans)}</b>`:''}</p><button class="btn wide" id="nx" type="button">${s.i+1<s.qs.length?'السؤال التالي':'النتيجة'}</button></div>`;
  $('#nx').focus();$('#nx').onclick=()=>{AU.stop();s.i++;s.i<s.qs.length?show():finish()}}
 function finish(){const s=SES,p=pct(s.ok,s.qs.length);
+ if(s._done){const cb=s._done;s._done=null;cb(p,s);return}
  if(s.mode==='place')return placeDone();
- const uu=U(s.id);if(s.quiz){uu.quiz.n++;uu.quiz.last=p;uu.quiz.best=Math.max(uu.quiz.best==null?0:uu.quiz.best,p);S.xp+=p>=80?30:0}
+ const uu=U(s.id);if(s.quiz){uu.quiz.n++;uu.quiz.last=p;uu.quiz.best=Math.max(uu.quiz.best==null?0:uu.quiz.best,p);S.xp+=p>=80?30:0}else if(s.mode!=='place'&&s.mode!=='review'){uu.modes=uu.modes||{};uu.modes[s.mode]=Math.max(uu.modes[s.mode]||0,p)}
  S.log.push({d:today(),u:s.id,m:s.quiz?'quiz':s.mode,ok:s.ok,n:s.qs.length});if(S.log.length>300)S.log.splice(0,S.log.length-300);save();hdr();
  const pass=p>=80;setTimeout(()=>AU.zay(s.quiz?(pass?16:17):9),500);if(pass&&window.FX&&FX.confetti)try{FX.confetti()}catch(e){}
  page('النتيجة',`<div class="card done-en"><img src="img/zaytoun-${pass?'celebrate':'encourage'}.webp" alt="" width="120" height="140"><h1>${p}%</h1><p>${s.ok} من ${s.qs.length} إجابات صحيحة.</p><p>${s.quiz?(pass?'أتقنت هذه الوحدة. أحسنت.':'الإتقان يحتاج إلى 80%. راجع الدرس ثم حاول مرة أخرى.'):(pass?'عمل ممتاز.':'كل محاولة تقرّبك. تدرّب مرة أخرى.')}</p>
@@ -150,7 +151,7 @@ function placeDone(){const s=SES;const by={};s.qs.forEach((q,i)=>{const r=by[q.p
  page('النتيجة',`<div class="card done-en"><h1>${S.place.score}%</h1><ul class="sbars">${row('phon','أصوات الحروف والقراءة')}${row('sight','الكلمات الأساسية')}${row('basic','القواعد الأساسية')}${row('g8','قواعد الصف الثامن')}</ul>
  <p>${rec.length?'ننصحك بأن تبدأ بهذه المراحل من مسار التأسيس، ثم تتابع وحدات الكتاب:':'أساسياتك جيدة. ابدأ بالوحدة الأولى من الكتاب.'}</p>${rec.map(id=>`<a class="btn sec wide" href="#/f/${id}">${esc(E.byId[id].ar)}</a>`).join('')}<a class="btn wide" href="#/home">إلى الرئيسية</a></div>`,'home')}
 /* ---------- النطق ---------- */
-function speak(id){const u=E.byId[id];if(!u)return go('#/home');const items=(u.kind?u.items.map(x=>x.en):[...u.vocab.map(w=>w.en),...u.sentences.map(s=>s.en),...u.dialogues.flatMap(d=>d.lines.map(l=>l.en))]).filter(t=>t.split(' ').length<=14).slice(0,20);
+function speak(id){const u=E.byId[id];if(!u)return go('#/home');U(id).speak=U(id).speak||{n:0,best:0};U(id).speak.n++;save();const items=(u.kind?u.items.map(x=>x.en):[...u.vocab.map(w=>w.en),...u.sentences.map(s=>s.en),...u.dialogues.flatMap(d=>d.lines.map(l=>l.en))]).filter(t=>t.split(' ').length<=14).slice(0,20);
  const mode=SPEECH.hasSR?'sr':SPEECH.canRec()?'rec':'none';
  page('النطق',`<a class="back" href="${back(id)}">${I('back','ic')} رجوع</a><h1 class="h1">تدريب النطق</h1><p class="muted">${mode==='sr'?'استمع إلى النموذج، ثم اضغط زر الميكروفون وانطق الجملة. سنُظهر لك الكلمات التي فُهمت.':mode==='rec'?'استمع إلى النموذج، ثم سجّل صوتك واستمع إليه وقارنه بالنموذج.':'هذا المتصفح لا يدعم الميكروفون. استمع وكرّر بصوت مرتفع.'}</p>${speedBar()}
  <ul class="splist">${items.map((t,i)=>`<li data-i="${i}"><div class="sprow">${AUB(t)}${EN(t,'b')}${mode!=='none'?`<button class="mic" type="button" data-i="${i}" aria-label="سجّل نطقك">${ICS.mic}</button>`:''}</div><div class="spres" id="r${i}"></div></li>`).join('')}</ul>`,'home');
@@ -211,14 +212,23 @@ function report(){const P=window.PROFILES;const me=P&&P.current&&P.current();con
  <div class="card"><h2>الإعدادات</h2><button class="btn sec" id="offall" type="button">${I('download','ic')} نزّل صوت كل الوحدات وصورها للاستخدام دون إنترنت (${mb(AU.bytes([...E.units.flatMap(unitTexts),...E.found.flatMap(f=>f.items.map(x=>x.say||x.en))])+Object.values(window.EN_IMG||{}).flat().reduce((a,i)=>a+i.z,0))})</button><p class="muted small-note">دون تنزيل، يُحفظ كل مقطع صوتي تلقائيًا بعد أول مرة تسمعه فيها.</p><label class="sw-l"><input type="checkbox" id="zay" ${localStorage.getItem('en_zay')==='0'?'':'checked'}> صوت زيتون بالعربية (إرشادات وتشجيع)</label><label class="sw-l"><input type="checkbox" id="sfx" ${localStorage.getItem('en_sfx')==='0'?'':'checked'}> مؤثرات صوتية خفيفة عند الإجابة</label><p class="muted small-note">الصوت: ${AU.count()?'ملفات صوت طبيعية محفوظة ('+AU.count()+' عبارة)':'نطق المتصفح'}${AU.count()?'، ويُستخدم نطق المتصفح لأي عبارة ليس لها ملف.':'.'}</p></div>`,'report');
  $('#offall').onclick=()=>offline({vocab:[],dialogues:[],texts:[],sentences:[],grammar:[],pron:[],everyday:[],all:[...E.units.flatMap(unitTexts),...E.found.flatMap(f=>f.items.map(x=>x.say||x.en))]},$('#offall'));$('#zay').onchange=e=>localStorage.setItem('en_zay',e.target.checked?'1':'0');$('#sfx').onchange=e=>localStorage.setItem('en_sfx',e.target.checked?'1':'0');
  $('#csv').onclick=()=>{const csv='\ufeff'+[['الطالب','وحدات متقنة','عدد الوحدات','دقة الاستماع %','دقة القواعد %','آخر اختبار %','تاريخ آخر اختبار','تحديد المستوى %','دقائق'],...rows.map(({p,d})=>d?[p.name,d.m,d.total,d.listen,d.gram,d.last&&d.last.p,d.last&&d.last.d,d.place,d.min]:[p.name])].map(r=>r.map(x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='english-report-'+today()+'.csv';a.click()}}
+
+/* ---------- تشغيل مجموعة أسئلة (للتحدّي اليومي وغيره) ---------- */
+function runSet(qs,o){if(!qs||!qs.length){page(o.label||'تدريب',`<a class="back" href="${o.back||'#/home'}">${I('back','ic')} رجوع</a><div class="note">لا توجد أسئلة متاحة الآن.</div>`,'home');return}
+ SES={id:o.id||'set',mode:o.mode||'mix',quiz:!!o.quiz,qs,i:0,ok:0,res:[],z:{},_done:o.onDone,_back:o.back||'#/home',_label:o.label||'تدريب'};show()}
+
+/* ---------- أقسام الواجهة المطابقة للرياضيات ---------- */
+const SEC=window.EN_SEC({E,esc,I,ICS,AUB,EN,page,save,hdr,U,unitStatus,go,S:()=>S,day,GEN,addSkill,runSet,
+ zayWelcome:()=>{if(!window.__zw){window.__zw=1;setTimeout(()=>AU.zay(0),500)}}});
+const home=SEC.home,found=SEC.found;window.EN_SEC_TABS=SEC.tabs;
 /* ---------- التوجيه ---------- */
 function go(h){location.hash=h}
 function route(){AU.stop();const h=(location.hash||'#/home').replace(/\?.*$/,'');const p=h.slice(2).split('/');
- try{switch(p[0]){case'u':return unit(p[1]);case'f':return fmod(p[1]);case'found':return found();case'p':return start(p[1],p[2]||'mix',false);case'q':return start(p[1],'mix',true);case's':return speak(p[1]);case'w':return word(p[1],p[2]);case'place':return place();case'review':return S.wrong.length?start(S.wrong[0].u,'review',false):home();case'report':return report();case'listen':return hub('listen');case'speak':return hub('speak');default:return home()}}catch(e){console.error(e);home()}}
+ try{document.body.dataset.route=p[0]||'home';switch(p[0]){case'u':return unit(p[1]);case'f':return fmod(p[1]);case'found':return found();case'journey':case'map':return SEC.journey();case'p':return start(p[1],p[2]||'mix',false);case'q':return start(p[1],'mix',true);case's':return speak(p[1]);case'w':return word(p[1],p[2]);case'place':case'diag':return place();case'review':return S.wrong.length?start(S.wrong[0].u,'review',false):home();case'report':return report();case'listen':return hub('listen');case'speak':return hub('speak');case'play':return SEC.play();case'adv':return SEC.adv(p[1]);case'detective':return SEC.detective();case'lab':return SEC.lab(p[1]||'');case'daily':return SEC.daily();case'friends':return SEC.friends();case'ach':return SEC.ach();case'game':return SEC.game();default:return home()}}catch(e){console.error(e);home()}}
 window.addEventListener('hashchange',route);
 document.querySelectorAll('[data-ic]').forEach(el=>{if(!el.querySelector('svg'))el.insertAdjacentHTML('afterbegin',ICS[el.dataset.ic]||I(el.dataset.ic,'ic'))});
 const tb=$('#theme');const thI=()=>{tb.innerHTML=I(document.documentElement.dataset.theme==='dark'?'sun':'moon')};if(tb){thI();tb.onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;thI();try{localStorage.setItem('abboud_theme',t)}catch(e){}}};
-try{const P=window.PROFILES,c=P&&P.current&&P.current();if(c&&$('#side-name'))$('#side-name').textContent=c.name}catch(e){}
+try{const P=window.PROFILES,c=P&&P.current&&P.current();if(c){if($('#side-name'))$('#side-name').textContent=c.name;const a=$('.student-avatar');if(a)a.textContent=Array.from((c.name||'').trim())[0]||'ع'}}catch(e){}
 if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 window.EN_APP={S:()=>S,ses:()=>SES,show:()=>show(),enSummary};
 route();

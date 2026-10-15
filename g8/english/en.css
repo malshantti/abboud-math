@@ -80,3 +80,38 @@ p[dir=ltr],div[dir=ltr],.qen{text-align:left}
 .bkgal summary{cursor:pointer;font-weight:800;display:flex;gap:6px;align-items:center}.bkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px}
 .vthumb{width:56px;height:56px;object-fit:cover;border-radius:12px;border:1px solid var(--line);flex:none;background:#fff}
 .opts-pic{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.opt.pic{padding:6px;display:flex;flex-direction:column;gap:4px;align-items:center}.opt.pic img{width:100%;height:150px;object-fit:contain;border-radius:10px;background:#fff}.opt.pic small{color:var(--mut);font-size:11px}
+/* ===== v14: أقسام مطابقة للرياضيات ===== */
+body.en-app[data-route=home] #app,body.en-app[data-route=play] #app,body.en-app[data-route=lab] #app,body.en-app[data-route=found] #app{max-width:1140px}
+.stars{display:inline-flex;gap:2px;vertical-align:-3px}.stars i{display:inline-flex;width:16px;height:16px;color:#d6d3c4}.stars i.on{color:#f59e0b}.stars svg{width:16px;height:16px}
+.mission-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.mission-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:18px;background:var(--card,#fff);overflow:hidden;color:inherit;text-decoration:none;transition:transform .15s}
+.mission-card:hover{transform:translateY(-2px)}.mission-img{display:block;aspect-ratio:16/10;background:#f3f1e8;overflow:hidden}.mission-img img{width:100%;height:100%;object-fit:cover;display:block}
+.mission-copy{display:flex;flex-direction:column;gap:4px;padding:12px 14px}.mission-copy small{color:var(--mut);font-size:12px}.mission-copy b{font-size:17px}.mission-copy span{font-size:14px;color:var(--mut)}.mission-copy em{font-style:normal;font-size:13px;color:var(--g)}
+.adv-run .bk.wide,.adv-say .bk,.adv-read .bk,.adv-dlg .bk{margin:0 auto 10px;max-width:520px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+.adv-run .bk img{display:block;width:100%;height:auto;max-height:300px;object-fit:contain;background:#fff}.adv-run .bk figcaption{font-size:12px;color:var(--mut);padding:4px 10px;background:#faf8f2}
+.adv-ar{font-size:17px;line-height:1.8}.adv-h{font-size:20px;margin:8px 0}
+.dlg-lines{list-style:none;padding:0;margin:10px 0;display:flex;flex-direction:column;gap:8px}.dlg-lines li{display:flex;align-items:center;gap:8px;direction:ltr;text-align:left;background:var(--bg2,#f7f6ef);border-radius:12px;padding:6px 10px}.dlg-lines .sp{min-width:70px;color:var(--g)}
+.det-opts .opt{text-align:left}.opt.bad-sent{border-color:#dc2626!important;background:#fef2f2!important;color:#991b1b!important}
+.jsum{display:flex;gap:14px;align-items:center}
+.fgroup{margin:16px 0 2px;font-size:16px}.fgroup-d{margin:0 0 8px}
+.lab-tool .card{margin-bottom:12px}.lsel{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}.lsel select{font:inherit;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card,#fff);color:inherit;max-width:100%}
+.acts-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.sbline{min-height:56px;border:2px dashed var(--line);border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;touch-action:none}
+#sbb{touch-action:none;min-height:48px}.sbline .ph{color:var(--mut);font-size:14px}
+.tile-en{user-select:none;-webkit-user-select:none;cursor:grab}.tile-en.dragging{position:relative;z-index:5;cursor:grabbing;box-shadow:0 6px 16px rgba(0,0,0,.18);opacity:.95}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}.seg button{font:inherit;border:1px solid var(--line);background:var(--card,#fff);color:inherit;border-radius:999px;padding:6px 12px;cursor:pointer}.seg button.on{background:var(--g);color:#fff;border-color:var(--g)}.seg small{opacity:.75}
+.tm-out{font-size:24px;margin:14px 0 8px;line-height:1.6;text-align:left}.tm-out mark{background:#fde68a;color:#78350f;border-radius:8px;padding:0 6px}.tm-out em{font-style:normal;color:var(--g)}
+.tm-rule{background:var(--bg2,#f7f6ef);border-radius:14px;padding:10px 14px;margin-top:10px}.tm-rule p{margin:4px 0 0}
+.tm-all ul{list-style:none;padding:0}.tm-all li{display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap}.tm-all small{color:var(--mut)}
+.blend{display:flex;justify-content:center;align-items:center;gap:calc((1 - var(--g))*60px);font-size:46px;font-weight:800;margin:16px 0;transition:gap .25s}
+.blend span{background:var(--bg2,#f7f6ef);border:2px solid var(--line);border-radius:16px;padding:4px 18px;min-width:60px;text-align:center}.blend .b-on{color:#1d4ed8}.blend .b-r{color:#b45309}
+.blend-sl{display:flex;flex-direction:column;gap:4px;max-width:420px;margin:0 auto}.blend-sl input{width:100%}
+.pb-ar{font-size:18px;text-align:center}.pb-ar b{font-size:22px;margin-left:8px}
+.wave{display:flex;gap:8px;align-items:center;margin:6px 0}.wave span{min-width:52px;font-size:13px;color:var(--mut)}.wave canvas{flex:1;width:100%;height:70px;background:var(--bg2,#f7f6ef);border-radius:12px}
+.pm-t{font-size:22px;text-align:center;margin:8px 0}
+.sl-boxes{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0}.sl-boxes span{width:38px;height:46px;border:2px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.sl-boxes span.g{border-color:#16a34a;background:#dcfce7;color:#14532d}.sl-boxes span.r{border-color:#dc2626;background:#fee2e2;color:#7f1d1d}.sl-boxes span.p{border-color:#a3a3a3}.sl-boxes span.h{color:var(--mut);border-style:dashed}
+.race-top{display:flex;justify-content:space-between;font-size:18px}.race-w{font-size:34px;text-align:center;margin:18px 0}
+.en-medal{display:inline-flex;width:56px;height:56px;border-radius:50%;align-items:center;justify-content:center;background:#e7e5da;color:#8a8576}.badge.on .en-medal{background:#fef3c7;color:#b45309}.en-medal svg{width:28px;height:28px}
+.pn .lbl .stars{display:flex;justify-content:center;margin-top:2px}
+[data-theme=dark] .mission-card,[data-theme=dark] .seg button{background:#22231d}[data-theme=dark] .adv-run .bk figcaption{background:#2a2a24}
