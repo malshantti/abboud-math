@@ -2,10 +2,10 @@
    السرعة البطيئة بتغيير playbackRate مع الحفاظ على طبقة الصوت، فلا حاجة لملفات إضافية. */
 (function(){
 const norm=t=>String(t||'').replace(/[\u2018\u2019\u02bc]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/\s+/g,' ').trim().toLowerCase();
-let MAN=null,BASE='audio/';const idx=new Map(),slow=new Map();
+let MAN=null,BASE='audio/';const idx=new Map(),slow=new Map(),SZ=new Map();
 function load(m){if(!m)return;MAN=m;BASE=m.base||'audio/';const put=(t,f,v)=>{if(!t||!f)return;const k=norm(t);if(v){idx.set(v.toLowerCase()+'|'+k,f)}if(!idx.has(k))idx.set(k,f)};
  if(Array.isArray(m.items))m.items.forEach(x=>put(x.text||x.en,x.file||x.path||x.src,x.voice||x.speaker||x.gender));
- else{const o=m.files||m.map||m;Object.entries(o).forEach(([t,f])=>{if(typeof f==='string')put(t,f);else if(f&&typeof f==='object'){const ff=f.f||f.file;const sl=f.s||(f.slow&&(f.slow.file||f.slow));if(ff&&typeof ff==='string'){put(t,ff,f.voice);if(sl&&typeof sl==='string')slow.set(ff,sl)}else if(f.file)put(t,f.file,f.voice);else Object.entries(f).forEach(([v,ff])=>put(t,ff,v))}})}}
+ else{const o=m.files||m.map||m;Object.entries(o).forEach(([t,f])=>{if(typeof f==='string')put(t,f);else if(f&&typeof f==='object'){const ff=f.f||f.file;if(f.z)SZ.set(ff||f.f,f.z);const sl=f.s||(f.slow&&(f.slow.file||f.slow));if(ff&&typeof ff==='string'){put(t,ff,f.voice);if(sl&&typeof sl==='string')slow.set(ff,sl)}else if(f.file)put(t,f.file,f.voice);else Object.entries(f).forEach(([v,ff])=>put(t,ff,v))}})}}
 if(window.EN_AUDIO)load(window.EN_AUDIO);
 const st={rate:+(localStorage.getItem('en_rate')||1),cur:null,sp:null};
 const find=(t,voice)=>{const k=norm(t);return(voice&&idx.get(String(voice).toLowerCase()+'|'+k))||idx.get(k)||idx.get(k.replace(/[.!?]+$/,''))||null};
@@ -29,5 +29,6 @@ const AR=new Map();let ARB='audio-ar/';(function(){const m=window.EN_AUDIO_AR;if
 const hasAr=t=>AR.has(String(t||'').replace(/\s+/g,' ').trim());
 function playAr(t,o){o=o||{};stop();const f=AR.get(String(t).replace(/\s+/g,' ').trim());if(!f)return Promise.resolve(false);if(o.btn)o.btn.classList.add('playing');return new Promise(res=>{const a=new Audio(ARB+f);st.cur=a;const end=()=>{if(o.btn)o.btn.classList.remove('playing');res(true)};a.onended=end;a.onerror=end;a.play().catch(end)})}
 async function slowThenNormal(t,o){o=o||{};await play(t,Object.assign({},o,{rate:0.75}));await new Promise(r=>setTimeout(r,400));return play(t,Object.assign({},o,{rate:1}))}
-window.AU={hasAr,playAr,slowThenNormal,load,play,playSeq,stop,setRate,rate:()=>st.rate,has,find,files,norm,sfx,manifest:()=>MAN,count:()=>idx.size};
+const bytes=texts=>[...new Set(texts.map(t=>find(t)).filter(Boolean))].reduce((a,f)=>a+(SZ.get(f)||0),0);
+window.AU={bytes,hasAr,playAr,slowThenNormal,load,play,playSeq,stop,setRate,rate:()=>st.rate,has,find,files,norm,sfx,manifest:()=>MAN,count:()=>idx.size};
 })();
