@@ -34,10 +34,10 @@ const M=[
   {t:'gap',ar:'السيدة كمال تعرض الكعك على ضيوفها.',en:'___ you like another cake?',opts:['Would','Do','Are'],a:0,full:'Would you like another cake?',why:'نعرض شيئًا بأدب بقولنا: Would you like …?'},
   {t:'mc',ar:'لماذا رفضت تينا قطعة كعك أخرى؟',say:"No, thanks, Mrs Kamal. I'm full!",opts:['لأنها شبعت','لأنها لا تحب الكعك','لأنها مستعجلة'],a:0,why:"I'm full تعني: أنا شبعانة."},
   {t:'dlg',u:'U11',from:8,to:13,img:'B41-1',ar:'الآن تبدأ الزفة: العريس على الحصان والناس يهنّئونه.'},
-  {t:'pic',ar:'استمع واختر الصورة المناسبة.',say:'groom',opts:['B41-2','B44-2','B42-1','B41-3'],a:0},
+  {t:'pic',ar:'استمع واختر الصورة المناسبة.',say:'groom',opts:['B41-2','B42-2','A31-1','B69-1'],a:0},
   {t:'mc',ar:'من يتبع موكب العريس في سيارة؟',say:"The bride's following in a car. People are giving her their best wishes.",opts:['العروس','العريس','الضيوف'],a:0,why:"The bride's following in a car."},
   {t:'gap',ar:'اختر الكلمة التي تعبّر عن الغرض.',en:"He's riding round town ___ receive everyone's congratulations.",opts:['to','for','at'],a:0,full:"He's riding round town to receive everyone's congratulations.",why:'نعبّر عن الغرض بـ to + الفعل.'},
-  {t:'read',ar:'اقرأ واستمع إلى العادة الفلسطينية في نص What a wedding!',en:'In Palestine, the bride sticks some bread dough to the front door of her new home. This shows that she and her husband will stay together all their lives.',img:'B44-2'},
+  {t:'read',ar:'اقرأ واستمع إلى العادة الفلسطينية في نص What a wedding!',en:'In Palestine, the bride sticks some bread dough to the front door of her new home. This shows that she and her husband will stay together all their lives.'},
   {t:'mc',ar:'ماذا تُلصق العروس الفلسطينية على باب بيتها الجديد؟',opts:['عجين الخبز','خاتمًا','وردة'],a:0,why:'the bride sticks some bread dough to the front door'},
   {t:'order',ar:'رتّب ردّ تينا المهذّب.',say:"No, thanks. I'm full!",tiles:['No,','thanks.',"I'm",'full!']}
  ]},

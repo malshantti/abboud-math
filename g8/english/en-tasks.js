@@ -1,0 +1,36 @@
+/* مهارات الوحدة من حصص الكتاب: استماع أول وثانٍ مع «صح أو خطأ»، و«استمع واكتب»، ومهام كتابة قصيرة. كل نشاط يذكر الحصة والصفحة. */
+window.EN_TASKUI=function(C){'use strict';
+const {E,esc,I,ICS,AUB,page,save,U,addSkill}=C;const $=s=>document.querySelector(s);const T=()=>window.EN_TASKS||{};
+const ref=r=>r?`الحصة ${r.period||'—'} · كتاب الطالب ص ${r.page}`:'';
+const nn=x=>String(x).toLowerCase().replace(/[’]/g,"'").replace(/[^a-z0-9' ]/g,' ').replace(/\s+/g,' ').trim();
+let CUR=null;const say=sp=>{const l=CUR&&CUR.lines&&CUR.lines.find(x=>x.sp===sp);return l&&/^f/i.test(l.g||'')?'قالت':'قال'};
+function tasks(id,tab){const u=E.byId[id];const t=T()[id];if(!u||!t){page('مهارات الوحدة','<div class="note">لا توجد أنشطة إضافية لهذه الوحدة.</div>','home');return}
+ tab=tab||'listen';const st=U(id);st.tk=st.tk||{tf:{},dic:{},wr:{}};
+ const tabs=[['listen','الاستماع الثاني وصح أو خطأ'],['dict','استمع واكتب'],['write','الكتابة']].filter(([k])=>k!=='write'||t.write.length);
+ let body='';
+ if(tab==='listen')body=t.sets.map((s,si)=>(CUR=s,`<div class="card tk-set"><h2>${s.kind==='dialogue'?'حوار':'نص قراءة'}: <bdi dir="ltr" lang="en">${esc(s.title||'')}</bdi></h2><p class="muted small-note">${ref(s.ref)}${s.ref&&s.ref.act?` · <bdi dir="ltr" lang="en">${esc(s.ref.act)}</bdi>`:''}</p>
+  <ol class="tk-steps"><li><b>الاستماع الأول:</b> استمع إلى ${s.kind==='dialogue'?'الحوار':'النص'} كاملًا لتعرف الفكرة العامة. <button class="btn sec sm" type="button" data-play="${si}">${ICS.spk} استمع</button></li>
+  <li><b>الاستماع الثاني:</b> استمع مرة أخرى بتركيز، ثم أجب: صح أم خطأ؟</li></ol>
+  <div class="tk-tf">${s.tf.map((q,qi)=>`<div class="tf-row" data-s="${si}" data-q="${qi}"><p>${s.kind==='dialogue'?`هل ${say(q.sp)} <bdi dir="ltr" lang="en">${esc(q.sp)}</bdi> هذه الجملة؟ <span class="qen" dir="ltr" lang="en">“${esc(q.en)}”</span>`:`<span class="qen" dir="ltr" lang="en">${esc(q.s)}</span>`}</p><div class="tf-b"><button class="btn sm" type="button" data-a="1">صح</button><button class="btn sm sec" type="button" data-a="0">خطأ</button></div><div class="tf-f" role="status"></div></div>`).join('')}</div></div>`)).join('')||'<div class="note">لا توجد مجموعة استماع لهذه الوحدة.</div>';
+ if(tab==='dict'){const d=t.dict;body=`<div class="card"><h2>استمع واكتب ما تسمعه</h2><p class="muted small-note">${d.ref?ref(d.ref)+' · <bdi dir="ltr" lang="en">Listen and write down what you hear.</bdi>':''} الجمل من حوار الوحدة ونصّها. علامات الترقيم والحروف الكبيرة لا تُحسب.</p>
+  ${d.items.map((x,k)=>`<div class="dic-row" data-k="${k}"><div class="row-h">${AUB(x,{label:'استمع'})}<b>الجملة ${k+1}</b></div><input class="spin" dir="ltr" lang="en" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type here" aria-label="اكتب الجملة ${k+1}"><button class="btn sm" type="button" data-c="${k}">تحقّق</button><div class="dic-f" role="status"></div></div>`).join('')}</div>`}
+ if(tab==='write')body=t.write.map((w,k)=>{const sv=st.tk.wr[k]||'';return `<div class="card wr-card"><h2>مهمة كتابة ${k+1}</h2><p class="muted small-note">${ref(w)}</p><p class="qen" dir="ltr" lang="en">${esc(w.act)}</p>
+  <p class="small-note">اكتب ٣ إلى ٦ جمل قصيرة بالإنجليزية. استعمل كلمات الوحدة${(t.gram||[]).length?' وقواعدها':''}.</p>
+  <textarea class="wr-in" dir="ltr" lang="en" rows="6" data-w="${k}" spellcheck="true" aria-label="اكتب هنا">${esc(sv)}</textarea><div class="wr-chk" data-w="${k}"></div><button class="btn sm" type="button" data-save="${k}">احفظ وراجع</button></div>`}).join('');
+ page('مهارات الوحدة',`<a class="back" href="#/u/${id}">${I('back','ic')} الوحدة ${u.n}</a><h1 class="h1">مهارات الوحدة ${u.n}</h1><div class="seg tk-tabs" role="tablist">${tabs.map(([k,l])=>`<a role="tab" class="${k===tab?'on':''}" href="#/x/${id}/${k}">${l}</a>`).join('')}</div>${body}`,'home');
+ document.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>{const s=t.sets[+b.dataset.play];const ls=s.kind==='dialogue'?s.lines.map(l=>({en:l.en,voice:l.sp,g:/^f/i.test(l.g||'')?'f':'m'})):s.paras.flatMap(p=>p.split(/(?<=[.!?])\s+(?=[A-Z"'])/)).map(en=>({en}));C.toggleSeq(b,ls)});
+ document.querySelectorAll('.tf-row').forEach(r=>r.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const s=t.sets[+r.dataset.s],q=s.tf[+r.dataset.q];CUR=s;if(r.dataset.done)return;r.dataset.done=1;const ok=(b.dataset.a==='1')===q.ok;addSkill('truefalse',ok);addSkill('listening_all',ok);st.tk.tf[r.dataset.s+'-'+r.dataset.q]=ok?1:0;save();window.AU&&AU.sfx(ok?'ok':'bad');
+  r.querySelectorAll('[data-a]').forEach(x=>x.disabled=true);b.classList.add(ok?'ok':'bad');
+  r.querySelector('.tf-f').innerHTML=`<div class="fb-en ${ok?'ok':'bad'}"><b>${ok?'إجابة صحيحة':'ليست صحيحة'}</b>${s.kind==='dialogue'?`<p>${q.ok?'نعم، ':'لا، '}${say(q.real)} <bdi dir="ltr" lang="en">${esc(q.real)}</bdi> هذه الجملة${q.ok?'.':'، لا <bdi dir="ltr" lang="en">'+esc(q.sp)+'</bdi>.'}</p>`:`<p>${q.ok?'العبارة صحيحة كما في النص:':'العبارة خاطئة. في النص:'}</p><p class="corr">${AUB(q.why)}<span dir="ltr" lang="en">${esc(q.why)}</span></p>`}</div>`}));
+ document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const k=+b.dataset.c,row=b.closest('.dic-row'),inp=row.querySelector('input'),v=inp.value.trim();if(!v)return;const ans=t.dict.items[k];const A=nn(ans).split(' '),G=nn(v).split(' ');const ok=A.join(' ')===G.join(' ');
+  addSkill('dictation',ok);st.tk.dic[k]=ok?1:0;save();window.AU&&AU.sfx(ok?'ok':'bad');
+  const marks=A.map((w,i)=>`<span class="${G[i]===w?'okt':'badt'}">${esc(w)}</span>`).join(' ');
+  row.querySelector('.dic-f').innerHTML=`<div class="fb-en ${ok?'ok':'bad'}"><b>${ok?'كتابة صحيحة':'قارن كتابتك بالجملة'}</b><p class="corr"><span dir="ltr" lang="en">${esc(ans)}</span></p>${ok?'':`<p dir="ltr" lang="en" class="small-note">${marks}</p><small>الكلمات الحمراء مختلفة عمّا كتبت في مكانها.</small>`}</div>`});
+ document.querySelectorAll('.dic-row input').forEach(inp=>inp.onkeydown=e=>{if(e.key==='Enter')inp.closest('.dic-row').querySelector('[data-c]').click()});
+ const chk=k=>{const ta=document.querySelector(`.wr-in[data-w="${k}"]`),out=document.querySelector(`.wr-chk[data-w="${k}"]`);if(!ta||!out)return null;const v=ta.value.trim();const ws=v.split(/\s+/).filter(Boolean);const ss=v.split(/(?<=[.!?])\s+/).filter(x=>x.trim());
+  const vocab=(u.vocab||[]).map(x=>x.en.toLowerCase()).filter(x=>x.length>2&&v.toLowerCase().includes(x));
+  const items=[[ws.length>=20,`عدد الكلمات: ${ws.length} (الهدف ٢٠ كلمة أو أكثر)`],[ss.length>=3,`عدد الجمل: ${ss.length} (الهدف ٣ جمل أو أكثر)`],[ss.length>0&&ss.every(x=>/^[A-Z"']/.test(x.trim())),'كل جملة تبدأ بحرف كبير'],[/[.!?]$/.test(v),'تنتهي الجملة الأخيرة بنقطة أو علامة'],[vocab.length>=2,`كلمات من الوحدة: ${vocab.length?'<bdi dir="ltr" lang="en">'+esc(vocab.slice(0,5).join(', '))+'</bdi>':'لا شيء بعد'}`]];
+  out.innerHTML=`<ul class="wr-list">${items.map(([ok,l])=>`<li class="${ok?'okt':'badt'}">${ok?'✓':'○'} ${l}</li>`).join('')}</ul><p class="muted small-note">هذه مراجعة شكلية تساعدك؛ أرِ كتابتك لمعلّمك ليصحّح المعنى والقواعد.</p>`;return items.every(x=>x[0])};
+ document.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>{const k=+b.dataset.save;const ta=document.querySelector(`.wr-in[data-w="${k}"]`);st.tk.wr[k]=ta.value;const ok=chk(k);if(ta.value.trim())addSkill('writing',!!ok);save()});
+ t.write.forEach((_,k)=>{if(st.tk.wr[k])chk(k)})}
+return{tasks}};

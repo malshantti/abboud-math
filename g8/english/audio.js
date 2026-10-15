@@ -8,7 +8,7 @@ function load(m){if(!m)return;MAN=m;BASE=m.base||'audio/';const put=(t,f,v)=>{if
  else{const o=m.files||m.map||m;Object.entries(o).forEach(([t,f])=>{if(typeof f==='string')put(t,f);else if(f&&typeof f==='object'){const ff=f.f||f.file;if(f.z)SZ.set(ff||f.f,f.z);const sl=f.s||(f.slow&&(f.slow.file||f.slow));if(ff&&typeof ff==='string'){put(t,ff,f.voice);if(sl&&typeof sl==='string')slow.set(ff,sl)}else if(f.file)put(t,f.file,f.voice);else Object.entries(f).forEach(([v,ff])=>put(t,ff,v))}})}}
 if(window.EN_AUDIO)load(window.EN_AUDIO);
 const st={rate:+(localStorage.getItem('en_rate')||1),cur:null,sp:null};
-const find=(t,voice)=>{const k=norm(t);return(voice&&idx.get(String(voice).toLowerCase()+'|'+k))||idx.get(k)||idx.get(k.replace(/[.!?]+$/,''))||null};
+const find=(t,voice)=>{const k=norm(t);return(voice&&idx.get(String(voice).toLowerCase()+'|'+k))||idx.get(k)||idx.get(k.replace(/[.!?]+$/,''))||(/\(/.test(k)?idx.get(norm(String(t).replace(/\s*\(.*?\)/g,''))):null)||null};
 let voices=[];const pv=()=>{try{voices=speechSynthesis.getVoices()}catch(e){}};if('speechSynthesis' in window){pv();speechSynthesis.onvoiceschanged=pv}
 const pickVoice=g=>{const en=voices.filter(v=>/^en[-_](GB|IE|AU|US)/i.test(v.lang));const gb=en.filter(v=>/GB/i.test(v.lang));const pool=gb.length?gb:en;if(!pool.length)return null;const fem=/female|woman|libby|sonia|hazel|susan|serena|kate|emma|amy|zira|samantha|fiona/i,mal=/male|man|ryan|thomas|george|daniel|arthur|oliver|david|mark/i;return pool.find(v=>(g==='m'?mal:fem).test(v.name))||pool[0]};
 function stop(){if(st.cur){try{st.cur.pause()}catch(e){}st.cur=null}if('speechSynthesis' in window)try{speechSynthesis.cancel()}catch(e){}document.querySelectorAll('.au.playing').forEach(b=>b.classList.remove('playing'))}
