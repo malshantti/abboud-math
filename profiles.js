@@ -65,6 +65,18 @@ const P={
   // خروج: نحفظ تقدّم الطالب في ملفه ونُبقي نسخة العمل له (لا شيء يضيع)، وننهي الجلسة فقط
   logout(){stash();set(K.session,null)},
   rename(id,name){const a=list();const p=a.find(x=>x.id===id);if(p){p.name=name.trim().slice(0,24);saveList(a)}},
+  // رقم ولي الأمر (قفل خفيف أيضًا) يحمي الإعدادات ومسح التقدّم والاستيراد
+  hasParent:()=>!!J('bustan_parent',null),
+  async setParent(pin){const salt=newSalt();set('bustan_parent',JSON.stringify({salt,pin:await hash('parent:'+pin,salt)}))},
+  async checkParent(pin){const p=J('bustan_parent',null);if(!p)return false;return (await hash('parent:'+pin,p.salt))===p.pin},
+  // قراءة تقدّم كل الطلاب على هذا الجهاز (للتقرير)
+  dataOf(id,k){k=k||'abboud_math_v1';const v=get(K.owner)===id?get(k):get(slot(id,k));try{return JSON.parse(v)}catch(e){return null}},
+  // نسخة احتياطية لكل الطلاب (الأرقام السرية تبقى مُجزّأة)
+  backup(){const ps=list();const data={};ps.forEach(p=>{data[p.id]={};PER.forEach(k=>{const v=get(K.owner)===p.id?get(k):get(slot(p.id,k));if(v!=null)data[p.id][k]=v})});return{app:'bustan-backup-v1',exported:new Date().toISOString(),profiles:ps,data}},
+  restore(b){if(!b||b.app!=='bustan-backup-v1'||!Array.isArray(b.profiles))throw Error('bad');stash();const a=list();
+    b.profiles.forEach(p=>{if(!p||!p.id||!/^p[\w]+$/.test(p.id))return;const i=a.findIndex(x=>x.id===p.id);const q={id:p.id,name:String(p.name||'').slice(0,24),avatar:AVATARS.includes(p.avatar)?p.avatar:'idle',pin:p.pin||null,salt:p.salt||null,created:p.created||Date.now()};if(!q.pin)q.migrated=true;if(i>=0)a[i]=q;else a.push(q);
+      const d=(b.data||{})[p.id]||{};PER.forEach(k=>{if(typeof d[k]==='string'){set(slot(p.id,k),d[k]);if(get(K.owner)===p.id)set(k,d[k])}})});
+    saveList(a);return a.length},
   avatarSrc:(a,base)=>(base||'')+'assets/img/av-'+(AVATARS.includes(a)?a:'idle')+'.webp'
 };
 migrate();

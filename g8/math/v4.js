@@ -97,7 +97,7 @@ const CH=[
   intro:[['g','جاء موسم القطاف! سنحتفل ونسجّل محصول كل عائلة.'],['z','هذا أجمل يوم في السنة!'],['a','سأحلل بيانات المحصول.']],
   tasks:[()=>{const xs=Array.from({length:5},()=>R(2,9)*10);const s=xs.reduce((a,b)=>a+b,0);const m=Math.round(s/5*10)/10;return mcq(`محصول 5 عائلات (كغ): ${xs.join('، ')}. الوسط الحسابي = ؟`,m,[[[...xs].sort((a,b)=>a-b)[2],window.MISC.median],[s,window.MISC.mean]],'المجموع ÷ 5.')},
    ()=>{const xs=Array.from({length:5},()=>R(1,20)*5);const md=[...xs].sort((a,b)=>a-b)[2];return mcq(`الكميات: ${xs.join('، ')}. الوسيط = ؟`,md,[[xs[2],'رتّب القيم أولاً ثم خذ الوسطى.'],[Math.round(xs.reduce((a,b)=>a+b,0)/5),window.MISC.median]],'رتّب تصاعدياً وخذ القيمة الثالثة.')},
-   ()=>{const g=R(1,4),t=g+R(2,6);return mcq(`في سلة ${t} حبات زيتون، منها ${g} سوداء والباقي خضراء. احتمال سحب حبة خضراء = ؟`,(t-g)+'/'+t,[[g+'/'+t,window.MISC.compl],[(t-g)+'/'+g,window.MISC.probDen]],'عدد الخضراء ÷ العدد الكلي.')}],
+   ()=>{const g=R(1,4),t=g+R(2,6);return mcq(`في سلة ${t} حبات زيتون، منها ${g} سوداء والباقي خضراء. احتمال سحب حبة خضراء = ؟`,(t-g)+'/'+t,[[g+'/'+t,window.MISC.compl],['1/'+t,'عُدّ كل الحبات الخضراء، لا حبة واحدة.']],'عدد الخضراء ÷ العدد الكلي.')}],
   outro:'غنّت القرية ودبكت. لقد أعدت بناء القرية كلها يا عبود!'}];
 function villageSVG(done,fresh){const on=k=>done[k]?'built'+(fresh===k?' rise':''):'ghost';
  const tree=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect x="-3" y="-4" width="6" height="18" rx="2" fill="#7a5230"/><ellipse cx="0" cy="-12" rx="16" ry="12" fill="#6d9b3a"/><ellipse cx="-7" cy="-16" rx="9" ry="7" fill="#89b84a"/><circle cx="5" cy="-9" r="2" fill="#2f4a12"/><circle cx="-4" cy="-6" r="1.8" fill="#2f4a12"/></g>`;
@@ -162,7 +162,7 @@ V.board=k=>{const ti=Math.min(BT.length-1,Math.max(0,parseInt(k)||0)),t=BT[ti];A
  <div class="kp" id="kp">${keys.map(k=>`<button data-k="${k==='del'?'del':k}">${k==='del'?I('back','sm'):k==='x'?'س':k}</button>`).join('')}</div><div id="bfb" aria-live="polite"></div></div>
  <div class="card muted small-note">${I('warn','sm')} التعرّف على الخط يعمل على جهازك دون إنترنت، وقد يخطئ في قراءة بعض الرموز المتشابهة (1 و / و ( مثلاً). اكتب الرموز كبيرة ومنفصلة، وصحّح أي قراءة خاطئة بلوحة الأرقام.</div>`};
 // ================= 5) سماء النجوم =================
-const GROUPS=()=>{const g=A.STATIONS.map(s=>({name:s.short,ids:s.skills}));A.C.semesters.forEach(s=>s.units.forEach(u=>g.push({name:u.title.split(/[:،]/)[0].replace(/^الوحدة\s*\S+\s*/,'').slice(0,18)||u.id,ids:u.lessons.filter(l=>!l.review).map(l=>l.id)})));return g};
+const GROUPS=()=>{const g=A.STATIONS.filter(s=>!s.g8).map(s=>({name:s.short,ids:s.skills}));A.C.semesters.forEach(s=>s.units.forEach(u=>g.push({name:u.title.split(/[:،]/)[0].replace(/^الوحدة\s*\S+\s*/,'').slice(0,18)||u.id,ids:u.lessons.filter(l=>!l.review).map(l=>l.id)})));return g};
 const strength=id=>{const s=S().skills[id];if(!s||s.status==='untested'&&!s.att)return{v:0,d:null,st:'untested'};const st=s.status;const base={mastered:1,learning:.7,weak:.35,untested:.2}[st]||.2;
  const last=s.lastAt||(S().diag&&Date.parse(S().diag.date))||Date.parse(S().created)||Date.now();const days=(Date.now()-last)/864e5;const stab={mastered:12,learning:5,weak:3}[st]||3;return{v:base*Math.exp(-days/stab),d:days,st}};
 const hash=s=>{let h=2166136261;for(const c of s)h=Math.imul(h^c.charCodeAt(0),16777619);return(h>>>0)/4294967296};
@@ -189,7 +189,7 @@ const LocalCoach={name:'محلي (دون إنترنت)',async reply(ctx){const {
   const q=SOC[choice.mk]||(choice.m?'فكّر في هذا: '+choice.m.replace(/\.$/,'')+'... هل ينطبق على جوابك؟':'لنجرب بأعداد أصغر وأسهل. ماذا تلاحظ؟');return'سؤال لك قبل أن أخبرك: '+q}
  if(stage==='retry')return choice.ok?'رائع! أنت من اكتشف الخطأ وصححه. هذا هو التعلم الحقيقي.':'لنفكّر معاً: '+(choice.m||'راجع الخطوة الأولى')+' '+(item.hint?'تلميح: '+item.hint:'');
  return'مرحباً! سأسألك «لماذا؟» بعد كل جواب، لأن شرح السبب يثبّت الفهم.'}};
-const RemoteCoach={name:'خادم خارجي',async reply(ctx,cfg){const r=await fetch(cfg.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student:S().name,context:ctx})});if(!r.ok)throw Error(r.status);const j=await r.json();return j.reply}};
+const RemoteCoach={name:'خادم خارجي',async reply(ctx,cfg){const r=await fetch(cfg.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({context:ctx})});if(!r.ok)throw Error(r.status);const j=await r.json();return j.reply}};
 const ccfg=()=>{try{return JSON.parse(localStorage.getItem('abboud_coach_cfg'))||{mode:'local',endpoint:''}}catch(e){return{mode:'local',endpoint:''}}};
 window.COACH={adapters:{local:LocalCoach,remote:RemoteCoach},async ask(ctx){const c=ccfg();if(c.mode==='remote'&&c.endpoint){try{return await RemoteCoach.reply(ctx,c)}catch(e){return LocalCoach.reply(ctx).then(t=>'(تعذّر الاتصال بالخادم، الرد من المدرب المحلي) '+t)}}return LocalCoach.reply(ctx)}};
 V.coach=()=>{const s=S();const misTop=Object.entries(s.mis).sort((a,b)=>b[1].n-a[1].n)[0];const skill=misTop?Object.keys(misTop[1].skills)[0]:pick(['P01','P04','P10','P11']);A.setCur(skill);
@@ -205,12 +205,10 @@ V.coach=()=>{const s=S();const misTop=Object.entries(s.mis).sort((a,b)=>b[1].n-a
      A.noteMis(choice.mk,skill);act.innerHTML=`<p class="act-t">فكّر في سؤال المدرب، ثم اختر من جديد:</p><div class="opts">${st.choices.map((c2,i)=>`<button class="opt" data-i="${i}">${esc(c2.t)}</button>`).join('')}</div>`;
      act.querySelectorAll('.opt').forEach(b2=>b2.onclick=async()=>{const c2=st.choices[+b2.dataset.i];add(AB('أغيّر جوابي إلى: '+esc(c2.t)));act.innerHTML='';await typing({stage:'retry',item:{hint:st.hint},choice:{ok:!!c2.ok,m:c2.m||''}});if(c2.ok)reward(5,box.lastElementChild,skill);else A.addReview(skill,choice.mk);act.innerHTML=`<button class="btn" id="cnext">${I('arrow')} سؤال جديد</button>`;$('#cnext').onclick=round})};
     act.querySelectorAll('.qrb').forEach(q=>q.onclick=()=>send(q.textContent));$('#cform').onsubmit=e=>{e.preventDefault();send($('#ctext').value.trim())}})};round();
-  const cf=ccfg();$('#cmode').value=cf.mode;$('#cep').value=cf.endpoint;$('#csave').onclick=()=>{localStorage.setItem('abboud_coach_cfg',JSON.stringify({mode:$('#cmode').value,endpoint:$('#cep').value.trim()}));FX.toast(I('check')+' حُفظ الإعداد');$('#cstat').textContent=$('#cmode').value==='remote'&&$('#cep').value.trim()?'خادم خارجي (تجريبي)':'محلي'}});
+  });
  const cf=ccfg();
  return`${back('#/play','المغامرات')}<h1>${I('chat')} المدرب: لماذا؟</h1><p class="muted">المدرب لا يعطيك الجواب مباشرة؛ يسألك عن سبب اختيارك ليقودك للفهم.</p>
- <div class="card chat"><div class="chat-h"><img src="img/zaytoun-teacher.webp" alt=""><div><b>المدرب زيتون</b><small class="muted">الوضع: <span id="cstat">${cf.mode==='remote'&&cf.endpoint?'خادم خارجي (تجريبي)':'محلي'}</span></small></div></div><div id="cbox" class="dlgbox chatbox"></div><div id="cact" class="act"></div></div>
- <details class="card"><summary>${I('lab','sm')} إعدادات المطوّر: محوّل المدرب</summary><p class="muted">الوضع المحلي يعمل الآن دون إنترنت ويعتمد على قائمة الأخطاء الشائعة لطرح أسئلة سقراطية. يمكن لاحقاً ربط خادم ذكاء اصطناعي: يرسل الموقع طلب POST بصيغة JSON {student, context} وينتظر {reply}. لا يوجد خادم حالياً.</p>
- <label>المحوّل <select id="cmode"><option value="local">محلي (قواعد)</option><option value="remote">خادم خارجي</option></select></label><label>عنوان الخادم <input id="cep" dir="ltr" placeholder="https://example.org/coach"></label><button class="btn ghost" id="csave">${I('check')} حفظ</button></details>`};
+ <div class="card chat"><div class="chat-h"><img src="img/zaytoun-teacher.webp" alt=""><div><b>المدرب زيتون</b><small class="muted">الوضع: <span id="cstat">${cf.mode==='remote'&&cf.endpoint?'خادم خارجي (تجريبي)':'محلي'}</span></small></div></div><div id="cbox" class="dlgbox chatbox"></div><div id="cact" class="act"></div></div>`};
 // ================= 6ب) تحديات الأصدقاء (عرض تجريبي) =================
 const weekId=()=>{const d=new Date(),t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-day);const y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return t.getUTCFullYear()+'-W'+Math.ceil(((t-y)/864e5+1)/7)};
 A.onPts(n=>{const s=S();if(s.week.id!==weekId())s.week={id:weekId(),xp:0};s.week.xp+=n});

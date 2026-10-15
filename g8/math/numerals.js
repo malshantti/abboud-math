@@ -17,19 +17,37 @@
     if (start != null) el.setSelectionRange(start,end);
   }
   const skipped = el => el.closest('script,style,code,pre,[data-latin-digits]');
+  // كسور رأسية كما في الكتاب: البسط فوق خط الكسر والمقام تحته
+  const T='(?:[٠-٩]+(?:,[٠-٩]+)?|π|[\u0621-\u064a]ـ?){1,3}[²³]?';
+  const FR=new RegExp('(?<![\u0621-\u064a\u0640٠-٩/])('+T+')/('+T+')(?![\u0621-\u064a\u0640٠-٩/])','g');
+  const noFrac = el => el.closest('svg,textarea,option,title,.frac,[data-nofrac],.lv-svg');
+  function stack(node){
+    const v=node.nodeValue;if(v.indexOf('/')<0||!node.parentElement||noFrac(node.parentElement))return;
+    FR.lastIndex=0;if(!FR.test(v))return;FR.lastIndex=0;
+    const frag=document.createDocumentFragment();let last=0,m;
+    while((m=FR.exec(v))){if(m[0]==='و/أو')continue;
+      if(m.index>last)frag.appendChild(document.createTextNode(v.slice(last,m.index)));
+      const f=document.createElement('span');f.className='frac';f.setAttribute('role','math');f.setAttribute('aria-label',m[1]+' على '+m[2]);
+      const n=document.createElement('span');n.className='fn';n.textContent=m[1];const d=document.createElement('span');d.className='fd';d.textContent=m[2];
+      f.append(n,d);frag.appendChild(f);last=m.index+m[0].length}
+    if(last===0)return;if(last<v.length)frag.appendChild(document.createTextNode(v.slice(last)));
+    node.parentNode.replaceChild(frag,node)}
   function render(root) {
     if (root.nodeType === 3) {
       if(root.parentElement && !skipped(root.parentElement)) {
         const next=arabic(root.nodeValue);if(next!==root.nodeValue)root.nodeValue=next;
+        stack(root);
       }
       return;
     }
     if (root.nodeType !== 1 || skipped(root)) return;
     const walker = document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const todo=[];
     while(walker.nextNode()) {
       const node=walker.currentNode;
-      if(!skipped(node.parentElement)) {const next=arabic(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next;}
+      if(!skipped(node.parentElement)) {const next=arabic(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next;if(next.indexOf('/')>=0)todo.push(node);}
     }
+    todo.forEach(stack);
     for(const el of [root,...root.querySelectorAll('[aria-label],[aria-valuetext],[title],[placeholder],input')]) {
       for(const attr of ['aria-label','aria-valuetext','title','placeholder']) {
         if(!el.hasAttribute(attr)||skipped(el))continue;

@@ -20,13 +20,16 @@ const STATIONS=[
  {id:'frac',name:'مخبز الكسور',short:'الكسور',cover:'u1',skills:['P03','P04','P05','P06','P22'],cls:'طاهي الكسور'},
  {id:'alg',name:'برج الرموز',short:'الجبر',cover:'u2',skills:['P07','P09','P10','P11'],cls:'ساحر الرموز'},
  {id:'geo',name:'قلعة الأشكال',short:'الهندسة',cover:'u3',skills:['P12','P13','P14','P15','P16','P17'],cls:'مهندس القلاع'},
- {id:'data',name:'سوق البيانات',short:'البيانات',cover:'u4',skills:['P18','P19','P21','P20'],cls:'قارئ النجوم'}];
+ {id:'data',name:'سوق البيانات',short:'البيانات',cover:'u4',skills:['P18','P19','P21','P20'],cls:'قارئ النجوم'},
+ {id:'g8',name:'محطة الصف الثامن',short:'الصف الثامن',cover:'u3',skills:['S1-1-1','S1-2-3','S1-3-1','S2-8-1'],g8:true}];
+const DORD=()=>[...C.diagnostic_order,...STATIONS.filter(s=>s.g8).flatMap(s=>s.skills)];
+const deps0=id=>PRE[id]?PRE[id].depends_on||[]:(LES[id]&&LES[id].prerequisites)||[];
 const RANKS=['البذرة الصاعدة','المستكشف','المحارب','صانع الأدوات','الفارس','المهندس','العبقري','البطل'];
 // ---------- الحالة (متوافقة مع الإصدارات السابقة) ----------
 function fresh(){return{name:'عبّود',created:new Date().toISOString(),points:0,streak:0,lastDay:null,time:0,skills:{},mis:{},diag:null,quizzes:[],sessions:[]}}
 let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
 const norm=()=>{S.points=+S.points||0;S.time=+S.time||0;S.streak=+S.streak||0;S.created=S.created||new Date().toISOString();S.sessions=S.sessions||[];S.hearts=S.hearts==null?5:+S.hearts;S.hLost=S.hLost||0;S.ach=S.ach||{};S.daily=S.daily||{date:today(),n:0};S.goal=S.goal||10;S.quizzes=S.quizzes||[];S.mis=S.mis||{};S.skills=S.skills||{};S.review=S.review||{};S.games=S.games||{};S.dch=S.dch||null;S.labs=S.labs||{};S.reviewed=S.reviewed||0};norm();
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}hdr()};
+const save=()=>{if(window.__noSave)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}hdr()};
 const sk=id=>S.skills[id]||(S.skills[id]={status:'untested',att:0,cor:0,best:null,time:0,run:0});
 function status(id){const s=sk(id).status;if(PRE[id])return s;if(s==='untested'&&locked(id))return'locked';return s}
 function locked(id){const l=LES[id];if(!l||S.skills[id]&&S.skills[id].unlocked)return false;
@@ -121,7 +124,7 @@ function renderOld(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,c
 // ---------- v7: تدفق السؤال: اختر ← تحقّق ← ورقة ملاحظات خضراء/حمراء ← متابعة ----------
 const getBar=()=>{let b=$('#checkbar');if(!b){b=document.createElement('div');b.id='checkbar';document.body.appendChild(b)}return b};
 document.addEventListener('keydown',e=>{if(e.key==='Enter'){const c=$('#chk');if(c&&!c.disabled&&document.activeElement.tagName!=='INPUT'){e.preventDefault();c.click()}}});
-const mt=s=>esc(s).replace(/−?[\d,]*√[\d,]+(?:\/[\d,]+)?|−?\d+(?:,\d+)?\/\d+|−\d+(?:,\d+)?/g,'<bdi class="m" dir="ltr">$&</bdi>');window.MT=mt;// الكسر والعدد السالب يُعرضان كوحدة واحدة باتجاه ثابت
+const mt=s=>esc(s).replace(/−?[\d,]*√[\d,]+(?:\/[\d,]+)?|−?\d+(?:,\d+)?\/\d+|−\d+(?:,\d+)?/g,m=>`<bdi class="m" dir="${m.includes('√')?'ltr':'rtl'}">${m}</bdi>`);window.MT=mt;// الكسر والعدد السالب وحدة واحدة باتجاه الكتاب (من اليمين إلى اليسار، والإشارة السالبة يمين العدد)؛ الجذر وحده من اليسار
 const PRAISE=['أحسنت!','ممتاز!','رائع!','إجابة صحيحة!','عمل متقن!'];
 function renderItem(el,id,item,mode,done){if(mode==='diag')return renderOld(el,id,item,mode,done);
  let si=0,firstTry=true,usedHint=false;const bar=getBar();
@@ -212,24 +215,29 @@ V.lesson=id=>{const P_=PRE[id],L=LES[id];if(!P_&&!L)return'<p>غير موجود<
  setTimeout(()=>{const b=$('#unl');if(b)b.onclick=()=>{sk(id).unlocked=true;save();route()}});return h};
 V.practice=id=>{cur=id;const N=10;setTimeout(()=>{let n=0,ok=0,xp=0;const t0=Date.now(),box=$('#pbox');
   const lh=()=>{const e=$('#lh');if(e)e.innerHTML=I('heart','sm')+' '+S.hearts};
-  const end=out=>showDone(box,{title:out?'نفدت القلوب':'أكملت التدريب!',sub:out?'راجع الشرح أو أخطاءك لتستعيد القلوب، ثم عد.':'',pose:out?'encourage':'celebrate',party:!out,xp,acc:Math.round(100*ok/Math.max(n,1))+'%',time:mmss(Math.round((Date.now()-t0)/1000)),next:'#/lesson/'+id,extra:out?[['#/review','مراجعة الأخطاء (تعيد القلوب)']]:[['#/practice/'+id,'تدرّب مرة أخرى'],['#/quiz/'+id,'اختبار الدرس']]});
-  const nextQ=()=>{setBar(n,N);lh();if(n>=N)return end(false);if(hearts()<=0)return end(true);
+  const end=out=>showDone(box,{title:ok>=N*.6?'أكملت التدريب':'أكملت التدريب، وكل محاولة تقرّبك من الإتقان',sub:ok<N*.6?'راجع الشرح والأمثلة المحلولة، ثم تدرّب مرة أخرى.':'',pose:ok>=N*.6?'celebrate':'encourage',party:ok>=N*.6,xp,acc:Math.round(100*ok/Math.max(n,1))+'%',time:mmss(Math.round((Date.now()-t0)/1000)),next:'#/lesson/'+id,extra:[['#/practice/'+id,'تدرّب مرة أخرى'],['#/quiz/'+id,'اختبار الدرس']]});
+  const nextQ=()=>{setBar(n,N);if(n>=N)return end(false);
    renderItem(box,id,window.genFor(id),'practice',(first,hint,b)=>{n++;const s=sk(id);s.att++;
-    if(first){ok++;s.cor++;s.run=(s.run||0)+1;const p=hint?5:10;xp+=p;addPts(p,b);countCorrect()}else{s.run=0;S.hearts=Math.max(0,S.hearts-1);S.hLost=Date.now()}
+    if(first){ok++;s.cor++;s.run=(s.run||0)+1;const p=hint?5:10;xp+=p;addPts(p,b);countCorrect();if(ok%3===0&&hearts()<5){S.hearts++;FX.toast(I('heart','sm')+' استعدت محاولة للاختبارات')}}else{s.run=0}
     if(s.run>=5&&['untested','weak','locked'].includes(s.status)){s.status='learning';FX.toast(I('book')+' انتقلت إلى «قيد التعلّم»!')}
     save();checkAch();nextQ()})};nextQ()});
- return ltop('#/lesson/'+id,true)+`<div class="card qcard" id="pbox"></div>`};
-function quizRun(box,pr,gens,N,onEnd,mode){let i=0,score=0;const p0=S.points,t0=Date.now();
+ return ltop('#/lesson/'+id,false)+`<div class="card qcard" id="pbox"></div>`};
+function quizRun(box,pr,gens,N,onEnd,mode,useH){let i=0,score=0;const p0=S.points,t0=Date.now(),per={};
  const nextQ=()=>{setBar(i,N);if(i>=N)return onEnd(score,S.points-p0,mmss(Math.round((Date.now()-t0)/1000)));if(pr)pr.innerHTML='';
-  const gid=gens[i%gens.length];renderItem(box,gid,window.genFor(gid),mode||'test',(ok,_,b)=>{if(ok){score++;addPts(15,b);countCorrect()}i++;save();nextQ()})};nextQ()}
-V.quiz=id=>{cur=id;const unit=UNITS[id];const N=unit?10:8;const gens=unit?unit.lessons.filter(l=>!l.review).map(l=>l.id):[id];
- setTimeout(()=>quizRun($('#qbox'),$('#qpr'),gens,N,(score,xp,tm)=>{const pct=Math.round(100*score/N),s=sk(id),was=s.status;s.best=Math.max(s.best||0,pct);
+  const gid=gens[i%gens.length];renderItem(box,gid,window.genFor(gid),mode||'test',(ok,_,b)=>{const q=per[gid]||(per[gid]={n:0,c:0});q.n++;if(ok){q.c++;score++;addPts(15,b);countCorrect()}else if(useH){S.hearts=Math.max(0,hearts()-1);S.hLost=Date.now();const e=$('#lh');if(e)e.innerHTML=I('heart','sm')+' '+S.hearts}i++;save();nextQ()})};nextQ();return per}
+// عند نفاد المحاولات لا يُمنع التعلّم: التدريب مفتوح دائمًا ويعيد المحاولات
+const noHearts=(back,prac)=>`<a class="back" href="${back}">${I('back','sm')} رجوع</a><div class="card empty">${FX.MASCOT('encourage','empty-m')}<h2>استنفدت محاولات الاختبار مؤقتًا</h2><p class="muted">التدريب متاح دائمًا. كل ثلاث إجابات صحيحة في التدريب، أو كل إجابة صحيحة في مراجعة الأخطاء، تعيد محاولة واحدة. وتعود محاولة تلقائيًا كل عشرين دقيقة.</p><a class="btn wide" href="#/practice/${prac}">${I('dumbbell')} تدرّب الآن</a><a class="btn wide sec" href="#/review">${I('review')} مراجعة الأخطاء</a></div>`;
+V.quiz=id=>{cur=id;const unit=UNITS[id];const gens0=unit?unit.lessons.filter(l=>!l.review).map(l=>l.id):[id];const N=unit?Math.min(16,Math.max(10,2*gens0.length)):8;const gens=unit?[...gens0].sort(()=>Math.random()-.5):gens0;
+ const g0=unit?gens0[0]:id;if(hearts()<=0)return noHearts(`#/${unit?'unit':'lesson'}/${id}`,g0);let per={};
+ setTimeout(()=>{per=quizRun($('#qbox'),$('#qpr'),gens,N,(score,xp,tm)=>{const pct=Math.round(100*score/N),s=sk(id),was=s.status;s.best=Math.max(s.best||0,pct);
    S.quizzes.push({id,date:new Date().toISOString(),score:pct,n:N});
-   (unit?gens:[id]).forEach(t=>{const x=sk(t);if(pct>=80)x.status='mastered';else if(pct>=50){if(x.status!=='mastered')x.status='learning'}else if(x.status!=='mastered')x.status='weak'});
+   // الإتقان يُمنح فقط للدرس الذي سُئل عنه سؤالين على الأقل وأجاب عنهما بنسبة 80% فأكثر
+   if(unit)gens.forEach(t=>{const q=per[t];if(!q)return;const x=sk(t),r=q.c/q.n;x.att=(x.att||0);if(q.n>=2&&r>=.8&&pct>=80)x.status='mastered';else if(r>=.5){if(x.status!=='mastered')x.status='learning'}else if(x.status!=='mastered')x.status='weak'});
+   else{const x=sk(id);if(pct>=80)x.status='mastered';else if(pct>=50){if(x.status!=='mastered')x.status='learning'}else if(x.status!=='mastered')x.status='weak'}
    if(pct>=80&&was!=='mastered')addPts(50);save();$('#qpr').innerHTML='';
    if(pct>=80)FX.mega();
-   showDone($('#qbox'),{title:pct>=80?'أتقنتها!':pct>=50?'في الطريق الصحيح':'لا بأس، لنتدرّب',sub:`${score} من ${N} إجابات صحيحة · النجاح 80%`,pose:pct>=80?'celebrate':pct>=50?'encourage':'read',party:pct>=80,xp,acc:pct+'%',accL:'النتيجة',time:tm,next:`#/${unit?'unit':'lesson'}/${id}`,extra:[['#/practice/'+(unit?gens[0]:id),'تدرّب'],['#/home','مسار الدروس']]});checkAch()}));
- return ltop(`#/${unit?'unit':'lesson'}/${id}`,false)+`<div id="qpr"></div><div class="card qcard" id="qbox"></div>`};
+   showDone($('#qbox'),{title:pct>=80?'أحسنت، اجتزت الاختبار':pct>=50?'أنت على الطريق الصحيح':'تحتاج إلى مزيد من التدريب',sub:`${score} من ${N} إجابات صحيحة · النجاح 80%`,pose:pct>=80?'celebrate':pct>=50?'encourage':'read',party:pct>=80,xp,acc:pct+'%',accL:'النتيجة',time:tm,next:`#/${unit?'unit':'lesson'}/${id}`,extra:[['#/practice/'+(unit?(gens.find(t=>per[t]&&per[t].c<per[t].n)||gens[0]):id),'تدرّب'],['#/home','مسار الدروس']]});checkAch()},'test',true)});
+ return ltop(`#/${unit?'unit':'lesson'}/${id}`,true)+`<div id="qpr"></div><div class="card qcard" id="qbox"></div>`};
 // ---------- مراجعة الأخطاء ----------
 V.review=()=>{const due=dueReviews(),all=Object.keys(S.review);
  if(!due.length)return`<h1>${I('review')} مراجعة الأخطاء</h1><div class="card empty">${FX.MASCOT('read','empty-m float')}<h2>لا توجد أخطاء للمراجعة الآن</h2><p class="muted">كل سؤال تخطئ فيه يدخل هنا، ويعود لك بعد يوم ثم 3 أيام ثم أسبوع حتى تثبت المعلومة.${all.length?' لديك '+all.length+' مهارة مجدولة لاحقاً.':''}</p><a class="btn" href="#/daily">${I('calendar')} جرّب تحدي اليوم</a></div>`;
@@ -238,11 +246,11 @@ V.review=()=>{const due=dueReviews(),all=Object.keys(S.review);
    renderItem(box,id,window.genFor(id),'test',(o,_,b)=>{if(o){ok++;addPts(12,b);countCorrect();S.hearts=Math.min(5,S.hearts+1)}reviewResult(id,o);k++;save();nx()})};nx()});
  return ltop('#/home',false)+`<div id="rpr"></div><div class="card qcard" id="rbox"></div>`};
 // ---------- تحدي اليوم ----------
-V.daily=()=>{if(S.dch&&S.dch.date===today()&&S.dch.done)return`<h1>${I('calendar')} تحدي اليوم</h1><div class="card empty">${FX.MASCOT('celebrate','empty-m float')}<h2>أنجزت تحدي اليوم: ${S.dch.score}/5</h2><p class="muted">عد غداً لتحدٍّ جديد.</p><a class="btn" href="#/game">${I('race')} العب سباق الأعداد</a></div>`;
+V.daily=()=>{if(!(S.dch&&S.dch.date===today()&&S.dch.done)&&hearts()<=0)return noHearts('#/home','P01');if(S.dch&&S.dch.date===today()&&S.dch.done)return`<h1>${I('calendar')} تحدي اليوم</h1><div class="card empty">${FX.MASCOT('celebrate','empty-m float')}<h2>أنجزت تحدي اليوم: ${S.dch.score} من 5</h2><p class="muted">عد غداً لتحدٍّ جديد.</p><a class="btn" href="#/game">${I('race')} العب سباق الأعداد</a></div>`;
  const weak=ALLSK.filter(i=>['weak','learning'].includes(sk(i).status)&&window.hasGen(i));const gens=['STORY',weak[0]||'P01','STORY',weak[1]||'P04','STORY'];
  setTimeout(()=>quizRun($('#dbox'),$('#dpr'),gens,5,(score,xp,tm)=>{S.dch={date:today(),done:true,score};addPts(score*5+20);save();checkAch();$('#dpr').innerHTML='';if(score>=4)FX.mega();
-  showDone($('#dbox'),{title:score>=4?'تحدٍّ قوي!':'أحسنت المحاولة',sub:'+'+(score*5+20)+' نقطة مكافأة التحدي',xp:xp+score*5+20,acc:score+'/5',accL:'صحيحة',time:tm,next:'#/home'})}));
- return ltop('#/home',false)+`<div id="dpr"></div><div class="card qcard" id="dbox"></div>`};
+  showDone($('#dbox'),{title:score>=4?'تحدٍّ قوي!':'أحسنت المحاولة',sub:'+'+(score*5+20)+' نقطة مكافأة التحدي',xp:xp+score*5+20,acc:score+' من 5',accL:'صحيحة',time:tm,next:'#/home'})},'test',true));
+ return ltop('#/home',true)+`<div id="dpr"></div><div class="card qcard" id="dbox"></div>`};
 // ---------- المختبر واللعبة ----------
 const labCtx=key=>({reward:(n,el)=>{addPts(n,el);countCorrect();S.labs[key]=(S.labs[key]||0)+1;FX.burst(el);FX.mascot('celebrate',pick(FX.HAPPY));save();checkAch()},
  miss:(id,m)=>{noteMis(m,id);if(m)addReview(id,m);FX.mascot('encourage',pick(FX.SAD));save()},best:(k,v)=>{S.games[k]=Math.max(S.games[k]||0,v);save();return S.games[k]},onLeave:f=>leave.push(f)});
@@ -261,8 +269,8 @@ function journeyMap(res,curSt){const n=STATIONS.length;const pts=STATIONS.map((s
  <img src="img/zaytoun-welcome.webp" class="jz float" alt="" style="top:${pts[Math.max(0,Math.min(curSt,n-1))][1]-60}px;left:calc(${pts[Math.max(0,Math.min(curSt,n-1))][0]/340*100}% ${pts[Math.max(0,Math.min(curSt,n-1))][0]<170?'+ 50px':'- 130px'})"></div>`}
 V.diag=()=>{cur=null;
  if(S.diag&&!V.diag.go&&!V.diag.intro)return placementResult(false)+`<button class="btn sec wide" id="redo">${I('refresh')} إعادة الرحلة</button>`+setH(()=>$('#redo').onclick=()=>{V.diag.intro=true;route()});
- if(!V.diag.go)return`<div class="banner tall">${FX.cover('scene-explorer')}<div class="banner-t"><h1>رحلة بستان الزيتون</h1><span>ساعد زيتون في الوصول إلى البستان الكبير عبر 5 محطات</span></div></div>
- <div class="card"><div class="row">${FX.MASCOT('welcome','intro-m float')}<ul class="clean"><li>${I('flag','sm')} في كل محطة <b>حارس</b> يطرح سؤال تحدٍّ. إن هزمته بثقة، تمرّ بسرعة!</li><li>${I('target','sm')} قبل كل إجابة اختر: <b>أخمّن / متأكد نوعاً ما / متأكد جداً</b> — هكذا نفرّق بين المعرفة والحظ.</li><li>${I('question','sm')} «لا أعرف» أفضل من التخمين.</li><li>${I('clock','sm')} 10–20 دقيقة. لا علامات، فقط خريطة لمستواك.</li></ul></div></div>
+ if(!V.diag.go)return`<div class="banner tall">${FX.cover('scene-explorer')}<div class="banner-t"><h1>رحلة بستان الزيتون</h1><span>${STATIONS.length} محطات: متطلبات سابقة من الصفوف 4–7، ثم دروس من الصف الثامن</span></div></div>
+ <div class="card"><div class="row">${FX.MASCOT('welcome','intro-m float')}<ul class="clean"><li>${I('flag','sm')} في كل محطة <b>سؤال بداية</b> من أصعب مهاراتها. إن أجبت عنه إجابة صحيحة وواثقة، تنتقل بسرعة.</li><li>${I('book','sm')} المحطة الأخيرة تقيس دروسًا من الصف الثامن نفسه.</li><li>${I('target','sm')} قبل كل إجابة اختر: <b>أخمّن / متأكد نوعاً ما / متأكد جداً</b> — هكذا نفرّق بين المعرفة والحظ.</li><li>${I('question','sm')} «لا أعرف» أفضل من التخمين.</li><li>${I('clock','sm')} من 15 إلى 25 دقيقة. لا علامات؛ النتيجة تحدّد من أين تبدأ.</li></ul></div></div>
  ${journeyMap(null,0)}<button class="btn wide gold" id="go">${I('play')} انطلق</button>`+setH(()=>$('#go').onclick=()=>{V.diag.go=true;V.diag.intro=false;route()});
  setTimeout(runJourney);return`<div id="jtop"></div>${MROW('think','خذ وقتك، بدون علامات')}<div class="card qcard" id="dbox"></div>`};
 const setH=f=>(setTimeout(f),'');
@@ -270,16 +278,16 @@ function runJourney(){const res={};let si=0;const box=$('#dbox'),top=$('#jtop');
  const solid=(ok,c)=>ok&&c>=2;
  const stationIntro=()=>{if(si>=STATIONS.length)return done();const st=STATIONS[si];
   top.innerHTML=`<div class="banner sm">${FX.cover(st.cover)}<div class="banner-t"><span>المحطة ${si+1} من ${STATIONS.length}</span><h2>${st.name}</h2></div></div><div class="bar"><i style="width:${100*si/STATIONS.length}%;animation:none"></i></div>`;
-  const avail=st.skills.filter(id=>!PRE[id].depends_on.some(d=>res[d]&&res[d].r==='weak'));
+  const avail=st.skills.filter(id=>!deps0(id).some(d=>res[d]&&res[d].r==='weak'));
   st.skills.filter(id=>!avail.includes(id)).forEach(id=>res[id]={r:'skipped',a:[],c:[]});
   if(!avail.length)return nextStation();
-  const boss=[...avail].sort((a,b)=>depth[b]-depth[a])[0];FX.mascot('teacher','حارس المحطة يتحداك!');
-  box.innerHTML=`<div class="boss-intro"><span class="boss-ic">${I('shield')}</span><h3>تحدي الحارس</h3><p class="muted">سؤال من أصعب مهارة في المحطة: ${esc(short(PRE[boss].title))}</p><button class="btn gold wide" id="bgo">${I('bolt')} واجه الحارس</button></div>`;
+  const boss=[...avail].sort((a,b)=>(depth[b]||9)-(depth[a]||9))[0];FX.mascot('teacher','سؤال البداية في هذه المحطة');
+  box.innerHTML=`<div class="boss-intro"><span class="boss-ic">${I('shield')}</span><h3>سؤال البداية</h3><p class="muted">سؤال من أصعب مهارة في المحطة: ${esc(short(title(boss)))}. إن أجبت عنه إجابة صحيحة وأنت متأكد، تنتقل بسرعة.</p><button class="btn gold wide" id="bgo">${I('bolt')} ابدأ</button></div>`;
   $('#bgo').onclick=()=>renderItem(box,boss,window.genFor(boss),'diag',(ok,_,b,c)=>{const fast=solid(ok,c)&&c===3;res[boss]={r:fast?'mastered':null,a:[ok],c:[c],boss:true};
-   if(fast){FX.mega();FX.mascot('celebrate','هزمت الحارس! مرور سريع')}else FX.mascot(ok?'celebrate':'encourage',ok?'جيد! لنتأكد أكثر':'لا بأس، سنمشي خطوة خطوة');
+   if(fast){FX.mascot('celebrate','إجابة صحيحة وواثقة')}else FX.mascot(ok?'celebrate':'encourage',ok?'إجابة صحيحة، لنتأكد أكثر':'لا بأس، سنتقدّم خطوة خطوة');
    const queue=avail.filter(x=>x!==boss||!fast);runSkills(queue,fast,()=>nextStation())})};
  const runSkills=(q,fast,cb)=>{let k=0;const one=()=>{if(k>=q.length)return cb();const id=q[k];const r=res[id]||(res[id]={r:null,a:[],c:[]});
-   if(PRE[id].depends_on.some(d=>res[d]&&res[d].r==='weak')){r.r='skipped';k++;return one()}
+   if(deps0(id).some(d=>res[d]&&res[d].r==='weak')){r.r='skipped';k++;return one()}
    renderItem(box,id,window.genFor(id),'diag',(ok,_,b,c)=>{r.a.push(ok);r.c.push(c);const sol=r.a.map((o,i)=>solid(o,r.c[i])),cs=sol.filter(x=>x).length,guess=r.a.filter((o,i)=>o&&r.c[i]===1).length;
     const n=r.a.length;let dec=null;
     if(fast&&n===1&&sol[0])dec='mastered';
@@ -288,19 +296,22 @@ function runJourney(){const res={};let si=0;const box=$('#dbox'),top=$('#jtop');
  const nextStation=()=>{const st=STATIONS[si];const sc=domainScore(res,st);addPts(10);FX.toast(`${I('flag')} أنهيت محطة «${st.name}» — ${Math.round(sc*100)}%`);si++;save();stationIntro()};
  const done=()=>{const conf={guess:0,over:0};Object.entries(res).forEach(([id,o])=>{const s=sk(id);s.status=o.r==='skipped'?'untested':o.r;s.diag=o.r;conf.guess+=o.guess||0;conf.over+=o.over||0;if(o.r==='weak')addReview(id)});
   const doms=STATIONS.map(st=>({id:st.id,v:domainScore(res,st)}));const avg=doms.reduce((a,b)=>a+b.v,0)/doms.length;
-  S.diag={date:new Date().toISOString(),res,v:3,domains:doms,conf,rank:Math.min(8,1+Math.floor(avg*8))};addPts(30);V.diag.go=false;save();checkAch();FX.mega();
+  S.diag={date:new Date().toISOString(),res,v:4,domains:doms,conf,rank:Math.min(8,1+Math.floor(avg*8))};addPts(30);V.diag.go=false;save();checkAch();if(avg>=.75)FX.mega();
   top.innerHTML='';box.parentNode.querySelector('#mascot')&&box.parentNode.querySelector('#mascot').remove();box.outerHTML=`<div>${placementResult(true)}</div>`};
  stationIntro()}
-function placementResult(fresh){const d=S.diag,r=d.res||{},g=t=>C.diagnostic_order.filter(i=>r[i]&&r[i].r===t);
- const doms=d.domains||STATIONS.map(st=>({id:st.id,v:domainScore(r,st)}));const avg=doms.reduce((a,b)=>a+b.v,0)/doms.length;const rank=d.rank||Math.min(8,1+Math.floor(avg*8));
- const best=STATIONS[doms.reduce((bi,x,i)=>x.v>doms[bi].v?i:bi,0)],worst=STATIONS[doms.reduce((bi,x,i)=>x.v<doms[bi].v?i:bi,0)];
+function placementResult(fresh){const d=S.diag,r=d.res||{},ORD=DORD().filter(i=>r[i]);
+ // تصنيف واحد لكل مهارة: الخطأ مع الثقة يغلب، ثم الضعف، ثم التخمين، ثم قيد التعلّم، ثم الإتقان
+ const cat=i=>{const o=r[i];if(o.r==='skipped')return'skipped';if(o.over)return'over';if(o.r==='weak')return'weak';if(o.guess&&o.r!=='mastered')return'guess';return o.r||'learning'};
+ const g=t=>ORD.filter(i=>cat(i)===t);
+ const sts=STATIONS.filter((st,i)=>d.domains?!!d.domains[i]:st.skills.some(k=>r[k]));const doms=sts.map(st=>{const o=(d.domains||[]).find(x=>x.id===st.id);return{id:st.id,v:o?o.v:domainScore(r,st)}});const avg=doms.reduce((a,b)=>a+b.v,0)/Math.max(1,doms.length);
+ const bi=doms.reduce((bi,x,i)=>x.v>doms[bi].v?i:bi,0),wi=doms.reduce((bi,x,i)=>x.v<doms[bi].v?i:bi,0);
  const sec=(t,ic,ids,note)=>ids.length?`<div class="card"><h3>${I(ic)} ${t} (${ids.length})</h3>${note?'<p class="muted">'+note+'</p>':''}${ids.map(i=>chip(i,short(title(i)))).join('')}</div>`:'';
- const guessed=C.diagnostic_order.filter(i=>r[i]&&r[i].guess),over=C.diagnostic_order.filter(i=>r[i]&&r[i].over);const w=g('weak');
- return`<div class="rankcard ${fresh?'reveal':''}"><div class="rc-glow"></div><img src="img/rank-${rank}.webp" class="rc-badge" alt=""><div class="rc-t"><span class="muted">بطاقة مستواك</span><h1>${best.cls}</h1><p>الرتبة: <b>${RANKS[rank-1]}</b> (${rank}/8)</p><p class="muted">${new Date(d.date).toLocaleDateString('ar')}</p></div>${FX.MASCOT('celebrate','rc-m')}</div>
- <div class="card"><h2>${I('chart')} رادار مهاراتك</h2>${FX.radar(STATIONS.map((s,i)=>({label:s.short,v:doms[i]?doms[i].v:0})),320)}<p>أقوى مجال: <b>${best.short}</b> · يحتاج تقوية: <b>${worst.short}</b></p></div>
- ${d.conf?`<div class="card"><h3>${I('brain')} ماذا تقول ثقتك؟</h3><p>إجابات صحيحة بالتخمين: <b>${d.conf.guess}</b> · أخطاء وأنت «متأكد جداً»: <b>${d.conf.over}</b></p><p class="muted">${d.conf.over?'الخطأ مع الثقة العالية يعني فكرة خاطئة راسخة — هذه أهم ما سنصلحه.':''} ${d.conf.guess?'التخمين الصحيح لا يُحسب إتقاناً، لذلك وضعنا هذه المهارات «قيد التعلّم».':''}</p>${over.length?'<p>أفكار خاطئة واثقة في: '+over.map(i=>chip(i,short(title(i)))).join('')+'</p>':''}${guessed.length?'<p>تخمين في: '+guessed.map(i=>chip(i,short(title(i)))).join('')+'</p>':''}</div>`:''}
- ${sec('متقنة','check',g('mastered'))}${sec('قيد التعلّم','book',g('learning'))}${sec('تحتاج تقوية','dumbbell',w,'أضفناها إلى مراجعة الأخطاء. ابدأ بالترتيب.')}${sec('لم تُختبر (تعتمد على مهارة ضعيفة)','pause',g('skipped'))}
- ${w.length?`<a class="btn wide gold" href="#/lesson/${w[0]}">${I('play')} ابدأ بأول مهارة: ${esc(short(title(w[0])))}</a>`:`<a class="btn wide" href="#/map">${I('map')} اذهب إلى الخريطة</a>`}`}
+ const w=[...g('over'),...g('weak')];const head=avg>=.75?'مستوى جيد في المهارات المقيسة':avg>=.4?'بعض المهارات تحتاج إلى تقوية':'نقطة البداية: المهارات الأساسية';
+ const sub=avg>=.75?'يمكنك متابعة دروس الصف الثامن، مع مراجعة ما يظهر أدناه.':avg>=.4?'ابدأ بالمهارات التي تحتاج إلى تقوية، ثم تابع دروس الصف الثامن.':'سنبدأ بالمهارات الأساسية خطوة خطوة؛ التدريب متاح دائمًا دون حدّ.';
+ return`<div class="card placement-head"><div class="row">${FX.MASCOT(avg>=.75?'celebrate':'encourage','rc-m')}<div><span class="muted">نتيجة تحديد المستوى · ${new Date(d.date).toLocaleDateString('ar')}</span><h1>${head}</h1><p>${sub}</p></div></div></div>
+ <div class="card"><h2>${I('chart')} نتائج المجالات</h2>${FX.radar(sts.map((s,i)=>({label:s.short,v:doms[i]?doms[i].v:0})),320)}${sts.length>1?`<p>${avg>=.4&&doms[bi].v>=.5?'أعلى مجال: <b>'+sts[bi].short+'</b> · ':''}${doms[wi].v<.75?'يحتاج إلى تقوية: <b>'+sts[wi].short+'</b>':''}</p>`:''}</div>
+ ${sec('أفكار خاطئة مع ثقة عالية','warn',g('over'),'أجبت عنها إجابة خاطئة وأنت «متأكد جدًا». هذه أهم ما نبدأ بإصلاحه.')}${sec('تحتاج إلى تقوية','dumbbell',g('weak'),'أُضيفت إلى مراجعة الأخطاء. ابدأ بها بالترتيب.')}${sec('إجابات صحيحة بالتخمين','question',g('guess'),'التخمين الصحيح لا يُحسب إتقانًا، لذلك تبقى هذه المهارات قيد التعلّم.')}${sec('قيد التعلّم','book',g('learning'))}${sec('متقنة','check',g('mastered'))}${sec('لم تُقَس (تعتمد على مهارة تحتاج إلى تقوية)','pause',g('skipped'))}
+ ${w.length?`<a class="btn wide gold" href="#/lesson/${w[0]}">${I('play')} ابدأ بأول مهارة: ${esc(short(title(w[0])))}</a>`:`<a class="btn wide" href="#/home">${I('map')} تابع مسار الدروس</a>`}`}
 // ---------- الإنجازات ----------
 V.ach=()=>{checkAch();const on=ACH.filter(a=>S.ach[a[0]]).length;const L=FX.lvInfo(level());
  return`<div class="prof"><div class="av">${FX.MASCOT('idle','')}</div><div><h1>${esc(S.name)}</h1><p>${L.name} · المستوى ${level()}</p></div></div>
@@ -313,22 +324,53 @@ V.ach=()=>{checkAch();const on=ACH.filter(a=>S.ach[a[0]]).length;const L=FX.lvIn
  <div class="card"><h3>${I('target')} هدف اليوم</h3><p class="muted">عدد الإجابات الصحيحة المطلوبة يومياً:</p>${[5,10,15,20].map(g=>`<button class="btn ${S.goal===g?'':'sec'}" data-g="${g}">${g}</button>`).join('')}</div>`+
  setH(()=>document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{S.goal=+b.dataset.g;save();route()}))};
 // ---------- التقرير ----------
+// ملخّص طالب واحد من بياناته المحفوظة (لتقرير كل الطلاب)
+function summary(st){if(!st)return null;const sks=st.skills||{};const m=ALLSK.filter(i=>sks[i]&&sks[i].status==='mastered').length;const wk=ALLSK.filter(i=>sks[i]&&sks[i].status==='weak');const lr=ALLSK.filter(i=>sks[i]&&sks[i].status==='learning').length;
+ const q=(st.quizzes||[]);const last=q.length?q[q.length-1]:null;const att=Object.values(sks).reduce((a,s)=>a+(s.att||0),0),cor=Object.values(sks).reduce((a,s)=>a+(s.cor||0),0);
+ return{min:Math.round((+st.time||0)/60),prog:Math.round(100*m/ALLSK.length),m,lr,wk,quizzes:q.length,acc:att?Math.round(100*cor/att):null,last:last?{t:short(title(last.id)),s:last.score,d:new Date(last.date).toLocaleDateString('ar')}:null,lastDay:st.lastDay||'',diag:st.diag?new Date(st.diag.date).toLocaleDateString('ar'):'',pts:+st.points||0}}
+const allStudents=()=>{const P=window.PROFILES;const ps=P?P.list():[];const me=P&&P.current();const out=ps.map(p=>({p,me:me&&me.id===p.id,d:me&&me.id===p.id?summary(S):summary(P.dataOf(p.id))}));if(!out.length)out.push({p:{id:'-',name:S.name},me:true,d:summary(S)});return out};
+const csvOf=rows=>'\ufeff'+[['الطالب','دقائق التعلّم','نسبة التقدّم %','دروس ومهارات متقنة','قيد التعلّم','تحتاج إلى تقوية','عدد الاختبارات','دقة التدريب %','آخر اختبار','نتيجته %','تاريخ تحديد المستوى'],...rows.map(({p,d})=>d?[p.name,d.min,d.prog,d.m,d.lr,d.wk.length,d.quizzes,d.acc==null?'':d.acc,d.last?d.last.t:'',d.last?d.last.s:'',d.diag]:[p.name,'','','','','','','','','',''])].map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+const dl=(name,data,type)=>{const b=new Blob([data],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);return b};
 V.report=()=>{cur=null;const rows=ALLSK.filter(i=>S.skills[i]&&(S.skills[i].att||S.skills[i].best!=null||S.skills[i].diag));
- const mis=Object.entries(S.mis).sort((a,b)=>b[1].n-a[1].n);const weak=ALLSK.filter(i=>sk(i).status==='weak');const d=S.diag;
- return`<h1>${I('chart')} تقرير ولي الأمر / المعلّم</h1><div class="card"><label>اسم الطالب <input type="text" id="nm" value="${esc(S.name)}"></label>
- <div class="grid" style="margin-top:10px"><div class="kpi"><b>${Math.round(S.time/60)}</b>دقيقة</div><div class="kpi"><b>${progress()}%</b>تقدّم</div><div class="kpi"><b>${S.points}</b>نقطة · مستوى ${level()}</div><div class="kpi"><b>${S.quizzes.length}</b>اختبار</div></div>
- <p class="muted">بدأ في: ${new Date(S.created).toLocaleDateString('ar')} · تحديد المستوى: ${d?new Date(d.date).toLocaleDateString('ar'):'لم يُجرَ بعد'} · مراجعات مجدولة: ${Object.keys(S.review).length} · أفضل سباق: ${S.games.race||0}</p></div>
- ${d&&d.domains?`<div class="card"><h2>${I('chart')} رادار المجالات (التشخيص)</h2>${FX.radar(STATIONS.map((s,i)=>({label:s.short,v:d.domains[i].v})),300)}${d.conf?`<p class="muted">تخمين صحيح: ${d.conf.guess} · خطأ بثقة عالية: ${d.conf.over}</p>`:''}</div>`:''}
- <div class="card"><h2>${I('dumbbell')} نقاط الضعف المحددة (${weak.length})</h2>${weak.length?weak.map(i=>chip(i)).join(''):'<p class="muted">لا توجد حالياً.</p>'}
- ${weak.length?`<p class="muted">الترتيب المقترح للعلاج: ${weak.filter(i=>PRE[i]).join(' ← ')}</p>`:''}</div>
- <div class="card"><h2>${I('brain')} الأخطاء المفاهيمية المتكررة</h2>${mis.length?`<div class="tbl"><table><tr><th>الخطأ</th><th>مرات</th><th>في</th></tr>${mis.slice(0,15).map(([m,o])=>`<tr><td>${esc(m)}</td><td>${o.n}</td><td>${Object.keys(o.skills).join('، ')}</td></tr>`).join('')}</table></div>`:'<p class="muted">لم تُسجّل أخطاء بعد.</p>'}</div>
- <div class="card"><h2>${I('chart')} المهارات</h2>${rows.length?`<div class="tbl"><table><tr><th>المهارة</th><th>الحالة</th><th>دقة التدريب</th><th>أفضل اختبار</th><th>وقت</th></tr>${rows.map(i=>{const s=S.skills[i];return`<tr><td>${i} ${esc(short(title(i)))}</td><td>${SL[status(i)]}</td><td>${s.att?Math.round(100*s.cor/s.att)+'% ('+s.att+')':'—'}</td><td>${s.best!=null?s.best+'%':'—'}</td><td>${Math.round(s.time/60)}د</td></tr>`}).join('')}</table></div>`:'<p class="muted">لا بيانات بعد.</p>'}</div>
- <div class="card"><h2>${I('quiz')} سجل الاختبارات</h2>${S.quizzes.length?`<div class="tbl"><table><tr><th>التاريخ</th><th>الاختبار</th><th>النتيجة</th></tr>${S.quizzes.slice(-20).reverse().map(q=>`<tr><td>${new Date(q.date).toLocaleDateString('ar')}</td><td>${esc(short(title(q.id)))}</td><td>${q.score}%</td></tr>`).join('')}</table></div>`:'<p class="muted">لا اختبارات بعد.</p>'}</div>
- <div class="card"><button class="btn" id="exp">${I('download')} تصدير JSON</button><label class="btn sec">${I('upload')} استيراد<input type="file" id="imp" accept=".json" hidden></label><button class="btn sec" onclick="print()">${I('print')} طباعة</button><button class="btn ghost" id="rst">${I('trash')} مسح كل التقدم</button></div>`+setH(()=>{
-  $('#nm').onchange=e=>{S.name=e.target.value.trim()||'عبّود';save()};
-  $('#exp').onclick=()=>{const b=new Blob([JSON.stringify({exported:new Date().toISOString(),app:'abboud-math-v1',progress:S},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`تقدم-${S.name}-${today()}.json`;a.click()};
-  $('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);S=d.progress||d;norm();LOADH.forEach(f=>f());save();route();FX.toast(I('check')+' تم الاستيراد')}catch(x){alert('ملف غير صالح')}})};
-  $('#rst').onclick=()=>{if(confirm('هل أنت متأكد؟ سيُحذف كل التقدم.')){S=fresh();norm();LOADH.forEach(f=>f());save();route()}}})};
+ const mis=Object.entries(S.mis).sort((a,b)=>b[1].n-a[1].n);const weak=ALLSK.filter(i=>sk(i).status==='weak');const d=S.diag;const all=allStudents();
+ return`<div class="report-print"><h1>${I('chart')} تقرير التقدّم</h1><p class="muted print-only">بستان التعلّم · رياضيات الصف الثامن · ${new Date().toLocaleDateString('ar')}</p>
+ <div class="card"><h2>${I('users')} الطلاب على هذا الجهاز (${all.length})</h2><div class="tbl"><table><tr><th>الطالب</th><th>دقائق</th><th>التقدّم</th><th>متقنة</th><th>تحتاج إلى تقوية</th><th>الاختبارات</th><th>دقة التدريب</th><th>آخر اختبار</th></tr>${all.map(({p,me,d:x})=>`<tr${me?' class="me"':''}><td><b>${esc(p.name)}</b>${me?' <span class="muted">(الحالي)</span>':''}</td>${x?`<td>${x.min}</td><td>${x.prog}%</td><td>${x.m}</td><td>${x.wk.length?x.wk.slice(0,4).map(i=>esc(short(title(i)))).join('، ')+(x.wk.length>4?' …':''):'—'}</td><td>${x.quizzes}</td><td>${x.acc==null?'—':x.acc+'%'}</td><td>${x.last?esc(x.last.t)+' · '+x.last.s+'%':'—'}</td>`:'<td colspan="7" class="muted">لا بيانات بعد</td>'}</tr>`).join('')}</table></div>
+ <div class="row-btns no-print"><button class="btn" onclick="print()">${I('print')} طباعة التقرير</button><button class="btn sec" id="csv">${I('download')} تنزيل جدول (CSV)</button><button class="btn sec" id="shr">${I('upload')} مشاركة التقرير</button></div>
+ <p class="muted no-print">الطباعة تعطي تقريرًا ورقيًا أو ملف PDF. ملف CSV يُفتح في Excel أو جداول Google، ويمكن للمعلّم جمع ملفات عدة طلاب في جدول واحد.</p></div>
+ <h2 class="sec-h">تفاصيل الطالب الحالي: ${esc(S.name)}</h2>
+ <div class="card"><div class="grid"><div class="kpi"><b>${Math.round(S.time/60)}</b>دقيقة</div><div class="kpi"><b>${progress()}%</b>تقدّم</div><div class="kpi"><b>${nMast()}</b>متقنة</div><div class="kpi"><b>${S.quizzes.length}</b>اختبار</div></div>
+ <p class="muted">بدأ في: ${new Date(S.created).toLocaleDateString('ar')} · تحديد المستوى: ${d?new Date(d.date).toLocaleDateString('ar'):'لم يُجرَ بعد'} · مراجعات مجدولة: ${Object.keys(S.review).length}</p></div>
+ ${d&&d.domains?`<div class="card"><h2>${I('chart')} نتائج المجالات (تحديد المستوى)</h2>${FX.radar(STATIONS.filter((s,i)=>d.domains[i]).map((s,i)=>({label:s.short,v:d.domains[i].v})),300)}${d.conf?`<p class="muted">إجابات صحيحة بالتخمين: ${d.conf.guess} · أخطاء مع ثقة عالية: ${d.conf.over}</p>`:''}</div>`:''}
+ <div class="card"><h2>${I('dumbbell')} مهارات تحتاج إلى تقوية (${weak.length})</h2>${weak.length?weak.map(i=>chip(i)).join(''):'<p class="muted">لا توجد حاليًا.</p>'}
+ ${weak.length?`<p class="muted">الترتيب المقترح للعلاج: ${weak.filter(i=>PRE[i]).map(i=>esc(short(title(i)))).join(' ← ')}</p>`:''}</div>
+ <div class="card"><h2>${I('brain')} الأخطاء المفاهيمية المتكررة</h2>${mis.length?`<div class="tbl"><table><tr><th>الخطأ</th><th>عدد المرات</th><th>في</th></tr>${mis.slice(0,15).map(([m,o])=>`<tr><td>${esc(m)}</td><td>${o.n}</td><td>${Object.keys(o.skills).map(i=>esc(short(title(i)))).join('، ')}</td></tr>`).join('')}</table></div>`:'<p class="muted">لم تُسجَّل أخطاء بعد.</p>'}</div>
+ <div class="card"><h2>${I('chart')} المهارات</h2>${rows.length?`<div class="tbl"><table><tr><th>المهارة</th><th>الحالة</th><th>دقة التدريب</th><th>أفضل اختبار</th><th>الوقت</th></tr>${rows.map(i=>{const s=S.skills[i];return`<tr><td>${esc(short(title(i)))}</td><td>${SL[status(i)]}</td><td>${s.att?Math.round(100*s.cor/s.att)+'% ('+s.att+')':'—'}</td><td>${s.best!=null?s.best+'%':'—'}</td><td>${Math.round((s.time||0)/60)} د</td></tr>`}).join('')}</table></div>`:'<p class="muted">لا بيانات بعد.</p>'}</div>
+ <div class="card"><h2>${I('quiz')} سجل الاختبارات</h2>${S.quizzes.length?`<div class="tbl"><table><tr><th>التاريخ</th><th>الاختبار</th><th>النتيجة</th></tr>${S.quizzes.slice(-20).reverse().map(q=>`<tr><td>${new Date(q.date).toLocaleDateString('ar')}</td><td>${esc(short(title(q.id)))}</td><td>${q.score}%</td></tr>`).join('')}</table></div>`:'<p class="muted">لا اختبارات بعد.</p>'}</div></div>
+ <div class="card no-print"><h2>${I('download')} نسخة احتياطية</h2><p class="muted">احفظ تقدّم كل الطلاب في ملف واحد (على الهاتف أو أرسله لنفسك عبر واتساب)، ثم استعده على هذا الجهاز أو جهاز آخر.</p><div class="row-btns"><button class="btn" id="exp">${I('download')} حفظ نسخة احتياطية</button><button class="btn sec" id="bshr">${I('upload')} مشاركة النسخة</button></div></div>
+ <div class="card no-print parent-zone" id="pz"><h2>${I('lock')} منطقة ولي الأمر</h2><div id="pzb"></div></div>`+setH(()=>{
+  const P=window.PROFILES;
+  $('#csv').onclick=()=>dl(`تقرير-الطلاب-${today()}.csv`,csvOf(allStudents()),'text/csv;charset=utf-8');
+  const share=async(name,data,type,text)=>{const f=new File([data],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:name,text});return}catch(e){if(e.name==='AbortError')return}}dl(name,data,type);FX.toast(I('download','sm')+' حُفظ الملف؛ أرسله من مجلد التنزيلات.')};
+  $('#shr').onclick=()=>share(`تقرير-الطلاب-${today()}.csv`,csvOf(allStudents()),'text/csv','تقرير تقدّم الطلاب في بستان التعلّم');
+  const bk=()=>JSON.stringify(P?P.backup():{app:'abboud-math-v1',exported:new Date().toISOString(),progress:S});
+  $('#exp').onclick=()=>{save();dl(`نسخة-بستان-التعلم-${today()}.json`,bk(),'application/json')};
+  $('#bshr').onclick=()=>{save();share(`نسخة-بستان-التعلم-${today()}.json`,bk(),'application/json','نسخة احتياطية من بستان التعلّم')};
+  const pzb=$('#pzb');
+  const locked=()=>{const has=P&&P.hasParent();pzb.innerHTML=`<p class="muted">${has?'أدخل رقم ولي الأمر لفتح الإعدادات: استعادة نسخة احتياطية، وتعديل اسم الطالب، ومسح التقدّم، وإعدادات المدرب.':'لم يُحدَّد رقم لولي الأمر بعد. اختر رقمًا من 4 إلى 6 أرقام لحماية الإعدادات من التغيير غير المقصود. (قفل خفيف وليس حماية أمنية.)'}</p><form id="pzf" class="row-btns"><input id="pzp" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="${has?'رقم ولي الأمر':'رقم جديد'}" aria-label="رقم ولي الأمر">${has?'':'<input id="pzp2" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="أعد كتابة الرقم" aria-label="تأكيد الرقم">'}<button class="btn sec">${I('lock')} ${has?'فتح':'حفظ الرقم'}</button></form><p class="fb bad" id="pzm" hidden></p>`;
+   $('#pzf').onsubmit=async e=>{e.preventDefault();const v=window.AR_NUM.latin($('#pzp').value).trim(),m=$('#pzm');if(!/^\d{4,6}$/.test(v)){m.hidden=false;m.textContent='الرقم من 4 إلى 6 أرقام.';return}
+    if(!has){if(window.AR_NUM.latin($('#pzp2').value).trim()!==v){m.hidden=false;m.textContent='الرقمان غير متطابقين.';return}await P.setParent(v);open_()}else if(await P.checkParent(v))open_();else{m.hidden=false;m.textContent='الرقم غير صحيح.'}}};
+  const open_=()=>{const cf=(()=>{try{return JSON.parse(localStorage.getItem('abboud_coach_cfg'))||{mode:'local',endpoint:''}}catch(e){return{mode:'local',endpoint:''}}})();
+   pzb.innerHTML=`<label>اسم الطالب الحالي <input type="text" id="nm" maxlength="24" value="${esc(S.name)}"></label>
+   <h3>${I('upload','sm')} استعادة نسخة احتياطية</h3><p class="muted">تُضاف الملفات الموجودة في النسخة إلى هذا الجهاز، ويُستبدل تقدّم الطالب الذي يحمل الملف نفسه.</p><label class="btn sec">${I('upload')} اختر ملف النسخة<input type="file" id="imp" accept=".json,application/json" hidden></label>
+   <details><summary>${I('lab','sm')} إعدادات المدرب (للمطوّرين)</summary><p class="muted">الوضع المحلي يعمل دون إنترنت. الوضع الخارجي يرسل سياق السؤال فقط (دون اسم الطالب) إلى عنوان تحدده أنت.</p><label>المحوّل <select id="cmode"><option value="local">محلي</option><option value="remote">خادم خارجي</option></select></label><label>عنوان الخادم <input id="cep" dir="ltr" placeholder="https://example.org/coach"></label><button class="btn ghost" id="csave">${I('check')} حفظ</button></details>
+   <h3 class="danger-h">${I('trash','sm')} مسح تقدّم الطالب الحالي</h3><p class="muted">يحذف تقدّم «${esc(S.name)}» فقط من هذا الجهاز ولا يمكن التراجع. احفظ نسخة احتياطية أولًا.</p><button class="btn ghost danger" id="rst">${I('trash')} مسح تقدّم ${esc(S.name)}</button>`;
+   $('#nm').onchange=e=>{const v=e.target.value.trim();if(!v)return;S.name=v;save();const c=P&&P.current();if(c)P.rename(c.id,v);FX.toast(I('check')+' حُفظ الاسم')};
+   $('#cmode').value=cf.mode;$('#cep').value=cf.endpoint||'';$('#csave').onclick=()=>{localStorage.setItem('abboud_coach_cfg',JSON.stringify({mode:$('#cmode').value,endpoint:$('#cep').value.trim()}));FX.toast(I('check')+' حُفظ الإعداد')};
+   $('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{let d;try{d=JSON.parse(t)}catch(x){alert('الملف غير صالح.');return}
+     if(d&&d.app==='bustan-backup-v1'&&P){if(!confirm('ستُستعاد نسخة فيها '+d.profiles.length+' من ملفات الطلاب. متابعة؟'))return;save();try{P.restore(d)}catch(x){alert('الملف غير صالح.');return}window.__noSave=true;location.reload();return}
+     if(!confirm('هذا ملف طالب واحد (إصدار سابق). هل تريد استبدال تقدّم «'+S.name+'» به؟'))return;S=d.progress||d;norm();LOADH.forEach(f=>f());save();route();FX.toast(I('check')+' تمت الاستعادة')})};
+   $('#rst').onclick=()=>{if(!confirm('هل تريد مسح كل تقدّم «'+S.name+'»؟'))return;const t=prompt('للتأكيد اكتب اسم الطالب كما هو: '+S.name);if(t===null)return;if(t.trim()!==S.name.trim()){alert('الاسم غير مطابق، لم يُمسح شيء.');return}const nm=S.name;S=fresh();S.name=nm;norm();LOADH.forEach(f=>f());save();route();FX.toast('مُسح التقدّم')}};
+  locked()})};
 // ---------- التوجيه ----------
 const TABS={home:'home',map:'home',unit:'home',lesson:'home',practice:'home',quiz:'home',daily:'home',review:'home',diag:'diag',lab:'lab',game:'lab',ach:'ach',report:'report'};
 function route(){const [_,v,arg]=(location.hash||'#/home').split('/');const f=V[v]||V.home;cur=null;leave.forEach(fn=>{try{fn()}catch(e){}});leave=[];

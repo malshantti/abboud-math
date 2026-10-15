@@ -48,7 +48,7 @@ function radar(axes,size){size=size||300;const cx0=size/2,cy0=size/2,R=size/2-58
  const poly=axes.map((a,i)=>pt(i,Math.max(.04,a.v)).join(',')).join(' ');
  return`<svg class="radar" viewBox="0 0 ${size} ${size}" role="img" aria-label="رادار المهارات">${g}<polygon class="rd-shape" points="${poly}"/>${axes.map((a,i)=>{const[x,y]=pt(i,Math.max(.04,a.v));return`<circle class="rd-dot" cx="${x}" cy="${y}" r="5"/>`}).join('')}</svg>`}
 const cover=k=>`<img class="cover" src="img/cover-${k}.webp" alt="" loading="lazy" decoding="async">`;
-const LV=['مبتدئ','مستكشف','محارب الأعداد','صانع المعادلات','فارس الجبر','مهندس الأشكال','عبقري صغير','بطل الرياضيات','أسطورة'];
+const LV=['مبتدئ','مستكشف','متدرّب','مجتهد','متقدّم','متمكّن','متميّز','متفوّق','متفوّق بامتياز'];
 const lvInfo=l=>{const i=Math.min(l,9);return{name:LV[i-1],img:`img/rank-${Math.min(i,8)}.webp`,top:i===9}};
 const rankImg=(l,size,cls)=>{const L=lvInfo(l);return`<img class="rank ${L.top?'legend':''} ${cls||''}" src="${L.img}" alt="${L.name}" width="${size||40}" height="${size||40}">`};
 window.FX={MASCOT,mascot,confetti,burst,mega,pop,bump,modal,toast,ring,radar,cover,lvInfo,rankImg,HAPPY,SAD,reduced};
