@@ -73,3 +73,4 @@ p[dir=ltr],div[dir=ltr],.qen{text-align:left}
 .tips{margin-top:14px}.tip{border-inline-start:4px solid var(--pri);padding:6px 12px;margin:8px 0;background:var(--bg2,#f8f8ff);border-radius:8px}.tip p{margin:4px 0}
 .wnav{display:flex;justify-content:space-between;margin-top:12px}
 @media (max-width:520px){.pgrid{grid-template-columns:1fr}.sylrow{font-size:28px}}
+.zbtn{border:0;background:none;padding:0;cursor:pointer;flex:none}

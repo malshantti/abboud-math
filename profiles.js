@@ -5,7 +5,7 @@
 (function(){
 'use strict';
 const LS=window.localStorage;
-const PER=['abboud_math_v1','bustan_g8_english_v1','en_rate','en_sfx','abboud_coach_cfg','bustan_last','bustan_grade','bustan_student_name'];// مفاتيح خاصة بكل طالب
+const PER=['abboud_math_v1','bustan_g8_english_v1','en_rate','en_sfx','en_zay','abboud_coach_cfg','bustan_last','bustan_grade','bustan_student_name'];// مفاتيح خاصة بكل طالب
 const K={list:'bustan_profiles',session:'bustan_session',owner:'bustan_owner',fails:'bustan_pin_fails'};
 const slot=(id,k)=>`bustan_p_${id}__${k}`;
 const get=k=>{try{return LS.getItem(k)}catch(e){return null}};

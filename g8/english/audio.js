@@ -30,5 +30,7 @@ const hasAr=t=>AR.has(String(t||'').replace(/\s+/g,' ').trim());
 function playAr(t,o){o=o||{};stop();const f=AR.get(String(t).replace(/\s+/g,' ').trim());if(!f)return Promise.resolve(false);if(o.btn)o.btn.classList.add('playing');return new Promise(res=>{const a=new Audio(ARB+f);st.cur=a;const end=()=>{if(o.btn)o.btn.classList.remove('playing');res(true)};a.onended=end;a.onerror=end;a.play().catch(end)})}
 async function slowThenNormal(t,o){o=o||{};await play(t,Object.assign({},o,{rate:0.75}));await new Promise(r=>setTimeout(r,400));return play(t,Object.assign({},o,{rate:1}))}
 const bytes=texts=>[...new Set(texts.map(t=>find(t)).filter(Boolean))].reduce((a,f)=>a+(SZ.get(f)||0),0);
-window.AU={bytes,hasAr,playAr,slowThenNormal,load,play,playSeq,stop,setRate,rate:()=>st.rate,has,find,files,norm,sfx,manifest:()=>MAN,count:()=>idx.size};
+const zt=n=>{const m=window.EN_AUDIO_AR;return m&&m.z&&m.z['z'+n]};
+const zay=(n,o)=>{const t=zt(n);if(!t||localStorage.getItem('en_zay')==='0'||!hasAr(t))return Promise.resolve(false);return playAr(t,o)};
+window.AU={zt,zay,bytes,hasAr,playAr,slowThenNormal,load,play,playSeq,stop,setRate,rate:()=>st.rate,has,find,files,norm,sfx,manifest:()=>MAN,count:()=>idx.size};
 })();
