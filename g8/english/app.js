@@ -89,7 +89,7 @@ function hl(el){document.querySelectorAll('.hl').forEach(x=>x.classList.remove('
 async function toggleSeq(b,lines){if(b.dataset.on){b.dataset.on='';AU.stop();hl(null);return}b.dataset.on=1;b.classList.add('playing');await AU.playSeq(lines,{stopped:()=>!b.dataset.on,each:l=>hl(l.el)});b.dataset.on='';b.classList.remove('playing');hl(null)}
 function unitTexts(u){return[...u.vocab.flatMap(w=>[w.en,w.ex]),...u.dialogues.flatMap(d=>d.lines.map(l=>l.en)),...u.texts.flatMap(t=>[t.en,...t.en.split(/\n\s*\n/).flatMap(p=>p.split(/(?<=[.!?])\s+(?=[A-Z"'])/))]),...u.sentences.map(s=>s.en),...u.grammar.flatMap(g=>g.examples),...u.pron.flatMap(p=>p.words),...u.everyday].filter(Boolean)}
 async function offline(u,b){const fs=AU.files(u.all||unitTexts(u));if(!fs.length){b.textContent='لا توجد ملفات صوت لهذه الوحدة بعد؛ سيُستخدم نطق المتصفح.';return}if(!('caches' in window)){b.textContent='المتصفح لا يدعم التخزين دون إنترنت.';return}
- b.disabled=true;const c=await caches.open('g8en-audio-v1');let n=0;for(const f of fs){try{if(!(await c.match(f)))await c.add(f);n++}catch(e){}b.textContent='جارٍ التنزيل… '+n+' / '+fs.length}b.textContent='تم: '+n+' ملفًا صوتيًا محفوظ على هذا الجهاز.'}
+ b.disabled=true;const c=await caches.open('g8en-audio-v1');let n=0;for(const f of fs){try{if(!(await c.match(f,{ignoreVary:true})))await c.add(f);n++}catch(e){}b.textContent='جارٍ التنزيل… '+n+' / '+fs.length}b.textContent='تم: '+n+' ملفًا صوتيًا محفوظ على هذا الجهاز.'}
 /* ---------- محرّك الأسئلة ---------- */
 let SES=null;
 function start(id,mode,quiz){const u=E.byId[id];if(!u)return go('#/home');const n=quiz?10:8;const qs=[];let guard=0;const keys=new Set();
