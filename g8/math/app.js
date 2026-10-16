@@ -224,19 +224,19 @@ V.practice=id=>{cur=id;const N=10;setTimeout(()=>{let n=0,ok=0,xp=0;const t0=Dat
  return ltop('#/lesson/'+id,false)+`<div class="card qcard" id="pbox"></div>`};
 function quizRun(box,pr,gens,N,onEnd,mode,useH){let i=0,score=0;const p0=S.points,t0=Date.now(),per={};
  const nextQ=()=>{setBar(i,N);if(i>=N)return onEnd(score,S.points-p0,mmss(Math.round((Date.now()-t0)/1000)));if(pr)pr.innerHTML='';
-  const gid=gens[i%gens.length];renderItem(box,gid,window.genFor(gid),mode||'test',(ok,_,b)=>{const q=per[gid]||(per[gid]={n:0,c:0});q.n++;if(ok){q.c++;score++;addPts(15,b);countCorrect()}else if(useH){S.hearts=Math.max(0,hearts()-1);S.hLost=Date.now();const e=$('#lh');if(e)e.innerHTML=I('heart','sm')+' '+S.hearts}i++;save();nextQ()})};nextQ();return per}
+  const gid=gens[i%gens.length],q=per[gid]||(per[gid]={n:0,c:0,targets:{}}),item=window.genFor(gid,q.n);renderItem(box,gid,item,mode||'test',(ok,_,b)=>{q.n++;if(ok){q.c++;(item.targets||[]).forEach(t=>q.targets[t]=true);score++;addPts(15,b);countCorrect()}else if(useH){S.hearts=Math.max(0,hearts()-1);S.hLost=Date.now();const e=$('#lh');if(e)e.innerHTML=I('heart','sm')+' '+S.hearts}i++;save();nextQ()})};nextQ();return per}
 // عند نفاد المحاولات لا يُمنع التعلّم: التدريب مفتوح دائمًا ويعيد المحاولات
 const noHearts=(back,prac)=>`<a class="back" href="${back}">${I('back','sm')} رجوع</a><div class="card empty">${FX.MASCOT('encourage','empty-m')}<h2>استنفدت محاولات الاختبار مؤقتًا</h2><p class="muted">التدريب متاح دائمًا. كل ثلاث إجابات صحيحة في التدريب، أو كل إجابة صحيحة في مراجعة الأخطاء، تعيد محاولة واحدة. وتعود محاولة تلقائيًا كل عشرين دقيقة.</p><a class="btn wide" href="#/practice/${prac}">${I('dumbbell')} تدرّب الآن</a><a class="btn wide sec" href="#/review">${I('review')} مراجعة الأخطاء</a></div>`;
 V.quiz=id=>{cur=id;const unit=UNITS[id];const gens0=unit?unit.lessons.filter(l=>!l.review).map(l=>l.id):[id];const N=unit?Math.min(16,Math.max(10,2*gens0.length)):8;const gens=unit?[...gens0].sort(()=>Math.random()-.5):gens0;
  const g0=unit?gens0[0]:id;if(hearts()<=0)return noHearts(`#/${unit?'unit':'lesson'}/${id}`,g0);let per={};
- setTimeout(()=>{per=quizRun($('#qbox'),$('#qpr'),gens,N,(score,xp,tm)=>{const pct=Math.round(100*score/N),s=sk(id),was=s.status;s.best=Math.max(s.best||0,pct);
+ setTimeout(()=>{per=quizRun($('#qbox'),$('#qpr'),gens,N,(score,xp,tm)=>{const pct=Math.round(100*score/N),s=sk(id),was=s.status,coverage=!!unit||window.mathTargetsMet(id,per[id]&&per[id].targets),mastered=pct>=80&&coverage;s.best=Math.max(s.best||0,pct);
    S.quizzes.push({id,date:new Date().toISOString(),score:pct,n:N});
    // الإتقان يُمنح فقط للدرس الذي سُئل عنه سؤالين على الأقل وأجاب عنهما بنسبة 80% فأكثر
    if(unit)gens.forEach(t=>{const q=per[t];if(!q)return;const x=sk(t),r=q.c/q.n;x.att=(x.att||0);if(q.n>=2&&r>=.8&&pct>=80)x.status='mastered';else if(r>=.5){if(x.status!=='mastered')x.status='learning'}else if(x.status!=='mastered')x.status='weak'});
-   else{const x=sk(id);if(pct>=80)x.status='mastered';else if(pct>=50){if(x.status!=='mastered')x.status='learning'}else if(x.status!=='mastered')x.status='weak'}
-   if(pct>=80&&was!=='mastered')addPts(50);save();$('#qpr').innerHTML='';
-   if(pct>=80)FX.mega();
-   showDone($('#qbox'),{title:pct>=80?'أحسنت، اجتزت الاختبار':pct>=50?'أنت على الطريق الصحيح':'تحتاج إلى مزيد من التدريب',sub:`${score} من ${N} إجابات صحيحة · النجاح 80%`,pose:pct>=80?'celebrate':pct>=50?'encourage':'read',party:pct>=80,xp,acc:pct+'%',accL:'النتيجة',time:tm,next:`#/${unit?'unit':'lesson'}/${id}`,extra:[['#/practice/'+(unit?(gens.find(t=>per[t]&&per[t].c<per[t].n)||gens[0]):id),'تدرّب'],['#/home','مسار الدروس']]});checkAch()},'test',true)});
+   else{const x=sk(id);if(mastered)x.status='mastered';else if(pct>=50){if(x.status!=='mastered')x.status='learning'}else if(x.status!=='mastered')x.status='weak'}
+   if(mastered&&was!=='mastered')addPts(50);save();$('#qpr').innerHTML='';
+   if(mastered)FX.mega();
+   showDone($('#qbox'),{title:mastered?'أحسنت، اجتزت الاختبار':pct>=50?'أنت على الطريق الصحيح':'تحتاج إلى مزيد من التدريب',sub:`${score} من ${N} إجابات صحيحة · النجاح 80%${!coverage?' · لإتقان المهارة، أجب إجابة صحيحة عن كل عملية مطلوبة'+(id==='P04'?'، وعن عدد كسري.':'.'):''}`,pose:mastered?'celebrate':pct>=50?'encourage':'read',party:mastered,xp,acc:pct+'%',accL:'النتيجة',time:tm,next:`#/${unit?'unit':'lesson'}/${id}`,extra:[['#/practice/'+(unit?(gens.find(t=>per[t]&&per[t].c<per[t].n)||gens[0]):id),'تدرّب'],['#/home','مسار الدروس']]});checkAch()},'test',true)});
  return ltop(`#/${unit?'unit':'lesson'}/${id}`,true)+`<div id="qpr"></div><div class="card qcard" id="qbox"></div>`};
 // ---------- مراجعة الأخطاء ----------
 V.review=()=>{const due=dueReviews(),all=Object.keys(S.review);

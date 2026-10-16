@@ -98,20 +98,34 @@ const MIS={
 };
 const G={};
 // ===== المتطلبات P01–P22 =====
-G.P01=()=>{const a=NZ(-12,12),b=NZ(-12,12),op=pick(['+','−','×']);
- if(op==='×')return one(mc(`${M(a)} × ${P(b)} = ؟`,M(a*b),[[M(-a*b),MIS.sign],[M(a+b),'هذا ناتج الجمع لا الضرب.']],'اضرب القيمتين ثم حدّد الإشارة: الإشارتان متشابهتان ← موجب.'));
- if(op==='−')return one(mc(`${M(a)} − ${P(b)} = ؟`,M(a-b),[[M(a+b),MIS.subSign],[M(b-a),'انتبه لترتيب الطرح.']],'حوّل الطرح إلى جمع المعكوس.'));
- return one(mc(`${M(a)} + ${P(b)} = ؟`,M(a+b),[[M(Math.abs(a)+Math.abs(b)*(a*b<0?1:1)*(a<0&&b<0?-1:1)),MIS.absAdd],[M(-(a+b)),MIS.absAdd]],'تخيّل خط الأعداد: ابدأ من العدد الأول وتحرك بمقدار الثاني.'))};
+const OPS=['+','−','×','÷'],TARGETS=['add','subtract','multiply','divide'];
+// الاختبار يمر بالعمليات بالتتابع؛ يبقى التدريب الحر عشوائيًا.
+G.P01=index=>{const t=Number.isInteger(index)?index%4:R(0,3),op=OPS[t],b=NZ(-12,12);let a=R(-12,12),it;
+ if(op==='÷'){const q=R(-12,12);a=b*q;it=one(mc(`${M(a)} ÷ ${P(b)} = ؟`,M(q),[[M(-q),MIS.sign],[M(a*b),'هذا ناتج الضرب لا القسمة.']],'اقسم القيمتين وحدّد الإشارة: المتشابهتان تعطيان موجبًا والمختلفتان تعطيان سالبًا. الصفر مقسومًا على عدد غير صفر يساوي صفرًا.'))}
+ else if(op==='×')it=one(mc(`${M(a)} × ${P(b)} = ؟`,M(a*b),[[M(-a*b),MIS.sign],[M(a+b),'هذا ناتج الجمع لا الضرب.']],'اضرب القيمتين ثم حدّد الإشارة: المتشابهتان تعطيان موجبًا والمختلفتان تعطيان سالبًا. الضرب في صفر يعطي صفرًا.'));
+ else if(op==='−')it=one(mc(`${M(a)} − ${P(b)} = ؟`,M(a-b),[[M(a+b),MIS.subSign],[M(b-a),'انتبه لترتيب الطرح.']],'حوّل الطرح إلى جمع المعكوس.'));
+ else it=one(mc(`${M(a)} + ${P(b)} = ؟`,M(a+b),[[M(Math.abs(a)+Math.abs(b)),MIS.absAdd],[M(-(a+b)),MIS.absAdd]],'تخيّل خط الأعداد: ابدأ من العدد الأول وتحرك بمقدار الثاني.'));
+ return Object.assign(it,{targets:[TARGETS[t]]})};
 G.P02=()=>{if(Math.random()<.5){let a=R(1,9),b=R(a+1,15);return one(mc(`أيهما أكبر: ${M(-a)} أم ${M(-b)}؟`,M(-a),[[M(-b),MIS.negCmp]],'على خط الأعداد: العدد الأقرب لليمين أكبر.'))}
  const a=NZ(-20,20);return one(mc(`|${M(a)}| = ؟`,''+Math.abs(a),[[M(-Math.abs(a)),MIS.abs],['0','']],'المسافة بين العدد والصفر.'))};
 G.P03=()=>{if(Math.random()<.5){const g=R(2,9),a=R(1,6)*g;let b=R(1,6)*g+g;if(b===a)b+=g;const G1=gcd(a,b),L=a*b/G1;
   return one(mc(`العامل المشترك الأكبر للعددين ${a} و ${b} هو:`,G1,[[L,MIS.gcdLcm],[a*b,MIS.gcdLcm]],'اكتب عوامل كل عدد واختر أكبر عامل مشترك.'))}
  let n=R(1,7),d=R(n+1,9);while(gcd(n,d)>1)d++;const k=R(2,6);
  return one(mc(`بسّط الكسر ${n*k}/${d*k} لأبسط صورة:`,`${n}/${d}`,[[`${n*k-1}/${d*k-1}`,'التبسيط يكون بالقسمة على عامل مشترك للبسط والمقام، لا بالطرح.'],[`${n*k}/${d}`,'اقسم البسط والمقام كليهما على نفس العدد.']],'اقسم البسط والمقام على العامل المشترك الأكبر.'))};
-G.P04=()=>{const b=R(2,7),d=R(2,7),a=R(1,b-1),c=R(1,d-1);const t=pick(['+','×','÷']);
- if(t==='+')return one(mc(`${a}/${b} + ${c}/${d} = ؟`,fr(a*d+c*b,b*d),[[`${a+c}/${b+d}`,MIS.fracAdd],[fr(a*c,b*d),'هذا ناتج الضرب لا الجمع.']],'وحّد المقامات: المقام المشترك '+b*d/gcd(b,d)+'.'));
- if(t==='×')return one(mc(`${a}/${b} × ${c}/${d} = ؟`,fr(a*c,b*d),[[fr(a*d,b*c),'هذه قسمة. في الضرب: بسط × بسط ومقام × مقام.'],[`${a*c}/${b+d}`,'المقام يُضرب أيضاً.']],'بسط × بسط ، مقام × مقام.'));
- return one(mc(`${a}/${b} ÷ ${c}/${d} = ؟`,fr(a*d,b*c),[[fr(a*c,b*d),MIS.fracDiv]],'اقلب الكسر الثاني واضرب.'))};
+G.P04=index=>{const v=Number.isInteger(index)?index%8:R(0,7),t=v%4,op=OPS[t],mixed=v>=4;
+ let b=R(2,7),d=R(2,7),a=R(1,b-1)+(mixed?R(1,3)*b:0),c=R(1,d-1)+(mixed?R(1,3)*d:0);
+ // يبقى الطرح التأسيسي غير سالب، مع الحفاظ على ترتيب المعطيين في السؤال والحل.
+ if(op==='−'&&a*d<c*b){[a,c]=[c,a];[b,d]=[d,b]}
+ const show=(n,den)=>mixed?`(${Math.floor(n/den)} و ${fr(n%den,den)})`:fr(n,den),left=show(a,b),right=show(c,d);
+ const conversion=mixed?`نحوّل العددين الكسريين إلى كسرين غير فعليين: ${left} = ${fr(a,b)}، ${right} = ${fr(c,d)}. `:'';
+ let num,den,hint,ds;
+ if(op==='+'||op==='−'){num=a*d+(op==='+'?c*b:-c*b);den=b*d;const lcd=den/gcd(b,d);
+  hint=conversion+`نوحّد المقامين إلى ${lcd} ثم ${op==='+'?'نجمع':'نطرح'} البسطين، ونبقي المقام نفسه.`;
+  ds=[[fr(op==='+'?a+c:a-c,b+d),'لا نجمع المقامين ولا نطرحهما؛ نوحّدهما أولًا ثم نجري العملية على البسطين.'],[fr(a*c,b*d),'هذا ناتج الضرب؛ راجع العملية المطلوبة.']];
+ }else if(op==='×'){num=a*c;den=b*d;hint=conversion+'نضرب البسطين معًا والمقامين معًا، ثم نبسّط.';ds=[[fr(a*d,b*c),'هذا ناتج القسمة. في الضرب نضرب البسطين والمقامين.'],[fr(a+c,b+d),MIS.fracAdd]];
+ }else{num=a*d;den=b*c;hint=conversion+'نضرب الكسر الأول في مقلوب الكسر الثاني، ثم نبسّط.';ds=[[fr(a*c,b*d),MIS.fracDiv],[fr(c*b,d*a),'نقلب الكسر الثاني وحده، ولا نعكس ترتيب القسمة.']]}
+ const it=one(mc(`احسب في أبسط صورة: ${left} ${op} ${right} = ؟`,fr(num,den),ds,hint),`${conversion}${fr(a,b)} ${op} ${fr(c,d)} = ${fr(num,den)}.`);
+ return Object.assign(it,{targets:[TARGETS[t],...(mixed?['mixed']:[])]})};
 G.P05=()=>{const t=R(0,2);
  if(t===0){const a=R(1,9),b=R(11,99);return one(mc(`0.${a} + 0.${b} = ؟`,((a*10+b)/100).toFixed(2).replace(/0$/,'').replace(/\.$/,''),[[+((a+b)/100).toFixed(2)+'',MIS.decAlign],['0.'+(a+b),MIS.decAlign]],'اكتب 0.'+a+' على صورة 0.'+a+'0 ثم اجمع.'))}
  if(t===1){const a=R(3,9),b=R(10,a*10-1);return one(mc(`أيهما أكبر: 0.${a} أم 0.${b}؟`,'0.'+a,[['0.'+b,MIS.decLong]],'أضف صفراً: 0.'+a+' = 0.'+a+'0.'))}
@@ -246,6 +260,8 @@ G.STORY=()=>{const t=R(0,5);
  if(t===4){const x=R(3,12),a=R(2,5),b=R(5,20);return one(mc(`اشترت أم سامي ${cnt(a,['علبة واحدة','علبتين','علب','علبة'])} من زيت الزيتون متساوية السعر، وكيس خبز بـ ${cnt(b,['شيكل واحد','شيكلين','شواكل','شيكلًا'])}، فدفعت ${a*x+b} شيكلًا. ما سعر العلبة؟`,''+x,[[''+((a*x+b+b)/a).toFixed(1).replace('.0',''),MIS.moveSign],[''+(a*x),'هذا ثمن كل العلب، اقسم على عددها.']],'اكتب المعادلة: '+a+'س + '+b+' = '+(a*x+b)+'.'))}
  const g=R(1,8),tot=R(g+2,10);return one(mc(`في تدريب على ركلات الجزاء سدّد لاعب فريق «النخلة» ${tot} ركلات، فسجّل منها ${cnt(g,['هدفًا واحدًا','هدفين','أهداف','هدفًا'])}. ما الاحتمال التجريبي لتسجيله هدفًا في الركلة التالية؟`,fr(g,tot),probDs(g,tot),'عدد الأهداف ÷ عدد الركلات.'))};
 window.GEN=G;window.MISC=MIS;
-window.genFor=function(id){if(G[id])return G[id]();const u=id.match(/^S\d-(\d)-/);if(u&&G['U'+u[1]])return G['U'+u[1]]();return G.P01()};
+window.genFor=function(id,index){if(G[id])return G[id](index);const u=id.match(/^S\d-(\d)-/);if(u&&G['U'+u[1]])return G['U'+u[1]]();return G.P01()};
+window.MATH_TARGETS={P01:TARGETS.slice(),P04:[...TARGETS,'mixed']};
+window.mathTargetsMet=(id,correct)=>!window.MATH_TARGETS[id]||window.MATH_TARGETS[id].every(t=>correct&&correct[t]);
 window.hasGen=id=>!!G[id];
 })();
