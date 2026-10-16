@@ -46,9 +46,11 @@ function bindPin(wrap,onFull){
 // ---------- الشاشات ----------
 let firstView=true;
 function show(html,focusSel){view.innerHTML=`<div class="view-in">${html}</div>`;const f=firstView;firstView=false;if(focusSel&&!f){const el=view.querySelector(focusSel);if(el)setTimeout(()=>el.focus({preventScroll:true}),RM?0:350)}}
-function done(p){P.login(p.id);celebrate(`أهلًا ${p.name}! هيّا نتعلّم`);
+function saveError(){let m=$('#msg');if(!m){m=document.createElement('p');m.id='msg';view.append(m)}m.className='msg err';m.textContent=P.error()||'تعذّر الحفظ. أبقِ الصفحة مفتوحة ثم أعد المحاولة.';
+ if(!$('#save-copy')){const b=document.createElement('button');b.type='button';b.id='save-copy';b.className='btn';b.textContent='تنزيل نسخة من التقدّم';b.onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(P.backup())],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='نسخة-التقدم.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};m.after(b)}oops('لم يكتمل الحفظ؛ أبقِ الصفحة مفتوحة.');return false}
+async function done(p){if(!p||(!(P.current()&&P.current().id===p.id)&&!await P.login(p.id)))return saveError();celebrate(`أهلًا ${p.name}! هيّا نتعلّم`);
  const m=view.querySelector('.msg');if(m){m.className='msg ok';m.textContent='تم الدخول بنجاح'}
- setTimeout(()=>location.replace(next),RM?250:1500)}
+ setTimeout(()=>location.replace(next),RM?250:1500);return true}
 function pick(note){
  const a=P.list();if(!a.length)return create(true);
  say(note||'من سيتعلّم اليوم؟');if(pose!=='welcome')setPose('idle');
@@ -76,7 +78,7 @@ function twoPins(title,sub,extra,onOk){
  const check=()=>{a=i1.value;b=i2.value;const nm=$('#nm');const nameOk=!nm||nm.value.trim().length>=2;const good=a.length===4&&b.length===4&&a===b&&nameOk;ok.disabled=!good;
   if(a.length===4&&b.length===4&&a!==b){msg.className='msg err';msg.textContent='الرقمان غير متطابقين.';$('#p2').classList.add('bad');oops('الرقمان مختلفان، أعد المحاولة')}else{msg.className='msg';msg.textContent=nameOk||!nm?'':'اكتب اسمًا من حرفين على الأقل.'}};
  [i1,i2].forEach(i=>i.addEventListener('input',check));if($('#nm'))$('#nm').addEventListener('input',check);
- ok.onclick=async()=>{check();if(ok.disabled)return;ok.disabled=true;await onOk(i1.value)};
+ ok.onclick=async()=>{check();if(ok.disabled)return;ok.disabled=true;try{if(await onOk(i1.value)===false)ok.disabled=false}catch(e){saveError();ok.disabled=false}};
  if($('#back'))$('#back').onclick=()=>pick()}
 function create(first){
  setPose(pose==='welcome'?'welcome':'idle');say(first?'أهلًا! أنا زيتون، لنصنع ملفك':'طالب جديد؟ أهلًا وسهلًا!');
@@ -84,17 +86,19 @@ function create(first){
  twoPins(`<h1>${first?'أهلًا بك في البستان':'ملف طالب جديد'}</h1>`,'اكتب اسمك، واختر صورة، ثم رقمًا سريًا تتذكره.',
   `<label class="field"><span>الاسم</span><input type="text" id="nm" maxlength="24" autocomplete="off" placeholder="مثلًا: ميرا"></label>
    <div class="field"><span>صورتك</span><div class="avpick" role="group" aria-label="اختر صورة">${P.AVATARS.map(a=>`<button type="button" data-a="${a}" aria-pressed="${a===av}" aria-label="صورة زيتون"><img src="${P.avatarSrc(a)}" alt="" width="56" height="56"></button>`).join('')}</div></div>`,
-  async pin=>{const p=await P.create($('#nm').value,av,pin);done(p)});
+  async pin=>{const p=await P.create($('#nm').value,av,pin);return done(p)});
  bindName($('#nm'));
  view.querySelectorAll('.avpick button').forEach(b=>b.onclick=()=>{av=b.dataset.a;view.querySelectorAll('.avpick button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(!RM)fx('bob',190)})}
 function setpin(p){
  say(`أهلًا ${p.name}! تقدّمك محفوظ، اختر رقمًا سريًا`);setPose('idle');
- twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'تقدّمك السابق محفوظ في ملفك. اختر رقمًا سريًا لحمايته من الخلط.','',async pin=>{await P.setPin(p.id,pin);done(P.find(p.id))})}
+ twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'تقدّمك السابق محفوظ في ملفك. اختر رقمًا سريًا لحمايته من الخلط.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');return done(P.find(p.id))})}
 
 // ---------- البداية ----------
 const tb=$('#theme');const paint=()=>{tb.innerHTML=svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',22)};paint();
 tb.onclick=()=>{const d=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=d;try{localStorage.setItem('abboud_theme',d)}catch(e){}paint()};
-if(q.has('logout')||q.has('switch')){P.logout();pick(q.has('logout')?'تم تسجيل الخروج، وتقدّمك محفوظ.':'')}
-else if(P.current())location.replace(next);
-else pick();
+async function start(){if(!await P.ready){pick();saveError();return}
+ if(q.has('logout')||q.has('switch')){const ok=await P.logout();pick(ok&&q.has('logout')?'تم تسجيل الخروج، وتقدّمك محفوظ.':'');if(!ok)saveError()}
+ else if(P.current())location.replace(next);
+ else pick();
+}start();
 })();
