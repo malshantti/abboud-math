@@ -23,8 +23,10 @@ wave:'<path d="M2 12c2-5 4-5 6 0s4 5 6 0 4-5 6 0"/>',magnet:'<path d="M6 4v8a6 6
 const ic=(n,cls)=>'<svg class="'+(cls||'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+(P[n]||P.star)+'</svg>';
 // الحالة
 const blank=()=>({xp:0,streak:0,last:'',hearts:5,hday:'',done:{},seen:{},ach:[],days:{},log:[],qs:0,ok:0});
-let S;try{S=Object.assign(blank(),JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){S=blank()}
-const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const storedProgress=()=>window.PROFILES&&PROFILES.readProgress?PROFILES.readProgress(K):localStorage.getItem(K);
+let S;try{S=Object.assign(blank(),JSON.parse(storedProgress()||'{}'))}catch(e){S=blank()}
+const writeProgress=window.PROFILES&&PROFILES.writer?PROFILES.writer(K):v=>{try{localStorage.setItem(K,v);return true}catch(e){return false}};
+const save=()=>writeProgress(JSON.stringify(S));
 if(S.hday!==today()){S.hearts=5;S.hday=today();save()}
 function addXP(n){S.xp+=n;const t=today();S.days[t]=(S.days[t]||0)+n;
  if(S.last!==t){const y=new Date(Date.now()-864e5);const ys=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();S.streak=S.last===ys?S.streak+1:1;S.last=t}save();hdr()}

@@ -13,8 +13,10 @@ const EN=(t,tag)=>`<${tag||'span'} class="en" dir="ltr" lang="en">${esc(t)}</${t
 const today=()=>new Date().toISOString().slice(0,10);
 /* ---------- الحالة ---------- */
 const blank=()=>({v:1,xp:0,streak:0,lastDay:'',units:{},skills:{},place:null,wrong:[],log:[],min:0});
-let S;try{S=Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||'null')||{})}catch(e){S=blank()}
-const save=()=>{if(window.__noSave)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const storedProgress=()=>window.PROFILES&&PROFILES.readProgress?PROFILES.readProgress(KEY):localStorage.getItem(KEY);
+let S;try{S=Object.assign(blank(),JSON.parse(storedProgress()||'null')||{})}catch(e){S=blank()}
+const writeProgress=window.PROFILES&&PROFILES.writer?PROFILES.writer(KEY):v=>{try{localStorage.setItem(KEY,v);return true}catch(e){return false}};
+const save=()=>{if(window.__noSave)return;return writeProgress(JSON.stringify(S))};
 const U=id=>S.units[id]||(S.units[id]={lesson:0,prac:{n:0,ok:0},quiz:{best:null,last:null,n:0},speak:{n:0,best:0}});
 function day(){const d=today();if(S.lastDay===d)return;const y=new Date(Date.now()-864e5).toISOString().slice(0,10);S.streak=S.lastDay===y?S.streak+1:1;S.lastDay=d;save()}
 const addSkill=(k,ok)=>{const s=S.skills[k]||(S.skills[k]={n:0,ok:0});s.n++;if(ok)s.ok++};
