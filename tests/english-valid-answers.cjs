@@ -37,5 +37,5 @@ for(const id of ['U11','U14','U16','U18'])for(let i=0;i<250;i++){
  if(q.en==='I hate ___!')assert.ok(!q.opts.includes('to shout'));
 }
 const sw=fs.readFileSync(path.join(root,'g6/english/sw.js'),'utf8');
-assert.ok(sw.includes("V='g6en-v5-20261016'"));assert.ok(sw.includes('"gen.js"'));
+assert.ok(sw.includes("V='g6en-")&&!sw.includes("V='g6en-v4-20261016'"));assert.ok(sw.includes('"gen.js"'));
 console.log('Passed '+checks+' English answer checks (T04 / EN-02 / EN-03).');

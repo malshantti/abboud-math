@@ -64,10 +64,10 @@ function migrate(){
   return true;
   }catch(e){return storageError()}
 }
-// يحفظ المفاتيح العاملة في ملف صاحبها
+// يحفظ المفاتيح العاملة في ملف صاحبها. إن كتبت نسخة قديمة مخزّنة من موقع المادة في المفتاح العامل وحده، فالمفتاح العامل هو الأحدث ويُنسخ إلى ملف الطالب.
 function stash(){
   const o=get(K.owner);if(!o)return true;
-  try{PER.forEach(k=>{if(!canonical(o)||!PROGRESS.includes(k))required(slot(o,k),LS.getItem(k))});required(storeKey(o),'1');return true}catch(e){return storageError()}
+  try{PER.forEach(k=>{const w=LS.getItem(k);if(!canonical(o)||!PROGRESS.includes(k)||(w!=null&&w!==LS.getItem(slot(o,k))))required(slot(o,k),w)});required(storeKey(o),'1');return true}catch(e){return storageError()}
 }
 async function hash(pin,salt){
   const msg=`bustan:${salt}:${pin}`;
@@ -78,7 +78,7 @@ async function hash(pin,salt){
   let h=2166136261;for(const c of msg)h=Math.imul(h^c.charCodeAt(0),16777619)>>>0;return 'fnv:'+h.toString(16);// احتياط لصفحات file://
 }
 const newSalt=()=>{const a=new Uint8Array(8);(window.crypto||{getRandomValues:x=>x.map(()=>Math.random()*256|0)}).getRandomValues(a);return [...a].map(x=>x.toString(16).padStart(2,'0')).join('')};
-function profileValue(id,k){const r=J(K.restore,null),sk=slot(id,k);if(r&&Object.hasOwn(r,sk))return r[sk];const m=J(K.transition,null),d=drafts.get(id+'|'+k);if(d&&d.session===get(K.session)&&get(K.owner)===id)return d.value;return get(K.owner)===id&&!(m&&m.phase==='loading')&&!(PROGRESS.includes(k)&&canonical(id))?get(k):get(sk)}
+function profileValue(id,k){const r=J(K.restore,null),sk=slot(id,k);if(r&&Object.hasOwn(r,sk))return r[sk];const m=J(K.transition,null),d=drafts.get(id+'|'+k);if(d&&d.session===get(K.session)&&get(K.owner)===id)return d.value;if(get(K.owner)===id&&!(m&&m.phase==='loading')){const w=get(k);if(!(PROGRESS.includes(k)&&canonical(id))||w!=null)return w}return get(sk)}
 // يُنشأ الحارس مرةً حين تقرأ المادة حالتها، لا حين تحاول حفظها بعد تغيير الطالب.
 function writer(key){
  const student=P.current(),owner=student&&student.id,session=get(K.session);let latest=get(key),notice=null,frozen=false;
@@ -100,7 +100,7 @@ function writer(key){
    if(frozen||!owns()){freeze();return false}
    if(get(K.transition)||get(K.restore)||!stash()||!set(slot(owner,key),value)){storageError();show(false);return false}
    // تبقى نسخة العمل للتوافق، لكن المصدر المعتمد للحفظ والقراءة هو ملف الطالب.
-   if(owns()&&!get(K.transition))set(key,value);
+   if(owns()&&!get(K.transition)&&!set(key,value))set(key,null);
    if(notice){notice.remove();notice=null}lastError='';return true;
   });
  }

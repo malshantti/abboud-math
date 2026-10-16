@@ -35,7 +35,7 @@ async function run(){for(const grade of [6,8])for(const subject of ['arabic','sc
  const extra={'lab:bohr':100,'adv:match':80,'b:units':70,'T:U1':90,'lab:sort':1};
  const studentA={done:{...all,...extra},xp:321,days:{},log:[]},studentB={done:{[sections[0].key]:69,'lab:bohr':100},log:[]};
  const before=JSON.stringify(studentA);x.w.PROFILES={list:()=>[{id:'a',name:'أ'},{id:'b',name:'ب'}],dataOf:id=>id==='a'?studentA:studentB};x.store.set('bustan_session',JSON.stringify({id:'a'}));
- const report=x.A.R.report();assert.match(report,new RegExp('big-n">'+n+'/'+n+'<'));assert.ok(report.includes('4 نشاطًا بنتيجة ٧٠٪ فأكثر'));assert.ok(report.includes('<td>0/'+n+'</td><td>1</td>'));assert.equal(JSON.stringify(studentA),before);checks+=4;
+ const report=x.A.R.report();assert.match(report,new RegExp('big-n">'+n+'/'+n+'<'));assert.ok(report.includes('4 أنشطة بنتيجة ٧٠٪ فأكثر'));assert.ok(report.includes('<td>0/'+n+'</td><td>1</td>'));assert.equal(JSON.stringify(studentA),before);checks+=4;
  x.A.R.after_report();x.get('#csv').onclick();const csv=await x.ctx.download.text();assert.ok(csv.includes('"'+n+'/'+n+'","4"'));assert.ok(csv.includes('"0/'+n+'","1"'));assert.ok(csv.includes('أقسام المنهاج المتقنة'));checks+=3;
  // Extra activity scores cannot unlock curriculum milestones; old unlocks are never revoked.
  const milestones=load(grade,subject,{done:Object.fromEntries(Array.from({length:25},(_,i)=>['lab:extra'+i,100])),ach:['u20']});

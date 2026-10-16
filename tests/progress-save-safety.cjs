@@ -21,8 +21,8 @@ async function main(){
  }
  const ls=storage(),a=load(ls).P,b=load(ls).P;await Promise.all([a.ready,b.ready]);
  const writer=a.writer('abboud_math_v1');ok(await writer('{"points":124}'));ok(await b.login('pB'));eq(await writer('{"points":999}'),false);eq(b.dataOf('pB','abboud_math_v1').points,456);eq(a.dataOf('pA','abboud_math_v1').points,124);
- // A compatibility key cannot overrule B's canonical data, even if an old tab writes to it.
- ls.setItem('abboud_math_v1','{"points":999}');eq(b.dataOf('pB','abboud_math_v1').points,456);eq(JSON.parse(b.readProgress('abboud_math_v1')).points,456);
+ // Old cached subject code (before this release) saves only to the working key. For the logged-in owner that write is newer, so it must win and reach B's own copy; A is untouched.
+ ls.setItem('abboud_math_v1','{"points":999}');eq(b.dataOf('pB','abboud_math_v1').points,999);eq(JSON.parse(b.readProgress('abboud_math_v1')).points,999);
  ok(await a.login('pA'));eq(JSON.parse(a.readProgress('abboud_math_v1')).points,124);
  const fresh=a.writer('abboud_math_v1');ls.fail(k=>k==='bustan_p_pA__abboud_math_v1');eq(await fresh('{"points":125}'),false);ok(a.error());eq(ls.getItem('bustan_p_pA__abboud_math_v1'),'{"points":124}');eq(JSON.parse(a.backup().data.pA.abboud_math_v1).points,125,'failed save remains exportable');
  ls.fail(()=>false);ok(await fresh('{"points":125}'));eq(ls.getItem('bustan_p_pA__abboud_math_v1'),'{"points":125}');
