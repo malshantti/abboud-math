@@ -50,4 +50,22 @@ const repeat=ctx.CONTENT['S1-1-1'].ex[2].join(' ');assert.equal((repeat.match(/5
 assert.match(ctx.CONTENT['S1-1-2'].r[0],/أ ≥ 0، ب > 0/);
 assert.match(ctx.CONTENT['S1-3-4'].ex[2][0],/طولا ضلعي القائمة/);
 for(let i=0;i<200;i++){const s=ctx.genFor('S1-3-4').steps[0];if(/محيط المثلث/.test(s.q))assert.match(s.q,/طولا ضلعي القائمة/)}
+// Test the final display normalizer used by lesson rendering, not only raw CONTENT.
+assert.match(ctx.NRM(ctx.CONTENT['S1-1-1'].t),/الأعداد الطبيعية \(ط\)/);
+assert.equal(ctx.NRM(ctx.CONTENT['S1-1-1'].r[1]),'ط ⊂ ص ⊂ ن');
+assert.equal(ctx.NRM('المجموعة ط، والعدد π غير نسبي.'),'المجموعة ط، والعدد π غير نسبي.');
+assert.match(ctx.NRM(ctx.CONTENT.P16.t),/محيط الدائرة = 2\s*π نق/);
+assert.match(ctx.MISC.circ,/2π نق/);assert.match(ctx.MISC.cone3,/⅓ π نق² ع/);
+let circleCases=0;
+for(let i=0;i<400;i++){
+ const s=ctx.genFor('P16').steps[0];if(!s.q.includes('π'))continue;
+ const radius=s.q.match(/نصف قطرها (\d+)سم/),diameter=!radius&&s.q.match(/قطرها (\d+)سم/);assert.ok(radius||diameter,s.q);
+ const value=+(radius||diameter)[1],expected=/مساحتها/.test(s.q)?3.14*value*value:radius?6.28*value:3.14*value;
+ assert.equal(parseFloat(s.a.replace(',','.')),+expected.toFixed(2));assert.doesNotMatch(s.hint,/(?<![\u0621-\u065f\u0670\u0640])ط(?![\u0621-\u065f\u0670\u0640])/);circleCases++;
+}
+assert.ok(circleCases>200);
+for(let i=0;i<100;i++){
+ const s=ctx.genFor('U6').steps[0],r=+s.q.match(/(?:نصف قطرها|نصف قطر قاعدته) (\d+)سم/)[1],h=+s.q.match(/ارتفاع(?:ها|ه) (\d+)سم/)[1];
+ const coefficient=r*r*h*(/مخروط/.test(s.q)?1/3:1);assert.equal(s.a,coefficient+'π سم³');assert.match(s.hint,/π نق² ع/);
+}
 console.log(`T08 passed: ${checks} independently calculated generator cases, distractors, coverage, quiz mastery, and content regressions.`);
