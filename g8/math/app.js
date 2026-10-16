@@ -101,7 +101,7 @@ function renderOld(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,c
   const fb=el.querySelector('#fb');
   el.querySelectorAll('.cseg').forEach(b=>b.onclick=()=>{conf=+b.dataset.c;el.querySelectorAll('.cseg').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
   if(mode==='practice')el.querySelector('#hintb').onclick=()=>{usedHint=true;fb.innerHTML=`<div class="fb hint">${I('bulb')} ${esc(s.hint||'اقرأ السؤال مرة أخرى ببطء.')}</div>`;FX.mascot('teacher','فكّر معي')};
-  if(mode==='diag')el.querySelector('#idk').onclick=()=>{FX.mascot('encourage','ولا يهمك، سنتعلمها معاً');conf=0;finish(false)};
+  if(mode==='diag')el.querySelector('#idk').onclick=()=>{FX.mascot('encourage','لا بأس، سنتعلّمها معًا');conf=0;finish(false)};
   const lockAll=()=>el.querySelectorAll('.choice').forEach(x=>x.disabled=true);
   el.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{const c=s.choices[+b.dataset.i];
    if(c.ok){b.classList.add('ok');lockAll();const last=si===item.steps.length-1;

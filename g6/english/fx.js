@@ -6,8 +6,8 @@ const img=p=>`img/zaytoun-${POSE[p]||p}.webp`;
 // صور الشخصية مُحمّلة مسبقاً لتبديل الوضعيات بسلاسة
 Object.values(POSE).forEach(p=>{const i=new Image();i.src=img(p)});
 const MASCOT=(pose,cls)=>`<img class="zay ${cls||''}" src="${img(pose||'welcome')}" alt="زيتون" width="170" height="200" decoding="async">`;
-const HAPPY=['أحسنت!','ممتاز!','عبقري!','رائع!','واو، ما شاء الله!','تمام التمام!'];
-const SAD=['ولا يهمك، جرّب مرة ثانية','قريب جداً! ركّز','الخطأ جزء من التعلّم','خذ نفساً وحاول مجدداً'];
+const HAPPY=['أحسنت!','ممتاز!','عبقري!','رائع!','ما شاء الله!','عمل متقن!'];
+const SAD=['لا بأس، جرّب مرة أخرى','قريب جداً! ركّز','الخطأ جزء من التعلّم','خذ نفساً وحاول مجدداً'];
 function mascot(state,msg){const m=document.getElementById('mascot');if(!m)return;const im=m.querySelector('img.zay');
  if(im){const src=img(state==='idle'?'think':state);if(!im.src.endsWith(src)){im.src=src}}
  m.classList.remove('happy','sad','idle');void m.offsetWidth;m.classList.add(state||'idle');

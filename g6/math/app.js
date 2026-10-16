@@ -13,15 +13,15 @@ const ALLSK=[...C.prerequisites.map(p=>p.id),...Object.values(LES).filter(l=>!l.
 const title=id=>PRE[id]?PRE[id].title:LES[id]?LES[id].title:UNITS[id]?UNITS[id].title:id;
 const short=t=>{t=t.split(/[،(:]/)[0].trim();const w=t.split(' ');return w.length>4?w.slice(0,4).join(' ')+'…':t};
 const depth={};const dep=id=>depth[id]!=null?depth[id]:(depth[id]=1+Math.max(0,...(PRE[id].depends_on||[]).map(dep)));C.prerequisites.forEach(p=>dep(p.id));
-const COVER={U1:'u2',U2:'u3',U3:'u5',U4:'u4',U5:'u1',U6:'u6',U7:'u7',U8:'u8'};
+const COVER={U1:'u1',U2:'u2',U3:'u3',U4:'u4',U5:'u5',U6:'u6',U7:'u7',U8:'u8'};
 // محطات رحلة التشخيص (مجالات الرادار)
 const STATIONS=[
  {id:'int',name:'وادي الأعداد',short:'الأعداد',cover:'basics',skills:['P01','P02','P08','P21','P22'],cls:'سيّاف الأعداد'},
- {id:'frac',name:'مخبز الكسور',short:'الكسور',cover:'u1',skills:['P03','P04','P05','P06','P10'],cls:'طاهي الكسور'},
- {id:'alg',name:'برج الأنماط',short:'العوامل والأنماط',cover:'u2',skills:['P07','P09','P11','P12'],cls:'ساحر الرموز'},
- {id:'geo',name:'قلعة الأشكال',short:'الهندسة والقياس',cover:'u3',skills:['P13','P14','P15','P16','P17'],cls:'مهندس القلاع'},
- {id:'data',name:'سوق البيانات',short:'البيانات',cover:'u4',skills:['P18','P19','P20'],cls:'قارئ النجوم'},
- {id:'g8',name:'محطة الصف السادس',short:'الصف السادس',cover:'u3',skills:['S1-1-1','S1-1-4','S1-3-3','S2-6-2'],g8:true}];
+ {id:'frac',name:'مخبز الكسور',short:'الكسور',cover:'b1',skills:['P03','P04','P05','P06','P10'],cls:'طاهي الكسور'},
+ {id:'alg',name:'برج الأنماط',short:'العوامل والأنماط',cover:'b2',skills:['P07','P09','P11','P12'],cls:'ساحر الرموز'},
+ {id:'geo',name:'قلعة الأشكال',short:'الهندسة والقياس',cover:'b3',skills:['P13','P14','P15','P16','P17'],cls:'مهندس القلاع'},
+ {id:'data',name:'سوق البيانات',short:'البيانات',cover:'b4',skills:['P18','P19','P20'],cls:'قارئ النجوم'},
+ {id:'g8',name:'محطة الصف السادس',short:'الصف السادس',cover:'u1',skills:['S1-1-1','S1-1-4','S1-3-3','S2-6-2'],g8:true}];
 const DORD=()=>[...C.diagnostic_order,...STATIONS.filter(s=>s.g8).flatMap(s=>s.skills)];
 const deps0=id=>PRE[id]?PRE[id].depends_on||[]:(LES[id]&&LES[id].prerequisites)||[];
 const RANKS=['البذرة الصاعدة','المستكشف','المحارب','صانع الأدوات','الفارس','المهندس','العبقري','البطل'];
@@ -101,7 +101,7 @@ function renderOld(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,c
   const fb=el.querySelector('#fb');
   el.querySelectorAll('.cseg').forEach(b=>b.onclick=()=>{conf=+b.dataset.c;el.querySelectorAll('.cseg').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
   if(mode==='practice')el.querySelector('#hintb').onclick=()=>{usedHint=true;fb.innerHTML=`<div class="fb hint">${I('bulb')} ${esc(s.hint||'اقرأ السؤال مرة أخرى ببطء.')}</div>`;FX.mascot('teacher','فكّر معي')};
-  if(mode==='diag')el.querySelector('#idk').onclick=()=>{FX.mascot('encourage','ولا يهمك، سنتعلمها معاً');conf=0;finish(false)};
+  if(mode==='diag')el.querySelector('#idk').onclick=()=>{FX.mascot('encourage','لا بأس، سنتعلّمها معًا');conf=0;finish(false)};
   const lockAll=()=>el.querySelectorAll('.choice').forEach(x=>x.disabled=true);
   el.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{const c=s.choices[+b.dataset.i];
    if(c.ok){b.classList.add('ok');lockAll();const last=si===item.steps.length-1;
