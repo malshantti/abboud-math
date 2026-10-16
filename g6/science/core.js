@@ -39,7 +39,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(
  if(cur){cur.pause();$$('.say.playing').forEach(x=>x.classList.remove('playing'))}
  const a=new Audio('audio/'+AUD[id]);cur=a;b.classList.add('playing');a.onended=a.onerror=()=>b.classList.remove('playing');a.play().catch(()=>b.classList.remove('playing'))});
 // أرقام عربية مشرقية في كلّ النصوص إلا ما وُسم ltr
-function digits(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('script,style,input,textarea')?2:/[0-9]/.test(n.nodeValue)?1:2});const ns=[];while(w.nextNode())ns.push(w.currentNode);ns.forEach(n=>n.nodeValue=ar(n.nodeValue))}
+function digits(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('.ltr,[dir=ltr],script,style,input,textarea')?2:/[0-9]/.test(n.nodeValue)?1:2});const ns=[];while(w.nextNode())ns.push(w.currentNode);ns.forEach(n=>n.nodeValue=ar(n.nodeValue))}
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),2200)}
 const R={};let curRoute='';
 function render(){if(window.APP&&window.APP.stopSim)window.APP.stopSim();const h=location.hash.replace(/^#\/?/,'')||'home';const [r,...a]=h.split('/');curRoute=r;
