@@ -75,6 +75,7 @@ main{max-width:940px;margin:0 auto;padding:14px}
 .verse{display:grid;grid-template-columns:1fr 1fr;gap:4px 26px;padding:10px 6px;border-bottom:1px dashed var(--line);align-items:center}
 .verse .h{font-family:Naskh,serif;font-size:21px;line-height:2}
 .verse .h:first-child{text-align:right}.verse .h:nth-child(2){text-align:left}
+.free .fl{display:flex;justify-content:center;align-items:center;gap:8px;padding:3px 0}.free .h{font-family:Naskh,serif;font-size:21px;line-height:2}.free .stz{color:var(--mut,#888);letter-spacing:6px;padding:4px 0}
 .verse .n{grid-column:1/-1;display:flex;gap:8px;align-items:center}
 @media(max-width:600px){.verse{grid-template-columns:1fr}.verse .h:nth-child(2){text-align:left;padding-right:24px}.txt{font-size:20px}.verse .h{font-size:19px}}
 .tabsec{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
