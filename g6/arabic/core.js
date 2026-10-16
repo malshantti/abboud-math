@@ -50,10 +50,24 @@ function render(){if(window.APP&&window.APP.stopSim)window.APP.stopSim();const h
  $('#page-label').textContent=({home:'رحلتي',basics:'الأساسيات',play:'المغامرات',lab:'المختبر',ach:'إنجازاتي',report:'تقرير التعلّم'})[t]||'';
  if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',offline());digits(app);if(R['after_'+r])R['after_'+r](...a.map(decodeURIComponent));digits(app);if(r!=='quiz')scrollTo(0,0);app.focus({preventScroll:true})}
 addEventListener('hashchange',render);
-function offline(){return '<div class="card row" style="justify-content:space-between"><div><b>العمل دون اتّصال</b><div class="mut small">الدّروس تعمل دون إنترنت بعد أوّل زيارة. لحفظ صفحات الكتاب كلّها'+(C.audio?' والتّسجيلات':'')+' دفعة واحدة:</div></div><button class="btn alt" id="offbtn">'+ic('check')+' احفظ الكتاب على الجهاز</button></div>'}
-document.addEventListener('click',e=>{if(!e.target.closest('#offbtn'))return;const b=$('#offbtn');if(!('serviceWorker' in navigator)||!navigator.serviceWorker.controller){toast('افتح الموقع مرّة أخرى بعد اتّصال الإنترنت ثمّ أعد المحاولة');return}
- b.disabled=true;b.textContent='جارٍ الحفظ…';const s=document.createElement('script');s.src='media.js';s.onload=()=>{navigator.serviceWorker.controller.postMessage({cacheAll:window.MEDIA||[]})};document.head.append(s);
- navigator.serviceWorker.addEventListener('message',m=>{if(m.data&&m.data.cached){b.textContent='حُفظ الكتاب على هذا الجهاز';try{localStorage.setItem(K+'_off','1')}catch(e){}}},{once:true})});
+function offline(){return '<div class="card row" style="justify-content:space-between"><div><b>العمل دون اتّصال</b><div class="mut small">يمكن فتح الدروس المحفوظة على الجهاز دون إنترنت. نزّل صفحات الكتاب كلّها'+(C.audio?' والتّسجيلات':'')+'، ثمّ انتظر تأكيد اكتمال التنزيل.</div><div id="offstatus" class="small" role="status" aria-live="polite"></div></div><button class="btn alt" id="offbtn">'+ic('check')+' احفظ الكتاب على الجهاز</button></div>'}
+let downloading=false;
+document.addEventListener('click',e=>{if(!e.target.closest('#offbtn'))return;if(downloading){toast('تنزيل الكتاب مستمرّ؛ انتظر ظهور النتيجة.');return}const b=$('#offbtn'),status=$('#offstatus'),sw=navigator.serviceWorker;
+ if(!sw||!sw.controller){status.textContent='لم يجهز الحفظ بعد. اتّصل بالإنترنت وأعد فتح الصفحة ثمّ حاول مجدّدًا.';return}
+ const worker=sw.controller;if(worker.scriptURL&&new URL(worker.scriptURL).pathname!==new URL('sw.js',location.href).pathname){status.textContent='يجري تجهيز الحفظ لهذه المادة. أعد فتح الصفحة بعد لحظات ثمّ حاول مجدّدًا.';return}
+ const token=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),s=document.createElement('script');let timer,ended=false;
+ const show=(text,label,busy)=>{const button=$('#offbtn')||b,st=$('#offstatus')||status;st.textContent=text;button.textContent=label;button.disabled=busy};
+ const end=(text,complete)=>{if(ended)return;ended=true;downloading=false;clearTimeout(timer);sw.removeEventListener('message',message);s.onload=s.onerror=null;s.remove();show(text,complete?'تحقّق من النسخة المحفوظة':'استكمل تنزيل الكتاب',false);if(complete)try{localStorage.setItem(K+'_off','1')}catch(e){}};
+ const wait=ms=>{clearTimeout(timer);timer=setTimeout(()=>end('لم يكتمل التنزيل في الوقت المتاح. ما حُفظ باقٍ؛ حاول الاستكمال عند تحسّن الاتّصال.',false),ms)};
+ function message(m){const d=m.data;if(!d||d.type!=='cache-media-progress'||d.token!==token||(m.source&&m.source!==worker))return;
+  if(!Number.isInteger(d.total)||!Number.isInteger(d.saved)||!Number.isInteger(d.remaining)||d.total<0||d.saved<0||d.saved>d.total||d.remaining!==d.total-d.saved)return;
+  wait(65000);const count='حُفظ '+ar(d.saved)+' من '+ar(d.total)+' ملفًّا؛ المتبقّي '+ar(d.remaining)+'.';
+  if(d.done){const complete=!d.error&&d.total>0&&d.remaining===0;end(complete?'اكتمل حفظ الكتاب على هذا الجهاز. يمكنك فتحه دون إنترنت.':count+' لم يكتمل الحفظ. أعد المحاولة لاستكمال الملفات المتبقّية.',complete)}
+  else show(count,'جارٍ الحفظ…',true)}
+ downloading=true;show('جارٍ تحميل فهرس الكتاب…','جارٍ الحفظ…',true);sw.addEventListener('message',message);wait(20000);
+ s.src='media.js';s.onerror=()=>end('تعذّر تحميل فهرس الكتاب. اتّصل بالإنترنت ثمّ حاول مجدّدًا.',false);
+ s.onload=()=>{if(ended)return;if(!Array.isArray(window.MEDIA)||!window.MEDIA.length){end('فهرس الكتاب غير متاح. أعد فتح الصفحة ثمّ حاول مجدّدًا.',false);return}wait(65000);try{worker.postMessage({type:'cache-media',token,files:window.MEDIA})}catch(e){end('تعذّر بدء الحفظ. أعد فتح الصفحة ثمّ حاول مجدّدًا.',false)}};
+ document.head.append(s)});
 // الاختبار
 let Q=null;
 function quiz(qs,meta){if(!qs.length){toast('لا تتوافر أسئلة لهذا النشاط في الوحدة المختارة؛ اختر نشاطًا آخر.');return}Q={qs:qs.map(q=>{const o=q.o.map((t,i)=>({t,ok:i===q.a}));return Object.assign({},q,{oo:q.keep?o:shuffle(o)})}),i:0,ok:0,meta,wrong:[]};location.hash='#/quiz';if(curRoute==='quiz')render()}

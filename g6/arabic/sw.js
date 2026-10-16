@@ -1,8 +1,22 @@
 // عامل الخدمة: الملفّات الأساسيّة تُحفظ عند التّثبيت، وصفحات الكتاب والصّوت تُحفظ عند أوّل عرض (أو دفعة واحدة من زرّ «حفظ للعمل دون اتّصال»).
-const V='g6ar-20261016-design2-brand1-fix1-mastery1',PRE='g6ar-',F=["favicon.svg","favicon-32.png","apple-touch-icon.png","../../profiles.js", "./", "ar-banks.js", "ar.js", "audio-ar.js", "content.js", "core.css", "core.js", "explore.js", "explore.css", "fonts/OFL.txt", "fonts/baloo-arabic.woff2", "fonts/cairo-arabic.woff2", "fonts/cairo-latin.woff2", "fonts/naskh.woff2", "icon-192.png", "icon-512.png", "img/zaytoun-celebrate.webp", "img/zaytoun-discovery-v2.webp", "img/zaytoun-encourage.webp", "img/zaytoun-read.webp", "img/zaytoun-teacher.webp", "img/zaytoun-think.webp", "img/zaytoun-welcome.webp", "index.html", "manifest.webmanifest", "media.js"];
+const V='g6ar-20261016-m7',PRE='g6ar-',F=["favicon.svg", "favicon-32.png", "apple-touch-icon.png", "../../profiles.js", "./", "ar-banks.js", "ar.js", "audio-ar.js", "content.js", "core.css", "core.js", "explore.js", "explore.css", "fonts/OFL.txt", "fonts/baloo-arabic.woff2", "fonts/cairo-arabic.woff2", "fonts/cairo-latin.woff2", "fonts/naskh.woff2", "icon-192.png", "icon-512.png", "img/zaytoun-celebrate.webp", "img/zaytoun-discovery-v2.webp", "img/zaytoun-encourage.webp", "img/zaytoun-read.webp", "img/zaytoun-teacher.webp", "img/zaytoun-think.webp", "img/zaytoun-welcome.webp", "index.html", "manifest.webmanifest", "media.js"];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k.startsWith(PRE)&&!k.endsWith('-media')).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('message',e=>{if(e.data&&e.data.cacheAll){caches.open(PRE+'media').then(c=>Promise.all(e.data.cacheAll.map(u=>c.match(u).then(r=>r||c.add(u).catch(()=>0))))).then(()=>e.source&&e.source.postMessage({cached:1}))}});
+// لا نقبل إلا فهرس هذه المادة، ونبقي المهمة حيّة حتى تنتهي رسالتها الأخيرة.
+self.addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='cache-media'||typeof d.token!=='string'||!d.token||d.token.length>100||!e.source)return;
+ e.waitUntil((async()=>{let total=0,saved=0;const tell=(done,error)=>{try{e.source.postMessage({type:'cache-media-progress',token:d.token,total,saved,remaining:total-saved,done,error:!!error})}catch(e){}};
+  try{const base=new URL('./',self.registration.scope),client=new URL(e.source.url);if(client.origin!==base.origin||!client.pathname.startsWith(base.pathname))throw Error('client');
+   const indexURL=new URL('media.js',base).href,core=await caches.open(V),index=await core.match(indexURL);let text;
+   if(index)text=await index.text();else{const abort=new AbortController();let timer;try{text=await Promise.race([fetch(indexURL,{cache:'reload',signal:abort.signal}).then(r=>{if(!r.ok)throw Error('index');return r.text()}),new Promise((_,reject)=>{timer=setTimeout(()=>{abort.abort();reject(Error('index timeout'))},45000)})])}finally{clearTimeout(timer)}}
+   const match=text.match(/^\s*window\.MEDIA\s*=\s*(\[[\s\S]*\]);?\s*$/);if(!match)throw Error('index');
+   const files=JSON.parse(match[1]);if(!Array.isArray(files)||!files.length)throw Error('index');
+   const urlOf=u=>{if(typeof u!=='string')throw Error('path');const x=new URL(u,base);if(x.origin!==base.origin||!x.pathname.startsWith(base.pathname)||!/^\/(?:bookimg|audio)\//.test(x.pathname.slice(base.pathname.length-1))||x.search||x.hash)throw Error('path');return x.href};
+   const allowed=new Set(files.map(urlOf));if(!Array.isArray(d.files))throw Error('files');const requested=[...new Set(d.files.map(urlOf))];if(requested.length!==allowed.size||requested.some(u=>!allowed.has(u)))throw Error('files');
+   total=requested.length;const c=await caches.open(PRE+'media');tell(false);let next=0;
+   async function download(){while(next<total){const url=requested[next++];try{if(!await c.match(url)){const abort=new AbortController();let timer;try{await Promise.race([c.add(new Request(url,{cache:'reload',signal:abort.signal})),new Promise((_,reject)=>{timer=setTimeout(()=>{abort.abort();reject(Error('timeout'))},45000)})])}finally{clearTimeout(timer)}}saved++}catch(e){}tell(false)}}
+   await Promise.all(Array.from({length:Math.min(4,total)},download));tell(true,saved!==total);
+  }catch(e){tell(true,true)}
+ })())});
 self.addEventListener('fetch',e=>{
  if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
  const p=new URL(e.request.url).pathname;const media=/\/(bookimg|audio)\//.test(p);
