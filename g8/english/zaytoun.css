@@ -33,3 +33,6 @@ body[data-route=unit] .banner,body[data-route=lesson] .banner{background:var(--g
 @media(max-width:600px){.garden-copy{width:82%;padding:24px 20px}.garden-copy h2{font-size:29px;line-height:1.35}.garden-art{object-position:12% 58%}.garden-hero{min-height:315px}}
 @media(min-width:1201px){.quick-action small,.course-card p,.course-foot,.daily-card>p,.goal-message,.level-detail small,.coach-note p,.basics-strip small{font-size:11px}.level-meta,.growth-stats small{font-size:10px}.course-search input,.text-link{font-size:11px}}
 @media(min-width:900px) and (max-height:780px){.tabs{padding-top:19px}.side-brand{margin-bottom:9px}.class-label{margin-top:17px;padding:11px 8px}.tabs a[data-t]{min-height:43px;padding-top:9px;padding-bottom:9px}.sidebar-bottom{padding-top:26px}.side-note{margin:0 4px 13px;padding:15px 10px 9px}.side-note img{height:49px;top:-27px}.side-note b{font-size:9px}.side-note a{padding-top:6px}.student-profile{padding-top:12px!important}}
+
+/* Navigation uses the same local SVG stroke and direction throughout the interface. */
+.nav-arrow{display:inline-flex;align-items:center;vertical-align:middle;flex:none}.nav-arrow .ic,.course-arrow .ic,.round-arrow .ic,.lesson-row-arrow .ic,.activity-arrow .ic{width:20px;height:20px;vertical-align:middle}
