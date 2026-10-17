@@ -55,19 +55,21 @@ for (const student of data.students) {
 
 // Execute the actual UI with values deliberately unlike each other. A completion
 // ratio and a practice result must keep their distinct meanings in the output.
-function uiFixture() {
+function uiFixture(input = data) {
   const nodes = new Map();
   const events = {};
+  const nodeEvents = new Map();
   const contentEvents = {};
   const classList = {contains() {return false;}, remove() {}, toggle() {}};
   function node(id) {
-    if (!nodes.has(id)) nodes.set(id, {innerHTML: '', textContent: '', hidden: false, value: '', classList,
+    if (!nodes.has(id)) nodes.set(id, {innerHTML: '', textContent: '', hidden: false, disabled: false,
+      value: id === 'student-grade' || id === 'course-grade' || id === 'course-subject' ? 'all' : id === 'student-page-size' ? '10' : '', classList,
       setAttribute() {}, removeAttribute() {}, focus() {}, contains() {return false;}, showModal() {}, close() {},
-      addEventListener(type, callback) {if (id === 'page-content') contentEvents[type] = callback;},
+      addEventListener(type, callback) {nodeEvents.set(id + ':' + type, callback); if (id === 'page-content') contentEvents[type] = callback;},
       querySelectorAll() {return [];}});
     return nodes.get(id);
   }
-  const model = JSON.parse(JSON.stringify(data));
+  const model = JSON.parse(JSON.stringify(input));
   model.students[0].subjects[0].completed = 1;
   model.students[0].subjects[0].total = 4;
   model.students[0].subjects[0].assessment = 91;
@@ -79,7 +81,7 @@ function uiFixture() {
     Object.defineProperty(window, key, {get() {throw Error('Preview accessed forbidden live facility: ' + key);}});
   }
   vm.runInNewContext(source, context);
-  return {context, node, events, contentEvents};
+  return {context, node, events, contentEvents, emit(id, type) {const callback = nodeEvents.get(id + ':' + type); assert.ok(callback, 'Event handler exists: ' + id + ':' + type); callback({target: node(id)});}};
 }
 const ui = uiFixture();
 check(/إنجاز الدروس حسب المادة/.test(ui.node('page-content').innerHTML), 'Chart identifies lesson completion');
@@ -93,6 +95,82 @@ check(/لا يُعد هذا التقرير تقييمًا فعليًا/.test(det
 ui.context.location.hash = '#integration';
 ui.events.hashchange();
 check(/إنجاز القراءة يختلف عن نتيجة التدريب/.test(ui.node('page-content').innerHTML), 'Integration view preserves reading/practice distinction');
+
+function manyStudentChecks() {
+  const numeral = value => String(value).replace(/\d/g, digit => '٠١٢٣٤٥٦٧٨٩'[digit]);
+  const model = JSON.parse(JSON.stringify(data));
+  model.students = Array.from({length: 137}, (_, index) => ({...JSON.parse(JSON.stringify(data.students[index % 2])),
+    id: 'demo-many-' + String(index + 1).padStart(3, '0'),
+    name: 'طالب التجربة ' + numeral(String(index + 1).padStart(3, '0')), grade: index % 2 ? 8 : 6}));
+  model.students[0].name = 'سلمى فقط';
+  model.students[136].name = '<img src=x onerror=alert(1)>';
+  const original = JSON.stringify(model);
+  const fixture = uiFixture(model);
+  fixture.context.location.hash = '#students';
+  fixture.events.hashchange();
+  const html = () => fixture.node('student-results').innerHTML;
+  const ids = () => [...new Set([...html().matchAll(/data-student="([^"]+)"/g)].map(match => match[1]))];
+  const rows = () => (html().match(/<tr(?:\s|>)/g) || []).length;
+  equal(rows(), 10, 'Large roster renders only ten initial table rows');
+  equal(ids().length, 10, 'Initial page contains ten distinct students');
+  check(fixture.node('student-previous').disabled, 'Previous is disabled on the first page');
+  check(!fixture.node('student-next').disabled, 'Next is available for a large roster');
+  check(/١٣٧/.test(fixture.node('student-count').textContent), 'Result count reports all matching students');
+  const firstPage = ids();
+  fixture.emit('student-next', 'click');
+  equal(rows(), 10, 'Second page retains the selected row limit');
+  check(!ids().some(id => firstPage.includes(id)), 'Second page advances to different students');
+  for (let page = 2; page < 14; page++) fixture.emit('student-next', 'click');
+  equal(rows(), 7, 'Last page shows the seven remaining students');
+  check(fixture.node('student-next').disabled, 'Next is disabled on the final page');
+  const lastPage = ids();
+  fixture.emit('student-next', 'click');
+  equal(ids(), lastPage, 'Final page cannot advance beyond the roster');
+  fixture.emit('student-previous', 'click');
+  equal(rows(), 10, 'Previous returns to a full page');
+  check(!fixture.node('student-next').disabled, 'Moving back enables Next again');
+
+  fixture.node('student-search').value = 'سلمى';
+  fixture.emit('student-search', 'input');
+  equal(ids(), ['demo-many-001'], 'Changing search from a later page resets pagination');
+  check(fixture.node('student-previous').disabled && fixture.node('student-next').disabled, 'Single-result search has no further pages');
+  fixture.node('student-search').value = 'لا يوجد اسم مطابق';
+  fixture.emit('student-search', 'input');
+  equal(ids(), [], 'Empty search renders no stale student rows');
+  check(fixture.node('student-previous').disabled && fixture.node('student-next').disabled, 'Empty search keeps pagination bounded');
+  fixture.node('student-search').value = '';
+  fixture.emit('student-search', 'input');
+  fixture.emit('student-next', 'click');
+  fixture.node('student-grade').value = '6';
+  fixture.emit('student-grade', 'change');
+  equal(rows(), 10, 'Grade filter retains the page limit');
+  check(fixture.node('student-previous').disabled, 'Changing grade resets to the first page');
+  check(ids().every(id => model.students.find(student => student.id === id).grade === 6), 'Grade filter excludes every other-grade student');
+
+  fixture.node('student-grade').value = 'all';
+  fixture.emit('student-grade', 'change');
+  fixture.emit('student-next', 'click');
+  fixture.node('student-page-size').value = '25';
+  fixture.emit('student-page-size', 'change');
+  equal(rows(), 25, 'Page-size control supports a larger roster view');
+  check(fixture.node('student-previous').disabled, 'Changing page size resets to the first page');
+  fixture.emit('student-sort-grade', 'click');
+  check(ids().every(id => model.students.find(student => student.id === id).grade === 6), 'Ascending grade sort brings grade six first');
+  fixture.emit('student-sort-grade', 'click');
+  check(ids().every(id => model.students.find(student => student.id === id).grade === 8), 'Descending grade sort brings grade eight first');
+  fixture.emit('student-sort-name', 'click');
+  const nameAscending = ids();
+  fixture.emit('student-sort-name', 'click');
+  check(JSON.stringify(ids()) !== JSON.stringify(nameAscending), 'Name-sort direction changes the displayed records');
+  fixture.emit('student-sort-name', 'click');
+  equal(ids(), nameAscending, 'Repeated name sorting restores a deterministic order');
+
+  fixture.node('student-search').value = '<img';
+  fixture.emit('student-search', 'input');
+  equal(ids(), ['demo-many-137'], 'Search includes an unusual synthetic name without losing its identifier');
+  check(!/<img src=x/.test(html()) && /&lt;img/.test(html()), 'Student names are escaped in table output');
+  equal(JSON.stringify(model), original, 'Filtering, sorting, and pagination preserve the source model');
+}
 
 function fixture() {
   const handlers = {};
@@ -139,6 +217,7 @@ function fixture() {
 }
 
 (async () => {
+  manyStudentChecks();
   const f = fixture();
   equal(new Set(f.files).size, f.files.length, 'Public manifest has no duplicate path declarations');
   const publicUrls = new Set(f.files.map(file => new URL(file, scope).href));
