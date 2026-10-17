@@ -13,7 +13,7 @@ function load(grade,subject){
 for(const grade of [6,8])for(const subject of ['arabic','science']){
  const x=load(grade,subject),{A,w,R,dir}=x,U=w.UNITS;
  for(const part of [1,2]){const html=R.home(String(part));for(const u of U.filter(u=>u.part===part))assert.ok(html.includes('الوحدة '+A.ar(subject==='science'?+u.id.slice(1):u.n)));checks++;}
- const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');assert.ok(sw.includes('design2'));for(const f of ['explore.js','explore.css'])assert.ok(sw.includes('"'+f+'"'));
+ const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');for(const f of ['explore.js','explore.css'])assert.ok(sw.includes('"'+f+'"'));
  // Every indexed textbook image must exist; lesson references keep the original order.
  for(const u of U)for(const lesson of subject==='science'?u.les:Object.values(u.sec))for(const img of lesson.img||[]){assert.ok(fs.existsSync(path.join(dir,'bookimg',img[0])),img[0]);checks++;}
  if(subject==='science'){

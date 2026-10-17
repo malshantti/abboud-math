@@ -1,0 +1,51 @@
+{
+  "jsParsed": 109,
+  "syntaxErrors": [],
+  "defaultEmojiOrExplicitEmojiVariation": [],
+  "mastery": {
+    "mastery": {
+      "masteryDisplay": "26/25",
+      "lessonCount": 25,
+      "doneKeys": 26
+    },
+    "retry": {
+      "before": 90,
+      "after": 100,
+      "retryQuestionCount": 1
+    }
+  },
+  "rootNetwork": [
+    {
+      "mode": "pending network",
+      "settled": false,
+      "cacheReads": 0,
+      "fallbackTimers": 0,
+      "result": null
+    },
+    {
+      "mode": "rejected network",
+      "settled": true,
+      "cacheReads": 1,
+      "fallbackTimers": 0,
+      "result": {
+        "fromCache": true
+      }
+    }
+  ],
+  "audioEstimates": [
+    {
+      "grade": 6,
+      "estimatedBytes": 22816284,
+      "downloadedAudioBytes": 22816284,
+      "downloadedFiles": 2085,
+      "slowFilesIncluded": true
+    },
+    {
+      "grade": 8,
+      "estimatedBytes": 41350432,
+      "downloadedAudioBytes": 41351104,
+      "downloadedFiles": 3464,
+      "slowFilesIncluded": true
+    }
+  ]
+}

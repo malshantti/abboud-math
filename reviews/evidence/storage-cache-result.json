@@ -1,0 +1,27 @@
+{
+  "quota": {
+    "workingMath": null,
+    "oldProfileMath": null,
+    "owner": "pB"
+  },
+  "restore": {
+    "math": {
+      "points": 1
+    },
+    "science": {
+      "xp": 50
+    }
+  },
+  "tabs": {
+    "currentProfile": "طالب ب",
+    "secondStudentMath": {
+      "points": 124
+    },
+    "firstStudentMath": {
+      "points": 123
+    }
+  },
+  "cacheMessageAfterEveryDownloadFails": {
+    "cached": 1
+  }
+}
