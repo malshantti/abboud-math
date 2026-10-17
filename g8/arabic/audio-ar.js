@@ -1,2 +1,2 @@
-// خريطة المقاطع المسجّلة بصوت «مهنّد»: المعرّف ← اسم الملفّ داخل audio/. فارغة حتّى تُضاف التّسجيلات.
-window.AR_AUDIO={};
+// خريطة المقاطع المسجّلة بصوت «مهنّد»: المعرّف ← اسم الملفّ داخل audio/. ما ليس فيها يبقى نصًّا دون زرّ صوت.
+window.AR_AUDIO={"g8ar-P1U2-poem-0": "g8ar-P1U2-poem-0.mp3","g8ar-P1U2-poem-1": "g8ar-P1U2-poem-1.mp3","g8ar-P1U2-poem-2": "g8ar-P1U2-poem-2.mp3","g8ar-P1U2-poem-3": "g8ar-P1U2-poem-3.mp3","g8ar-P1U2-poem-4": "g8ar-P1U2-poem-4.mp3","g8ar-P1U2-poem-5": "g8ar-P1U2-poem-5.mp3","g8ar-P1U2-poem-6": "g8ar-P1U2-poem-6.mp3","g8ar-P1U2-poem-7": "g8ar-P1U2-poem-7.mp3"};
