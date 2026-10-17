@@ -380,6 +380,7 @@ function route(){const [_,v,arg]=(location.hash||'#/home').split('/');const f=V[
  document.body.dataset.route=v;
  if(v!=='diag'){V.diag.go=false;V.diag.intro=false}
  const cb=$('#checkbar');if(cb)cb.remove();document.body.classList.toggle('focus',['practice','quiz','review','daily'].includes(v));const app=$('#app');app.innerHTML=`<div class="page">${f(decodeURIComponent(arg||''))}</div>`;window.scrollTo(0,0);
+ if(window.MATH_OFFLINE)window.MATH_OFFLINE(v,app);
  const tab=TABS[v]||'home';
  document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on',a.dataset.t===tab));hdr()}
 const setTheme=t=>{document.documentElement.dataset.theme=t;$('#theme').innerHTML=I(t==='dark'?'sun':'moon')};
