@@ -6,17 +6,15 @@
 <script>
 /* روابط قديمة (#/lesson/...) كانت على الجذر: نحوّلها إلى موقع رياضيات الصف الثامن الجديد */
 (function(){var h=location.hash||'';if(/^#\/[a-z]/i.test(h)){location.replace('g8/math/'+location.search+h);}})();
-/* لا دخول دون ملف طالب */
-(function(){try{var s=JSON.parse(localStorage.getItem('bustan_session')||'null');if(!s||s.pending||localStorage.getItem('bustan_owner')!==s.id){location.replace('login.html');}}catch(e){}})();
 try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')||'light'}catch(e){}
 </script>
 <meta name="theme-color" content="#647b43">
-<meta name="description" content="بستان التعلّم مع زيتون: اختر صفك ومادتك وتعلّم دروس المنهاج الفلسطيني خطوة بخطوة.">
-<title>بستان التعلّم — اختر صفك ومادتك</title>
+<meta name="description" content="بستان التعلّم مع زيتون: دروس، ألعاب تعليمية ومختبرات للصفين السادس والثامن. جرّب نشاطًا تفاعليًا وابدأ من الأساسيات.">
+<title>بستان التعلّم — كل فكرة تنمو معك</title>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="بستان التعلّم">
 <meta property="og:title" content="بستان التعلّم">
-<meta property="og:description" content="منهاجٌ فلسطينيٌّ تفاعليّ، مجانيّ، يعمل حتى بدون إنترنت">
+<meta property="og:description" content="تعلّم المنهاج الفلسطيني خطوة بخطوة، وجرّب نشاطًا قبل الدخول. الدروس المنزّلة متاحة دون إنترنت.">
 <meta property="og:image" content="https://malshantti.github.io/abboud-math/assets/brand/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -27,12 +25,96 @@ try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')|
 <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="preload" href="assets/fonts/baloo-arabic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="entry.css">
+<link rel="stylesheet" href="welcome.css">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 </head>
 <body>
-<a class="skip" href="#main">انتقل إلى المحتوى</a>
-<div class="wrap">
+<a class="skip" href="#visitor-main">انتقل إلى المحتوى</a>
+
+<div class="welcome" id="visitor-home">
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><defs><symbol id="wi-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 11 10 5 20 4c-1 10-7 15-15 15Z"/><path d="m5 19 10-11"/></symbol><symbol id="wi-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m6-6-6 6 6 6"/></symbol><symbol id="wi-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h5a5 5 0 0 1 4 2 5 5 0 0 1 4-2h5v14h-5a5 5 0 0 0-4 2 5 5 0 0 0-4-2H3V5Zm9 2v14M6 9h3m-3 4h3m6-4h3m-3 4h3"/></symbol><symbol id="wi-math" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6h6m6 0h6M4 15l4 4m0-4-4 4m11-4h6m-6 4h6"/></symbol><symbol id="wi-english" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 19 5-14 5 14M5 14h6m6-3v8m0-5a3 3 0 1 1 5 0v2a3 3 0 0 1-5 0"/></symbol><symbol id="wi-science" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v6L5 19a1 1 0 0 0 1 2h12a1 1 0 0 0 1-2L14 9V3M7 15h10"/><circle cx="11" cy="17" r=".6"/></symbol><symbol id="wi-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></symbol><symbol id="wi-sprout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-9m0 2C5 14 3 10 3 5c6 0 9 3 9 9Zm0-2c0-6 3-9 9-9 0 6-3 9-9 9Z"/></symbol><symbol id="wi-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 5 6-2 6 3 6-2v15l-6 2-6-3-6 2V5Zm6-2v15m6-12v15"/></symbol><symbol id="wi-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="4"/><path d="m10 9 5 3.5-5 3.5V9Z"/></symbol><symbol id="wi-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v18h17M8 16v-4m5 4V8m5 8v-6"/></symbol><symbol id="wi-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M4 15v5h16v-5"/></symbol><symbol id="wi-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 2.8 7.2L22 12l-7.2 2.8L12 22l-2.8-7.2L2 12l7.2-2.8L12 2Z"/></symbol><symbol id="wi-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></symbol><symbol id="wi-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-4 5 2 10 8 15 6-5 12-10 8-15Z"/></symbol></defs></svg>
+<div class="w-shell">
+  <header class="w-header">
+    <a class="w-brand" href="./" aria-label="بستان التعلّم — الرئيسية"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-leaf"/></svg><span>بستان التعلّم<small>نزرع الفهم، ونحصد المعرفة</small></span></a>
+    <nav class="w-nav" aria-label="التنقل الرئيسي"><a href="#how-it-works">كيف نتعلّم؟</a><a href="#our-subjects">المواد</a><a href="#fraction-demo">جرّب بنفسك</a><a class="w-button outline small" href="login.html">دخول الطلاب<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></nav>
+  </header>
+  <p class="w-message" id="entry-message" role="status" hidden></p>
+</div>
+<main id="visitor-main" tabindex="-1">
+<div class="w-shell">
+    <section class="w-hero" aria-labelledby="welcome-title">
+      <div class="w-hero-copy">
+        <span class="w-eyebrow">من المنهاج الفلسطيني، إلى عالم من الاكتشاف</span>
+        <h1 id="welcome-title">كل فكرة صغيرة،<br>تفتح <em>بابًا كبيرًا.</em></h1>
+        <p class="w-lead">هنا نفهم، ونجرّب، ونخطئ، ونتعلّم. دروس واضحة وألعاب هادفة، وزيتون يرافقك من أول خطوة.</p>
+        <div class="w-actions"><a class="w-button " href="login.html">لنبدأ التعلّم<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a><a class="w-button outline" href="#fraction-demo">جرّب نشاطًا<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></div>
+        <p class="w-micro"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-check"/></svg> مجاني · للصفين السادس والثامن · على مهل، وبطريقتك</p>
+      </div>
+      <div class="w-art">
+        <img src="assets/img/visitor-hero-v1.webp" width="960" height="960" alt="زيتون يفتح كتابًا وسط نباتات وأدوات للتعلّم والاكتشاف" fetchpriority="high" decoding="async">
+        <span class="w-note" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-spark"/></svg> فضولك بداية الحكاية</span>
+        <span class="w-note second" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg> خطوة صغيرة، فهم أكبر</span>
+        <span class="w-spark" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-spark"/></svg></span>
+      </div>
+    </section>
+    <section class="w-strip" id="our-subjects" aria-label="المواد المتاحة">
+      <p>بستان واحد، <strong>وأبواب كثيرة للمعرفة</strong><br>للصف السادس والصف الثامن</p>
+      <div class="w-subjects"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-math"/></svg>الرياضيات</span><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-book"/></svg>اللغة العربية</span><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-english"/></svg>الإنجليزية</span><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-science"/></svg>العلوم والحياة</span></div>
+    </section>
+    <section class="w-section" id="how-it-works" aria-labelledby="how-title">
+      <div class="w-section-heading" data-reveal><span class="w-kicker">الفهم ينمو خطوة بخطوة</span><h2 id="how-title">رحلة تبدأ من حيث أنت</h2><p>لا تحتاج أن تعرف كل شيء قبل أن تبدأ.<br>نبني الأساس، ثم نربط الفكرة، ثم نمنحك مساحة لتجربتها.</p></div>
+      <div class="w-steps">
+        <article class="w-step" data-reveal><div class="w-step-art"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg></div><h3><b>١</b>نقوّي الجذور</h3><p>راجع الأساسيات التي تحتاجها، وارجع إليها كلما أردت. الفهم المتين يبدأ من هنا.</p></article>
+        <article class="w-step" data-reveal><div class="w-step-art"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-book"/></svg></div><h3><b>٢</b>نكتشف الفكرة</h3><p>تعرّف إلى الدرس من خلال الشرح والأمثلة وصفحات الكتاب المتاحة داخل المادة.</p></article>
+        <article class="w-step" data-reveal><div class="w-step-art"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-science"/></svg></div><h3><b>٣</b>نتعلّم بالتجربة</h3><p>حلّ، وارسم، وحرّك، واكتشف. أنشطة ومختبرات تجعل الفكرة أقرب إلى يديك.</p></article>
+      </div>
+    </section>
+</div>
+<section class="w-preview-band" aria-labelledby="preview-title">
+  <div class="w-shell w-preview">
+    <div class="w-preview-copy" data-reveal><span class="w-kicker">دع الفكرة تصبح مرئية</span><h2 id="preview-title">أحيانًا، تجربة صغيرة<br>تشرح فكرة كاملة.</h2><p>ما رأيك أن تجرّب الآن؟<br>لوّن أجزاء المستطيل واكتشف النصف بنفسك.</p><span class="w-preview-label"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-play"/></svg> عينة مجانية · بلا دخول · بلا تسجيل للتقدّم</span></div>
+    <div class="w-demo" id="fraction-demo" data-reveal>
+      <div class="w-demo-top"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-math"/></svg> من بستان الرياضيات</span><span>اكتشف الكسور</span></div>
+      <h3>هل تستطيع تلوين النصف؟</h3><p>المستطيل مقسّم إلى أربعة أجزاء متساوية.<br>اضغط على الأجزاء التي تريد تلوينها، ثم تحقّق.</p>
+      <div class="w-pieces" role="group" aria-label="أجزاء المستطيل الأربعة المتساوية"><button type="button" data-piece="1" aria-pressed="false" aria-label="تلوين الجزء الأول"><span aria-hidden="true">١</span></button><button type="button" data-piece="2" aria-pressed="false" aria-label="تلوين الجزء الثاني"><span aria-hidden="true">٢</span></button><button type="button" data-piece="3" aria-pressed="false" aria-label="تلوين الجزء الثالث"><span aria-hidden="true">٣</span></button><button type="button" data-piece="4" aria-pressed="false" aria-label="تلوين الجزء الرابع"><span aria-hidden="true">٤</span></button></div>
+      <div class="w-demo-meta"><span>الأجزاء الملوّنة: <strong id="piece-count">٠</strong> من ٤</span><span>تأمّل، ثم اختر</span></div>
+      <div class="w-demo-actions"><button class="w-button" id="check-fraction" type="button">تحقّق من فكرتك <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-check"/></svg></button><button type="button" class="w-reset" id="reset-fraction">ابدأ من جديد</button></div>
+      <p class="w-feedback" id="fraction-feedback" role="status" aria-live="polite" data-state="idle">اختر أجزاء متساوية، ثم تحقّق من فكرتك.</p>
+      <noscript><p>فعّل JavaScript لتجربة تلوين الأجزاء. يمكنك الاطلاع على بقية الصفحة دون تفعيله.</p></noscript>
+    </div>
+  </div>
+</section>
+<div class="w-shell">
+  <section class="w-section w-features" aria-labelledby="features-title">
+    <div class="w-journey" aria-label="تصوّر لمسار تعلّم يبدأ بالأساسيات، ثم الدرس، ثم التطبيق" data-reveal>
+      <div class="w-journey-title">رحلة لها معنى <small>كل خطوة تبني على ما قبلها</small></div>
+      <div class="w-journey-track" aria-hidden="true"><div class="w-node"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg><small>أفهم الأساس</small></div><div class="w-node"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-book"/></svg><small>أكتشف الدرس</small></div><div class="w-node"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-star"/></svg><small>أطبّق ما تعلّمته</small></div></div>
+      <img src="assets/img/zaytoun-think.webp" alt="" width="216" height="252" loading="lazy" decoding="async"><span class="w-journey-foot" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-heart"/></svg> كل محاولة لها قيمة</span>
+    </div>
+    <div data-reveal><span class="w-kicker">أكثر من شرح على شاشة</span><h2 id="features-title">مساحة آمنة للسؤال،<br>والتجربة، والمحاولة.</h2>
+      <article class="w-feature"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-map"/></svg></span><div><h3>طريق واضح، وسرعتك أنت</h3><p>تنقّل بين رحلتك والأساسيات والمغامرات والمختبر، وارجع إلى ما تحتاجه.</p></div></article>
+      <article class="w-feature"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-chart"/></svg></span><div><h3>تقدّم يراه الطالب وولي الأمر</h3><p>ملف مستقل لكل طالب على الجهاز، وتقرير يساعد على متابعة ما أُنجز وما يحتاج إلى مراجعة.</p></div></article>
+      <article class="w-feature"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-offline"/></svg></span><div><h3>تعلّم يستمر دون إنترنت</h3><p>نزّل دروس المادة مسبقًا من داخلها، ثم افتح المحتوى المحفوظ عندما تنقطع الشبكة.</p></div></article>
+    </div>
+  </section>
+  <section class="w-section w-faq w-shell" aria-labelledby="faq-title">
+    <div class="w-section-heading" data-reveal><span class="w-kicker">قبل أول خطوة</span><h2 id="faq-title">أشياء قد تحب أن تعرفها</h2></div>
+    <details><summary>لمن صُمّم بستان التعلّم؟</summary><p>للطلاب الذين يريدون فهم الدرس والتدرّب عليه بهدوء، بمن فيهم من يحتاج إلى تقوية الأساسيات. تتوفر الآن الرياضيات والعربية والإنجليزية والعلوم والحياة للصفين السادس والثامن.</p></details>
+    <details><summary>هل المحتوى من المنهاج الفلسطيني؟</summary><p>تُنظّم المواد حول وحدات المنهاج الفلسطيني، مع شروح وأنشطة للتعلّم والمراجعة وصفحات من الكتاب داخل المواد. البستان أداة مساعدة للتعلّم، ويمكن الرجوع إلى الكتاب والمعلم عند الحاجة.</p></details>
+    <details><summary>هل أحتاج إلى اتصال دائم بالإنترنت؟</summary><p>تحتاج إلى الإنترنت عند الزيارة الأولى ولتنزيل المحتوى. بعد تنزيل دروس المادة، يمكنك استعمال المحتوى المحفوظ دون إنترنت على الجهاز والمتصفح نفسيهما.</p></details>
+    <details><summary>أين يُحفظ تقدّم الطالب؟</summary><p>يُحفظ الآن في المتصفح على هذا الجهاز، ويمكن لولي الأمر تصدير نسخة احتياطية. لا تنتقل البيانات تلقائيًا إلى جهاز آخر حاليًا. احتفظ بنسخة من التقدّم قبل حذف بيانات المتصفح أو تغيير الجهاز.</p></details>
+    <details><summary>هل يمكن أن أجرّب قبل إنشاء ملف؟</summary><p>نعم، يمكنك تجربة نشاط الكسور في هذه الصفحة دون تسجيل. عندما تكون مستعدًا، افتح صفحة الدخول وأنشئ ملفًا مستقلًا ليُحفظ تقدّمك في المواد.</p></details>
+  </section>
+  <section class="w-final" aria-labelledby="final-title" data-reveal><span class="w-sprout" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg></span><h2 id="final-title">لنزرع اليوم فكرة جديدة.</h2><p>خطوة واحدة تكفي لتبدأ. وزيتون ينتظرك في البستان.</p><a class="w-button " href="login.html">ابدأ رحلتك<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></section>
+</div>
+</main>
+<div class="w-shell">
+  <footer class="w-footer"><p>بستان التعلّم · نزرع الفهم، ونحصد المعرفة<br>صُنع بمحبة لفضولٍ لا يتوقّف.</p><a href="login.html">لديّ ملف طالب <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></footer>
+</div>
+</div>
+
+<div class="wrap" id="student-home" hidden>
   <header class="bar">
     <a class="brand" href="./" aria-label="بستان التعلّم">
       <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z" fill="currentColor"/><path d="M5 19c4-4 7-7 10-11" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
@@ -46,7 +128,7 @@ try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')|
         <h1 id="hello">أهلًا بك في البستان</h1>
         <p>اختر صفّك ثم مادتك، وزيتون يرافقك في كل خطوة.</p>
       </div>
-      <img src="assets/img/zaytoun-welcome.webp" alt="زيتون يرحّب بك" width="150" height="176">
+      <img data-src="assets/img/zaytoun-welcome.webp" alt="زيتون يرحّب بك" width="150" height="176">
     </section>
     <section id="resume" class="resume hidden" aria-live="polite"></section>
     <div class="userbar" id="userbar"></div>
@@ -55,11 +137,10 @@ try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')|
     <div class="step off" id="s2h"><span class="n">٢</span><div><h2 id="s2t">اختر المادة</h2><p id="s2p">اختر الصف أولًا</p></div></div>
     <div class="grid subjects" id="subjects" role="group" aria-labelledby="s2h"></div>
   </main>
+  <p class="student-preview-link"><a href="?welcome=1">استعرض الصفحة التعريفية بالبستان</a></p>
   <p class="foot">المنهاج الفلسطيني · نضيف صفوفًا ومواد جديدة تباعًا</p>
 </div>
-<script src="profiles.js"></script>
-<script src="catalog.js"></script>
-<script src="entry.js"></script>
+<script src="welcome.js"></script>
 <script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
 </body>
 </html>
