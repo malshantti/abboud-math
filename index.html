@@ -7,6 +7,8 @@
 /* روابط قديمة (#/lesson/...) كانت على الجذر: نحوّلها إلى موقع رياضيات الصف الثامن الجديد */
 (function(){var h=location.hash||'';if(/^#\/[a-z]/i.test(h)){location.replace('g8/math/'+location.search+h);}})();
 try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')||'light'}catch(e){}
+/* لطالب مسجَّل: نُخفي صفحة الزائر حتى تُفتح قائمة المواد، فلا تومض قبلها */
+try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getItem('bustan_session')||'null');if(s0&&!s0.pending&&localStorage.getItem('bustan_owner')===s0.id)document.documentElement.dataset.entry='checking'}}catch(e){}
 </script>
 <meta name="theme-color" content="#647b43">
 <meta name="description" content="بستان التعلّم مع زيتون: دروس، ألعاب تعليمية ومختبرات للصفين السادس والثامن. جرّب نشاطًا تفاعليًا وابدأ من الأساسيات.">

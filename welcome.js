@@ -13,8 +13,9 @@ window.addEventListener('storage',e=>{if(activeSession&&[null,'bustan_session','
 async function enter(){
  let s=null,owner=null,profiles=[],raw=null,pending=false;
  try{raw=localStorage.getItem('bustan_session');s=JSON.parse(raw||'null');owner=localStorage.getItem('bustan_owner');profiles=JSON.parse(localStorage.getItem('bustan_profiles')||'[]');pending=!!(localStorage.getItem('bustan_transition')||localStorage.getItem('bustan_restore'))}catch(e){}
- if(new URLSearchParams(location.search).has('welcome'))return;
- if(!s||s.pending||pending||owner!==s.id||!Array.isArray(profiles)||!profiles.some(p=>p&&p.id===s.id))return;
+ const plain=()=>{document.documentElement.dataset.entry='visitor'};
+ if(new URLSearchParams(location.search).has('welcome'))return plain();
+ if(!s||s.pending||pending||owner!==s.id||!Array.isArray(profiles)||!profiles.some(p=>p&&p.id===s.id))return plain();
  try{
   await script('profiles.js');
   if(!await window.PROFILES.ready||!window.PROFILES.current()||window.PROFILES.current().id!==s.id){showVisitor('افتح ملفك من صفحة الدخول للمتابعة. تقدّمك المحفوظ باقٍ على هذا الجهاز.');return}
