@@ -1,0 +1,565 @@
+{
+  "commit": "be3f9dd97cd992e1c4ebb8040984a418584811e8",
+  "subjects": [
+    {
+      "path": "g6/math",
+      "files": 144,
+      "bytes": 2072529,
+      "audioFiles": 0,
+      "audioBytes": 0,
+      "imageFiles": 108,
+      "imageBytes": 1342898,
+      "largest": [
+        {
+          "file": "g6/math/img/zaytoun-garden-v2.webp",
+          "bytes": 77964
+        },
+        {
+          "file": "g6/math/app.js",
+          "bytes": 69812
+        },
+        {
+          "file": "g6/math/gen.js",
+          "bytes": 55650
+        },
+        {
+          "file": "g6/math/lesson-visuals.js",
+          "bytes": 54261
+        },
+        {
+          "file": "g6/math/v4.js",
+          "bytes": 48068
+        }
+      ],
+      "largestAudio": [],
+      "precacheFiles": 143,
+      "precacheBytes": 2067542,
+      "missingPrecache": []
+    },
+    {
+      "path": "g6/english",
+      "files": 2924,
+      "bytes": 31484819,
+      "audioFiles": 2353,
+      "audioBytes": 25873412,
+      "imageFiles": 533,
+      "imageBytes": 4624228,
+      "largest": [
+        {
+          "file": "g6/english/content.js",
+          "bytes": 163576
+        },
+        {
+          "file": "g6/english/audio-manifest.js",
+          "bytes": 110536
+        },
+        {
+          "file": "g6/english/audio-ar/fg4-f7fc7e0e.mp3",
+          "bytes": 89876
+        },
+        {
+          "file": "g6/english/img/zaytoun-garden-v2.webp",
+          "bytes": 77964
+        },
+        {
+          "file": "g6/english/sections.js",
+          "bytes": 69374
+        }
+      ],
+      "largestAudio": [
+        {
+          "file": "g6/english/audio-ar/fg4-f7fc7e0e.mp3",
+          "bytes": 89876
+        },
+        {
+          "file": "g6/english/audio/bab0e44112ffa707.mp3",
+          "bytes": 66284
+        },
+        {
+          "file": "g6/english/audio-ar/fg3-96d424aa.mp3",
+          "bytes": 66236
+        }
+      ],
+      "precacheFiles": 61,
+      "precacheBytes": 1501324,
+      "missingPrecache": [],
+      "audioEntries": 1046,
+      "missingAudio": [],
+      "arabicAudioEntries": 20,
+      "missingArabicAudio": [],
+      "missingBookImages": []
+    },
+    {
+      "path": "g6/arabic",
+      "files": 207,
+      "bytes": 6602134,
+      "audioFiles": 0,
+      "audioBytes": 0,
+      "imageFiles": 191,
+      "imageBytes": 6153324,
+      "largest": [
+        {
+          "file": "g6/arabic/content.js",
+          "bytes": 162783
+        },
+        {
+          "file": "g6/arabic/fonts/naskh.woff2",
+          "bytes": 79172
+        },
+        {
+          "file": "g6/arabic/bookimg/p2-5.webp",
+          "bytes": 74406
+        },
+        {
+          "file": "g6/arabic/bookimg/p1-6.webp",
+          "bytes": 60594
+        },
+        {
+          "file": "g6/arabic/bookimg/p2-45.webp",
+          "bytes": 58840
+        }
+      ],
+      "largestAudio": [],
+      "precacheFiles": 28,
+      "precacheBytes": 743023,
+      "missingPrecache": [],
+      "arabicAudioEntries": 0
+    },
+    {
+      "path": "g6/science",
+      "files": 302,
+      "bytes": 2258233,
+      "audioFiles": 0,
+      "audioBytes": 0,
+      "imageFiles": 288,
+      "imageBytes": 1990122,
+      "largest": [
+        {
+          "file": "g6/science/sc.js",
+          "bytes": 56136
+        },
+        {
+          "file": "g6/science/content.js",
+          "bytes": 45055
+        },
+        {
+          "file": "g6/science/img/zaytoun-discovery-v2.webp",
+          "bytes": 41850
+        },
+        {
+          "file": "g6/science/fonts/baloo-arabic.woff2",
+          "bytes": 38424
+        },
+        {
+          "file": "g6/science/img/zaytoun-celebrate.webp",
+          "bytes": 37432
+        }
+      ],
+      "largestAudio": [],
+      "precacheFiles": 26,
+      "precacheBytes": 562324,
+      "missingPrecache": []
+    },
+    {
+      "path": "g8/math",
+      "files": 101,
+      "bytes": 1551151,
+      "audioFiles": 0,
+      "audioBytes": 0,
+      "imageFiles": 65,
+      "imageBytes": 795948,
+      "largest": [
+        {
+          "file": "g8/math/img/zaytoun-garden-v2.webp",
+          "bytes": 77964
+        },
+        {
+          "file": "g8/math/app.js",
+          "bytes": 69782
+        },
+        {
+          "file": "g8/math/lesson-visuals.js",
+          "bytes": 54582
+        },
+        {
+          "file": "g8/math/v4.js",
+          "bytes": 49840
+        },
+        {
+          "file": "g8/math/img/zaytoun-pencil.webp",
+          "bytes": 46274
+        }
+      ],
+      "largestAudio": [],
+      "precacheFiles": 101,
+      "precacheBytes": 1554400,
+      "missingPrecache": []
+    },
+    {
+      "path": "g8/english",
+      "files": 4248,
+      "bytes": 54650237,
+      "audioFiles": 4032,
+      "audioBytes": 50538360,
+      "imageFiles": 178,
+      "imageBytes": 3007316,
+      "largest": [
+        {
+          "file": "g8/english/audio-manifest.js",
+          "bytes": 194605
+        },
+        {
+          "file": "g8/english/content.js",
+          "bytes": 188626
+        },
+        {
+          "file": "g8/english/audio-ar/u1g0-7c11001c.mp3",
+          "bytes": 116636
+        },
+        {
+          "file": "g8/english/audio-ar/u3g0-f86fa557.mp3",
+          "bytes": 96476
+        },
+        {
+          "file": "g8/english/audio-ar/fg4-f7fc7e0e.mp3",
+          "bytes": 89876
+        }
+      ],
+      "largestAudio": [
+        {
+          "file": "g8/english/audio-ar/u1g0-7c11001c.mp3",
+          "bytes": 116636
+        },
+        {
+          "file": "g8/english/audio-ar/u3g0-f86fa557.mp3",
+          "bytes": 96476
+        },
+        {
+          "file": "g8/english/audio-ar/fg4-f7fc7e0e.mp3",
+          "bytes": 89876
+        }
+      ],
+      "precacheFiles": 61,
+      "precacheBytes": 1618705,
+      "missingPrecache": [],
+      "audioEntries": 1744,
+      "missingAudio": [],
+      "arabicAudioEntries": 50,
+      "missingArabicAudio": [],
+      "missingBookImages": []
+    },
+    {
+      "path": "g8/arabic",
+      "files": 205,
+      "bytes": 8833622,
+      "audioFiles": 0,
+      "audioBytes": 0,
+      "imageFiles": 189,
+      "imageBytes": 8354010,
+      "largest": [
+        {
+          "file": "g8/arabic/content.js",
+          "bytes": 193628
+        },
+        {
+          "file": "g8/arabic/fonts/naskh.woff2",
+          "bytes": 79172
+        },
+        {
+          "file": "g8/arabic/bookimg/p2-63.webp",
+          "bytes": 71806
+        },
+        {
+          "file": "g8/arabic/bookimg/p2-113.webp",
+          "bytes": 68558
+        },
+        {
+          "file": "g8/arabic/bookimg/p1-90.webp",
+          "bytes": 67964
+        }
+      ],
+      "largestAudio": [],
+      "precacheFiles": 28,
+      "precacheBytes": 773825,
+      "missingPrecache": [],
+      "arabicAudioEntries": 0
+    },
+    {
+      "path": "g8/science",
+      "files": 263,
+      "bytes": 2584872,
+      "audioFiles": 0,
+      "audioBytes": 0,
+      "imageFiles": 249,
+      "imageBytes": 2310216,
+      "largest": [
+        {
+          "file": "g8/science/sc.js",
+          "bytes": 56136
+        },
+        {
+          "file": "g8/science/content.js",
+          "bytes": 52707
+        },
+        {
+          "file": "g8/science/img/zaytoun-discovery-v2.webp",
+          "bytes": 41850
+        },
+        {
+          "file": "g8/science/fonts/baloo-arabic.woff2",
+          "bytes": 38424
+        },
+        {
+          "file": "g8/science/img/zaytoun-celebrate.webp",
+          "bytes": 37432
+        }
+      ],
+      "largestAudio": [],
+      "precacheFiles": 26,
+      "precacheBytes": 568869,
+      "missingPrecache": []
+    }
+  ],
+  "brokenStatic": [],
+  "emoji": [
+    {
+      "file": "g6/english/index.html",
+      "line": 52,
+      "matches": [
+        {
+          "codepoint": "U+2197",
+          "offset": 411,
+          "context": "معرفة</small></span><span aria-hidden=\"true\">↗</span></a></div>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g6/english/sections.js",
+      "line": 38,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 346,
+          "context": "span class=\"course-arrow\" aria-hidden=\"true\">↖</span></div>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g6/math/index.html",
+      "line": 50,
+      "matches": [
+        {
+          "codepoint": "U+2197",
+          "offset": 414,
+          "context": "معرفة</small></span><span aria-hidden=\"true\">↗</span></a></div>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g6/math/zaytoun.js",
+      "line": 69,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 544,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g6/math/zaytoun.js",
+      "line": 70,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 599,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g6/math/zaytoun.js",
+      "line": 71,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 963,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g6/math/zaytoun.js",
+      "line": 72,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 988,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g6/math/zaytoun.js",
+      "line": 85,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 181,
+          "context": "span class=\"course-arrow\" aria-hidden=\"true\">↖</span></div>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/english/index.html",
+      "line": 52,
+      "matches": [
+        {
+          "codepoint": "U+2197",
+          "offset": 411,
+          "context": "معرفة</small></span><span aria-hidden=\"true\">↗</span></a></div>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/english/sections.js",
+      "line": 38,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 346,
+          "context": "span class=\"course-arrow\" aria-hidden=\"true\">↖</span></div>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/english/tasks.js",
+      "line": 2,
+      "matches": [
+        {
+          "codepoint": "U+2714",
+          "offset": 1924,
+          "context": ":8,\"act\":\"Read and mark the sentences true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"Young World is asking people of d"
+        },
+        {
+          "codepoint": "U+2714",
+          "offset": 6022,
+          "context": "20,\"act\":\"Read and mark the sentences true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"Music is at the heart of life. We"
+        },
+        {
+          "codepoint": "U+2714",
+          "offset": 10235,
+          "context": "2,\"act\":\"Read and mark the statements true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"Yosemite is an amazing place in A"
+        },
+        {
+          "codepoint": "U+2714",
+          "offset": 16866,
+          "context": "56,\"act\":\"Read and mark the sentences true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"People have been playing team gam"
+        },
+        {
+          "codepoint": "U+2714",
+          "offset": 26298,
+          "context": "8,\"act\":\"Read and mark the statements true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"Deema, from Palestine, is a polic"
+        },
+        {
+          "codepoint": "U+2714",
+          "offset": 30423,
+          "context": "act\":\"Read again. Mark the statements true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"A lot of our tea comes from India"
+        },
+        {
+          "codepoint": "U+2714",
+          "offset": 34221,
+          "context": "2,\"act\":\"Read and mark the statements true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"Jericho is a small city in a deep"
+        },
+        {
+          "codepoint": "U+2714",
+          "offset": 38317,
+          "context": "4,\"act\":\"Read and mark the statements true ( ✔ ) or false ( ✘ ).\"},\"paras\":[\"People celebrate weddings in a th"
+        }
+      ],
+      "count": 10
+    },
+    {
+      "file": "g8/math/index.html",
+      "line": 50,
+      "matches": [
+        {
+          "codepoint": "U+2197",
+          "offset": 414,
+          "context": "معرفة</small></span><span aria-hidden=\"true\">↗</span></a></div>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/math/zaytoun.js",
+      "line": 70,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 544,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/math/zaytoun.js",
+      "line": 71,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 599,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/math/zaytoun.js",
+      "line": 72,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 963,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/math/zaytoun.js",
+      "line": 73,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 988,
+          "context": "an class=\"activity-arrow\" aria-hidden=\"true\">↖</span></a>"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "file": "g8/math/zaytoun.js",
+      "line": 86,
+      "matches": [
+        {
+          "codepoint": "U+2196",
+          "offset": 181,
+          "context": "span class=\"course-arrow\" aria-hidden=\"true\">↖</span></div>"
+        }
+      ],
+      "count": 1
+    }
+  ]
+}
