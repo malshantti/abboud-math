@@ -44,7 +44,7 @@ const BQ={
 const VN={k:'الكسرة',u:'الضّمّة',a:'الفتحة',s:'السّكون',A:'ألف ساكنة',W:'واو مدّ ساكنة',Y:'ياء ساكنة','':''};
 function why(x){if(x[4]==='e')return 'همزة متطرّفة: تُكتب على حرف يناسب حركة ما قبلها ('+VN[x[3]]+') فتكون «'+x[1]+'».';
  return 'همزة متوسّطة: حركتها '+VN[x[2]]+'، وقبلها '+VN[x[3]]+'، فتُكتب «'+x[1]+'».'}
-const IMLA=G===6?{P1U1:'wasl',P1U2:'wasl',P1U4:'wasl',P1U5:'wasl',P1U7:'hadhf',P1U8:'hadhf',P2U1:'zaid',P2U2:'zaid',P2U4:'mawsul',P2U5:'mawsul',P2U7:'tarqim',P2U8:'tarqim'}:{P1U1:'hamza',P1U2:'hamza',P1U3:'hamza',P1U4:'alif8',P1U5:'alif',P1U6:'alif',P1U7:'alif',P2U1:'farqa',P2U3:'farqa,alif',P2U5:'amr'};
+const IMLA=G===6?{P1U1:'wasl',P1U2:'wasl',P1U4:'wasl',P1U5:'wasl',P1U7:'hadhf',P1U8:'hadhf',P2U1:'farqa',P2U2:'zaid',P2U4:'mawsul',P2U5:'mawsul',P2U7:'tarqim',P2U8:'tarqim'}:{P1U1:'hamza',P1U2:'hamza',P1U3:'hamza',P1U4:'alif8',P1U5:'alif',P1U6:'alif',P1U7:'alif',P2U1:'farqa',P2U3:'farqa,alif',P2U5:'amr'};
 const MIX=G===6?'wasl,taa,alif,hadhf,mawsul':'hamza,alif,alif8,farqa,amr,taa';
 function imlaQs(u,n){const ks=(IMLA[u.id]||MIX).split(',');let all=[];ks.forEach(k=>all=all.concat(BQ[k](G)));return shuffle(all).slice(0,n)}
 function secQs(u,k){const key=u.id+':'+k;let q=[];
