@@ -29,5 +29,5 @@ for(const [word,meaning] of poem.voc){
  assert.equal(q.o[q.a],meaning);assert.equal(q.o.length,4);assert.equal(new Set(q.o).size,4);
  assert.ok(q.q.includes(word));
 }
-const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');assert.ok(sw.includes('g8ar-20261016-design2-brand1-glossary1'));assert.ok(sw.includes('"content.js"'));
+const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');assert.ok(/const V='g8ar-[^']+'/.test(sw)&&!sw.includes("V='g8ar-20261016-design2-brand1-fix1'"));assert.ok(sw.includes('"content.js"'));
 console.log('Passed: eleven textbook glossary entries, lesson display and generated questions (T09).');
