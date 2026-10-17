@@ -1,0 +1,7 @@
+# صورة استكشف مع زيتون
+
+وُلّدت بالأداة المدمجة، بمرجع صورة زيتون الحالية `visitor-hero-v1.webp`. الصورة زخرفية، وليست تجربة علمية أو صفحة كتاب. حُفظت شفافة في `assets/img/visitor-discover-v1.webp`، مع إبقاء الأصول السابقة.
+
+## وصف التوليد
+
+Use case: identity-preserve / illustration-story. Asset: transparent section illustration for the existing Arabic Palestinian educational site Bustan Learning, matching the supplied image exactly in character identity and rendering style. Use the provided olive mascot reference: green olive-shaped body, twig and two leaves, friendly expressive eyes, Palestinian black-and-white keffiyeh, white gloves, slim limbs and sneakers. New pose: mascot sitting beside a low warm wooden learning desk, leaning forward curiously and using a magnifying glass to inspect an olive leaf and a small seedling in a pot. A blank open notebook, wooden pencil and three simple smooth geometric blocks on the desk suggest learning by doing. Compact nearly square arrangement, clear clean silhouette, entire character and desk visible. Friendly polished hand-crafted 2.5D illustration, subtle tactile shading, olive green and ivory with muted sky blue and amber accents, suitable for grades 6 and 8, not babyish. Genuine transparent background alpha. No text, numbers, letters, mathematical formulas, scientific labels, UI, logos, emoji or watermark. Decorative learning scene, no scientific experiment claims. Preserve mascot identity, scarf pattern, proportions and material style.

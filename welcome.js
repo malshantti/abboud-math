@@ -34,6 +34,31 @@ function paint(){const n=pieces.filter(b=>b.getAttribute('aria-pressed')==='true
 pieces.forEach(b=>b.addEventListener('click',()=>{b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'));paint()}));
 $('#check-fraction').addEventListener('click',()=>{const n=pieces.filter(b=>b.getAttribute('aria-pressed')==='true').length;feedback.dataset.state=n===2?'correct':'try';feedback.textContent=n===2?'أحسنت! جزآن من أربعة أجزاء متساوية يساويان النصف.':'تأمّل المستطيل: النصف يقسمه إلى مجموعتين متساويتين. جرّب مرة أخرى.'});
 $('#reset-fraction').addEventListener('click',()=>{pieces.forEach(b=>b.setAttribute('aria-pressed','false'));paint();pieces[0].focus()});
+/* معاينات الزائر: تبديل محلي في الذاكرة، مع تنقّل لوحة المفاتيح. */
+document.querySelectorAll('[data-demo-group]').forEach(group=>{
+ const tabs=Array.from(group.querySelectorAll('[role="tab"]'));
+ const panels=Array.from(group.querySelectorAll('[role="tabpanel"]'));
+ const status=group.querySelector('[data-demo-status]');
+ const vertical=group.querySelector('[role="tablist"]').getAttribute('aria-orientation')==='vertical';
+ function select(index,announce){
+  tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1});
+  panels.forEach((panel,i)=>{panel.hidden=i!==index});
+  group.dataset.active=String(index);
+  if(announce&&status)status.textContent=tabs[index].textContent.trim()+' — '+panels[index].querySelector('h3').textContent;
+ }
+ tabs.forEach((tab,index)=>{
+  tab.addEventListener('click',()=>select(index,true));
+  tab.addEventListener('keydown',event=>{
+   let next=index;
+   if(event.key==='Home')next=0;
+   else if(event.key==='End')next=tabs.length-1;
+   else if(event.key===(vertical?'ArrowDown':'ArrowLeft'))next=(index+1)%tabs.length;
+   else if(event.key===(vertical?'ArrowUp':'ArrowRight'))next=(index+tabs.length-1)%tabs.length;
+   else return;
+   event.preventDefault();select(next,true);tabs[next].focus();
+  });
+ });
+});
 const rm=matchMedia('(prefers-reduced-motion: reduce)');
 if(!rm.matches&&'IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');observer.unobserve(e.target)}}),{threshold:.08});document.querySelectorAll('[data-reveal]').forEach(el=>{el.classList.add('will-reveal');observer.observe(el)});rm.addEventListener('change',e=>{if(e.matches){observer.disconnect();document.querySelectorAll('.will-reveal').forEach(el=>el.classList.add('is-visible'))}})}
 enter();
