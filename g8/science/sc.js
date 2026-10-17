@@ -26,7 +26,7 @@ R.home=function(){let h='<div class="card hero"><img src="img/zaytoun-discovery-
  h+='<div class="node-w"><a class="node '+((S.done['T:'+u.id]||0)>=70?'done':'')+'" href="#/test/'+u.id+'" style="border-radius:18px">'+ic('trophy')+'</a>اختبار الوحدة</div></div>'})});return h};
 R.u=function(id){const l=LES.find(x=>x.id===id);if(!l)return R.home();S.seen[id]=1;A.save();const u=l.u;
  let h='<div class="mut small"><a href="#/home">رحلتي</a> / الوحدة '+ORDN[+u.id.slice(1)-1]+': '+esc(u.t)+'</div><h2>'+esc(l.t)+'</h2><nav class="tabsec">'+u.les.map(x=>'<a href="#/u/'+x.id+'" class="'+(x.id===id?'on':'')+'">'+esc(x.t)+'</a>').join('')+'</nav>';
- h+='<div class="split"><div><div class="card"><b>الأفكار الرّئيسة</b><ul class="pts">'+l.pts.map(p=>'<li>'+esc(p)+'</li>').join('')+'</ul></div>'+
+ h+='<div class="split"><div><div class="card"><b>الأفكار الرّئيسة</b><ul class="pts">'+l.pts.map(p=>'<li>'+esc(p)+'</li>').join('')+'</ul>'+(id==='U2L3'?'<p class="source-note"><b>افتراض النموذج:</b> بإهمال الاحتكاك ومقاومة الهواء، لا نفقد طاقة ميكانيكيّة. هذا توضيح لشروط النموذج، وليس جزءًا من نصّ القانون أعلاه.</p>':'')+'</div>'+
  '<div class="card"><b>المفاهيم</b><div class="voc">'+l.terms.map(t=>'<div><b style="font-family:Cairo;font-size:17px">'+esc(t[0])+'</b>'+esc(t[1])+'</div>').join('')+'</div></div>'+
  (linkedSim(l)?'<a class="tile c2" href="#/l/'+l.sim+'" style="margin:12px 0"><span class="ti">'+ic('lab')+'</span><b>جرّب في المختبر: '+(SIMN[linkedSim(l)]||'')+'</b><small>محاكاة تفاعليّة مرتبطة بهذا الدّرس</small></a>':'')+'</div>';
  // أنشطة الكتاب مع أشكالها
