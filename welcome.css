@@ -34,4 +34,3 @@ html{scroll-behavior:smooth;scroll-padding-top:30px}
 
 
 @media(max-width:640px){.w-brand small{display:none}.w-header{gap:10px}.w-footer>a svg{width:16px;height:16px;vertical-align:middle}.w-demo-meta{flex-wrap:wrap;gap:5px}}
-
