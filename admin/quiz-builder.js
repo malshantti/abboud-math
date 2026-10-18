@@ -236,19 +236,15 @@
   function decodePicture(source) {
     return new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('تعذرت قراءة الصورة. اختر ملف صورة صالحًا.'));image.src=source;});
   }
-  async function uploadImage(file,input) {
-    const question=active(),currentHost=host,generation=draftGeneration,ticket=++imageTicket;
-    if(!file||!question)return;
-    const current=()=>ticket===imageTicket&&generation===draftGeneration&&host===currentHost&&active()===question&&host.contains(input);
+  async function prepareImage(file) {
     let objectUrl;
     try{
-      if(!IMAGE_MIMES.includes(file.type)||file.size>MAX_UPLOAD_BYTES)throw Error('اختر صورة PNG أو JPEG أو WebP لا تتجاوز ٨ ميغابايت.');
-      find('qb-image-status').textContent='جارٍ تجهيز الصورة…';
-      const bytes=new Uint8Array(await file.arrayBuffer());if(!current())return;
+      if(!file||!IMAGE_MIMES.includes(file.type)||file.size>MAX_UPLOAD_BYTES)throw Error('اختر صورة PNG أو JPEG أو WebP لا تتجاوز ٨ ميغابايت.');
+      const bytes=new Uint8Array(await file.arrayBuffer());
       const original=rasterSize(bytes,file.type);
       if(!original||!Number.isInteger(original.width)||!Number.isInteger(original.height)||original.width<1||original.height<1||original.width>16000||original.height>16000||original.width*original.height>32000000)throw Error('الملف ليس صورة صالحة، أو أبعاده كبيرة جدًا.');
       objectUrl=URL.createObjectURL(file);
-      const picture=await decodePicture(objectUrl);if(!current())return;
+      const picture=await decodePicture(objectUrl);
       const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');if(!ctx)throw Error('تعذر تجهيز الصورة في هذا المتصفح.');
       let prepared=null,edge=1600;
       for(let attempt=0;attempt<5&&!prepared;attempt++,edge=Math.round(edge*.8)){
@@ -256,15 +252,26 @@
         canvas.width=Math.max(1,Math.round(picture.naturalWidth*scale));canvas.height=Math.max(1,Math.round(picture.naturalHeight*scale));
         ctx.drawImage(picture,0,0,canvas.width,canvas.height);
         const candidates=[canvas.toDataURL('image/png'),canvas.toDataURL('image/webp',.86),canvas.toDataURL('image/webp',.68)];
-        for(const dataUrl of candidates){const mime=dataUrl.slice(5,dataUrl.indexOf(';')),image={dataUrl,mime,width:canvas.width,height:canvas.height,alt:question.image?question.image.alt:''};if(!validateImage(image,true).errors.length){prepared=image;break;}}
+        for(const dataUrl of candidates){const mime=dataUrl.slice(5,dataUrl.indexOf(';')),image={dataUrl,mime,width:canvas.width,height:canvas.height,alt:''};if(!validateImage(image,true).errors.length){prepared=image;break;}}
       }
       if(!prepared)throw Error('تعذر تقليل حجم الصورة. جرّب صورة أصغر.');
+      return prepared;
+    }finally{if(objectUrl)URL.revokeObjectURL(objectUrl);}
+  }
+  async function uploadImage(file,input) {
+    const question=active(),currentHost=host,generation=draftGeneration,ticket=++imageTicket;
+    if(!file||!question)return;
+    const current=()=>ticket===imageTicket&&generation===draftGeneration&&host===currentHost&&active()===question&&host.contains(input);
+    try{
+      find('qb-image-status').textContent='جارٍ تجهيز الصورة…';
+      const prepared=await prepareImage(file);
       if(!current())return;
+      prepared.alt=question.image?question.image.alt:'';
       const prospective={...draft,questions:draft.questions.map(q=>q===question?{...q,image:prepared}:q)};
       if(utf8Size(JSON.stringify(prospective,null,2))>MAX_JSON_BYTES)throw Error('حجم المسودة سيزيد على ١٢ ميغابايت. احذف صورة أخرى أو استخدم صورة أصغر.');
       question.image=prepared;clearErrors();editor();announce('أُضيفت الصورة إلى السؤال. اكتب وصفها البديل ثم راجع المعاينة.');find('qb-image-alt').focus();
     }catch(error){if(current()){find('qb-image-status').textContent=error.message;announce(error.message);}}
-    finally{input.value='';if(objectUrl)URL.revokeObjectURL(objectUrl);}
+    finally{input.value='';}
   }
   function addQuestion(type) {
     if(!Object.hasOwn(TYPES,type))return;
@@ -408,5 +415,5 @@
     },{signal});
     find('qb-preview-dialog').addEventListener('close',()=>{const control=find('qb-preview');if(control&&host.isConnected)control.focus();},{signal});
   }
-  window.QUIZ_BUILDER={mount,validateDraft};
+  window.QUIZ_BUILDER={mount,validateDraft,images:{prepare:prepareImage,validate:validateImage}};
 })();

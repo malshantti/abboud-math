@@ -24,7 +24,8 @@
     search: '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/>',
     sort: '<path d="M12 4v16M7 9l5-5 5 5"/>'
   };
-  const titles = {overview:'نظرة عامة',students:'الطلاب',curriculum:'المنهاج والدروس','quiz-builder':'مصمم الاختبارات',integration:'الربط بالخادم'};
+  const titles = {overview:'نظرة عامة',students:'الطلاب',curriculum:'المنهاج والدروس','quiz-builder':'مصمم الاختبارات','content-builder':'منشئ المحتوى',integration:'الربط بالخادم'};
+  let activeContentBinding=null;
   const subjects = {math:'الرياضيات',arabic:'اللغة العربية',english:'اللغة الإنجليزية',science:'العلوم والحياة'};
   const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const n = value => String(value).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
@@ -43,7 +44,7 @@
     const done=data.students.reduce((a,s)=>a+totals(s).completed,0);
     const all=data.students.reduce((a,s)=>a+totals(s).total,0);
     const bars=Object.entries(subjects).map(([id,name])=>{const rows=data.students.flatMap(s=>s.subjects.filter(x=>x.id===id));const completed=rows.reduce((a,x)=>a+x.completed,0),total=rows.reduce((a,x)=>a+x.total,0);const pct=progress(completed,total);return `<div class="bar-group"><span class="bar-value">${n(pct)}٪</span><div class="bar-track"><span class="bar-fill ${id}" style="height:${pct}%"></span></div><span class="bar-label">${esc(name)}</span><small>${n(completed)} من ${n(total)}</small></div>`;}).join('');
-    content.innerHTML=heading('نزرع الفهم، خطوة خطوة','أهلًا محمد، كيف ينمو البستان؟','نظرة هادئة على التقدّم، ومساحة أكبر لمساندة كل طالب.',`<button class="button secondary" data-action="export">${icon('download')}تصدير نموذج التقرير</button>`)+
+    content.innerHTML=heading('نزرع الفهم، خطوة خطوة','أهلًا محمد، كيف ينمو البستان؟','نظرة هادئة على التقدّم، ومساحة أكبر لمساندة كل طالب.',`<button class="button secondary" data-action="export-report">${icon('download')}تصدير نموذج التقرير</button>`)+
       `<div class="stats-grid">${stat('الطلاب في المعاينة',data.students.length,'ملفات تجريبية','students','green')}${stat('المواد المتاحة',data.courses.length,'للصفين السادس والثامن','book','blue')}${stat('الدروس المكتملة',done,`من ${n(all)} درسًا في بيانات العرض`,'check','gold')}${stat('خطوات مقترحة',Math.min(2,data.students.length),'خطوة توضيحية لكل طالب','target','purple')}</div>`+
       `<div class="overview-grid"><div><section class="panel"><div class="panel-head"><div><span class="eyebrow">قريبون من كل خطوة</span><h2>طلاب البستان</h2></div><a class="text-link" href="#students">عرض الطلاب ${icon('arrow')}</a></div><div class="student-list">${data.students.slice(0,5).map(studentRow).join('')}</div></section><section class="panel chart-panel"><div class="panel-head"><div><span class="eyebrow">الصورة الأوسع</span><h2>إنجاز الدروس حسب المادة</h2></div><span class="chip">مثال توضيحي</span></div><p class="chart-description">نسبة الدروس المكتملة من الدروس المحددة في نموذج البيانات؛ لا تعبّر عن إتقان موحّد بين المواد.</p><div class="bars">${bars}</div><details class="chart-table"><summary>قراءة الأرقام كنص</summary><ul>${Object.entries(subjects).map(([id,name])=>{const rows=data.students.flatMap(s=>s.subjects.filter(x=>x.id===id));return `<li>${name}: ${n(rows.reduce((a,x)=>a+x.completed,0))} من ${n(rows.reduce((a,x)=>a+x.total,0))} درسًا.</li>`;}).join('')}</ul></details></section></div><div class="aside-stack"><section class="hero-tip"><div><span class="eyebrow">للتعلّم وقته</span><h2>الفهم قبل السرعة.</h2><p>الخطوة الصغيرة المناسبة أفضل من درس جديد قبل استيعاب الأساس.</p><a href="#students" class="text-link">نختار الخطوة التالية ${icon('arrow')}</a></div><img src="../assets/img/av-read.webp" width="112" height="112" alt="شخصية زيتون تقرأ"></section><section class="panel"><div class="panel-head"><h2>نبدأ من هنا</h2>${icon('leaf')}</div><p class="muted">اقتراحات من بيانات المعاينة</p><div class="focus-list">${data.students.slice(0,2).map(s=>`<button class="focus-item" data-student="${esc(s.id)}"><span class="subject-icon math">${icon('target')}</span><span><b>${esc(s.name)}</b><small>${esc(s.subjects[0].focus)}</small></span>${icon('arrow')}</button>`).join('')}</div></section><section class="notice"><b>نافذة على التعلّم</b><p>هذا العرض يساعد على تخطيط الواجهة. سجل التقدّم الفعلي والمزامنة يحتاجان إلى ربط الخادم.</p><a href="#integration" class="text-link">تفاصيل الربط ${icon('arrow')}</a></section></div></div>`;
   }
@@ -79,7 +80,7 @@
     ['name','grade'].forEach(key=>{document.getElementById('student-'+key+'-heading').setAttribute('aria-sort',studentList.sort===key?(studentList.direction===1?'ascending':'descending'):'none');document.getElementById('student-'+key+'-sort-mark').innerHTML=studentList.sort===key?icon('sort'):'';});
   }
   function curriculum() {
-    content.innerHTML=heading('المحتوى في مكان واحد','نراجع المنهاج بعين المعلّم','وصول مباشر إلى المواد الحالية. فتح المادة لا يعني اعتماد محتواها أو اكتمال تدقيقها.')+`<div class="toolbar"><label class="field"><span>الصف</span><select class="select" id="course-grade"><option value="all">جميع الصفوف</option><option value="8">الصف الثامن</option><option value="6">الصف السادس</option></select></label><label class="field"><span>المادة</span><select class="select" id="course-subject"><option value="all">جميع المواد</option>${Object.entries(subjects).map(([id,name])=>`<option value="${id}">${name}</option>`).join('')}</select></label><span class="muted" id="course-count" role="status"></span></div><div class="curriculum-grid" id="course-results"></div><p class="notice">أزرار الفتح تذهب إلى الموقع الحالي، وقد يطلب اختيار ملف طالب. إدارة الدروس وحفظ تعديلات المحتوى تُضاف عند ربط Laravel.</p>`;
+    content.innerHTML=heading('المحتوى في مكان واحد','نراجع المنهاج بعين المعلّم','وصول مباشر إلى المواد الحالية. فتح المادة لا يعني اعتماد محتواها أو اكتمال تدقيقها.','<a class="button" href="#content-builder">إضافة محتوى</a>')+`<div class="toolbar"><label class="field"><span>الصف</span><select class="select" id="course-grade"><option value="all">جميع الصفوف</option><option value="8">الصف الثامن</option><option value="6">الصف السادس</option></select></label><label class="field"><span>المادة</span><select class="select" id="course-subject"><option value="all">جميع المواد</option>${Object.entries(subjects).map(([id,name])=>`<option value="${id}">${name}</option>`).join('')}</select></label><span class="muted" id="course-count" role="status"></span></div><div class="curriculum-grid" id="course-results"></div><p class="notice">أزرار الفتح تذهب إلى الموقع الحالي، وقد يطلب اختيار ملف طالب. يمكن تأليف مسودات في منشئ المحتوى؛ حفظها ونشرها للطلاب يتطلب ربط Laravel.</p>`;
     ['course-grade','course-subject'].forEach(id=>document.getElementById(id).addEventListener('change',filterCourses));filterCourses();
   }
   function filterCourses() {
@@ -109,17 +110,18 @@
     else content.innerHTML='<p class="notice" role="alert">تعذر تحميل مصمم الاختبارات. أعد تحميل الصفحة للتحقق من ملفات الواجهة.</p>';
   }
   function render() {
+    activeContentBinding?.destroy();activeContentBinding=null;
     let view=location.hash.slice(1)||'overview';if(!titles[view])view='overview';
     document.querySelectorAll('[data-view]').forEach(el=>{if(el.dataset.view===view)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
     document.getElementById('breadcrumb-current').textContent=titles[view];document.title=titles[view]+' | بستان التعلّم';
-    ({overview,students,curriculum,'quiz-builder':quizBuilder,integration})[view]();closeMenu();
+    ({overview,students,curriculum,'quiz-builder':quizBuilder,'content-builder':()=>{activeContentBinding=window.CONTENT_BUILDER.mount(content);},integration})[view]();closeMenu();
   }
   document.getElementById('menu-toggle').addEventListener('click',()=>{const open=!document.body.classList.contains('menu-open');document.body.classList.toggle('menu-open',open);document.getElementById('main-content').inert=open;document.getElementById('menu-toggle').setAttribute('aria-expanded',String(open));document.getElementById('menu-backdrop').hidden=!open;if(open)document.querySelector('.nav-item').focus();});
   document.getElementById('menu-backdrop').addEventListener('click',closeMenu);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('menu-open')){closeMenu();document.getElementById('menu-toggle').focus();}});
   window.matchMedia('(min-width:821px)').addEventListener('change',e=>{if(e.matches)closeMenu();});
   document.getElementById('close-dialog').addEventListener('click',()=>document.getElementById('student-dialog').close());
-  content.addEventListener('click',e=>{const student=e.target.closest('[data-student]');if(student)detail(student.dataset.student);if(e.target.closest('[data-action="export"]'))exportReport();});
+  content.addEventListener('click',e=>{const student=e.target.closest('[data-student]');if(student)detail(student.dataset.student);if(e.target.closest('[data-action="export-report"]'))exportReport();});
   function connection() {document.getElementById('connection-status').textContent=navigator.onLine?'متصل بالشبكة':'معاينة دون اتصال';}
   window.addEventListener('online',connection);window.addEventListener('offline',connection);window.addEventListener('hashchange',()=>{render();document.getElementById('main-content').focus();});
   icons(document);connection();
