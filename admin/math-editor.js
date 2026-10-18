@@ -12,15 +12,15 @@
   const latin = value => String(value).replace(/[٠-٩۰-۹]/g, ch => String(ch.charCodeAt(0)-(ch >= '۰' ? 0x6f0 : 0x660)));
   const esc = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   // Keep visual direction/joining controls out of the saved mathematical text.
-  const plain = value => String(value).replace(/[\u061c\u200c-\u200f\u202a-\u202e\u2066-\u2069]/g,'');
+  const plain = value => String(value).replace(/[\u061c\u2009\u200c-\u200f\u202a-\u202e\u2066-\u2069]/g,'');
   const atoms = value => plain(value).match(/[0-9٠-٩۰-۹]+(?:[٫.][0-9٠-٩۰-۹]+)?|[ء-ي][ـ\u064b-\u065f\u0670]*|[a-zA-Z]+|\s+|./gu) || [];
-  const inputValue = value => atoms(value).join('\u200c\u200e');
+  const inputValue = value => atoms(value).map((part,index,parts)=>(index?'\u200c\u200e'+(!/\s$/u.test(parts[index-1])&&!/^\s/u.test(part)?'\u2009':''):'')+part).join('');
   function caretAt(value, rawOffset) {
     let count=0;
     for(let i=0;i<value.length;i++){if(plain(value[i]))count++;if(count>=rawOffset)return rawOffset?i+1:0;}
     return value.length;
   }
-  const inlineMath = value => atoms(value).map(part=>'<bdi class="me-atom" dir="'+(/^[ء-ي]/u.test(part)?'rtl':'ltr')+'">'+esc(part)+'</bdi>').join('');
+  const inlineMath = value => atoms(value).map(part=>'<bdi class="me-atom'+(/^\s+$/u.test(part)?' me-space':'')+'" dir="'+(/^[ء-ي]/u.test(part)?'rtl':'ltr')+'">'+esc(part)+'</bdi>').join('');
   const zero = value => {
     const number = latin(value).trim().replace(/[−–]/g,'-').replace(/٬/g,'').replace(/[٫,]/g,'.');
     return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(number) && Number(number) === 0;
@@ -93,7 +93,7 @@
       const token = current();focusedField = null;
       if (!token) {fieldBox().innerHTML='';if(focus)container.querySelector('[data-me-add]').focus();return;}
       fieldBox().innerHTML = '<div class="me-fields"><div class="me-field-heading"><strong>'+TYPES[token.kind]+' — الجزء '+arabic(selected+1)+'</strong><div class="me-part-actions"><button type="button" class="button secondary small" data-me-move="-1"'+(selected===0?' disabled':'')+'>السابق</button><button type="button" class="button secondary small" data-me-move="1"'+(selected===state.tokens.length-1?' disabled':'')+'>التالي</button><button type="button" class="button secondary small me-remove" data-me-remove>حذف الجزء</button></div></div><div class="me-field-grid">'+FIELDS[token.kind].map(([key,label])=>'<label class="me-field" for="'+prefix+'-'+key+'"><span>'+label+'</span><input id="'+prefix+'-'+key+'" data-me-field="'+key+'" value="'+esc(inputValue(token[key] || ''))+'" maxlength="'+(token.kind==='text'?TEXT_LIMIT:FIELD_LIMIT)+'" autocomplete="off" spellcheck="false" dir="ltr"></label>').join('')+'</div></div>';
-      fieldBox().querySelectorAll('input').forEach(input=>{input.maxLength=(token.kind==='text'?TEXT_LIMIT:FIELD_LIMIT)*3;});
+      fieldBox().querySelectorAll('input').forEach(input=>{input.maxLength=(token.kind==='text'?TEXT_LIMIT:FIELD_LIMIT)*4;});
       if (focus) {const first=fieldBox().querySelector('input');if(first) first.focus();}
     }
     function preview() {
