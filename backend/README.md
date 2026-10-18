@@ -4,26 +4,39 @@
 
 ## التشغيل المحلي
 
-المتطلبات: PHP ٨٫٢ أو أحدث وComposer، مع امتدادات Laravel وpdo_sqlite للتجربة المحلية. استُخدم Laravel ١٢ ليتوافق مع PHP ٨٫٢ المتاح على الجهاز. راجع [سياسة الإصدارات الرسمية](https://laravel.com/docs/12.x/releases) عند اختيار إصدار خادم الإنتاج؛ Laravel ١٣ يحتاج PHP ٨٫٣ على الأقل.
+المتطلبات: PHP ٨٫٢ أو أحدث وComposer وMySQL، مع امتدادات Laravel وpdo_mysql، وpdo_sqlite للاختبارات في الذاكرة. استُخدم Laravel ١٢ ليتوافق مع PHP ٨٫٢ المتاح على الجهاز. راجع [سياسة الإصدارات الرسمية](https://laravel.com/docs/12.x/releases) عند اختيار إصدار خادم الإنتاج؛ Laravel ١٣ يحتاج PHP ٨٫٣ على الأقل.
 
 من داخل backend:
 
 ```powershell
 composer install
-Copy-Item .env.example .env
-php artisan key:generate
-New-Item -ItemType File database/database.sqlite
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+if (Select-String -Path .env -Pattern '^APP_KEY=\s*$' -Quiet) { php artisan key:generate }
+```
+
+شغّل MySQL من Wamp أو من خادم التطوير، واضبط DB_HOST وDB_PORT وDB_DATABASE وDB_USERNAME وDB_PASSWORD داخل .env فقط. الإعداد الافتراضي يشير إلى قاعدة تطوير مستقلة باسم abboud_math_backend على 127.0.0.1:3306. اسم root وكلمة المرور الفارغة في المثال يلائمان بعض تثبيتات Wamp المحلية؛ استخدم بيانات اتصالك الفعلية.
+
+أنشئ قاعدة التطوير باستخدام عميل MySQL أو phpMyAdmin؛ لا تستعمل قاعدة موجودة لطلاب أو مشروع آخر. مثال من عميل MySQL بعد الاتصال:
+
+```sql
+CREATE DATABASE IF NOT EXISTS abboud_math_backend
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+ثم من داخل backend:
+
+```powershell
 php artisan migrate
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-نفّذ نسخ البيئة وإنشاء قاعدة SQLite فقط في التثبيت الأول إذا لم يكونا موجودين. لا تستبدل .env أو قاعدة موجودة. هذه التهيئة المحلية أنشأتهما مسبقًا؛ يكفي أمر serve للتشغيل الحالي. افتح http://127.0.0.1:8000 . لا تحتاج صفحة التهيئة إلى npm أو Vite أو اتصال بخدمات خارجية. composer install يحتاج إنترنت مرة لتنزيل الحزم، وبعده يعمل الخادم محليًا دون اتصال.
+نفّذ توليد المفتاح فقط في التثبيت الأول عندما تكون APP_KEY فارغة؛ تغيير مفتاح موجود قد يبطل البيانات المشفّرة والجلسات. لا تستبدل .env أو قاعدة موجودة. في هذه النسخة المحلية أُنشئت البيئة والمفتاح مسبقًا؛ عند اكتمال إعداد قاعدة MySQL يكفي أمر serve للتشغيل اللاحق. في أي نسخة جديدة نفّذ خطوات التثبيت أعلاه. افتح http://127.0.0.1:8000 . يمكن استخدام composer dev لتشغيل خادم PHP نفسه؛ لا تحتاج صفحة التهيئة إلى npm أو Vite أو CDN. composer install يحتاج إنترنت مرة لتنزيل الحزم، وبعده يعمل الخادم محليًا دون اتصال بالإنترنت مع استمرار تشغيل MySQL المحلي.
 
-SQLite للتطوير فقط، ويمكن اختيار MySQL عبر إعدادات DB_* في .env وتنفيذ الترحيلات على قاعدة التطوير المختارة. لا توجد بيانات طلاب منسوخة ولا حساب افتراضي مزروع. لا تستعمل migrate:fresh على قاعدة فيها بيانات تريد الاحتفاظ بها.
+MySQL هو اتصال التطبيق للتطوير، بينما تستخدم الاختبارات SQLite في الذاكرة. لا توجد بيانات طلاب منسوخة ولا حساب افتراضي مزروع. لا تستعمل migrate:fresh على قاعدة فيها بيانات تريد الاحتفاظ بها.
 
 ## الاختبار
 
-``powershell
+```powershell
 php artisan test
 composer validate --strict
 composer audit
