@@ -5,6 +5,7 @@
   const content = document.getElementById('page-content');
   const paths = {
     grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+    quiz: '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="m7 9 2 2 3-4M14 9h3M8 15h9M8 18h6"/>',
     students: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 15a5 5 0 0 1 3 4v2"/>',
     book: '<path d="M12 6c-3-3-7-3-10-2v15c4-1 7-1 10 2 3-3 6-3 10-2V4c-3-1-7-1-10 2v15M5 8h3M16 8h3M5 12h3M16 12h3"/>',
     link: '<path d="m10 14 4-4M8 16l-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0M16 8l1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0"/>',
@@ -23,7 +24,7 @@
     search: '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/>',
     sort: '<path d="M12 4v16M7 9l5-5 5 5"/>'
   };
-  const titles = {overview:'نظرة عامة',students:'الطلاب',curriculum:'المنهاج والدروس',integration:'الربط بالخادم'};
+  const titles = {overview:'نظرة عامة',students:'الطلاب',curriculum:'المنهاج والدروس','quiz-builder':'مصمم الاختبارات',integration:'الربط بالخادم'};
   const subjects = {math:'الرياضيات',arabic:'اللغة العربية',english:'اللغة الإنجليزية',science:'العلوم والحياة'};
   const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const n = value => String(value).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
@@ -103,11 +104,15 @@
     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='bustan-demo-report.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('تم تصدير نموذج التقرير ببيانات تجريبية.');
   }
   function closeMenu() {const inside=document.getElementById('sidebar').contains(document.activeElement);document.body.classList.remove('menu-open');document.getElementById('main-content').inert=false;document.getElementById('menu-toggle').setAttribute('aria-expanded','false');document.getElementById('menu-backdrop').hidden=true;if(inside)document.getElementById('menu-toggle').focus();}
+  function quizBuilder() {
+    if(window.QUIZ_BUILDER)window.QUIZ_BUILDER.mount(content);
+    else content.innerHTML='<p class="notice" role="alert">تعذر تحميل مصمم الاختبارات. أعد تحميل الصفحة للتحقق من ملفات الواجهة.</p>';
+  }
   function render() {
     let view=location.hash.slice(1)||'overview';if(!titles[view])view='overview';
     document.querySelectorAll('[data-view]').forEach(el=>{if(el.dataset.view===view)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
     document.getElementById('breadcrumb-current').textContent=titles[view];document.title=titles[view]+' | بستان التعلّم';
-    ({overview,students,curriculum,integration})[view]();closeMenu();
+    ({overview,students,curriculum,'quiz-builder':quizBuilder,integration})[view]();closeMenu();
   }
   document.getElementById('menu-toggle').addEventListener('click',()=>{const open=!document.body.classList.contains('menu-open');document.body.classList.toggle('menu-open',open);document.getElementById('main-content').inert=open;document.getElementById('menu-toggle').setAttribute('aria-expanded',String(open));document.getElementById('menu-backdrop').hidden=!open;if(open)document.querySelector('.nav-item').focus();});
   document.getElementById('menu-backdrop').addEventListener('click',closeMenu);
