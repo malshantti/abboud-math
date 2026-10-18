@@ -11,6 +11,16 @@
   const arabic = value => String(value).replace(/[0-9۰-۹]/g, ch => '٠١٢٣٤٥٦٧٨٩'[ch >= '۰' ? ch.charCodeAt(0)-0x6f0 : Number(ch)]);
   const latin = value => String(value).replace(/[٠-٩۰-۹]/g, ch => String(ch.charCodeAt(0)-(ch >= '۰' ? 0x6f0 : 0x660)));
   const esc = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  // Keep visual direction/joining controls out of the saved mathematical text.
+  const plain = value => String(value).replace(/[\u061c\u200c-\u200f\u202a-\u202e\u2066-\u2069]/g,'');
+  const atoms = value => plain(value).match(/[0-9٠-٩۰-۹]+(?:[٫.][0-9٠-٩۰-۹]+)?|[ء-ي][ـ\u064b-\u065f\u0670]*|[a-zA-Z]+|\s+|./gu) || [];
+  const inputValue = value => atoms(value).join('\u200c\u200e');
+  function caretAt(value, rawOffset) {
+    let count=0;
+    for(let i=0;i<value.length;i++){if(plain(value[i]))count++;if(count>=rawOffset)return rawOffset?i+1:0;}
+    return value.length;
+  }
+  const inlineMath = value => atoms(value).map(part=>'<bdi class="me-atom" dir="'+(/^[ء-ي]/u.test(part)?'rtl':'ltr')+'">'+esc(part)+'</bdi>').join('');
   const zero = value => {
     const number = latin(value).trim().replace(/[−–]/g,'-').replace(/٬/g,'').replace(/[٫,]/g,'.');
     return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(number) && Number(number) === 0;
@@ -34,15 +44,15 @@
         const field = token[key], limit = token.kind === 'text' ? TEXT_LIMIT : FIELD_LIMIT;
         if (typeof field !== 'string' || field.length > limit) {errors.push(prefix+label+' يجب أن يكون نصًا لا يتجاوز '+arabic(limit)+' حرفًا.');continue;}
         if (!allowIncomplete && !optional && !field.trim()) errors.push(prefix+'أكمل حقل '+label+'.');
-        row[key] = arabic(field);
+        row[key] = arabic(plain(field));
       }
-      if (token.kind === 'fraction' && typeof token.denominator === 'string' && zero(token.denominator)) errors.push(prefix+'لا يجوز أن يكون المقام صفرًا.');
+      if (token.kind === 'fraction' && typeof token.denominator === 'string' && zero(plain(token.denominator))) errors.push(prefix+'لا يجوز أن يكون المقام صفرًا.');
       tokens.push(row);
     });
     return {ok:errors.length===0,errors,value:errors.length?null:{version:1,tokens}};
   }
 
-  const visible = value => value && value.trim() ? esc(value) : '<span class="me-placeholder">□</span>';
+  const visible = value => value && value.trim() ? inlineMath(value) : '<span class="me-placeholder">□</span>';
   function describe(token) {
     if (token.kind === 'text') return token.value || 'نص غير مكتمل';
     if (token.kind === 'fraction') return (token.numerator || 'بسط غير مكتمل')+' على '+(token.denominator || 'مقام غير مكتمل');
@@ -52,7 +62,7 @@
   function tokenHTML(token) {
     if (token.kind === 'text') return '<span class="me-text">'+visible(token.value)+'</span>';
     if (token.kind === 'fraction') return '<span class="me-fraction"><span class="me-numerator">'+visible(token.numerator)+'</span><span class="me-denominator">'+visible(token.denominator)+'</span></span>';
-    if (token.kind === 'root') return '<span class="me-root">'+(token.index ? '<sup class="me-root-index">'+esc(token.index)+'</sup>' : '')+'<span class="me-radical">√</span><span class="me-radicand">'+visible(token.value)+'</span></span>';
+    if (token.kind === 'root') return '<span class="me-root">'+(token.index ? '<sup class="me-root-index">'+inlineMath(token.index)+'</sup>' : '')+'<span class="me-radical">√</span><span class="me-radicand">'+visible(token.value)+'</span></span>';
     return '<span class="me-power"><span>'+visible(token.base)+'</span><sup>'+visible(token.exponent)+'</sup></span>';
   }
   function render(value) {
@@ -82,7 +92,8 @@
     function fields(focus = false) {
       const token = current();focusedField = null;
       if (!token) {fieldBox().innerHTML='';if(focus)container.querySelector('[data-me-add]').focus();return;}
-      fieldBox().innerHTML = '<div class="me-fields"><div class="me-field-heading"><strong>'+TYPES[token.kind]+' — الجزء '+arabic(selected+1)+'</strong><div class="me-part-actions"><button type="button" class="button secondary small" data-me-move="-1"'+(selected===0?' disabled':'')+'>السابق</button><button type="button" class="button secondary small" data-me-move="1"'+(selected===state.tokens.length-1?' disabled':'')+'>التالي</button><button type="button" class="button secondary small me-remove" data-me-remove>حذف الجزء</button></div></div><div class="me-field-grid">'+FIELDS[token.kind].map(([key,label])=>'<label class="me-field" for="'+prefix+'-'+key+'"><span>'+label+'</span><input id="'+prefix+'-'+key+'" data-me-field="'+key+'" value="'+esc(token[key] || '')+'" maxlength="'+(token.kind==='text'?TEXT_LIMIT:FIELD_LIMIT)+'" autocomplete="off" spellcheck="false" dir="ltr"></label>').join('')+'</div></div>';
+      fieldBox().innerHTML = '<div class="me-fields"><div class="me-field-heading"><strong>'+TYPES[token.kind]+' — الجزء '+arabic(selected+1)+'</strong><div class="me-part-actions"><button type="button" class="button secondary small" data-me-move="-1"'+(selected===0?' disabled':'')+'>السابق</button><button type="button" class="button secondary small" data-me-move="1"'+(selected===state.tokens.length-1?' disabled':'')+'>التالي</button><button type="button" class="button secondary small me-remove" data-me-remove>حذف الجزء</button></div></div><div class="me-field-grid">'+FIELDS[token.kind].map(([key,label])=>'<label class="me-field" for="'+prefix+'-'+key+'"><span>'+label+'</span><input id="'+prefix+'-'+key+'" data-me-field="'+key+'" value="'+esc(inputValue(token[key] || ''))+'" maxlength="'+(token.kind==='text'?TEXT_LIMIT:FIELD_LIMIT)+'" autocomplete="off" spellcheck="false" dir="ltr"></label>').join('')+'</div></div>';
+      fieldBox().querySelectorAll('input').forEach(input=>{input.maxLength=(token.kind==='text'?TEXT_LIMIT:FIELD_LIMIT)*3;});
       if (focus) {const first=fieldBox().querySelector('input');if(first) first.focus();}
     }
     function preview() {
@@ -100,17 +111,41 @@
       if (!current()) {if(state.tokens.length>=MAX_TOKENS)return;state.tokens.push({kind:'text',value:''});selected=state.tokens.length-1;update();}
       const input = focusedField && fieldBox().querySelector('[data-me-field="'+focusedField+'"]') || fieldBox().querySelector('input');
       if (!input) return;
-      const start=input.selectionStart===null?input.value.length:input.selectionStart,end=input.selectionEnd===null?start:input.selectionEnd;
-      const next=input.value.slice(0,start)+symbol+input.value.slice(end);
-      if(next.length>input.maxLength)return;
-      input.value=next;current()[input.dataset.meField]=next;input.focus();input.setSelectionRange(start+symbol.length,start+symbol.length);list();preview();notify();
+      const start=plain(input.value.slice(0,input.selectionStart===null?input.value.length:input.selectionStart)).length,end=plain(input.value.slice(0,input.selectionEnd===null?input.value.length:input.selectionEnd)).length;
+      const raw=plain(input.value),next=raw.slice(0,start)+symbol+raw.slice(end);
+      if(next.length>(current().kind==='text'?TEXT_LIMIT:FIELD_LIMIT))return;
+      input.focus();commitInput(input,next,start+symbol.length);
+    }
+    function commitInput(input,value,start,end=start) {
+      const next=arabic(plain(value)).slice(0,current().kind==='text'?TEXT_LIMIT:FIELD_LIMIT);
+      input.value=inputValue(next);
+      input.setSelectionRange(caretAt(input.value,Math.min(start,next.length)),caretAt(input.value,Math.min(end,next.length)));
+      current()[input.dataset.meField]=next;list();preview();notify();
     }
     container.addEventListener('focusin',event=>{if(event.target.matches('[data-me-field]')) focusedField=event.target.dataset.meField;},{signal});
     container.addEventListener('input',event=>{
       const input=event.target;if(!input.matches('[data-me-field]')||!current())return;
-      const start=input.selectionStart,end=input.selectionEnd,next=arabic(input.value);
-      input.value=next;if(start!==null)input.setSelectionRange(start,end);
-      current()[input.dataset.meField]=next;list();preview();notify();
+      const start=plain(input.value.slice(0,input.selectionStart)).length,end=plain(input.value.slice(0,input.selectionEnd)).length;
+      commitInput(input,input.value,start,end);
+    },{signal});
+    container.addEventListener('keydown',event=>{
+      const input=event.target;if(!input.matches('[data-me-field]')||!current()||event.ctrlKey||event.metaKey||event.altKey)return;
+      if(event.key==='Backspace'||event.key==='Delete'){
+        const raw=plain(input.value);let start=plain(input.value.slice(0,input.selectionStart)).length,end=plain(input.value.slice(0,input.selectionEnd)).length;
+        if(start===end){if(event.key==='Backspace'&&start)start-=Array.from(raw.slice(0,start)).pop().length;else if(event.key==='Delete'&&end<raw.length)end+=Array.from(raw.slice(end))[0].length;}
+        event.preventDefault();commitInput(input,raw.slice(0,start)+raw.slice(end),start);
+      }else if((event.key==='ArrowLeft'||event.key==='ArrowRight')&&!event.shiftKey&&input.selectionStart===input.selectionEnd){
+        const step=event.key==='ArrowLeft'?-1:1;let pos=input.selectionStart+step;
+        while(pos>0&&pos<input.value.length&&!plain(input.value[step<0?pos:pos-1]))pos+=step;
+        event.preventDefault();input.setSelectionRange(Math.max(0,Math.min(input.value.length,pos)),Math.max(0,Math.min(input.value.length,pos)));
+      }
+    },{signal});
+    for(const type of ['copy','cut'])container.addEventListener(type,event=>{
+      const input=event.target;if(!input.matches('[data-me-field]')||!event.clipboardData)return;
+      const start=plain(input.value.slice(0,input.selectionStart)).length,end=plain(input.value.slice(0,input.selectionEnd)).length,raw=plain(input.value);
+      if(start===end)return;
+      event.clipboardData.setData('text/plain',raw.slice(start,end));event.preventDefault();
+      if(type==='cut'&&current())commitInput(input,raw.slice(0,start)+raw.slice(end),start);
     },{signal});
     container.addEventListener('click',event=>{
       const button=event.target.closest('button');if(!button||!container.contains(button)||button.disabled)return;

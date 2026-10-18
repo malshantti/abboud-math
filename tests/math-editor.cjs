@@ -45,6 +45,11 @@ const extras=ast([{kind:'text',value:'س',onclick:'secret',privateStudent:'secre
 const payload='<img src=x onerror=alert()>';const unsafe=ast([{kind:'text',value:payload},{kind:'fraction',numerator:payload,denominator:'س'},{kind:'root',value:payload,index:payload},{kind:'power',base:payload,exponent:payload}]);
 const safeHTML=render(unsafe);check(!safeHTML.includes('<img src=x'),'Imported text cannot create image elements');check(safeHTML.includes('&lt;img'),'Text is escaped in rendered notation');check(/role="math"/.test(safeHTML)&&/aria-label=/.test(safeHTML),'Rendered notation has an accessible text description');
 const markup=render(expression);for(const kind of ['fraction','numerator','denominator','root','radicand','power'])check(markup.includes('me-'+kind),'Notation renders '+kind+' structurally');check(!/[0-9]/.test(markup.replace(/<[^>]*>/g,''))&&!/[0-9]/.test(markup.match(/aria-label="([^"]*)"/)[1]),'Rendered content and its accessible label use Arabic Indic numerals');
+const separated=render(ast([{kind:'text',value:'س−ص+جـ+12'}]));
+const displayedAtoms=Array.from(separated.matchAll(/<bdi[^>]*>([^<]*)<\/bdi>/g),match=>match[1]);
+equal(displayedAtoms,['س','−','ص','+','جـ','+','١٢'],'Arabic variables cannot join or reverse operand order; جـ and multi-digit numbers stay intact');
+const plainData=accepted(ast([{kind:'text',value:'س\u200c\u200e+\u200c\u200eص'}]),'Visual input markers are not stored');
+equal(plainData.tokens[0].value,'س+ص','Saved text contains the mathematical characters without visual joining/direction controls');
 check(render(ast([{kind:'fraction',numerator:'١',denominator:'٠'}])).includes('me-invalid'),'Invalid fractions cannot render as apparently valid notation');
 const css=fs.readFileSync(path.join(root,'admin/math-editor.css'),'utf8');
 check(/\.me-math-visual\s*\{[^}]*white-space\s*:\s*nowrap/.test(css),'A formula stays on one visual line');check(/\.me-fraction\s*\{[^}]*flex-direction\s*:\s*column/.test(css),'Fraction numerator and denominator stack vertically');check(/\.me-numerator\s*\{[^}]*border-bottom/.test(css),'A visible fraction bar separates numerator and denominator');check(!/@import\b|https?:\/\//.test(css),'The math editor has no CDN dependency');

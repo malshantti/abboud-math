@@ -37,7 +37,9 @@
 .me-math{display:inline-block;max-width:100%;vertical-align:middle;direction:ltr;unicode-bidi:isolate;font:600 20px/1.6 Cairo,Tahoma,sans-serif;overflow-x:auto;scrollbar-width:thin;padding:6px 3px}
 .me-math-visual{display:inline-flex;align-items:center;gap:.18em;direction:ltr;unicode-bidi:isolate;white-space:nowrap;vertical-align:middle}
 .me-math-visual>span{flex-shrink:0}
-.me-text{white-space:pre;direction:ltr;unicode-bidi:isolate}
+.me-text,.me-numerator,.me-denominator,.me-radicand,.me-power>span,.me-power>sup{white-space:pre;direction:ltr;unicode-bidi:isolate}
+.me-atom{display:inline-block;unicode-bidi:isolate;white-space:pre}
+.me-preview-scroll{direction:ltr;text-align:left}
 .me-fraction{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;text-align:center;line-height:1.2;font-size:.92em;margin:0 .12em;direction:ltr;unicode-bidi:isolate}
 .me-numerator{border-bottom:1.6px solid currentColor;padding:0 .2em .08em}
 .me-denominator{padding:.08em .2em 0}
