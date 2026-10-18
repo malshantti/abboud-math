@@ -39,7 +39,7 @@
 .me-math-visual>span{flex-shrink:0}
 .me-text,.me-numerator,.me-denominator,.me-radicand,.me-power>span,.me-power>sup{white-space:pre;direction:ltr;unicode-bidi:isolate}
 .me-atom{display:inline-block;unicode-bidi:isolate;white-space:pre}
-.me-atom:not(.me-space)+.me-atom:not(.me-space){margin-inline-start:.12em}
+.me-atom:not(.me-space)+.me-atom:not(.me-space){margin-left:.12em}
 .me-preview-scroll{direction:ltr;text-align:left}
 .me-fraction{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;text-align:center;line-height:1.2;font-size:.92em;margin:0 .12em;direction:ltr;unicode-bidi:isolate}
 .me-numerator{border-bottom:1.6px solid currentColor;padding:0 .2em .08em}
