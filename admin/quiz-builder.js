@@ -86,15 +86,15 @@
     if(!boundedInt(value.width,1,1600)||!boundedInt(value.height,1,1600))errors.push('أبعاد صورة السؤال من ١ إلى ١٦٠٠ بكسل.');
     if(!boundedText(value.alt,allowIncomplete?0:1,300))errors.push('اكتب وصفًا بديلًا واضحًا للصورة لا يتجاوز ٣٠٠ حرف.');
     let size=null;
-    if(typeof value.dataUrl!=='string'||value.dataUrl.length>Math.ceil(MAX_IMAGE_BYTES/3)*4+40)errors.push('صورة السؤال غير صالحة أو تتجاوز ٥٠٠ كيبيبايت.');
+    if(typeof value.dataUrl!=='string'||value.dataUrl.length>Math.ceil(MAX_IMAGE_BYTES/3)*4+40)errors.push('صورة السؤال غير صالحة أو تتجاوز ٥٠٠ كيلوبايت.');
     else{
       const match=/^data:(image\/png|image\/jpeg|image\/webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(value.dataUrl);
-      if(!match||match[1]!==value.mime||match[2].length%4!==0)errors.push('لا تُقبل روابط الصور أو SVG؛ اختر صورة raster مضمّنة بصيغة معتمدة.');
+      if(!match||match[1]!==value.mime||match[2].length%4!==0)errors.push('لا تُقبل روابط الصور أو ملفات SVG. اختر صورة بصيغة PNG أو JPEG أو WebP.');
       else{
         const bytes=decodeBase64(match[2]);
-        if(bytes.length>MAX_IMAGE_BYTES)errors.push('صورة السؤال تتجاوز ٥٠٠ كيبيبايت.');
+        if(bytes.length>MAX_IMAGE_BYTES)errors.push('صورة السؤال تتجاوز ٥٠٠ كيلوبايت.');
         else size=rasterSize(bytes,value.mime);
-        if(!size||size.width!==value.width||size.height!==value.height)errors.push('توقيع الصورة أو أبعادها لا يطابق البيانات المعلنة.');
+        if(!size||size.width!==value.width||size.height!==value.height)errors.push('بيانات الصورة لا تطابق الملف المرفق.');
       }
     }
     return {errors,image:errors.length?null:{dataUrl:value.dataUrl,mime:value.mime,width:value.width,height:value.height,alt:value.alt}};
@@ -165,7 +165,7 @@
       clean.push(row);
     });
     const cleanDraft={version:VERSION,metadata:{title:m.title,grade:m.grade,subject:m.subject,durationMinutes:m.durationMinutes},questions:clean};
-    if(!errors.length){const encodedImages=clean.reduce((size,q)=>size+(q.image?q.image.dataUrl.length:0),0);if(encodedImages>MAX_JSON_BYTES||utf8Size(JSON.stringify(cleanDraft,null,2))>MAX_JSON_BYTES)errors.push('حجم المسودة مع الصور يتجاوز ١٢ ميبيبايت؛ قلّل عدد الصور أو حجمها.');}
+    if(!errors.length){const encodedImages=clean.reduce((size,q)=>size+(q.image?q.image.dataUrl.length:0),0);if(encodedImages>MAX_JSON_BYTES||utf8Size(JSON.stringify(cleanDraft,null,2))>MAX_JSON_BYTES)errors.push('حجم المسودة مع الصور يتجاوز ١٢ ميغابايت؛ قلّل عدد الصور أو حجمها.');}
     return {ok:errors.length===0,errors,draft:errors.length?null:cleanDraft};
   }
 
@@ -231,7 +231,7 @@
     }
   }
   function imageEditor(q) {
-    return `<section class="qb-image-section" aria-labelledby="qb-image-heading"><h3 id="qb-image-heading">صورة السؤال</h3><p class="qb-help">أرفق شكلًا أو رسمًا من جهازك. تظهر الصورة مع السؤال وتُحفظ داخل ملف المسودة.</p><input id="qb-image-file" type="file" accept="image/png,image/jpeg,image/webp" hidden aria-label="اختيار صورة السؤال"><div class="qb-image-actions"><button type="button" id="qb-image-add" class="button secondary small">${icon('upload')}${q.image?'استبدال الصورة':'إضافة صورة'}</button>${q.image?'<button type="button" id="qb-image-remove" class="button secondary small qb-danger">حذف الصورة</button>':''}</div>${q.image?`<figure class="qb-question-image"><img id="qb-image-preview" src="${esc(q.image.dataUrl)}" alt="${text(q.image.alt)}" width="${q.image.width}" height="${q.image.height}" decoding="async"></figure><label class="qb-field" for="qb-image-alt"><span>وصف بديل للصورة</span><textarea id="qb-image-alt" rows="2" maxlength="300" aria-describedby="qb-image-help">${text(q.image.alt)}</textarea></label><p class="qb-help" id="qb-image-help">صف الشكل دون كشف الإجابة. الوصف مطلوب لمعاينة الاختبار.</p>`:''}<p id="qb-image-status" class="qb-help" role="status">PNG أو JPEG أو WebP، حتى ٨ ميبيبايت قبل تجهيز الصورة.</p></section>`;
+    return `<section class="qb-image-section" aria-labelledby="qb-image-heading"><h3 id="qb-image-heading">صورة السؤال</h3><p class="qb-help">أرفق شكلًا أو رسمًا من جهازك. تظهر الصورة مع السؤال وتُحفظ داخل ملف المسودة.</p><input id="qb-image-file" type="file" accept="image/png,image/jpeg,image/webp" hidden aria-label="اختيار صورة السؤال"><div class="qb-image-actions"><button type="button" id="qb-image-add" class="button secondary small">${icon('upload')}${q.image?'استبدال الصورة':'إضافة صورة'}</button>${q.image?'<button type="button" id="qb-image-remove" class="button secondary small qb-danger">حذف الصورة</button>':''}</div>${q.image?`<figure class="qb-question-image"><img id="qb-image-preview" src="${esc(q.image.dataUrl)}" alt="${text(q.image.alt)}" width="${q.image.width}" height="${q.image.height}" decoding="async"></figure><label class="qb-field" for="qb-image-alt"><span>وصف بديل للصورة</span><textarea id="qb-image-alt" rows="2" maxlength="300" aria-describedby="qb-image-help">${text(q.image.alt)}</textarea></label><p class="qb-help" id="qb-image-help">صف الشكل دون كشف الإجابة. الوصف مطلوب لمعاينة الاختبار.</p>`:''}<p id="qb-image-status" class="qb-help" role="status">صورة بصيغة PNG أو JPEG أو WebP، بحجم لا يتجاوز ٨ ميغابايت.</p></section>`;
   }
   function decodePicture(source) {
     return new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('تعذرت قراءة الصورة. اختر ملف صورة صالحًا.'));image.src=source;});
@@ -242,7 +242,7 @@
     const current=()=>ticket===imageTicket&&generation===draftGeneration&&host===currentHost&&active()===question&&host.contains(input);
     let objectUrl;
     try{
-      if(!IMAGE_MIMES.includes(file.type)||file.size>MAX_UPLOAD_BYTES)throw Error('اختر صورة PNG أو JPEG أو WebP لا تتجاوز ٨ ميبيبايت.');
+      if(!IMAGE_MIMES.includes(file.type)||file.size>MAX_UPLOAD_BYTES)throw Error('اختر صورة PNG أو JPEG أو WebP لا تتجاوز ٨ ميغابايت.');
       find('qb-image-status').textContent='جارٍ تجهيز الصورة…';
       const bytes=new Uint8Array(await file.arrayBuffer());if(!current())return;
       const original=rasterSize(bytes,file.type);
@@ -258,10 +258,10 @@
         const candidates=[canvas.toDataURL('image/png'),canvas.toDataURL('image/webp',.86),canvas.toDataURL('image/webp',.68)];
         for(const dataUrl of candidates){const mime=dataUrl.slice(5,dataUrl.indexOf(';')),image={dataUrl,mime,width:canvas.width,height:canvas.height,alt:question.image?question.image.alt:''};if(!validateImage(image,true).errors.length){prepared=image;break;}}
       }
-      if(!prepared)throw Error('تعذر تخفيف الصورة إلى الحجم المناسب. جرّب صورة أصغر.');
+      if(!prepared)throw Error('تعذر تقليل حجم الصورة. جرّب صورة أصغر.');
       if(!current())return;
       const prospective={...draft,questions:draft.questions.map(q=>q===question?{...q,image:prepared}:q)};
-      if(utf8Size(JSON.stringify(prospective,null,2))>MAX_JSON_BYTES)throw Error('حجم المسودة سيزيد على ١٢ ميبيبايت. احذف صورة أخرى أو استخدم صورة أصغر.');
+      if(utf8Size(JSON.stringify(prospective,null,2))>MAX_JSON_BYTES)throw Error('حجم المسودة سيزيد على ١٢ ميغابايت. احذف صورة أخرى أو استخدم صورة أصغر.');
       question.image=prepared;clearErrors();editor();announce('أُضيفت الصورة إلى السؤال. اكتب وصفها البديل ثم راجع المعاينة.');find('qb-image-alt').focus();
     }catch(error){if(current()){find('qb-image-status').textContent=error.message;announce(error.message);}}
     finally{input.value='';if(objectUrl)URL.revokeObjectURL(objectUrl);}
@@ -329,7 +329,7 @@
   function exportDraft() {
     const value=checkedDraft(true);if(!value)return;
     const serialized=JSON.stringify(value,null,2);
-    if(utf8Size(serialized)>MAX_JSON_BYTES){showErrors(['حجم المسودة مع الصور يتجاوز ١٢ ميبيبايت؛ قلّل عدد الصور أو حجمها.']);return;}
+    if(utf8Size(serialized)>MAX_JSON_BYTES){showErrors(['حجم المسودة مع الصور يتجاوز ١٢ ميغابايت؛ قلّل عدد الصور أو حجمها.']);return;}
     const url=URL.createObjectURL(new Blob([serialized],{type:'application/json'}));
     const a=document.createElement('a');a.href=url;a.download='bustan-quiz-draft.json';a.hidden=true;host.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
     announce('جُهّز ملف المسودة للتنزيل. لم يُنشر اختبار ولم تُرسل بيانات إلى خادم.');
@@ -337,9 +337,9 @@
   async function importDraft(file,input) {
     if(!file)return;
     const ticket=++importSequence;
-    if(file.size>MAX_JSON_BYTES){input.value='';showErrors(['حجم الملف أكبر من الحد المسموح: ١٢ ميبيبايت.']);return;}
+    if(file.size>MAX_JSON_BYTES){input.value='';showErrors(['حجم الملف أكبر من الحد المسموح: ١٢ ميغابايت.']);return;}
     let value;
-    try{const source=await file.text();if(utf8Size(source)>MAX_JSON_BYTES)throw Error('size');value=JSON.parse(source);}catch(e){input.value='';showErrors(['تعذرت قراءة الملف. اختر ملف JSON صالحًا لا يتجاوز ١٢ ميبيبايت.']);return;}
+    try{const source=await file.text();if(utf8Size(source)>MAX_JSON_BYTES)throw Error('size');value=JSON.parse(source);}catch(e){input.value='';showErrors(['تعذرت قراءة الملف. اختر ملف JSON صالحًا لا يتجاوز ١٢ ميغابايت.']);return;}
     if(ticket!==importSequence||!host||!host.contains(input))return;
     input.value='';
     const result=validateDraft(value,{allowIncomplete:true});if(!result.ok){showErrors(result.errors);return;}
