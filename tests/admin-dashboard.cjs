@@ -295,7 +295,7 @@ function fixture() {
     const cachedPaths = [...new Set(f.files.map(file => path.relative(root, path.resolve(directory, file === './' ? 'index.html' : file)).replace(/\\/g, '/')))];
     const changed = git('diff', '--name-only', baseline, '--', 'admin', ...cachedPaths);
     const untracked = git('ls-files', '--others', '--exclude-standard', '--', 'admin', ...cachedPaths);
-    if (previous && (previous !== worker.trim() || changed || untracked)) {
+    if (previous && (previous.replace(/\r\n/g, '\n') !== worker.trim().replace(/\r\n/g, '\n') || changed || untracked)) {
       const match = previous.match(/\bconst\s+VERSION\s*=\s*(['"])([^'"\r\n]+)\1/);
       check(match, 'Existing baseline declares its cache version');
       check(match[2] !== f.version, 'Changed preview worker receives a different cache version');

@@ -17,16 +17,22 @@ window.CATALOG = {
     {id: 11, name: 'الصف الحادي عشر',   stage: 'المرحلة الثانوية'},
     {id: 12, name: 'الصف الثاني عشر',   stage: 'المرحلة الثانوية'}
   ],
+  gradeSubjects: {1: ['math','arabic','english','life']},
   subjects: [
     {id: 'math',    name: 'الرياضيات',            icon: 'math',    color: 'g'},
     {id: 'arabic',  name: 'اللغة العربية',         icon: 'arabic',  color: 'o'},
     {id: 'english', name: 'اللغة الإنجليزية',      icon: 'english', color: 'b'},
     {id: 'science', name: 'العلوم والحياة',        icon: 'science', color: 'p'},
+    {id: 'life', name: 'التربية الوطنية والحياتية', icon: 'life', color: 'p', grades: [1]},
     {id: 'islamic', name: 'التربية الإسلامية',     icon: 'islamic', color: 'y'},
     {id: 'social',  name: 'الدراسات الاجتماعية',   icon: 'social',  color: 'r'},
     {id: 'tech',    name: 'التكنولوجيا',           icon: 'tech',    color: 'b'}
   ],
   entries: [
+    {grade: 1, subject: 'math', status: 'active', path: 'g1/math/', title: 'الرياضيات للصف الأول', desc: 'نعدّ ونقارن ونجرّب بخطوات صغيرة ورسوم واضحة.'},
+    {grade: 1, subject: 'arabic', status: 'active', path: 'g1/arabic/', title: 'لغتنا الجميلة للصف الأول', desc: 'نكتشف الحروف ونميّزها بأنشطة بصرية قصيرة.'},
+    {grade: 1, subject: 'english', status: 'active', path: 'g1/english/', title: 'الإنجليزية للصف الأول', desc: 'كلمات وصور وخطوات قصيرة داعمة لكتاب English for Palestine 1.'},
+    {grade: 1, subject: 'life', status: 'active', path: 'g1/life/', title: 'التربية الوطنية والحياتية للصف الأول', desc: 'حواسي وأسرتي وبيئتي في أنشطة بصرية مناسبة للطفل.'},
     {grade: 8, subject: 'math', status: 'active', path: 'g8/math/',
      title: 'رياضيات الصف الثامن', desc: 'دروس المنهاج الفلسطيني بجزأيه، مختبر تفاعلي، ومغامرات مع زيتون.'},
     {grade: 8, subject: 'english', status: 'active', path: 'g8/english/',

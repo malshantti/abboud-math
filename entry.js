@@ -9,6 +9,7 @@ const ICON={
  math:'<path d="M6 4v6M3 7h6M15 7h6M4 15l4 4M8 15l-4 4M15 15.5h6M15 19.5h6" />',
  arabic:'<path d="M4 5h6a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H4zM20 5h-4a3 3 0 0 0-3 3" /><path d="M16 14c1.5 0 2.5-1 2.5-2.2M15 17.5h4"/>',
  english:'<path d="M4 18l4-12 4 12M5.4 14h5.2M15 10v8M15 13.5a2.5 2.5 0 1 1 5 0v1a2.5 2.5 0 1 1-5 0"/>',
+ life:'<path d="M12 21v-8M12 13C5 14 3 9 4 5c6 0 9 2 8 8ZM12 10C12 5 16 3 21 4c0 5-4 8-9 6Z"/>',
  science:'<path d="M9 3h6M10 3v6l-5.5 10a1 1 0 0 0 .9 1.5h13.2a1 1 0 0 0 .9-1.5L14 9V3M7 15h10"/>',
  islamic:'<path d="M16 4a7 7 0 1 0 4 12.5A8 8 0 0 1 16 4z"/><path d="M18 7l.8 1.7 1.8.3-1.3 1.2.3 1.8-1.6-.9-1.6.9.3-1.8-1.3-1.2 1.8-.3z"/>',
  social:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.2 3.8 8.5s-1.2 6.1-3.8 8.5c-2.6-2.4-3.8-5.2-3.8-8.5S9.4 5.9 12 3.5z"/>',
@@ -45,7 +46,7 @@ function renderSubjects(){
  if(!selG){$('#s2h').classList.add('off');$('#s2p').textContent='اختر الصف أولًا';box.innerHTML='';return}
  $('#s2h').classList.remove('off');$('#s2t').textContent='اختر المادة — '+gname(selG);
  const any=gradeActive(selG);$('#s2p').textContent=any?'المواد المتاحة عليها زر «ابدأ»':'مواد هذا الصف قيد التحضير';
- box.innerHTML=C.subjects.map(s=>{const e=active(selG,s.id);
+ box.innerHTML=C.subjects.filter(s=>(!s.grades||s.grades.includes(selG))&&(!C.gradeSubjects?.[selG]||C.gradeSubjects[selG].includes(s.id))).map(s=>{const e=active(selG,s.id);
   return e?`<button type="button" class="tile subject" data-s="${s.id}"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${esc(e.desc||'')}</span></span><span class="tag on">ابدأ</span></button>`
    :`<div class="tile subject soon" aria-disabled="true"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">نحضّر دروسها، وستُزهر قريبًا.</span></span><span class="tag">قريبًا</span></div>`}).join('')
   +(any?'':`<div class="empty"><img src="assets/img/zaytoun-think.webp" alt="" width="64" height="75"><span>لم تُضَف مواد ${esc(gname(selG))} بعد. جرّب <b>الصف الثامن · الرياضيات</b> الآن.</span></div>`);
