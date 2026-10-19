@@ -1,0 +1,3 @@
+/* ملفات المادة العامة؛ لا نحفظ تقدم الطفل في الكاش. */
+const V='g1life-v3-grade-two-profiles',PREFIX='g1life-',F=["./","index.html","content.js","manifest.webmanifest","../shared/early.css","../shared/early.js","../shared/art.js","../shared/offline.js","../../profiles.js","../../assets/brand/favicon.svg","../../assets/img/av-read.webp","../../assets/img/av-encourage.webp","../../assets/img/av-celebrate.webp","../../assets/fonts/cairo-arabic.woff2","../../assets/fonts/cairo-latin.woff2","../../assets/fonts/baloo-arabic.woff2","../../assets/fonts/baloo-latin.woff2","../../assets/icon-192.png","../../assets/icon-512.png"];
+importScripts('../shared/offline.js');
