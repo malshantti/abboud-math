@@ -2,6 +2,8 @@
 
 return [
 
+    'student_site_url' => env('STUDENT_SITE_URL', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

@@ -4,6 +4,7 @@ use App\Http\Middleware\PrivateAdminResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trimStrings(except: [fn (Request $request) => $request->is('admin/api/*')]);
+        $middleware->convertEmptyStringsToNull(except: [fn (Request $request) => $request->is('admin/api/*')]);
         $middleware->web(prepend: [PrivateAdminResponse::class]);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('admin.index'));

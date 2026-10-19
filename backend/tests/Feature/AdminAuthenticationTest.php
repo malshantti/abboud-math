@@ -61,7 +61,8 @@ class AdminAuthenticationTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin');
 
         $response->assertOk()->assertSee($admin->name)->assertDontSee($admin->name, false);
-        $response->assertSee($admin->email)->assertSee('تسجيل الخروج');
+        $response->assertSee('تسجيل الخروج')->assertSee('لوحة التحكم');
+        $this->getJson('/admin/api/summary')->assertOk()->assertJsonPath('accounts.0.email', $admin->email);
         $response->assertHeader('X-Robots-Tag', 'noindex, nofollow');
         $this->assertStringContainsString('private', $response->headers->get('Cache-Control'));
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
