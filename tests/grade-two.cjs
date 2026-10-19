@@ -181,6 +181,10 @@ for(const [groups,countPerGroup] of [[0,0],[2,3],[3,4],[5,2],[10,10]]){
   if(groups&&countPerGroup)ok(!html.includes('>'+String(groups*countPerGroup).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d])+'<'),'Equal groups do not print their total');
 }
 const boundedGroups=A.scene({type:'groups',groups:100000,countPerGroup:100000,icon:'ball'});
+const clock=A.scene({type:'clock',hour:3,minute:0});
+equal((clock.match(/<text /g)||[]).length,12,'Clock has twelve local numerals');
+ok(clock.includes('data-clock-hour="3" d="M80 80 L115 80"'),'Three o’clock hour hand points right');
+ok(clock.includes('data-clock-minute="0" d="M80 80 L80 26"'),'Full-hour minute hand points to twelve');
 equal((boundedGroups.match(/class="g2-group-object"/g)||[]).length,100,'Malformed equal-group counts cannot create unbounded DOM');
 const boundedHundreds=A.scene({type:'place-value',hundreds:100000,tens:100000,ones:100000});
 equal((boundedHundreds.match(/data-hundred-cell="1"/g)||[]).length,900,'Hundreds are bounded to a three-digit number');
