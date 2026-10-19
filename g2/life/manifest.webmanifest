@@ -1,0 +1,23 @@
+{
+  "name": "التربية الوطنية والحياتية — الصف الثاني",
+  "short_name": "بستان التعلّم",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8f2",
+  "theme_color": "#647b43",
+  "icons": [
+    {
+      "src": "../../assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../../assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
