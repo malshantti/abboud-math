@@ -161,8 +161,9 @@
 .g1-lab:has([data-counter-scene]) .j-count-actions{grid-column:2;display:grid;gap:10px}
 .g1-lab:has([data-counter-scene]) .j-count-actions button{width:100%;min-height:58px}
 .g1-lab:has([data-counter-scene]) [data-lab-feedback]{grid-column:1/-1}
-.g1-lab:has([data-shape-feedback]) .g1-symbol-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.g1-lab:has([data-shape-feedback]) .g1-symbol-picker button{min-width:0;min-height:132px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:10px;font-size:19px;white-space:nowrap}
+.g1-lab:has([data-shape-feedback]) .g1-symbol-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.g1-lab:has([data-shape-feedback]) .g1-symbol-picker button{width:100%;min-width:0;min-height:132px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:10px;font-size:20px;white-space:nowrap}
+.g1-lab:has([data-shape-feedback]) .g1-symbol-picker button span{display:block;flex:none;max-width:none;white-space:nowrap!important;word-break:keep-all;overflow-wrap:normal}
 .g1-lab:has([data-shape-feedback]) .g1-symbol-picker button .g1-art-shape{width:74px;height:74px}
 .g1-lab:has([data-place-scene]){border:0;border-bottom:7px solid #2788bf;border-radius:24px;background:#e5f5ff;padding:clamp(22px,4vw,40px)}
 .g1-lab:has([data-place-scene]) [data-place-scene]{display:grid;place-items:center;min-height:155px;margin:12px 0;padding:16px;border:2px solid #b6e2f7;border-radius:22px;background:#fff}
