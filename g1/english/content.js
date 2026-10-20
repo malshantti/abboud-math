@@ -60,5 +60,177 @@
     }]},
     wordsUnit(18,'Revision',2,52,[[['apple','تفاحة','apple'],['bed','سرير','bed']],[['window','نافذة','window'],['orange','برتقالة','orange']]])
   ];
+
+  // Added targets retain separate IDs: old completions must not complete new learning.
+  const numberWords=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+  const indic=value=>String(value).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+  const getUnit=number=>units.find(u=>u.id.endsWith('-u'+number));
+  const question=(prompt,correct,wrong,explain,scene)=>({prompt,choices:[{label:wrong},{label:correct}],answer:1,explain,...(scene?{scene}:{})});
+  function supplement(number,suffix,title,steps,tasks,words=[]){
+    const u=getUnit(number);
+    const lesson={id:u.id+'-'+suffix,title,book:u.book,page:u.page,referenceKind:'unit-start',goal:'أفهم المثال، ثم أجرّب في موقف واضح.',steps,tasks,vocabulary:words};
+    u.lessons.push(lesson);return lesson;
+  }
+  function addWords(number,entries){
+    for(let start=0;start<entries.length;start+=2){
+      const pair=entries.slice(start,start+2),other=pair.length===2?pair[1]:['book','كتاب','book'];
+      supplement(number,'more-words-'+(start/2+1),'أتعرف '+pair.map(e=>e[1]).join(' و'),pair.map(e=>({text:e[0]+' تعني: '+e[1]+'. أقرأها مع شخص كبير.',...(e[2]?{scene:{type:'items',icons:[e[2]]}}:{scene:{type:'symbol',value:e[0]}})})),pair.map((e,i)=>question(e[2]?'أختار الكلمة المناسبة للصورة.':'أي كلمة تعني: '+e[1]+'؟',e[0],(pair[i?0:1]||other)[0],e[0]+' تعني: '+e[1]+'.',e[2]?{type:'items',icons:[e[2]]}:null)),pair.map(e=>e[0]));
+    }
+  }
+  function addNumbers(number,values,icon){
+    for(let start=0;start<values.length;start+=2){
+      const pair=values.slice(start,start+2);
+      supplement(number,'numbers-'+pair[0],'أعدّ وأقول بالإنجليزية',pair.map(n=>({text:indic(n)+' نقولها بالإنجليزية: '+numberWords[n]+'. أعدّ العناصر مع شخص كبير.',scene:{type:'count',icon,count:n}})),pair.map(n=>question('أعدّ العناصر، ثم أختار اسم العدد بالإنجليزية.',numberWords[n],numberWords[n===20?19:n+1],indic(n)+' نقولها: '+numberWords[n]+'.',{type:'count',icon,count:n})),pair.map(n=>numberWords[n]));
+    }
+  }
+  function addDialogue(number,suffix,title,models,tasks){
+    return supplement(number,suffix,title,models.map(m=>typeof m==='string'?{text:m}:m),tasks);
+  }
+  function addReviews(number,sourceNumbers){
+    const pool=sourceNumbers.flatMap(n=>getUnit(n).lessons.map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
+    for(let start=0;start<pool.length;start+=4){
+      const rows=pool.slice(start,start+4),review=supplement(number,'mixed-review-'+(start/4+1),'أراجع كلمات ومواقف',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(c=>({...c}))})));
+      review.reviewOf=rows.map(({lesson})=>lesson.id);
+    }
+  }
+
+  addNumbers(2,[1,2,3],'egg');
+  addNumbers(3,[4,5,6],'cat');
+  addNumbers(4,[7,8,9,10],'hand');
+  addWords(2,[['nut','حبة مكسرات'],['melon','بطيخ'],['date','تمرة']]);
+  addWords(3,[['insect','حشرة'],['kitten','هرة صغيرة'],['lion','أسد'],['zebra','حمار وحشي']]);
+  addWords(4,[['finger','إصبع','finger'],['face','وجه','face'],['mouth','فم','mouth']]);
+  addWords(6,[['board','لوح الكتابة'],['teacher','معلم أو معلمة']]);
+  addWords(7,[['baby','طفل رضيع','baby'],['me','أنا']]);
+  addWords(8,[['tea','شاي'],['coffee','قهوة']]);
+  addWords(10,[['yo-yo','لعبة اليويو'],['skates','حذاء تزلج']]);
+  addWords(11,[['van','شاحنة صغيرة']]);
+  addWords(12,[['white','أبيض'],['black','أسود'],['umbrella','مظلة']]);
+  addWords(13,[['shorts','سروال قصير','shorts'],['skirt','تنورة']]);
+  addWords(15,[['chair','كرسي','chair'],['box','صندوق']]);
+  addWords(16,[['grape','حبة عنب'],['banana','موزة','banana'],['fig','تينة']]);
+  addDialogue(1,'say-name','أسأل عن الاسم',[
+    'What’s your name? تعني: ما اسمك؟',
+    {text:'My name’s Mira. تعني: اسمي ميرا. أختار اسمي عند الحديث عن نفسي.',scene:{type:'items',icons:['girl']}}
+  ],[
+    question('يسأل الطفل: What’s your name? تقول ميرا:','My name’s Mira.','Goodbye!','My name’s Mira. تعني: اسمي ميرا.'),
+    question('أريد معرفة اسم صديقي. ماذا أسأله؟','What’s your name?','Good afternoon.','What’s your name? سؤال عن الاسم.')
+  ]);
+  addDialogue(1,'greeting-variants','أفهم تحية قصيرة',[
+    'Hi! تحية قصيرة عند اللقاء. Bye! تحية عند المغادرة.',
+    'أرد على Hi! بتحية Hello!، وأقول Bye! عندما أغادر.'
+  ],[
+    question('ألتقي صديقي فيقول: Hi! كيف أرد؟','Hello!','Goodbye!','Hello! تحية عند اللقاء.'),
+    question('أي تحية أقولها عند المغادرة؟','Bye!','Hi!','Bye! تحية عند المغادرة.')
+  ]);
+  addDialogue(6,'whats-this','أسأل عن أدوات الصف',[
+    {text:'What’s this? تعني: ما هذا؟ أشير إلى قلم الرصاص وأسأل.',scene:{type:'items',icons:['pencil']}},
+    {text:'It’s a pencil. تعني: إنه قلم رصاص.',scene:{type:'items',icons:['pencil']}}
+  ],[
+    question('أرى الصورة وأسمع سؤال شخص كبير: What’s this? أختار الرد.','It’s a pencil.','It’s a cat.','الصورة لقلم رصاص: It’s a pencil.',{type:'items',icons:['pencil']}),
+    question('أريد أن أسأل عن اسم شيء. أي سؤال أستعمل؟','What’s this?','What’s your name?','What’s this? سؤال عن شيء.')
+  ]);
+  addDialogue(7,'family-talk','أعرّف بفرد من أسرتي',[
+    'Who’s this? تعني: من هذا؟ أستعملها للسؤال عن شخص.',
+    'This is my brother. تعني: هذا أخي. This is my sister. تعني: هذه أختي.'
+  ],[
+    question('تريد ميرا التعريف بأخيها. ماذا تقول؟','This is my brother.','This is my sister.','my brother تعني أخي.'),
+    question('أريد أن أسأل عن شخص. ماذا أقول؟','Who’s this?','What’s this?','Who’s this? سؤال عن شخص.')
+  ]);
+  addDialogue(8,'drink-talk','أسأل عن المشروب',[
+    {text:'What’s this? سؤال عن شيء. It’s water. تعني: إنه ماء.',scene:{type:'items',icons:['water']}},
+    {text:'It’s milk. تعني: إنه حليب. ألاحظ صورة المشروب قبل الإجابة.',scene:{type:'items',icons:['milk']}}
+  ],[
+    question('ما الرد المناسب للصورة عن السؤال: What’s this?','It’s water.','It’s milk.','الصورة للماء: It’s water.',{type:'items',icons:['water']}),
+    question('أشاهد الحليب. أي عبارة أستعمل؟','It’s milk.','It’s water.','milk تعني حليبًا.',{type:'items',icons:['milk']})
+  ]);
+  addDialogue(10,'where-toy','أسأل عن لعبتي',[
+    'Where’s my ball? تعني: أين كرتي؟',
+    'Here! تعني: هنا! There! تعني: هناك! أستعين بشخص كبير للإشارة إلى مكان قريب ثم بعيد.'
+  ],[
+    question('أبحث عن كرتي. أي سؤال أستعمل؟','Where’s my ball?','What’s your name?','Where’s my ball? سؤال عن مكان الكرة.'),
+    question('يشير شخص كبير إلى مكان بعيد ويقول: There! ما المقصود؟','هناك!','هنا!','There! تعني هناك، أما Here! فتعني هنا.')
+  ]);
+  addDialogue(11,'how-many','أعدّ وسائل النقل',[
+    {text:'How many taxis? تعني: كم سيارة أجرة؟ أعدّ الصور أولًا.',scene:{type:'count',icon:'taxi',count:3}},
+    {text:'Three taxis. تعني: ثلاث سيارات أجرة.',scene:{type:'count',icon:'taxi',count:3}}
+  ],[
+    question('أعدّ الصور. ما جواب How many taxis?','Three taxis.','Five taxis.','العدد ثلاثة، فنقول Three taxis.',{type:'count',icon:'taxi',count:3}),
+    question('أي سؤال أستعمل لمعرفة العدد؟','How many taxis?','Where’s my ball?','How many? سؤال عن العدد.')
+  ]);
+  addDialogue(12,'colour-talk','أسأل عن اللون',[
+    {text:'What colour? تعني: ما اللون؟ هذا اللون نقول عنه Red.',scene:{type:'shape',value:'circle',color:'red'}},
+    {text:'هذا اللون نقول عنه Blue. أقول اللون بعد ملاحظته.',scene:{type:'shape',value:'circle',color:'blue'}}
+  ],[
+    question('أنظر إلى اللون. ما الرد على What colour?','Red.','Blue.','الدائرة حمراء: Red.',{type:'shape',value:'circle',color:'red'}),
+    question('أي سؤال أستعمل لمعرفة اللون؟','What colour?','How many taxis?','What colour? سؤال عن اللون.')
+  ]);
+  addDialogue(13,'clothes-colour','أصف لون الملابس',[
+    'a red skirt تعني: تنورة حمراء. أقول اللون قبل اسم قطعة الملابس بالإنجليزية.',
+    'blue jeans تعني: بنطال جينز أزرق.'
+  ],[
+    question('أختار وصفًا يعني: تنورة حمراء.','a red skirt','a blue skirt','red تعني أحمر، وskirt تعني تنورة.'),
+    question('أي وصف يعني: بنطال جينز أزرق؟','blue jeans','red jeans','blue تعني أزرق، وjeans بنطال جينز.')
+  ]);
+  addDialogue(15,'bedroom-place','أفهم مكان لعبتي',[
+    'in تعني: داخل. on تعني: على. under تعني: تحت.',
+    'It’s under the bed. تعني: إنها تحت السرير. أضع لعبة آمنة تحت كرسي ثم فوقه بمساعدة شخص كبير.'
+  ],[
+    question('أختار معنى: It’s under the bed.','إنها تحت السرير.','إنها على السرير.','under تعني تحت.'),
+    question('أكمل بمعنى داخل: It’s ... the box.','in','on','in تعني داخل، وon تعني على.'),
+    question('أكمل بمعنى على: It’s ... the bed.','on','under','on تعني على.')
+  ]);
+  addDialogue(16,'size-talk','أصف الحجم',[
+    'big تعني: كبير. small تعني: صغير.',
+    'It’s very big. تعني: إنه كبير جدًا. أختار شيئًا كبيرًا وآخر صغيرًا حولي وأصفهما.'
+  ],[
+    question('أي وصف يعني: إنه صغير؟','It’s small.','It’s big.','small تعني صغيرًا.'),
+    question('ما معنى very big؟','كبير جدًا.','صغير جدًا.','very هنا تعني جدًا.')
+  ]);
+  addDialogue(17,'friends-height','أصف صديقي وأفهم حركة',[
+    'I’m short. تعني: أنا قصير. He’s tall. تعني: هو طويل. She’s tall. تعني: هي طويلة.',
+    'Jump up and down. تعني: اقفز إلى أعلى وإلى أسفل. أفهم التعليمة، ويمكنني الإشارة بدل الحركة، ولا أقفز إلا في مكان آمن وبمساعدة شخص كبير.'
+  ],[
+    question('أي عبارة تعني: هي طويلة؟','She’s tall.','I’m short.','She’s tall. تعني هي طويلة.'),
+    question('ما معنى: Jump up and down.؟','اقفز إلى أعلى وإلى أسفل.','اجلس.','الجملة تعليمة للقفز؛ لا يلزم تنفيذها للإجابة.')
+  ]);
+
+  const personScene=person=>({type:'symbol',value:'ألاحظ الشخصية.',person});
+  const familyScene=focus=>({type:'symbol',value:'ألاحظ الأسرة.',family:{focus}});
+  const position=(object,relation,reference='box')=>({type:'symbol',value:'ألاحظ مكان الشيء.',position:{object,reference,relation}});
+  const lessonById=id=>units.flatMap(u=>u.lessons).find(l=>l.id===id);
+  // A family relationship is shown relative to the blue frame labelled أنا.
+  const family=lessonById('en-u7-l2');
+  for(const row of [family.steps[0],family.tasks[0].choices[1]])row.scene=familyScene('sister');
+  for(const row of [family.steps[1],family.tasks[0].choices[0],family.tasks[1]])row.scene=familyScene('brother');
+  family.steps.forEach(s=>s.text+=' الإطار الأزرق المسمى أنا للولد الذي نتحدث عن أسرته، والأخ أو الأخت داخل الإطار الأخضر.');
+  const movement=lessonById('en-u17-l2');
+  movement.steps[0].scene=personScene({pose:'stand'});movement.steps[1].scene=personScene({pose:'sit'});
+  movement.tasks[0].scene=personScene({pose:'stand'});movement.tasks[1].scene=personScene({pose:'sit'});
+  movement.tasks[0].prompt='أنظر إلى الشخصية الواقفة. أي تعليمة تناسبها؟';
+  movement.tasks[1].prompt='أنظر إلى الشخصية الجالسة. أي تعليمة تناسبها؟';
+  const bedroom=lessonById('en-u15-bedroom-place');
+  bedroom.steps[0]={text:'ألاحظ الكرة داخل الصندوق: in. الكرة على الصندوق: on. الكرة تحت الصندوق: under.',scene:position('ball','in')};
+  bedroom.steps[1]={text:'It’s under the box. تعني: إنها تحت الصندوق. أجرب بلعبة وصندوق آمن مع شخص كبير.',scene:position('ball','under')};
+  bedroom.tasks[0]={...question('ألاحظ مكان الكرة وأختار وصفه.','It’s under the box.','It’s on the box.','الكرة تحت الصندوق: under.',position('ball','under'))};
+  bedroom.tasks[1]={...question('ألاحظ الكرة وأكمل: It’s ... the box.','in','on','الكرة داخل الصندوق: in.',position('ball','in'))};
+  bedroom.tasks[2]={...question('ألاحظ الكرة وأكمل: It’s ... the box.','on','under','الكرة على الصندوق: on.',position('ball','on'))};
+  // Short uppercase / lowercase copying is manual practice, not automatically assessed.
+  addDialogue(1,'letter-pairs','أتعرف الحرف الصغير والكبير',[
+    'في نهاية الكتاب أجد الحروف الصغيرة. a وA صورتان للحرف نفسه، وكذلك b وB.',
+    'أستعمل مختبر الحروف لرسم الحروف الصغيرة مع شخص كبير. هذا تدريب حر؛ لا يمنحني الموقع حكمًا على جودة خطي.'
+  ],[
+    question('أي حرف صغير يقابل A؟','a','b','a هو الحرف الصغير المقابل لـ A.'),
+    question('أي حرف صغير يقابل B؟','b','a','b هو الحرف الصغير المقابل لـ B.')
+  ]);
+  const allLessons=units.flatMap(u=>u.lessons);
+  allLessons.forEach(l=>{l.referenceKind='unit-start';});
+
+  addReviews(5,[1,2,3,4]);addReviews(9,[6,7,8]);addReviews(14,[10,11,12,13]);addReviews(18,[15,16,17]);
+
   window.G1_COURSE={id:'english',title:'اللغة الإنجليزية',key:'bustan_g1_english_v1',books:[{id:'p1',title:'English for Palestine 1A',url:'https://elearn.azureedge.net/Books/c1/en1-p1.pdf'},{id:'p2',title:'English for Palestine 1B',url:'https://elearn.azureedge.net/Books/c1/en1-p2.pdf'}],sourceNote:'أنشطة أصلية قصيرة لدعم مفردات English for Palestine بجزأيه. العناوين وترتيب الوحدات وأرقام الصفحات من فهارس الكتابين الرسميين. هذه الأنشطة لا تنقل تمارين الكتاب ولا تمثل تغطية كاملة لجميع الفترات ومهارات الاستماع والمحادثة والكتابة. يمكن لشخص كبير قراءة الكلمة للطفل؛ لا توجد تسجيلات صوتية جديدة ضمن هذه الإضافة.',units,foundations:[greeting('en-foundation','أبدأ بتحية','p1',4,false)]};
+  for(const lesson of [...window.G1_COURSE.units.flatMap(unit=>unit.lessons),...window.G1_COURSE.foundations]){
+    lesson.referenceKind='unit-start';
+    lesson.referenceLabel='نشاط مساند للوحدة؛ مرجع بداية الوحدة:';
+  }
 })();
