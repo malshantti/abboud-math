@@ -52,4 +52,14 @@ assert(clock.includes(`L${expectedHour[0]} ${expectedHour[1]}`),'Hour hand moves
 assert(clock.includes('data-clock-minute="15"'),'Quarter-hour minute hand is retained');
 assert(find(1,'m-4-2').tasks[0].explain.includes('الجزء المضاف، وهو ٢'),'Subtraction explanation removes the specified added part');
 for(const g of[1,2])for(const u of courses[g].units)assert(u.lessons.some(l=>/review/.test(l.id)),'Each unit has a separate original review question');
+for(const g of[1,2]){
+ const source=read(`g${g}/shared/early.js`),prelude=source.match(/  const ar=[\s\S]*?(?=  const direction)/)[0],reference=source.match(/  function reference\(lesson\) \{[\s\S]*?\n  \}/)[0];
+ const context={C:{books:[{id:'p1',title:'كتاب اختبار',url:'https://elearn.edu.ps/book.pdf',pdfOffset:4}]}},fn=vm.runInNewContext(prelude+'\n'+reference+'\nreference',context);
+ const html=fn({book:'p1',page:45,references:[{book:'p1',page:45},{book:'p1',page:48}]});
+ assert.equal((html.match(/<a /g)||[]).length,2,'Merged skills show both official references');
+ assert(html.includes('#page=49')&&html.includes('#page=52')&&html.includes('٤٥')&&html.includes('٤٨'),'Printed page labels stay distinct from offset PDF destinations');
+ const practical=fn({book:'p1',page:1,homeActivity:{title:'تجربة <مع الكبير>',text:'نرسم <شكلًا>'}});
+ assert(practical.includes('لا يصححها الموقع ولا يسجّل إتقانها')&&practical.includes('&lt;شكلًا&gt;'),'Practical instructions are escaped and explicitly ungraded');
+ const legacy=fn({book:'p1',page:3});assert.equal((legacy.match(/<a /g)||[]).length,1,'Legacy single-reference lessons still work');
+}
 console.log('Early math: stable completion IDs, prerequisite order, exact counter conservation, regrouping, clock angles, references and shared-cache invalidation passed.');
