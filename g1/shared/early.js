@@ -36,8 +36,12 @@
   const button=(label,action,style='g1-primary',extra='')=>'<button type="button" class="'+style+'" data-action="'+action+'" '+extra+'>'+label+'</button>';
   const lessonButton=(lesson,index)=>'<button type="button" class="g1-lesson '+(done(lesson.id)?'g1-done':'')+'" data-lesson="'+esc(lesson.id)+'"><span class="g1-node">'+(done(lesson.id)?icon('check'):ar(index+1))+'</span><span><b>'+shown(lesson.title)+'</b><small class="g1-goal">'+shown(lesson.goal)+'</small></span><span aria-hidden="true">'+icon('arrow')+'</span>'+(done(lesson.id)?'<span class="g1-sr">أتممت هذا التدريب</span>':'')+'</button>';
   function reference(lesson) {
-    const book=C.books.find(item=>item.id===lesson.book);if(!book)return '';
-    return '<p class="g1-reference">'+shown(book.title)+(Number.isInteger(lesson.page)?' · صفحة '+ar(lesson.page):'')+'</p>';
+    const refs=Array.isArray(lesson.references)&&lesson.references.length?lesson.references:[{book:lesson.book,page:lesson.page}];
+    const links=refs.map(ref=>{const book=C.books.find(item=>item.id===ref.book);if(!book)return '';const page=Number.isInteger(ref.page)&&ref.page>0?ref.page:null,pdfPage=Number.isInteger(ref.pdfPage)?ref.pdfPage:page&&Number.isInteger(book.pdfOffset)?page+book.pdfOffset:null;
+      return '<a href="'+esc(book.url.split('#')[0]+(pdfPage?'#page='+pdfPage:''))+'" target="_blank" rel="noopener">'+shown(book.title)+(page?' · الصفحة المطبوعة '+ar(page):'')+'</a>';}).filter(Boolean);
+    const practice=Array.isArray(lesson.guidedPractice)?lesson.guidedPractice.slice():[];
+    if(lesson.homeActivity&&typeof lesson.homeActivity.text==='string')practice.push({title:lesson.homeActivity.title||'أجرّب مع الكبير',text:lesson.homeActivity.text});
+    return (links.length?'<p class="g1-reference">'+shown(lesson.referenceLabel||'نشاط مساند؛ المرجع:')+' '+links.join(' · ')+' <span>يفتح المصدر مع الإنترنت.</span></p>':'')+(practice.length?'<details class="g1-card g1-guided-practice"><summary>مع الكبير: أقرأ وأحكي وأكتب</summary><p>أنشطة شفهية وورقية؛ لا يصححها الموقع ولا يسجّل إتقانها.</p><ol>'+practice.map(item=>'<li><b>'+shown(item.title)+'</b><p>'+shown(item.text)+'</p></li>').join('')+'</ol></details>':'');
   }
   function home() {
     const next=curriculum.find(lesson=>!done(lesson.id))||curriculum[0],count=totalDone();
