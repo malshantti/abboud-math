@@ -127,7 +127,7 @@ for(const subject of ['math','arabic','english','life']){
       validateScene(task.scene,where);task.choices.forEach((choice,j)=>validateScene(choice.scene,where+'/choice'+j));
       if(subject==='math')validateMath(task,where);
       if(subject==='english'){
-        const picturedWords={bee:'bee',butterfly:'butterfly',ear:'ear',eye:'eye',bird:'bird',school:'school',house:'house',plane:'plane',train:'train',pencil:'pencil',book:'book',shoes:'shoes',shirt:'shirt',fish:'fish'};
+        const picturedWords={bee:'bee',butterfly:'butterfly',ear:'ear',eye:'eye',bird:'bird',school:'school',house:'house',plane:'plane',train:'train',pencil:'pencil',book:'book',shoes:'shoes',shirt:'shirt',fish:'fish',flower:'flower',tree:'tree','playing football':'ball',bus:'bus',car:'car',bike:'bike',flag:'flag',pen:'pen',socks:'socks',dad:'dad',mum:'mum',balloons:'balloon'};
         const selected=task.choices[task.answer],word=task.prompt.match(/أختار الصورة التي تدل على:\s*([A-Za-z]+)$/)?.[1];
         if(word&&picturedWords[word])equal(selected.scene?.icons,[picturedWords[word]],'English word selects its actual picture: '+where);
         if(task.prompt==='أختار الكلمة المناسبة للصورة.'&&task.scene?.type==='items'&&task.scene.icons.length===1){const expected=Object.entries(picturedWords).find(([,icon])=>icon===task.scene.icons[0])?.[0];ok(expected,'Known picture-word reference: '+where);equal(selected.label,expected,'English word describes the picture: '+where);ok(task.choices.every(choice=>!choice.scene),'Word-recognition options do not give away the answer with duplicate pictures: '+where);}
