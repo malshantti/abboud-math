@@ -25,7 +25,7 @@ for(const grade of [6,8])for(const subject of ['math','english','arabic','scienc
 const progress=load('g1/shared/early.js').G1_PROGRESS;
 const numeral=value=>String(value).replace(/[٠-٩]/g,n=>'٠١٢٣٤٥٦٧٨٩'.indexOf(n)).trim();
 const number=value=>/^\d+$/.test(numeral(value))?Number(numeral(value)):NaN;
-const supportedScenes=new Set(['count','items','symbol','shape','operation','fraction','place-value']);
+const supportedScenes=new Set(['ten-bridge','column-operation','ordinal','line-kind','solid','week-table','measure','data-table','survey','number-writing','position','count','items','symbol','shape','operation','fraction','place-value']);
 const allIds=new Set(),usedIcons=new Set(),courses=[];
 function validateScene(scene,where){
   if(scene==null)return;
@@ -108,7 +108,7 @@ async function verifyWorker(subject){
   ok(typeof cfg.V==='string'&&cfg.V.startsWith(cfg.PREFIX),'Worker version belongs to subject namespace');ok(Array.isArray(cfg.F)&&cfg.F.length>12,'Public dependency manifest exists');equal(new Set(cfg.F).size,cfg.F.length,'No duplicate cache dependencies');
   for(const asset of cfg.F){const resolved=new URL(asset,scope);equal(resolved.origin,new URL(scope).origin,'Same-origin offline dependency');const relative=decodeURIComponent(resolved.pathname).replace(/^\/abboud-math\//,'');ok(fs.existsSync(path.join(root,relative)),'Cached file exists: '+relative);ok(!/\.(mp3|wav|ogg|m4a)$/i.test(relative),'No unapproved audio dependency');ok(!/api|backup|draft/i.test(relative),'No private cache entry');}
   for(const asset of ['content.js','../shared/early.js','../shared/art.js','../shared/early.css','../../profiles.js'])ok(cfg.F.includes(asset),'Cached essential asset: '+asset);
-  let base=process.env.CACHE_BASE_REF||'origin/main';try{const old=execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});const prior=old.match(/\bconst\s+V\s*=\s*['"]([^'"]+)/)?.[1];if(old!==read(file))ok(cfg.V!==prior,'Changed SW uses changed cache version, without hard-coded release');}catch(error){if(error.code==='ERR_ASSERTION')throw error;/* New subject has no prior cache release. */}
+  let base=process.env.CACHE_BASE_REF||'origin/main';try{const old=execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});const prior=old.match(/\bconst\s+V\s*=\s*['"]([^'"]+)/)?.[1];if(old.replace(/\r\n/g,'\n')!==read(file).replace(/\r\n/g,'\n'))ok(cfg.V!==prior,'Changed SW uses changed cache version, without hard-coded release');}catch(error){if(error.code==='ERR_ASSERTION')throw error;/* New subject has no prior cache release. */}
   vm.runInContext(read('g1/shared/offline.js'),context);let wait;handlers.install({waitUntil:p=>wait=p});await wait;equal(added,cfg.F.map(file=>new URL(file,scope).href),'Install caches exact public manifest');
   const fetch=async(url,method='GET')=>{served=false;let response;handlers.fetch({request:{url,method},respondWith:p=>{served=true;response=p;}});return {served,response:response?await response:null};};
   let event=await fetch(scope+'content.js?v=cache-test');ok(event.served,'Public content query uses canonical cached URL');equal(await event.response.text(),'offline-cached','Cached response works when network throws');
