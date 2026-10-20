@@ -41,8 +41,12 @@
   const termPicker=()=>'<div class="g1-tabs" role="group" aria-label="الفصل الدراسي">'+[1,2].map(value=>button('الفصل '+(value===1?'الأول':'الثاني'),'term','g1-secondary '+(value===term?'g1-selected':''),'data-term="'+value+'" aria-pressed="'+(value===term)+'"')).join('')+'</div>';
   const coverImage=(className,alt)=>'<img class="'+className+'" src="'+cover+'" width="520" height="520" alt="'+alt+'" decoding="async">';
   function reference(lesson) {
-    const book=C.books.find(item=>item.id===lesson.book);if(!book)return '';
-    return '<p class="g1-reference">'+shown(book.title)+(Number.isInteger(lesson.page)?' · صفحة '+ar(lesson.page):'')+'</p>';
+    const refs=Array.isArray(lesson.references)&&lesson.references.length?lesson.references:[{book:lesson.book,page:lesson.page}];
+    const links=refs.map(ref=>{const book=C.books.find(item=>item.id===ref.book);if(!book)return '';const page=Number.isInteger(ref.page)&&ref.page>0?ref.page:null,pdfPage=Number.isInteger(ref.pdfPage)?ref.pdfPage:page&&Number.isInteger(book.pdfOffset)?page+book.pdfOffset:null;
+      return '<a href="'+esc(book.url.split('#')[0]+(pdfPage?'#page='+pdfPage:''))+'" target="_blank" rel="noopener">'+shown(book.title)+(page?' · الصفحة المطبوعة '+ar(page):'')+'</a>';}).filter(Boolean);
+    const practice=Array.isArray(lesson.guidedPractice)?lesson.guidedPractice.slice():[];
+    if(lesson.homeActivity&&typeof lesson.homeActivity.text==='string')practice.push({title:lesson.homeActivity.title||'أجرّب مع الكبير',text:lesson.homeActivity.text});
+    return (links.length?'<p class="g1-reference">'+shown(lesson.referenceLabel||'نشاط مساند؛ المرجع:')+' '+links.join(' · ')+' <span>يفتح المصدر مع الإنترنت.</span></p>':'')+(practice.length?'<details class="g1-card g1-guided-practice"><summary>مع الكبير: أقرأ وأحكي وأكتب</summary><p>أنشطة شفهية وورقية؛ لا يصححها الموقع ولا يسجّل إتقانها.</p><ol>'+practice.map(item=>'<li><b>'+shown(item.title)+'</b><p>'+shown(item.text)+'</p></li>').join('')+'</ol></details>':'');
   }
   function home() {
     const next=nextLesson(),count=totalDone();

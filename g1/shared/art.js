@@ -105,8 +105,74 @@
     const body = typeof name === 'string' && Object.hasOwn(paths,name) ? paths[name] : '<rect x="10" y="10" width="44" height="44" rx="12"/><circle cx="32" cy="32" r="7"/>';
     return `<svg class="g1-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#385346" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
   }
+  // مشاهد حسابية دقيقة؛ تبقى المدخلات التدريبية مؤقتة ولا تمنح إكمالًا تلقائيًا.
+  function mathScene(d) {
+    const label=text=>`<p class="m-scene-caption">${escape(indic(text))}</p>`;
+    const frame=(title,html)=>`<div class="m-learning-scene" aria-label="${escape(title)}">${html}</div>`;
+    if(d.type==='position') {
+      const relation=['in','on','under','next to','between'].includes(d.relation)?d.relation:'in';
+      const obj=['ball','bus','pen','pencil','house'].includes(d.object)?d.object:'ball';
+      const ref=['box','desk','school'].includes(d.reference)?d.reference:'box';
+      const refHtml=ref==='box'?'<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M5 20h54v40H5Z" fill="#f1cf85" stroke="#385346" stroke-width="3"/><path d="m5 20 10-13h34l10 13" fill="#fff4d4" stroke="#385346" stroke-width="3"/></svg>':icon(ref);
+      const onTop=ref==='school'?24:32,under=ref==='box'?82:80;
+      const places={in:[47,56],on:[47,onTop],under:[47,under],'next to':[81,51],between:[51,51]},[x,y]=places[relation];
+      const relNames={in:'داخل',on:'فوق',under:'تحت','next to':'بجانب',between:'بين'},objNames={ball:'كرة',bus:'حافلة',pen:'قلم',pencil:'قلم رصاص',house:'منزل'},refNames={box:'صندوق',desk:'مكتب',school:'مدرسة'};
+      const positionLabel=objNames[obj]+' '+relNames[relation]+' '+refNames[ref]+(relation==='between'?' ومنزل':'');
+      return frame(positionLabel,`<div class="m-position" role="img" aria-label="${escape(positionLabel)}"><div class="m-position-ref" style="left:${relation==='between'?8:25}%;width:${relation==='between'?30:42}%">${refHtml}</div>${relation==='between'?`<div class="m-position-ref" style="left:65%;width:30%">${icon('house')}</div>`:''}<div class="m-position-object" style="left:${x}%;top:${y}%">${icon(obj)}</div></div>`);
+    }
+    if(d.type==='ten-bridge') {
+      const a=d.a,b=d.b,subtract=d.op==='-',need=subtract?a-10:10-a;
+      const phase=d.phase||0,result=subtract?a-b:a+b;
+      const dots=(size,filled,offset=0)=>`<svg viewBox="0 0 300 ${Math.ceil(size/5)*54+8}" role="img" aria-label="${indic(filled)} عناصر"><g stroke="#385346" stroke-width="2">${Array.from({length:size},(_,i)=>`<rect x="${4+i%5*59}" y="${4+Math.floor(i/5)*54}" width="51" height="46" rx="10" fill="${i<filled?(i>=offset?'#ecc570':'#a9cc87'):'#fff'}"/>`).join('')}</g></svg>`;
+      let text,html;
+      if(!subtract){const moved=phase?need:0;html=`<div class="m-ten-frames"><div>${label('المجموعة الأولى')}${dots(10,a+moved,a)}</div><div>${label(phase?'الباقي من المجموعة الثانية':'المجموعة الثانية')}${dots(10,b-moved)}</div></div>`;text=phase?`نأخذ ${need} من ${b} لإكمال العشرة. يتبقى ${b-need}.`:`لدينا ${a} و${b}. كم نحتاج ليصبح ${a} عشرة؟`;if(phase>1)text=`عشرة و${b-need} تساوي ${result}.`;
+      }else{const crossed=phase===0?0:phase===1?need:b;html=`<div class="m-ten-frames"><div>${label('عشرة')}${dots(10,10-Math.max(0,crossed-need))}</div><div>${label('الآحاد')}${dots(Math.max(5,need),Math.max(0,need-Math.min(crossed,need)))}</div></div>`;text=phase===0?`نفكك ${b} إلى ${need} و${b-need}.`:phase===1?`نطرح ${need} أولًا فنصل إلى عشرة.`:`نطرح ${b-need} من عشرة؛ يبقى ${result}.`;}
+      return frame('خطوات العشرة',html+label(text)+`<div class="m-equation" dir="ltr">${indic(a)} ${subtract?'−':'+'} ${indic(b)} = ${phase>1?indic(result):'؟'}</div>`);
+    }
+    if(d.type==='column-operation') {
+      const a=d.a,b=d.b,plus=d.op==='+',phase=d.phase||0,width=Math.max(String(a).length,String(b).length),digits=x=>Array.from({length:width},(_,i)=>Math.floor(x/10**i)%10);
+      const top=digits(a),bottom=digits(b),adjusted=[...top],carry=Array(width+1).fill(0),result=plus?a+b:a-b;
+      if(plus){for(let i=0;i<width;i++)carry[i+1]=Math.floor((top[i]+bottom[i]+carry[i])/10);}else{for(let i=0;i<width;i++)if(adjusted[i]<bottom[i]){let j=i+1;while(j<width&&adjusted[j]===0){adjusted[j]=9;j++;}if(j<width){adjusted[j]--;adjusted[i]+=10;}}}
+      const names=['آحاد','عشرات','مئات'],indices=Array.from({length:width},(_,i)=>width-1-i),cell=(v,tag='td')=>`<${tag}>${v}</${tag}>`;
+      const regroup=phase>0,topRow=indices.map(i=>cell(!plus&&regroup&&adjusted[i]!==top[i]?`<s>${indic(top[i])}</s><strong>${indic(adjusted[i])}</strong>`:indic(top[i]))).join('');
+      const carries=indices.map(i=>cell(plus&&regroup&&carry[i]?`<strong>${indic(carry[i])}</strong>`:'')).join('');
+      const answer=indices.map(i=>cell(phase>=i+2?indic(Math.floor(result/10**i)%10):'؟')).join('');
+      return frame('لوحة المنازل والحساب العمودي',`<div class="m-column-wrap"><table class="m-column" dir="ltr"><caption>${indic(a)} ${plus?'+':'−'} ${indic(b)}</caption><thead><tr><th aria-label="العملية"></th>${indices.map(i=>cell(names[i],'th')).join('')}</tr></thead><tbody><tr class="m-carry"><td></td>${carries}</tr><tr><td></td>${topRow}</tr><tr><th>${plus?'+':'−'}</th>${indices.map(i=>cell(indic(bottom[i]))).join('')}</tr><tr class="m-column-result"><td>=</td>${answer}</tr></tbody></table></div>`+label(phase===0?'نضع الآحاد تحت الآحاد، والعشرات تحت العشرات، والمئات تحت المئات.':phase===1?(plus?'كل عشرة آحاد تصبح عشرة واحدة في المنزلة التالية.':'نستبدل عشرة واحدة بعشرة آحاد عند الحاجة. لا يتغير العدد.'):phase===2?'نجد ناتج الآحاد.':phase===3?'نجد ناتج العشرات.':'نجد ناتج المئات، ثم نقرأ العدد.'));
+    }
+    if(d.type==='ordinal')return frame('ترتيب الأشياء من جهة اليمين',label('نبدأ من اليمين، ونتجه إلى اليسار.')+`<ol class="m-ordinal" dir="rtl">${d.icons.map((name,i)=>`<li>${icon(name)}<span>${['الأول','الثاني','الثالث','الرابع','الخامس'][i]}</span></li>`).join('')}</ol>`);
+    if(d.type==='line-kind')return frame(d.value==='straight'?'قطعة مستقيمة':'خط منحني',`<svg viewBox="0 0 300 120" role="img" aria-label="${d.value==='straight'?'قطعة مستقيمة':'خط منحني'}"><path d="${d.value==='straight'?'M25 90 275 30':'M25 70C75 -10 110 135 165 65S240 15 275 60'}" fill="none" stroke="#385346" stroke-width="7" stroke-linecap="round"/></svg>`);
+    if(d.type==='solid') {
+      const drawings={cube:'<path d="m65 35 80-25 75 35-80 25Z" fill="#f1cf85"/><path d="M65 35v120l75 35V70Z" fill="#a9cc87"/><path d="m140 70 80-25v110l-80 35Z" fill="#8fb8d2"/>',cuboid:'<path d="m25 55 160-30 85 40-160 30Z" fill="#f1cf85"/><path d="M25 55v85l85 40V95Z" fill="#a9cc87"/><path d="m110 95 160-30v85l-160 30Z" fill="#8fb8d2"/>',sphere:'<circle cx="150" cy="105" r="83" fill="#8fb8d2"/><path d="M75 70c25 23 125 23 150 0M75 140c25-23 125-23 150 0M150 22c-45 30-45 135 0 166M150 22c45 30 45 135 0 166" fill="none"/>',cylinder:'<path d="M65 48v120c0 38 170 38 170 0V48" fill="#a9cc87"/><ellipse cx="150" cy="48" rx="85" ry="30" fill="#f1cf85"/><path d="M65 168c0-38 170-38 170 0" stroke-dasharray="6 6" fill="none"/>'};
+      const names={cube:'مكعب',cuboid:'متوازي المستطيلات',sphere:'كرة',cylinder:'أسطوانة'};
+      return frame(names[d.value]||'مجسم',`<svg viewBox="0 0 300 210" role="img" aria-label="${escape(names[d.value])}" stroke="#385346" stroke-width="3" stroke-linejoin="round">${drawings[d.value]||drawings.cube}</svg>`);
+    }
+    if(d.type==='week-table')return frame('جدول أسبوعي',`<table class="m-data-table"><caption>جدول تعلّمي هذا الأسبوع</caption><thead><tr><th>اليوم</th><th>النشاط الأول</th><th>النشاط الثاني</th></tr></thead><tbody>${[['الأحد','رياضيات','قراءة'],['الاثنين','قراءة','رسم'],['الثلاثاء','رسم','رياضيات'],['الأربعاء','قراءة','رياضيات'],['الخميس','رياضيات','رسم']].map(row=>`<tr>${row.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`);
+    if(d.type==='measure')return frame('وحدات متساوية متجاورة',`<svg viewBox="0 0 340 160" role="img" aria-label="شريط طوله ${indic(d.units)} وحدات متساوية"><rect x="20" y="20" width="${d.units*35}" height="35" rx="4" fill="#8fb8d2" stroke="#385346" stroke-width="2"/>${Array.from({length:d.units},(_,i)=>`<rect x="${20+i*35}" y="70" width="35" height="35" fill="${i%2?'#f1cf85':'#a9cc87'}" stroke="#385346" stroke-width="2"/><text x="${37+i*35}" y="132" text-anchor="middle" font-size="20">${indic(i+1)}</text>`).join('')}</svg>`+label(d.centimeters?'كل وحدة سنتيمتر واحد.':'الوحدات متساوية، بلا فراغات أو تداخل.'));
+    if(d.type==='data-table')return frame('تمثيل البيانات بالصور',`<table class="m-data-table"><caption>${escape(d.title||'كل صورة تمثّل إجابة واحدة')}</caption><thead><tr><th>الفئة</th><th>الصور</th><th>العدد</th></tr></thead><tbody>${d.rows.map(row=>`<tr><th>${escape(row.label)}</th><td><div class="m-data-icons">${Array.from({length:row.count},()=>icon(row.icon)).join('')}</div></td><td>${indic(row.count)}</td></tr>`).join('')}</tbody></table>`);
+    if(d.type==='survey')return frame('أجمع البيانات وأسجلها',`<div class="m-survey" data-m-survey><p>اسأل ثلاثة أشخاص: أي الفاكهتين تفضل؟ سجّل إجابة واحدة لكل شخص. هذا سجل تجريبي لا يُحفظ.</p><div class="m-survey-actions"><button type="button" data-m-vote="apple">${icon('apple')} التفاح</button><button type="button" data-m-vote="orange">${icon('orange')} البرتقال</button></div><p data-m-survey-status role="status">سُجلت ٠ من ٣ إجابات.</p><div data-m-survey-results></div><button type="button" data-m-survey-clear>أبدأ سجلًا جديدًا</button></div>`);
+    if(d.type==='number-writing')return frame('أتدرّب على كتابة العدد',`<div class="m-write-number"><span aria-hidden="true">${indic(d.value)}</span><canvas data-m-number="${d.value}" aria-label="مساحة للتدرب على كتابة العدد ${indic(d.value)}" role="img"></canvas></div><button type="button" data-m-erase>أمسح وأحاول</button>`+label('تتبّع العدد بإصبعك أو اكتبه على ورقة. لا يُقيّم الموقع خطّك ولا يحفظ الرسم.'));
+    return null;
+  }
+  if(typeof document!=='undefined') {
+    document.addEventListener('click',event=>{
+      const button=event.target.closest('button');if(!button)return;
+      if(button.hasAttribute('data-m-erase')){const canvas=button.previousElementSibling?.querySelector('canvas');if(canvas)canvas.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height);}
+      const survey=button.closest('[data-m-survey]');if(!survey)return;
+      if(button.hasAttribute('data-m-survey-clear')){delete survey.dataset.votes;survey.querySelector('[data-m-survey-results]').innerHTML='';survey.querySelectorAll('[data-m-vote]').forEach(b=>b.disabled=false);survey.querySelector('[data-m-survey-status]').textContent='سُجلت ٠ من ٣ إجابات.';return;}
+      if(!button.dataset.mVote)return;
+      const votes=survey.dataset.votes?survey.dataset.votes.split(','):[];if(votes.length>=3)return;votes.push(button.dataset.mVote);survey.dataset.votes=votes.join(',');
+      survey.querySelector('[data-m-survey-status]').textContent=`سُجلت ${indic(votes.length)} من ٣ إجابات.`;
+      survey.querySelector('[data-m-survey-results]').innerHTML=mathScene({type:'data-table',rows:[{label:'التفاح',icon:'apple',count:votes.filter(v=>v==='apple').length},{label:'البرتقال',icon:'orange',count:votes.filter(v=>v==='orange').length}]});
+      if(votes.length===3)survey.querySelectorAll('[data-m-vote]').forEach(b=>b.disabled=true);
+    });
+    document.addEventListener('pointerdown',event=>{const canvas=event.target.closest('canvas[data-m-number]');if(!canvas||event.button!==0)return;event.preventDefault();const rect=canvas.getBoundingClientRect();if(!canvas.dataset.ready){canvas.width=Math.round(rect.width*2);canvas.height=Math.round(rect.height*2);canvas.dataset.ready='1';}canvas.dataset.drawing='1';canvas.setPointerCapture(event.pointerId);const ctx=canvas.getContext('2d');ctx.lineWidth=7;ctx.lineCap='round';ctx.strokeStyle='#385346';ctx.beginPath();ctx.moveTo((event.clientX-rect.left)*2,(event.clientY-rect.top)*2);});
+    document.addEventListener('pointermove',event=>{const canvas=event.target.closest('canvas[data-m-number]');if(!canvas||canvas.dataset.drawing!=='1')return;const rect=canvas.getBoundingClientRect(),ctx=canvas.getContext('2d');ctx.lineTo((event.clientX-rect.left)*2,(event.clientY-rect.top)*2);ctx.stroke();});
+    ['pointerup','pointercancel','lostpointercapture'].forEach(name=>document.addEventListener(name,event=>{const canvas=event.target.closest('canvas[data-m-number]');if(canvas)delete canvas.dataset.drawing;}));
+  }
+
   function scene(descriptor) {
     const d = descriptor && typeof descriptor === 'object' ? descriptor : {};
+    const educational=mathScene(d);if(educational!==null)return educational;
     if (d.type === 'count') {
       const count = Number.isInteger(d.count) ? Math.max(0,Math.min(20,d.count)) : 0;
       return count ? `<div class="g1-art-count" role="img" aria-label="${escape(iconLabel(d.icon))}، عدد العناصر: ${indic(count)}">${Array.from({length:count},()=>`<span class="g1-art-object">${icon(d.icon)}</span>`).join('')}</div>` : '<div class="g1-art-zero" role="img" aria-label="صفر، لا توجد عناصر"><span>٠</span><strong>صفر</strong></div>';

@@ -43,7 +43,7 @@ for(const grade of [6,8])for(const subject of ['math','english','arabic','scienc
 const progress=load('g2/shared/early.js').G1_PROGRESS;
 const numeral=value=>String(value).replace(/[٠-٩]/g,n=>'٠١٢٣٤٥٦٧٨٩'.indexOf(n)).trim();
 const number=value=>/^\d+$/.test(numeral(value))?Number(numeral(value)):NaN;
-const supportedScenes=new Set(['count','items','symbol','shape','operation','fraction','place-value','groups','clock']);
+const supportedScenes=new Set(['ten-bridge','column-operation','ordinal','line-kind','solid','week-table','measure','data-table','survey','number-writing','position','count','items','symbol','shape','operation','fraction','place-value','groups','clock']);
 const allIds=new Set(),usedIcons=new Set(),courses=[];
 function visibleText(value,where){ok(typeof value==='string'&&value.trim().length>0,'Visible text: '+where);ok(!/[0-9۰-۹]/.test(value),'Visible numbers use Arabic-Indic digits: '+where);ok(!/[\p{Extended_Pictographic}]/u.test(value),'No emoji in visible text: '+where);}
 function validateScene(scene,where){
@@ -58,7 +58,7 @@ function validateScene(scene,where){
   if(scene.type==='operation'){ok(['+','-'].includes(scene.operator),'Arithmetic operator: '+where);for(const key of ['left','right'])ok(Number.isInteger(scene[key])&&scene[key]>=0&&scene[key]<=20,'Arithmetic quantity: '+where);if(scene.operator==='-')ok(scene.right<=scene.left,'Non-negative subtraction: '+where);icon(scene.icon);}
   if(scene.type==='fraction'){ok([2,3,4,5,8].includes(scene.parts),'Equal curriculum fraction parts: '+where);ok(Number.isInteger(scene.selected)&&scene.selected>0&&scene.selected<=scene.parts,'Shaded fraction part: '+where);}
   if(scene.type==='place-value')for(const key of ['hundreds','tens','ones'])ok(Number.isInteger(scene[key]??0)&&(scene[key]??0)>=0&&(scene[key]??0)<=9,'Decimal place value: '+where);
-  if(scene.type==='clock'){ok(Number.isInteger(scene.hour)&&scene.hour>=1&&scene.hour<=12,'Clock hour: '+where);ok(scene.minute===0,'Grade-two activities use full hours only: '+where);}
+  if(scene.type==='clock'){ok(Number.isInteger(scene.hour)&&scene.hour>=1&&scene.hour<=12,'Clock hour: '+where);ok(Number.isInteger(scene.minute)&&scene.minute>=0&&scene.minute<60&&scene.minute%5===0,'Curriculum minute steps: '+where);}
   if(scene.type==='groups'){for(const key of ['groups','countPerGroup'])ok(Number.isInteger(scene[key])&&scene[key]>=0&&scene[key]<=10,'Bounded equal groups: '+where);ok(scene.groups*scene.countPerGroup<=100,'Bounded multiplication picture: '+where);icon(scene.icon);}
   const rendered=A.scene(scene);ok(!/<script\b|onerror\s*=|onload\s*=/i.test(rendered),'Safe scene HTML: '+where);
 }
@@ -205,7 +205,7 @@ async function verifyWorker(subject){
   ok(typeof cfg.V==='string'&&cfg.V.startsWith(cfg.PREFIX),'Worker version belongs to subject namespace');ok(Array.isArray(cfg.F)&&cfg.F.length>12,'Public dependency manifest exists');equal(new Set(cfg.F).size,cfg.F.length,'No duplicate cache dependencies');
   for(const asset of cfg.F){const resolved=new URL(asset,scope);equal(resolved.origin,new URL(scope).origin,'Same-origin offline dependency');const relative=decodeURIComponent(resolved.pathname).replace(/^\/abboud-math\//,'');ok(fs.existsSync(path.join(root,relative)),'Cached file exists: '+relative);ok(!/^g(?:1|6|8)\//.test(relative),'Grade two does not depend on another grade application');ok(!/\.(mp3|wav|ogg|m4a)$/i.test(relative),'No unapproved audio dependency');ok(!/api|backup|draft/i.test(relative),'No private cache entry');}
   for(const asset of ['content.js','../shared/early.js','../shared/art.js','../shared/early.css','../../profiles.js'])ok(cfg.F.includes(asset),'Cached essential asset: '+asset);
-  let base=process.env.CACHE_BASE_REF||'origin/main';try{const old=execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});const prior=old.match(/\bconst\s+V\s*=\s*['"]([^'"]+)/)?.[1];if(old!==read(file))ok(cfg.V!==prior,'Changed SW uses changed cache version, without hard-coded release');}catch(error){if(error.code==='ERR_ASSERTION')throw error;/* New subject has no prior cache release. */}
+  let base=process.env.CACHE_BASE_REF||'origin/main';try{const old=execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});const prior=old.match(/\bconst\s+V\s*=\s*['"]([^'"]+)/)?.[1];if(old.replace(/\r\n/g,'\n')!==read(file).replace(/\r\n/g,'\n'))ok(cfg.V!==prior,'Changed SW uses changed cache version, without hard-coded release');}catch(error){if(error.code==='ERR_ASSERTION')throw error;/* New subject has no prior cache release. */}
   vm.runInContext(read('g2/shared/offline.js'),context);let wait;handlers.install({waitUntil:p=>wait=p});await wait;equal(added,cfg.F.map(file=>new URL(file,scope).href),'Install caches exact public manifest');
   const fetch=async(url,method='GET')=>{served=false;let response;handlers.fetch({request:{url,method},respondWith:p=>{served=true;response=p;}});return {served,response:response?await response:null};};
   let event=await fetch(scope+'content.js?v=cache-test');ok(event.served,'Public content query uses canonical cached URL');equal(await event.response.text(),'offline-cached','Cached response works when network throws');
