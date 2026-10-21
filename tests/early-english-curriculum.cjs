@@ -22,7 +22,10 @@ for(const grade of [1,2]){
     assert(['ball','bus','pencil'].includes(row.scene.position.object));assert(['in','on','under'].includes(row.scene.position.relation));assert(['box','desk'].includes(row.scene.position.reference));
    }
   }
-  if(l.reviewOf){for(const id of l.reviewOf)assert(ids.has(id),'Review source must exist');assert(l.id.includes('mixed-review'),'Review is a separate activity');}
+  if(l.reviewOf){for(const id of l.reviewOf)assert(ids.has(id),'Review source must exist');assert(!l.reviewOf.includes(l.id),'A review does not complete itself');
+   const old=before.units.flatMap(u=>u.lessons).find(row=>row.id===l.id);
+   if(old?.reviewOf)assert.equal(JSON.stringify(l.reviewOf),JSON.stringify(old.reviewOf),'Existing review IDs retain the original objectives');
+  }
  }
  for(let n=grade===1?1:11;n<=(grade===1?10:20);n++)assert(targets.has(n),'Number has a quantity recognition question: '+n);
  for(const [review,source] of [[5,[1,2,3,4]],[9,[6,7,8]],[14,[10,11,12,13]],[18,grade===1?[15,16,17]:[10,11,12,13,15,16,17]]]){
@@ -43,10 +46,11 @@ for(const grade of [1,2]){
  const index=read(`g${grade}/english/index.html`),sw=read(`g${grade}/english/sw.js`);
  assert(index.indexOf('../shared/language-art.js')>index.indexOf('../shared/art.js')&&index.indexOf('../shared/language-art.js')<index.indexOf('../shared/early.js'),'Scene extension is ready before the application captures it');
  assert(sw.includes('"../shared/language-art.js"'),'Language scenes are available offline');
- const oldSw=cp.execFileSync('git',['show',`origin/main:g${grade}/english/sw.js`],{cwd:root,encoding:'utf8'});
- const dependencies=[`g${grade}/english/content.js`,`g${grade}/english/index.html`,`g${grade}/shared/language-art.js`];
+ const cacheBase=process.env.CACHE_BASE_REF||'origin/main';
+ const oldSw=cp.execFileSync('git',['show',`${cacheBase}:g${grade}/english/sw.js`],{cwd:root,encoding:'utf8'});
+ const dependencies=[`g${grade}/english/content.js`,`g${grade}/english/index.html`,`g${grade}/shared/language-art.js`,`g${grade}/shared/early.js`,`g${grade}/shared/art.js`,`g${grade}/shared/early.css`,`g${grade}/shared/offline.js`,'assets/early/early-ui.css','profiles.js'];
  const changed=dependencies.some(file=>{
-  let old;try{old=cp.execFileSync('git',['show','origin/main:'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});}catch{return true;}
+  let old;try{old=cp.execFileSync('git',['show',cacheBase+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});}catch{return true;}
   return old.replace(/\r\n/g,'\n')!==read(file).replace(/\r\n/g,'\n');
  });
  if(changed)assert.notEqual(sw.match(/const V='([^']+)'/)[1],oldSw.match(/const V='([^']+)'/)[1],'Changed dependency receives changed cache version');

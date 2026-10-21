@@ -4,11 +4,12 @@
   const base=window.G1_ART;
   if(!base)return;
   const pick=(map,key,fallback='')=>typeof key==='string'&&Object.hasOwn(map,key)?map[key]:fallback;
+  const indic=value=>String(value).replace(/\d/g,n=>'٠١٢٣٤٥٦٧٨٩'[n]);
   const person=(config={})=>{
     const pose=['sit','stand','jump','clap'].includes(config.pose)?config.pose:'stand';
     const long=config.hair==='long'||['girl','grandmother','mother','sister'].includes(config.role);
-    const elder=['grandfather','grandmother'].includes(config.role),hair=elder?'#9caaa0':pick({blonde:'#dfbd58',brown:'#654a39',black:'#29342e'},config.hairColor,'#654a39');
-    const eye=pick({green:'#397746',brown:'#735038'},config.eyeColor,'#385346');
+    const elder=['grandfather','grandmother'].includes(config.role),hair=elder?'#9caaa0':pick({blonde:'#dfbd58',brown:'#654a39',black:'#29342e',red:'#b85b3b'},config.hairColor,'#654a39');
+    const eye=pick({green:'#397746',brown:'#735038',blue:'#467fa7'},config.eyeColor,'#385346');
     const shirt=long?'#bba3d2':'#93c6d9';
     const head='<path d="M32 34c0-32 56-32 56 0v30H32Z" fill="'+hair+'"/>'+
       (long?'<path d="M29 41v48h62V41Z" fill="'+hair+'"/>':'')+
@@ -25,7 +26,7 @@
   const personScene=d=>{
     const p=d.person||{},names={sit:'شخص جالس على كرسي',stand:'شخص واقف',jump:'شخص يقفز وقدماه فوق الأرض',clap:'شخص يصفق بيديه'};
     const pose=['sit','stand','jump','clap'].includes(p.pose)?p.pose:'stand';
-    const label=names[pose]+(p.hair==='long'?'، شعره طويل':p.hair==='short'?'، شعره قصير':'')+pick({blonde:'، شعره أشقر',brown:'، شعره بني',black:'، شعره أسود'},p.hairColor)+pick({green:'، عيناه خضراوان',brown:'، عيناه بنيتان'},p.eyeColor)+pick({tall:'، طويل مقارنة بعلامتي القياس',short:'، قصير مقارنة بعلامتي القياس'},p.height);
+    const label=names[pose]+(p.hair==='long'?'، شعره طويل':p.hair==='short'?'، شعره قصير':'')+pick({blonde:'، شعره أشقر',brown:'، شعره بني',black:'، شعره أسود',red:'، شعره أحمر'},p.hairColor)+pick({green:'، عيناه خضراوان',brown:'، عيناه بنيتان',blue:'، عيناه زرقاوان'},p.eyeColor)+pick({tall:'، طويل مقارنة بعلامتي القياس',short:'، قصير مقارنة بعلامتي القياس'},p.height);
     const scale=p.height==='short'?.74:1,y=pose==='jump'?5:194-169*scale;
     const ruler=['tall','short'].includes(p.height)?'<path d="M153 25v169m-7-169h14m-14 44h14m-14 42h14m-14 42h14m-14 41h14" fill="none" stroke="#9ab481" stroke-width="2"/>':'';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 215" role="img" aria-label="'+label+'" style="display:block;width:min(100%,220px);height:auto;max-height:230px"><path d="M12 194h156" stroke="#d1dec4" stroke-width="3" stroke-linecap="round"/>'+ruler+'<g transform="translate(30 '+y+') scale('+scale+')">'+person(p)+'</g></svg>';
@@ -53,6 +54,24 @@
     if(d?.person&&typeof d.person==='object')return personScene(d);
     if(d?.family&&typeof d.family==='object')return familyScene(d);
     if(d?.position&&typeof d.position==='object')return positionScene(d.position);
+    if(d?.colour&&typeof d.colour==='object'){
+      const colours={red:'#e98279',green:'#8eb65c',blue:'#8fbed4',yellow:'#e9c955',black:'#29342e',white:'#ffffff'},names={red:'أحمر',green:'أخضر',blue:'أزرق',yellow:'أصفر',black:'أسود',white:'أبيض'};
+      const first=pick(colours,d.colour.first,colours.red),second=pick(colours,d.colour.second,colours.black);
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" role="img" aria-label="مظلة باللونين '+pick(names,d.colour.first,'أحمر')+' و'+pick(names,d.colour.second,'أسود')+'" style="display:block;width:min(100%,330px);height:auto"><g stroke="#385346" stroke-width="3" stroke-linejoin="round"><path d="M150 114v77c0 33-42 33-42 2" fill="none"/><path d="M27 116Q53 24 150 24v92q-31-23-61 0-31-23-62 0Z" fill="'+first+'"/><path d="M150 24q97 0 123 92-31-23-62 0-30-23-61 0Z" fill="'+second+'"/><path d="M150 24v-9" fill="none"/></g></svg>';
+    }
+    if(d?.sizes&&typeof d.sizes==='object'){
+      const selected=Number.isInteger(d.sizes.target)&&d.sizes.target>=0&&d.sizes.target<4?d.sizes.target:0,labels=['صغيرة جدًا','صغيرة','كبيرة','كبيرة جدًا'];
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 285" role="img" aria-label="أربع كرات بأحجام مختلفة؛ الإطار الأخضر حول كرة '+labels[selected]+' مقارنة بالأخرى" style="display:block;width:min(100%,360px);height:auto"><g stroke="#385346" stroke-width="2.5">'+[10,19,33,48].map((radius,i)=>{const x=80+(i%2)*160,y=15+Math.floor(i/2)*135;return (i===selected?'<rect x="'+(x-70)+'" y="'+y+'" width="140" height="124" rx="14" fill="#eef8db" stroke="#588a32"/>':'')+'<circle cx="'+x+'" cy="'+(y+112-radius)+'" r="'+radius+'" fill="#a8c8e8"/><path d="M'+(x-58)+' '+(y+113)+'h116" stroke="#c5d8b0"/>';}).join('')+'</g></svg>';
+    }
+    if(['keyboard-mouse','ruler-eraser-pen'].includes(d?.deskItems)){
+      const keyboard=d.deskItems==='keyboard-mouse';
+      const body=keyboard?'<rect x="20" y="60" width="212" height="101" rx="12" fill="#d3dce2"/>'+Array.from({length:27},(_,i)=>'<rect x="'+(30+(i%9)*22)+'" y="'+(72+Math.floor(i/9)*25)+'" width="16" height="17" rx="3" fill="#fff" stroke-width="1.5"/>').join('')+'<path d="M260 105c0-45 52-45 52 0v35c0 35-52 35-52 0Zm26-25v29m-26 0h52" fill="#b8d58f"/>':'<rect x="17" y="87" width="103" height="30" rx="3" fill="#efd499"/>'+Array.from({length:9},(_,i)=>'<path d="M'+(27+i*10)+' 87v'+(i%2?8:14)+'"/>').join('')+'<path d="M144 82h64v39h-64Z" fill="#e7b2c1"/><path d="M144 82h25v39h-25Z" fill="#a8c8e8"/><path d="m258 126 23-77 13 4-23 77-10 9Z" fill="#9bc3d5"/><path d="m281 49 3-11 13 4-3 11m-36 73 13 4" fill="none"/>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 205" role="img" aria-label="'+(keyboard?'لوحة مفاتيح بجانب فأرة حاسوب':'مسطرة وممحاة وقلم حبر؛ الممحاة بين المسطرة والقلم')+'" style="display:block;width:min(100%,390px);height:auto"><g stroke="#385346" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">'+body+'</g><path d="M10 180h320" stroke="#d1dec4" stroke-width="3"/></svg>';
+    }
+    if(Number.isInteger(d?.birthdayCandles)){
+      const count=Math.max(1,Math.min(10,d.birthdayCandles));
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 230" role="img" aria-label="كعكة؛ عدد الشموع غير المشتعلة: '+indic(count)+'" style="display:block;width:min(100%,360px);height:auto"><g stroke="#385346" stroke-width="2.5" stroke-linejoin="round"><path d="M30 113h260v77H30Z" fill="#a8c8e8"/><ellipse cx="160" cy="113" rx="130" ry="27" fill="#edc6ce"/>'+Array.from({length:count},(_,i)=>{const x=160+(i-(count-1)/2)*Math.min(26,240/count);return '<rect x="'+(x-4)+'" y="65" width="8" height="47" rx="2" fill="#f3d587"/><path d="M'+x+' 65v-7"/>';}).join('')+'<path d="M16 194h288" fill="none"/></g></svg>';
+    }
     if(d?.town===true)return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 175" role="img" aria-label="ثلاثة أماكن في صف واحد: كنيسة، ثم متنزه، ثم مدرسة" style="display:block;width:min(100%,480px);height:auto"><path d="M12 142h396" stroke="#b4c59d" stroke-width="3"/><g stroke="#385346" stroke-width="2.5" stroke-linejoin="round"><path d="M28 137V79L68 48l40 31v58Z" fill="#f4dfb2"/><path d="M56 58V35h24v23M68 35V15m-9 8h18M59 137v-30h18v30" fill="none"/><path d="M166 137v-29m85 29v-29"/><path d="M145 126v-10h128v10" fill="#c09c75"/><path d="M149 102v-34m111 34V68"/><circle cx="149" cy="61" r="23" fill="#a9ca83"/><circle cx="260" cy="61" r="23" fill="#a9ca83"/><path d="M312 137V63h81v74Z" fill="#bed8e5"/><path d="M306 63h94L352 36Z" fill="#eac5a6"/><path d="M344 137v-31h17v31M326 79h15v15h-15Zm37 0h15v15h-15Z" fill="#fff"/></g><g text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#385346"><text x="68" y="165">church</text><text x="209" y="165">park</text><text x="352" y="165">school</text></g></svg>';
     return base.scene(d);
   };

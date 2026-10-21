@@ -87,7 +87,7 @@
     return supplement(number,suffix,title,models.map(m=>typeof m==='string'?{text:m}:m),tasks);
   }
   function addReviews(number,sourceNumbers){
-    const pool=sourceNumbers.flatMap(n=>getUnit(n).lessons.map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
+    const pool=sourceNumbers.flatMap(n=>getUnit(n).lessons.filter(lesson=>!lesson.id.includes('-book-')).map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
     for(let start=0;start<pool.length;start+=4){
       const rows=pool.slice(start,start+4),review=supplement(number,'mixed-review-'+(start/4+1),'أراجع كلمات ومواقف',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(c=>({...c}))})));
       review.reviewOf=rows.map(({lesson})=>lesson.id);
@@ -224,13 +224,72 @@
     question('أي حرف صغير يقابل B؟','b','a','b هو الحرف الصغير المقابل لـ B.')
   ]);
   const allLessons=units.flatMap(u=>u.lessons);
-  allLessons.forEach(l=>{l.referenceKind='unit-start';});
+  allLessons.forEach(l=>{l.referenceKind||='unit-start';});
 
+
+  // The actual writing pages introduce these lowercase sets in this order.
+  const letterExamples={a:'cat',b:'bag',c:'cat',d:'dog',e:'egg',f:'fig',g:'goat',h:'hand',i:'insect',j:'juice',k:'kite',l:'lion',m:'melon',n:'nut',o:'olive',p:'pencil',q:'quiet',r:'rabbit',s:'skirt',t:'taxi',u:'umbrella',v:'van',w:'water',x:'box',y:'yo-yo',z:'zebra'};
+  for(const [number,letters,page] of [[6,'ac',35],[7,'eo',41],[8,'dgq',47],[11,'ilt',11],[12,'bhp',17],[13,'mnr',23],[15,'vwx',35],[16,'juy',41],[17,'fksz',47]]){
+    const unit=getUnit(number),set=[...letters];
+    const L=supplement(number,'book-letters-'+letters,'أتعرف الحروف '+set.join('، '),set.map(letter=>({text:'ألاحظ شكل الحرف '+letter+' في الكلمة '+letterExamples[letter]+'. أقول الكلمة مع الكبير، وأتتبع الحرف في الكراس.',scene:sym(letter+' · '+letterExamples[letter])})),set.map(letter=>{
+      const example=letterExamples[letter],wrong=['cat','dog','nut'].find(word=>!word.includes(letter));
+      return question('ألاحظ الحرف '+letter+'، ثم أختار الكلمة التي يظهر فيها.',example,wrong,'يظهر الحرف '+letter+' في '+example+'.');
+    }));
+    L.goal='أتعرف أشكال الحروف الصغيرة، ثم أتدرب على كتابتها مع الكبير.';
+    L.page=page;L.references=[{book:unit.book,page,pdfPage:page}];L.referenceKind='verified-pages';
+    L.referenceLabel='تدريب مساند للحروف في الصفحة المتحققة:';
+    L.guidedPractice=[{title:'أتتبع ثم أنسخ',text:'أفتح الصفحة '+indic(page)+' من '+(unit.book==='p1'?'الجزء الأول':'الجزء الثاني')+' مع الكبير. ألاحظ أرقام مسار الحرف واتجاهه في الكراس، ثم أتتبعه وأنسخه على ورقة. لا يصحح الموقع اتجاه خطي أو جودته.'}];
+  }
+  const extraLetters=lessonById('en-u1-letter-pairs');
+  extraLetters.title='تدريب إضافي: صورتا الحرف';
+  extraLetters.referenceLabel='تدريب إضافي على الصغير والكبير؛ لا ينقل ورقة من الكتاب. مرجع الأبجدية:';
+  extraLetters.references=[{book:'p1',page:62,pdfPage:62}];
+  const fruit=supplement(16,'book-one-many','أسأل عن ثمرة وعن ثمار',[
+    {text:'عن ثمرة واحدة أسأل: What’s this? وأجيب: It’s an orange.',scene:{type:'count',icon:'orange',count:1}},
+    {text:'عن أكثر من ثمرة أسأل: What are these? وأجيب: They’re oranges.',scene:{type:'count',icon:'orange',count:3}}
+  ],[
+    question('ألاحظ الثمار. ما الرد المناسب عن What are these?','They’re oranges.','It’s an orange.','تظهر أكثر من برتقالة؛ أستعمل They’re oranges.',{type:'count',icon:'orange',count:3}),
+    question('ألاحظ ثمرة واحدة. أي سؤال يناسبها؟','What’s this?','What are these?','عن ثمرة واحدة أسأل What’s this?',{type:'count',icon:'orange',count:1})
+  ]);fruit.page=40;fruit.references=[{book:'p2',page:40,pdfPage:40}];fruit.referenceKind='verified-pages';fruit.referenceLabel='نشاط مساند للمفرد والجمع؛ الصفحة المتحققة:';
+  const placeQuestion=supplement(15,'book-where-answer','أسأل عن مكان شيء وأجيب',[
+    {text:'Where’s the ball? تعني: أين الكرة؟ أنظر إلى مكانها قبل الإجابة.',scene:position('ball','on')},
+    {text:'It’s on the box. تعني: إنها على الصندوق. أقول السؤال والجواب مع الكبير.',scene:position('ball','on')}
+  ],[
+    question('أي سؤال أسأل به عن مكان الكرة؟','Where’s the ball?','What colour?','Where’s للسؤال عن مكان الشيء.'),
+    question('أنظر إلى الكرة. ما جواب Where’s the ball?','It’s on the box.','It’s under the box.','الكرة على الصندوق: on.',position('ball','on'))
+  ]);placeQuestion.references=[{book:'p2',page:36,pdfPage:36}];placeQuestion.referenceKind='verified-pages';placeQuestion.referenceLabel='حوار أصلي مساند لعلاقة المكان؛ الصفحة المتحققة:';
+  const colourPair=supplement(12,'book-two-colours','أصف لونين معًا',[
+    {text:'ألاحظ المظلة: What colour? Red and black. أحمر وأسود.',scene:{type:'symbol',value:'ألاحظ اللونين.',colour:{first:'red',second:'black'}}},
+    {text:'and تعني و. ألاحظ اللونين قبل أن أصفهما.',scene:{type:'symbol',value:'ألاحظ اللونين.',colour:{first:'blue',second:'white'}}}
+  ],[
+    question('ألاحظ لونَي المظلة. ما الوصف المناسب؟','Red and black.','Blue and white.','لونا المظلة أحمر وأسود.',{type:'symbol',value:'ألاحظ اللونين.',colour:{first:'red',second:'black'}}),
+    question('ألاحظ لونَي المظلة. ما الوصف المناسب؟','Blue and white.','Red and green.','لونا المظلة أزرق وأبيض.',{type:'symbol',value:'ألاحظ اللونين.',colour:{first:'blue',second:'white'}})
+  ]);colourPair.references=[{book:'p2',page:18,pdfPage:18},{book:'p2',page:21,pdfPage:21}];colourPair.referenceKind='verified-pages';colourPair.referenceLabel='تدريب أصلي على اللونين؛ الصفحات المتحققة:';
+  const sizes=supplement(16,'book-size-comparison','أقارن الأحجام في الرسم',[
+    {text:'أنظر إلى الكرات معًا. الكرة داخل الإطار الأخضر كبيرة مقارنة بالكرات الأخرى: big.',scene:{type:'symbol',value:'أقارن الأحجام.',sizes:{target:2}}},
+    {text:'هذه الكرة أصغر من الكرات الأخرى: very small. أستعمل المقارنة نفسها قبل الوصف.',scene:{type:'symbol',value:'أقارن الأحجام.',sizes:{target:0}}}
+  ],[
+    question('أي وصف يناسب الكرة داخل الإطار الأخضر؟','very small','very big','الكرة داخل الإطار هي الأصغر في هذه المجموعة: very small.',{type:'symbol',value:'أقارن الأحجام.',sizes:{target:0}}),
+    question('أي وصف يناسب الكرة داخل الإطار الأخضر؟','very big','very small','الكرة داخل الإطار هي الأكبر في هذه المجموعة: very big.',{type:'symbol',value:'أقارن الأحجام.',sizes:{target:3}})
+  ]);sizes.references=[{book:'p2',page:42,pdfPage:42},{book:'p2',page:44,pdfPage:44}];sizes.referenceKind='verified-pages';sizes.referenceLabel='نشاط مساند لوصف الحجم؛ الصفحات المتحققة:';
+
+  // Keep established review IDs on their original targets; book additions get new IDs.
+  function addBookReviews(number,sources){
+    const pool=sources.flatMap(n=>getUnit(n).lessons.filter(l=>l.id.includes('-book-')&&!l.reviewOf).map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
+    for(let start=0;start<pool.length;start+=4){
+      const rows=pool.slice(start,start+4),L=supplement(number,'book-review-'+(start/4+1),'أراجع مهارات الكتاب',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(choice=>({...choice}))})));
+      L.reviewOf=rows.map(({lesson})=>lesson.id);L.referenceLabel='مراجعة أصلية للمهارات المضافة؛ صفحات مرجعية:';
+      const seen=new Set();L.references=rows.flatMap(({lesson})=>lesson.references||[{book:lesson.book,page:lesson.page}]).filter(ref=>{const key=ref.book+':'+ref.page;if(seen.has(key))return false;seen.add(key);return true;});
+    }
+  }
   addReviews(5,[1,2,3,4]);addReviews(9,[6,7,8]);addReviews(14,[10,11,12,13]);addReviews(18,[15,16,17]);
+  addBookReviews(5,[1,2,3,4]);addBookReviews(9,[6,7,8]);addBookReviews(14,[10,11,12,13]);addBookReviews(18,[15,16,17]);
 
-  window.G1_COURSE={id:'english',title:'اللغة الإنجليزية',key:'bustan_g1_english_v1',books:[{id:'p1',title:'English for Palestine 1A',url:'https://elearn.azureedge.net/Books/c1/en1-p1.pdf'},{id:'p2',title:'English for Palestine 1B',url:'https://elearn.azureedge.net/Books/c1/en1-p2.pdf'}],sourceNote:'أنشطة أصلية قصيرة لدعم مفردات English for Palestine بجزأيه. العناوين وترتيب الوحدات وأرقام الصفحات من فهارس الكتابين الرسميين. هذه الأنشطة لا تنقل تمارين الكتاب ولا تمثل تغطية كاملة لجميع الفترات ومهارات الاستماع والمحادثة والكتابة. يمكن لشخص كبير قراءة الكلمة للطفل؛ لا توجد تسجيلات صوتية جديدة ضمن هذه الإضافة.',units,foundations:[greeting('en-foundation','أبدأ بتحية','p1',4,false)]};
+  window.G1_COURSE={id:'english',title:'اللغة الإنجليزية',key:'bustan_g1_english_v1',books:[{id:'p1',title:'English for Palestine 1A',url:'https://elearn.azureedge.net/Books/c1/en1-p1.pdf'},{id:'p2',title:'English for Palestine 1B',url:'https://elearn.azureedge.net/Books/c1/en1-p2.pdf'}],sourceNote:'أنشطة أصلية قصيرة لدعم مفردات English for Palestine بجزأيه. أرقام بدء الوحدات من الفهرس، والأنشطة الإضافية تحيل إلى صفحات الكتاب التي روجعت. هذه الأنشطة لا تنقل تمارين الكتاب ولا تمثل تغطية كاملة لجميع الفترات ومهارات الاستماع والمحادثة والكتابة. يمكن لشخص كبير قراءة الكلمة للطفل؛ لا توجد تسجيلات صوتية جديدة ضمن هذه الإضافة.',units,foundations:[greeting('en-foundation','أبدأ بتحية','p1',4,false)]};
   for(const lesson of [...window.G1_COURSE.units.flatMap(unit=>unit.lessons),...window.G1_COURSE.foundations]){
-    lesson.referenceKind='unit-start';
-    lesson.referenceLabel='نشاط مساند للوحدة؛ مرجع بداية الوحدة:';
+    lesson.referenceKind||='unit-start';
+    lesson.referenceLabel||='نشاط مساند للوحدة؛ مرجع بداية الوحدة:';
+    if(lesson.id.includes('-book-'))lesson.referenceLabel='نشاط مساند؛ مرجع الكتاب:';
+    if(lesson.referenceKind==='verified-pages'&&lesson.references?.[0])lesson.page=lesson.references[0].page;
   }
 })();
