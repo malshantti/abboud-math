@@ -1,4 +1,4 @@
-/* تفاعلات صفحة الزائر: عيّنات من الدروس الحقيقية. كل شيء في الذاكرة فقط؛ لا يُكتب أي شيء في localStorage. */
+/* تفاعلات صفحة الزائر: عيّنات من الدروس الحقيقية. كل شيء في الذاكرة فقط؛ لا يُكتب أي شيء في localStorage (عدا تفضيل كتم الجولة الصوتية أدناه). */
 (function(){
 'use strict';
 var root=document.getElementById('visitor-home');if(!root)return;
@@ -73,4 +73,55 @@ box.addEventListener('focusin',pause);box.addEventListener('focusout',later);
 (mq.addEventListener?mq.addEventListener('change',setup):mq.addListener(setup));
 (rm.addEventListener?rm.addEventListener('change',start):rm.addListener(start));
 setup();
+})();
+
+// جولة صوتية: زرّ «استمع» بعد اختفاء شاشة التحميل؛ مقطع لكل قسم عند ظهوره (مرّة واحدة، بلا تداخل)، مع ترجمة نصّية.
+// يحفظ اختيار الكتم فقط في المفتاح bustan_landing_voice ("off"/"on")؛ لا يلمس أي مفتاح آخر. الصوت يُحمَّل عند الحاجة (preload=none).
+(function(){
+'use strict';
+var root=document.getElementById('visitor-home');if(!root||typeof Audio==='undefined')return;
+var CLIPS=[["welcome","#L-top","أَهْلًا وَسَهْلًا بِكَ فِي «بُسْتَانِ التَّعَلُّم». أَنَا زَيْتُون، وَيَسُرُّنِي أَنْ أَصْحَبَكَ فِي جَوْلَةٍ قَصِيرَةٍ عَلَى هٰذِهِ الصَّفْحَةِ. هُنَا نَزْرَعُ الفَهْمَ، وَنَحْصُدُ المَعْرِفَةَ؛ دُرُوسٌ تَفَاعُلِيَّةٌ مُطَابِقَةٌ لِلْمِنْهَاجِ الفِلَسْطِينِيِّ، صُمِّمَتْ لِيَفْهَمَ طِفْلُكَ دَرْسَهُ وَيُحِبَّ أَنْ يَتَعَلَّمَهُ. تَعَالَ نَكْتَشِفْ مَعًا كَيْفَ يَصْنَعُ البُسْتَانُ فَرْقًا حَقِيقِيًّا فِي يَوْمِ طِفْلِكَ."],["hero",".L-hero","فِي البِدَايَةِ، تَرَى وَعْدَنَا لَكَ: دُرُوسٌ قَصِيرَةٌ بِالصَّوْتِ وَالصُّورَةِ، مُرَتَّبَةٌ كَمَا فِي كِتَابِ المَدْرَسَةِ، لِلصُّفُوفِ الأَوَّلِ وَالثَّانِي وَالسَّادِسِ وَالثَّامِنِ. سِتَّ عَشْرَةَ مَادَّةً دِرَاسِيَّةً، بِلَا إِعْلَانَاتٍ، وَتَعْمَلُ حَتَّى مَعَ إِنْتَرْنِتٍ ضَعِيفٍ. وَأَنَا زَيْتُون أُشَجِّعُ طِفْلَكَ عِنْدَ كُلِّ إِجَابَةٍ، وَأَنْتَ تُتَابِعُ تَقَدُّمَهُ مِنْ حِسَابِكَ."],["demos","#L-demos","وَهُنَا لَا نَطْلُبُ مِنْكَ أَنْ تُصَدِّقَنَا، بَلْ أَنْ تُجَرِّبَ بِنَفْسِكَ. هٰذِهِ أَسْئِلَةٌ حَقِيقِيَّةٌ مِنْ دُرُوسِ البُسْتَانِ: رِيَاضِيَّاتٌ وَلُغَتُنَا الجَمِيلَةُ وَإِنْجِلِيزِيَّةٌ وَعُلُومٌ وَكُسُورٌ. اخْتَرْ مَادَّةً وَأَجِبْ، وَشَاهِدْ كَيْفَ يَتَلَقَّى طِفْلُكَ التَّشْجِيعَ وَالتَّصْحِيحَ فَوْرًا."],["screens",".L-screens","هٰذِهِ شَاشَاتٌ حَقِيقِيَّةٌ مِنْ دَاخِلِ البُسْتَانِ، لَا صُوَرٌ تَوْضِيحِيَّةٌ. هٰكَذَا تَبْدُو دُرُوسُ طِفْلِكَ عَلَى هَاتِفِكَ أَوْ جِهَازِ البَيْتِ: مِنْ لُغَتِنَا الجَمِيلَةِ لِلصَّفِّ الأَوَّلِ، إِلَى مُخْتَبَرِ العُلُومِ لِلصَّفِّ الثَّامِنِ. مَا تَرَاهُ هُنَا، هُوَ تَمَامًا مَا سَيَعِيشُهُ طِفْلُكَ."],["how","#L-how","أَرْبَعُ خُطُوَاتٍ فَقَطْ، وَتَبْدَأُ اللَّيْلَةَ: أَنْشِئْ حِسَابَ وَلِيِّ أَمْرٍ وَاحِدًا لِلْعَائِلَةِ، ثُمَّ أَضِفْ مِلَفًّا لِكُلِّ طِفْلٍ وَاخْتَرْ صَفَّهُ وَمَادَّتَهُ. يَتَعَلَّمُ طِفْلُكَ بِشَرْحٍ قَصِيرٍ وَأَسْئِلَةٍ بِتَصْحِيحٍ فَوْرِيٍّ، وَتُتَابِعُ أَنْتَ مَا أَنْجَزَهُ وَمَا يَحْتَاجُ إِلَى مُرَاجَعَةٍ، مِنْ أَيِّ جِهَازٍ."],["curriculum","#L-curriculum","كُلُّ دَرْسٍ هُنَا مُطَابِقٌ لِكُتُبِ المِنْهَاجِ الفِلَسْطِينِيِّ، بِوَحَدَاتِهَا وَتَرْتِيبِهَا وَصَفَحَاتِهَا، وَيَذْكُرُ مَرْجِعَهُ فِي الكِتَابِ. اخْتَرْ صَفَّ طِفْلِكَ لِتَرَى مَوَادَّهُ: مِنَ الرِّيَاضِيَّاتِ وَالعَرَبِيَّةِ وَالإِنْجِلِيزِيَّةِ، إِلَى التَّرْبِيَةِ الوَطَنِيَّةِ وَالعُلُومِ وَالحَيَاةِ؛ فَيُرَاجِعُ طِفْلُكَ مَا أَخَذَهُ فِي الصَّفِّ تَمَامًا."],["benefits",".L-benefits","صَمَّمْنَا البُسْتَانَ لِيَطْمَئِنَّ قَلْبُكَ: تَقَدُّمُ طِفْلِكَ مَحْفُوظٌ فِي حِسَابِكَ فَلَا يَضِيعُ، وَالدُّرُوسُ المُنَزَّلَةُ تَعْمَلُ دُونَ اتِّصَالٍ. بِيئَةٌ آمِنَةٌ لَا غُرَبَاءَ فِيهَا وَلَا رَوَابِطَ خَارِجِيَّةَ، وَبِلَا إِعْلَانَاتٍ إِطْلَاقًا، مَعَ صَوْتٍ مُرَافِقٍ يَنْطِقُ كُلَّ كَلِمَةٍ. وَقْتُ الشَّاشَةِ كُلُّهُ لِلتَّعَلُّمِ."],["pricing","#L-pricing","أَسْعَارُنَا وَاضِحَةٌ: تَدْفَعُ فَقَطْ لِلْمَوَادِّ الَّتِي يَحْتَاجُهَا طِفْلُكَ. خَمْسَةَ عَشَرَ شَيْكَلًا لِكُلِّ مَادَّةٍ لِلصَّفَّيْنِ الأَوَّلِ وَالثَّانِي، وَعِشْرُونَ شَيْكَلًا لِلصَّفَّيْنِ السَّادِسِ وَالثَّامِنِ، لِمُدَّةِ ثَلَاثِينَ يَوْمًا. وَالأَيَّامُ الثَّلَاثَةُ الأُولَى مَجَّانِيَّةٌ لِكُلِّ المَوَادِّ، ثُمَّ تَشْتَرِكُ بِسُهُولَةٍ عَبْرَ وَاتْسَاب."],["faq",".L-faq","وَهُنَا أَجْوِبَةُ أَسْئِلَتِكَ قَبْلَ أَنْ تَبْدَأَ: لَا يُخْصَمُ أَيُّ مَبْلَغٍ تِلْقَائِيًّا بَعْدَ التَّجْرِبَةِ، وَيُمْكِنُكَ إِضَافَةُ أَكْثَرَ مِنْ طِفْلٍ. يَعْمَلُ البُسْتَانُ عَلَى الهَاتِفِ وَالجِهَازِ اللَّوْحِيِّ وَالحَاسُوبِ دُونَ تَثْبِيتِ تَطْبِيقٍ، وَهُوَ سَنَدٌ لِلْكِتَابِ وَالمُعَلِّمِ، لَا بَدِيلٌ عَنْهُمَا."],["final",".L-final","ازْرَعِ اليَوْمَ بِذْرَةَ فَهْمٍ، وَاحْصُدْ غَدًا ثِقَةَ طِفْلِكَ. ثَلَاثَةُ أَيَّامٍ مَجَّانِيَّةٌ لِكُلِّ المَوَادِّ، دُونَ بِطَاقَةٍ وَدُونَ الْتِزَامٍ. لَا تُؤَجِّلْ مَا يَسْتَحِقُّهُ طِفْلُكَ؛ اضْغَطِ الآنَ عَلَى «جَرِّبْ كُلَّ المَوَادِّ مَجَّانًا»، وَابْدَأْ رِحْلَتَهُ مَعَنَا فِي بُسْتَانِ التَّعَلُّم. أَنَا زَيْتُون، وَبِانْتِظَارِكُمَا!"]];
+var KEY='bustan_landing_voice',VOL=0.35,DIR='assets/landing/voice/';
+function pref(){try{return localStorage.getItem(KEY)}catch(e){return null}}
+function save(v){try{localStorage.setItem(KEY,v)}catch(e){}}
+var muted=pref()==='off',enabled=false,played={},queue=[],cur=null,curId=null,fadeT=0;
+var pill=document.createElement('div');pill.className='L-voice';pill.hidden=true;
+pill.innerHTML='<button type="button" class="L-voice-play"><img src="assets/brand/logo-mascot-sm.webp" width="30" height="40" alt=""><span>استمع إلى جولة البُستان</span><i aria-hidden="true">▶</i></button><button type="button" class="L-voice-mute" aria-pressed="false"></button>';
+var cap=document.createElement('p');cap.className='L-voice-cap';cap.hidden=true;cap.setAttribute('aria-live','polite');
+document.body.appendChild(pill);document.body.appendChild(cap);
+var playBtn=pill.querySelector('.L-voice-play'),muteBtn=pill.querySelector('.L-voice-mute');
+function ui(){muteBtn.setAttribute('aria-pressed',muted?'true':'false');muteBtn.setAttribute('aria-label',muted?'تشغيل صوت الجولة':'كتم صوت الجولة');muteBtn.textContent=muted?'🔇':'🔊';playBtn.hidden=enabled&&!muted;pill.classList.toggle('is-on',enabled&&!muted)}
+function sec(c){return c&&document.querySelector(c[1])}
+function mark(c,on){var el=sec(c);if(el)el.classList.toggle('is-speaking',on)}
+function fade(a,to,ms,done){clearInterval(a._f);var from=a.volume,t0=Date.now();a._f=setInterval(function(){var k=Math.min(1,(Date.now()-t0)/ms);a.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k>=1){clearInterval(a._f);if(done)done()}},30)}
+function byId(id){for(var i=0;i<CLIPS.length;i++)if(CLIPS[i][0]===id)return CLIPS[i]}
+function finish(){var c=byId(curId);mark(c,false);cap.hidden=true;cur=null;curId=null;next()}
+function stop(cb){if(!cur){if(cb)cb();return}var a=cur,c=byId(curId);cur=null;curId=null;mark(c,false);cap.hidden=true;fade(a,0,350,function(){a.pause();if(cb)cb()})}
+function start(id,silentFail){var c=byId(id);if(!c||played[id])return Promise.resolve(false);played[id]=1;
+ var a=new Audio();a.preload='none';a.src=DIR+id+'.mp3';a.volume=0;cur=a;curId=id;
+ a.onended=function(){if(cur===a)finish()};a.onerror=function(){if(cur===a)finish()};
+ var p;try{p=a.play()}catch(e){p=Promise.reject(e)}
+ return Promise.resolve(p).then(function(){if(cur!==a)return true;fade(a,VOL,500);mark(c,true);cap.textContent=c[2];cap.hidden=false;return true},function(){if(cur===a){cur=null;curId=null}if(silentFail)played[id]=0;else finish();return false})}
+function next(){if(cur||!enabled||muted)return;while(queue.length){var id=queue.shift();if(!played[id]){start(id);return}}}
+function want(id){if(played[id]||id===curId)return;
+ if(!enabled||muted){return}
+ if(cur&&curId!=='welcome'){queue=[id];stop(next)}else{if(queue.indexOf(id)<0)queue.push(id);next()}}
+function queueVisible(){visible.forEach(function(id){if(queue.indexOf(id)<0&&!played[id])queue.push(id)})}
+function enable(){if(muted)return Promise.resolve(false);enabled=true;ui();queue=[];queueVisible();if(played.welcome){next();return Promise.resolve(true)}
+ return start('welcome',true).then(function(ok){if(!ok){enabled=false;ui()}return ok})}
+var visible=[];
+if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var id=e.target.getAttribute('data-voice');var i=visible.indexOf(id);if(e.isIntersecting){if(i<0)visible.push(id);want(id)}else if(i>=0)visible.splice(i,1)})},{threshold:0.5});
+ CLIPS.forEach(function(c){if(c[0]==='welcome')return;var el=sec(c);if(el){el.setAttribute('data-voice',c[0]);io.observe(el)}})}
+playBtn.addEventListener('click',function(){muted=false;save('on');enable()});
+muteBtn.addEventListener('click',function(){muted=!muted;save(muted?'off':'on');if(muted){queue=[];stop()}else enable();ui()});
+function gesture(e){if(e&&e.target&&pill.contains(e.target))return;if(muted||enabled){off();return}enable().then(function(ok){if(ok)off()})}
+var evs=['pointerdown','keydown','touchstart','wheel','scroll'];
+function off(){evs.forEach(function(t){removeEventListener(t,gesture,true)})}
+function show(){if(!pill.hidden)return;pill.hidden=false;ui();if(muted)return;
+ // محاولة تشغيل تلقائي بصوت منخفض؛ إن منعها المتصفح يبقى الزرّ وينتظر أول لمسة/تمرير
+ start('welcome',true).then(function(ok){if(ok){enabled=true;queueVisible();ui();off()}else if(!muted&&!enabled)evs.forEach(function(t){addEventListener(t,gesture,{capture:true,passive:true})})})}
+var splash=document.getElementById('L-splash');
+function afterLoad(){setTimeout(show,450)}
+if(document.readyState==='complete')afterLoad();else{addEventListener('load',afterLoad,{once:true});setTimeout(show,2200)}
+window.__bustanVoice={want:want,enable:enable,state:function(){return{enabled:enabled,muted:muted,cur:curId,played:played,queue:queue.slice()}}};
 })();

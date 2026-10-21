@@ -248,3 +248,18 @@ html[data-entry=checking] #visitor-home{visibility:hidden}
  .L-phones .L-phone{flex:0 0 min(62vw,210px);scroll-snap-align:center;scroll-snap-stop:always}
  .L-phones .L-phone figcaption{max-width:calc(100% + 24px);font-size:12px}
 }
+/* جولة صوتية */
+.L-voice{position:fixed;bottom:16px;inset-inline-start:16px;z-index:150;display:flex;gap:6px;align-items:center;animation:L-voice-in .4s ease both}
+.L-voice[hidden],.L-voice-cap[hidden],.L-voice-play[hidden]{display:none}
+.L-voice button{font:inherit;border:0;cursor:pointer;background:#fff;color:#2f4a2a;box-shadow:0 6px 20px rgba(0,0,0,.14);border-radius:999px}
+.L-voice-play{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;font-size:.92rem;font-weight:700}
+.L-voice-play img{width:30px;height:40px;object-fit:contain}
+.L-voice-play i{font-style:normal;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#5b8c3a;color:#fff;font-size:.7rem}
+.L-voice-mute{width:40px;height:40px;font-size:1.1rem}
+.L-voice button:focus-visible{outline:3px solid #5b8c3a;outline-offset:2px}
+.L-voice-cap{position:fixed;bottom:70px;inset-inline:16px;margin:0 auto;max-width:560px;z-index:149;background:rgba(30,40,25,.86);color:#fff;font-size:.88rem;line-height:1.7;padding:8px 14px;border-radius:12px;max-height:5.6em;overflow:auto}
+.is-speaking{position:relative}
+.is-speaking::after{content:"";position:absolute;inset-inline-end:12px;top:12px;width:10px;height:10px;border-radius:50%;background:#5b8c3a;box-shadow:0 0 0 0 rgba(91,140,58,.5);animation:L-speak 1.4s ease-out infinite;pointer-events:none}
+@keyframes L-voice-in{from{opacity:0;transform:translateY(12px)}}
+@keyframes L-speak{to{box-shadow:0 0 0 12px rgba(91,140,58,0)}}
+@media (prefers-reduced-motion:reduce){.L-voice{animation:none}.is-speaking::after{animation:none}}
