@@ -24,7 +24,7 @@ class SyncApiTest extends TestCase
     {
         $u = User::factory()->create(['trial_ends_at' => now()->addDays(3)]);
         $this->actingAs($u);
-        $session = $this->getJson('/api/session')->assertOk()->assertJson(['authenticated' => true, 'access' => ['allowed' => true, 'kind' => 'trial', 'subjects' => null]]);
+        $session = $this->getJson('/api/session')->assertOk()->assertJson(['authenticated' => true, 'access' => ['allowed' => true, 'kind' => 'trial', 'days_left' => 3, 'subjects' => null]]);
         $this->assertNotEmpty($session['csrf']);
 
         $id = $this->postJson('/api/students', ['name' => 'عبّود', 'local_id' => 'p1', 'avatar' => 'idle'])->assertCreated()->json('student.id');

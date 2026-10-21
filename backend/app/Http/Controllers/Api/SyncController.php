@@ -40,7 +40,7 @@ class SyncController extends Controller
         return response()->json($base + [
             'authenticated' => true,
             'user' => ['name' => $user->name, 'email' => $user->email],
-            'access' => ['allowed' => $access['access'], 'kind' => $access['kind'], 'ends_at' => $access['ends_at']?->toIso8601String(), 'subjects' => $access['subjects']],
+            'access' => ['allowed' => $access['access'], 'kind' => $access['kind'], 'ends_at' => $access['ends_at']?->toIso8601String(), 'days_left' => $access['ends_at'] ? max(1, (int) ceil(($access['ends_at']->getTimestamp() - now()->getTimestamp()) / 86400)) : null, 'subjects' => $access['subjects']],
             'students' => $user->students()->orderBy('id')->get()->map->toApi(),
         ]);
     }

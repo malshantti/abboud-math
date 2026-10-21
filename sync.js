@@ -8,7 +8,7 @@
 if(window.BUSTAN_SYNC)return;
 const LS=window.localStorage,me=document.currentScript,root=new URL('./',me&&me.src||location.href);
 const API=window.BUSTAN_API||new URL('admin-api/api/',root).href;
-const K={account:'bustan_account',on:'bustan_sync',state:'bustan_sync_state',access:'bustan_sync_access',dismiss:'bustan_banner_dismissed'};
+const K={account:'bustan_account',on:'bustan_sync',state:'bustan_sync_state',access:'bustan_sync_access',dismiss:'bustan_banner_dismissed',trialDismiss:'bustan_trial_dismissed'};
 const get=k=>{try{return LS.getItem(k)}catch(e){return null}},set=(k,v)=>{try{v==null?LS.removeItem(k):LS.setItem(k,v)}catch(e){}};
 const J=(k,d)=>{try{const v=JSON.parse(get(k));return v==null?d:v}catch(e){return d}};
 const web=/^https?:$/.test(location.protocol);
@@ -64,6 +64,23 @@ function gate(access,urls){
  document.body?show():addEventListener('DOMContentLoaded',show);
 }
 
+// ---- شريط الفترة التجريبية (صفحات الدروس فقط) ----
+const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+function daysText(n){if(n===1)return 'يوم واحد';if(n===2)return 'يومان';const m=n%100;return AR(n)+(m>=3&&m<=10?' أيام':m<=2?' يوم':' يومًا')}
+function trialDays(a){if(!a||a.kind!=='trial')return 0;const t=Date.parse(a.ends_at);if(isFinite(t)){const ms=t-Date.now();return ms>0?Math.max(1,Math.ceil(ms/864e5)):0}return a.days_left>0?a.days_left:0}
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+function trialBanner(access){
+ const n=trialDays(access),old=document.getElementById('bustan-trial');if(old&&!n)old.remove();
+ if(!subject||!n||get(K.trialDismiss)===today())return;
+ const show=()=>{let b=document.getElementById('bustan-trial');if(!b){b=document.createElement('div');b.id='bustan-trial';b.setAttribute('role','note');
+  b.style.cssText='position:relative;z-index:9998;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:#eef7e4;border-bottom:2px solid #cfe3b8;color:#3e5729;padding:8px 52px 8px 12px;font:700 15px/1.6 inherit;direction:rtl';
+  b.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="flex:none"><path d="M12 21c0-6 0-9 0-11" stroke="#1f9d55" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M12 12C12 7 8.5 4.5 4 5c0 5 3.5 7.5 8 7zM12 10c0-4 3-6.5 8-6.5 0 4.5-3 7-8 6.5z" fill="#58cc02"/></svg><span></span><a style="display:inline-flex;align-items:center;min-height:36px;padding:4px 16px;border-radius:12px;background:#1f9d55;color:#fff;text-decoration:none;box-shadow:0 3px 0 #13693a">اشترك</a><button type="button" aria-label="إخفاء اليوم" style="position:absolute;inset-inline-start:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;color:inherit;cursor:pointer;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>';
+  b.querySelector('a').href=new URL('admin-api/account/subscribe',root).href;
+  b.querySelector('button').onclick=()=>{set(K.trialDismiss,today());b.remove()};document.body.prepend(b)}
+  b.querySelector('span').textContent='تجربة مجانية: باقٍ لك '+daysText(n)};
+ document.body?show():addEventListener('DOMContentLoaded',show);
+}
+
 // ---- الدخول إلزامي قبل أي درس ----
 // صفحة مادة دون حساب مسجَّل: تحويل إلى دخول/تسجيل ولي الأمر ثم العودة إلى الصفحة نفسها.
 // من سجّل الدخول من قبل على هذا الجهاز (bustan_account) يتابع دون إنترنت أو مع اتصال ضعيف؛ لا نُقفل إلا حين يؤكد الخادم أن الجلسة انتهت.
@@ -83,12 +100,12 @@ function remember(s){set(K.account,JSON.stringify({email:s.user.email,name:s.use
 async function lessonGate(){
  const had=J(K.account,null);
  if(had)reveal();// جهاز سبق تسجيل الدخول عليه: الدرس يفتح فورًا ونتحقق في الخلفية
- if(!navigator.onLine){if(!had)offlineNotice();else{const c=J(K.access,null);if(c)gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href})}return false}
+ if(!navigator.onLine){if(!had)offlineNotice();else{const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}return false}
  try{session=await api('session',{timeout:had?15000:10000})}
- catch(e){if(had){const c=J(K.access,null);if(c)gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href})}else offlineNotice();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
+ catch(e){if(had){const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}else offlineNotice();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
  csrf=session.csrf||'';banner(session.site&&session.site.announcement);
  if(!session.authenticated){requireLogin();return false}
- remember(session);set(K.access,JSON.stringify(session.access));reveal();gate(session.access,session.urls);return true;
+ remember(session);set(K.access,JSON.stringify(session.access));reveal();gate(session.access,session.urls);trialBanner(session.access);return true;
 }
 
 // ---- المزامنة ----
@@ -157,6 +174,6 @@ async function start(){
  addEventListener('online',run);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});
 }
-window.BUSTAN_SYNC={run,enabled,disable(){set(K.on,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
+window.BUSTAN_SYNC={run,enabled,daysText,disable(){set(K.on,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();
