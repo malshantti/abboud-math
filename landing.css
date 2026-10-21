@@ -242,3 +242,9 @@ html[data-entry=checking] #visitor-home{visibility:hidden}
  .L-splash{animation:L-splash-out .01s linear .2s forwards!important}
  .L .will-reveal{opacity:1;transform:none}
 }
+/* شاشات حقيقية: دوّار أفقي على الشاشات الضيقة (يديره landing.js) */
+@media (max-width:767px){
+ .L-phones{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;margin-inline:-16px;padding:22px calc(50% + 16px - min(31vw,105px)) 34px;gap:16px;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+ .L-phones .L-phone{flex:0 0 min(62vw,210px);scroll-snap-align:center;scroll-snap-stop:always}
+ .L-phones .L-phone figcaption{max-width:calc(100% + 24px);font-size:12px}
+}

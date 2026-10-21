@@ -44,3 +44,33 @@ root.querySelectorAll('[data-quiz]').forEach(function(panel){
 var check=document.getElementById('check-fraction'),ffb=document.getElementById('fraction-feedback');
 if(check&&ffb)check.addEventListener('click',function(){setTimeout(function(){if(ffb.dataset.state==='correct')celebrate()},0)});
 })();
+// دوّار شاشات الهاتف: انتقال كل 3 ثوانٍ، حلقة سلسة بنسخ مكرّرة، يتوقف عند اللمس/التمرير ويستأنف، ويحترم تقليل الحركة.
+(function(){
+'use strict';
+var box=document.querySelector('.L-phones');if(!box||!window.matchMedia)return;
+var mq=matchMedia('(max-width:767px)'),rm=matchMedia('(prefers-reduced-motion: reduce)');
+var orig=[].slice.call(box.children),n=orig.length,clones=[],timer=0,resume=0,paused=false,settle=0;
+function items(){return [].slice.call(box.children)}
+function center(el){var r=el.getBoundingClientRect(),b=box.getBoundingClientRect();return r.left+r.width/2-(b.left+b.width/2)}
+function current(){var it=items(),best=0,d=1e9;it.forEach(function(el,i){var c=Math.abs(center(el));if(c<d){d=c;best=i}});return best}
+function go(i,smooth){var el=items()[i];if(el)box.scrollBy({left:center(el),behavior:smooth?'smooth':'instant'})}
+function wrap(){var i=current();if(i>=n){box.style.scrollSnapType='none';go(i-n,false);box.offsetWidth;box.style.scrollSnapType=''}}
+function tick(){if(paused||document.hidden)return;go(current()+1,true)}
+function stop(){clearInterval(timer);timer=0}
+function start(){stop();if(!clones.length||rm.matches)return;timer=setInterval(tick,3000)}
+function pause(){paused=true;clearTimeout(resume)}
+function later(){clearTimeout(resume);resume=setTimeout(function(){paused=false},4000)}
+function setup(){
+ if(mq.matches&&!clones.length){orig.forEach(function(el){var c=el.cloneNode(true);c.setAttribute('aria-hidden','true');c.setAttribute('data-clone','');c.querySelectorAll('img').forEach(function(im){im.alt='';im.loading='eager'});box.appendChild(c);clones.push(c)});requestAnimationFrame(function(){go(0,false)})}
+ else if(!mq.matches&&clones.length){clones.forEach(function(c){c.remove()});clones=[];box.scrollLeft=0}
+ start();
+}
+box.addEventListener('scroll',function(){clearTimeout(settle);settle=setTimeout(wrap,160)},{passive:true});
+if('onscrollend' in box)box.addEventListener('scrollend',wrap);
+box.addEventListener('pointerenter',pause);box.addEventListener('pointerleave',later);
+box.addEventListener('touchstart',pause,{passive:true});box.addEventListener('touchend',later,{passive:true});
+box.addEventListener('focusin',pause);box.addEventListener('focusout',later);
+(mq.addEventListener?mq.addEventListener('change',setup):mq.addListener(setup));
+(rm.addEventListener?rm.addEventListener('change',start):rm.addListener(start));
+setup();
+})();
