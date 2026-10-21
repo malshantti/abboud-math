@@ -1,4 +1,4 @@
-// Landing voice tour: autoplay fallback, mute persistence (own key only), queue/switch, captions, sw precache.
+// Landing voice tour: autoplay fallback, mute persistence (own key only), queue/switch, captions, sw runtime cache (clips not precached).
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),src=fs.readFileSync(path.join(root,'landing.js'),'utf8');
 function fx({store={},block=false}={}){
@@ -35,6 +35,7 @@ const flush=async()=>{for(let i=0;i<8;i++)await new Promise(setImmediate)};
  // muted user: no autoplay, gesture does nothing
  x=fx({store:{bustan_landing_voice:'off'}});await flush();assert.equal(x.audios.length,0);assert.ok(!x.listeners.pointerdown);x.enter('.L-hero');assert.equal(x.audios.length,0);
  const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');assert.ok(!/voice\/[^"]*\.mp3/.test(sw)&&!sw.includes('landing/voice'));
- assert.equal(fs.existsSync(path.join(root,'assets/landing/voice')),false,'placeholder mp3s must not ship');
+ for(const id of ['welcome','hero','demos','screens','how','curriculum','benefits','pricing','faq','final']){const f=path.join(root,'assets/landing/voice',id+'.mp3');assert.ok(fs.existsSync(f),'missing clip '+id);const b=fs.readFileSync(f);assert.ok(b.length>20000&&(b.slice(0,3).toString()==='ID3'||(b[0]===0xff&&(b[1]&0xe0)===0xe0)),'bad mp3 '+id)}
+ const ids=[...src.matchAll(/\["([a-z]+)","[#.]L-/g)].map(m=>m[1]);assert.deepEqual(ids,['welcome','hero','demos','screens','how','curriculum','benefits','pricing','faq','final']);
  console.log('PASS landing voice');
 })().catch(e=>{console.error(e);process.exitCode=1});
