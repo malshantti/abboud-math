@@ -12,7 +12,7 @@ class PrivateAdminResponse
     {
         $response = $next($request);
 
-        if ($request->is('login', 'logout', 'admin', 'admin/*')) {
+        if ($request->is('login', 'logout', 'admin', 'admin/*', 'account', 'account/*', 'api/session', 'api/students*')) {
             $response->headers->set('Cache-Control', 'no-store, private, max-age=0');
             $response->headers->set('Pragma', 'no-cache');
             $response->headers->set('Expires', '0');

@@ -1,0 +1,174 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\ActivityLog;
+use App\Models\Setting;
+use App\Models\User;
+use App\Notifications\ResetPasswordAr;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
+use Tests\TestCase;
+
+class AccountTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function register(array $over = [])
+    {
+        return $this->post('/account/register', array_merge(['name' => 'أم سامي', 'email' => 'Parent@Example.test', 'password' => 'secret-pass-1', 'password_confirmation' => 'secret-pass-1'], $over));
+    }
+
+    public function test_register_page_is_arabic_rtl_without_external_assets(): void
+    {
+        $r = $this->get('/account/register')->assertOk()->assertSee('إنشاء حساب ولي الأمر')->assertSee('dir="rtl"', false)->assertSee('name="_token"', false);
+        $this->assertDoesNotMatchRegularExpression('#(fonts\.googleapis|cdn\.|unpkg|jsdelivr)#', $r->getContent());
+        $this->assertStringContainsString('٣', $r->getContent());
+    }
+
+    public function test_parent_registers_gets_trial_and_hashed_password(): void
+    {
+        $this->register()->assertRedirect('/account');
+        $u = User::firstOrFail();
+        $this->assertSame('parent@example.test', $u->email);
+        $this->assertSame('parent', $u->role);
+        $this->assertFalse($u->is_admin);
+        $this->assertNotSame('secret-pass-1', $u->getRawOriginal('password'));
+        $this->assertTrue(password_verify('secret-pass-1', $u->password));
+        $this->assertTrue($u->trial_ends_at->between(now()->addDays(3)->subMinute(), now()->addDays(3)->addMinute()));
+        $this->assertAuthenticatedAs($u);
+        $this->assertDatabaseHas('activity_logs', ['action' => 'register']);
+        // A parent cannot open the admin panel.
+        $this->get('/admin')->assertForbidden();
+        $this->get('/admin/manage')->assertForbidden();
+    }
+
+    public function test_trial_is_granted_once_per_normalized_email(): void
+    {
+        $this->post('/account/register', ['name' => 'a', 'email' => 'sami.ali@gmail.com', 'password' => 'secret-pass-1', 'password_confirmation' => 'secret-pass-1']);
+        User::query()->delete();
+        auth()->logout();
+        $this->post('/account/register', ['name' => 'a', 'email' => 'samiali+2@gmail.com', 'password' => 'secret-pass-1', 'password_confirmation' => 'secret-pass-1'])->assertRedirect('/account');
+        $this->assertNull(User::firstOrFail()->trial_ends_at);
+    }
+
+    public function test_trial_length_is_configurable(): void
+    {
+        Setting::put(['trial_days' => 7]);
+        $this->register();
+        $this->assertTrue(User::first()->trial_ends_at->isAfter(now()->addDays(6)));
+    }
+
+    public function test_registration_validation_and_closed_registration(): void
+    {
+        $this->register(['password_confirmation' => 'other'])->assertSessionHasErrors('password');
+        $this->register(['password' => 'short', 'password_confirmation' => 'short'])->assertSessionHasErrors('password');
+        User::factory()->create(['email' => 'parent@example.test']);
+        $this->register()->assertSessionHasErrors('email');
+        Setting::put(['registration_open' => '0']);
+        $this->get('/account/register')->assertSee('التسجيل مغلق');
+        $this->register(['email' => 'x@example.test'])->assertForbidden();
+    }
+
+    public function test_register_is_rate_limited(): void
+    {
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/account/register', ['name' => 'x', 'email' => "bad$i", 'password' => 'a']);
+        }
+        $this->post('/account/register', ['name' => 'x'])->assertStatus(429);
+    }
+
+    public function test_login_logout_and_disabled_accounts(): void
+    {
+        $u = User::factory()->create(['email' => 'p@example.test', 'password' => 'secret-pass-1']);
+        $this->post('/account/login', ['email' => 'P@example.test', 'password' => 'wrong'])->assertSessionHasErrors('email');
+        $this->assertGuest();
+        $this->post('/account/login', ['email' => 'P@example.test', 'password' => 'secret-pass-1'])->assertRedirect('/account');
+        $this->assertAuthenticatedAs($u);
+        $this->get('/account')->assertOk()->assertSee('أهلًا');
+        $this->post('/account/logout')->assertRedirect('/account/login');
+        $this->assertGuest();
+
+        $u->forceFill(['disabled_at' => now()])->save();
+        $this->post('/account/login', ['email' => 'p@example.test', 'password' => 'secret-pass-1'])->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    public function test_disabled_user_with_live_session_is_logged_out(): void
+    {
+        $u = User::factory()->create();
+        $this->actingAs($u)->get('/account')->assertOk();
+        $u->forceFill(['disabled_at' => now()])->save();
+        $this->get('/account')->assertRedirect('/account/login');
+        $this->assertGuest();
+    }
+
+    public function test_login_is_rate_limited_per_identity(): void
+    {
+        User::factory()->create(['email' => 'p@example.test', 'password' => 'secret-pass-1']);
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/account/login', ['email' => 'p@example.test', 'password' => 'bad']);
+        }
+        $this->post('/account/login', ['email' => 'p@example.test', 'password' => 'secret-pass-1'])->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    public function test_password_reset_by_email(): void
+    {
+        Notification::fake();
+        $u = User::factory()->create(['email' => 'p@example.test']);
+        $this->post('/account/forgot-password', ['email' => 'nobody@example.test'])->assertSessionHas('status');
+        $this->post('/account/forgot-password', ['email' => 'P@example.test'])->assertSessionHas('status');
+        $token = null;
+        Notification::assertSentTo($u, ResetPasswordAr::class, function ($n) use (&$token, $u) {
+            $token = $n->token;
+            $html = $n->toMail($u)->render();
+            $this->assertStringContainsString('/account/reset-password/'.$token, (string) $html);
+
+            return true;
+        });
+        $this->get('/account/reset-password/'.$token.'?email=p@example.test')->assertOk()->assertSee('كلمة مرور جديدة');
+        $this->post('/account/reset-password', ['token' => 'bad', 'email' => 'p@example.test', 'password' => 'new-pass-123', 'password_confirmation' => 'new-pass-123'])->assertSessionHasErrors('email');
+        $this->post('/account/reset-password', ['token' => $token, 'email' => 'p@example.test', 'password' => 'new-pass-123', 'password_confirmation' => 'new-pass-123'])->assertRedirect('/account/login');
+        $this->assertTrue(password_verify('new-pass-123', $u->fresh()->password));
+        $this->assertSame(1, ActivityLog::where('action', 'password.reset')->count());
+    }
+
+    public function test_parent_manages_own_students_only(): void
+    {
+        $u = User::factory()->create();
+        $other = User::factory()->create();
+        $theirs = $other->students()->create(['name' => 'غريب', 'grade' => 6]);
+        $this->actingAs($u)->post('/account/students', ['name' => 'سامي', 'grade' => 6])->assertRedirect();
+        $this->post('/account/students', ['name' => 'ليلى', 'grade' => 1]);
+        $this->post('/account/students', ['name' => 'خطأ', 'grade' => 5])->assertSessionHasErrors('grade');
+        $this->assertSame(['سامي', 'ليلى'], $u->students()->pluck('name')->all());
+        $s = $u->students()->first();
+        $this->put("/account/students/{$s->id}", ['name' => 'سامي ع', 'grade' => 8]);
+        $this->assertSame(8, $s->fresh()->grade);
+        $this->put("/account/students/{$theirs->id}", ['name' => 'x', 'grade' => 1])->assertNotFound();
+        $this->delete("/account/students/{$theirs->id}", ['confirm' => 1])->assertNotFound();
+        $this->delete("/account/students/{$s->id}", ['confirm' => 1]);
+        $this->assertSame(1, $u->students()->count());
+    }
+
+    public function test_subscription_request_opens_whatsapp_with_prefilled_message(): void
+    {
+        Setting::put(['whatsapp_number' => '970599123456']);
+        $u = User::factory()->create(['name' => 'أبو سامي', 'email' => 'p@example.test']);
+        $s = $u->students()->create(['name' => 'سامي', 'grade' => 6]);
+        $this->actingAs($u)->get('/account/subscribe')->assertOk()->assertSee('ادفع عبر واتساب')->assertSee('الرياضيات');
+        $r = $this->post('/account/subscribe', ['plan' => 'g6-math', 'student_id' => $s->id]);
+        $sub = $u->subscriptions()->firstOrFail();
+        $this->assertSame('pending', $sub->status);
+        $this->assertSame('g6-math', $sub->plan);
+        $loc = $r->headers->get('Location');
+        $this->assertStringStartsWith('https://wa.me/970599123456?text=', $loc);
+        $text = rawurldecode(substr($loc, strpos($loc, '=') + 1));
+        foreach (['أبو سامي', 'p@example.test', 'سامي', 'الرياضيات — الصف السادس', '٢٠', $sub->code] as $part) {
+            $this->assertStringContainsString($part, $text);
+        }
+        $this->post('/account/subscribe', ['plan' => 'g5-art'])->assertSessionHasErrors('plan');
+    }
+}

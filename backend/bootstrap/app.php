@@ -15,9 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trimStrings(except: [fn (Request $request) => $request->is('admin/api/*')]);
         $middleware->convertEmptyStringsToNull(except: [fn (Request $request) => $request->is('admin/api/*')]);
-        $middleware->web(prepend: [PrivateAdminResponse::class]);
-        $middleware->redirectGuestsTo(fn () => route('login'));
-        $middleware->redirectUsersTo(fn () => route('admin.index'));
+        $middleware->web(prepend: [PrivateAdminResponse::class], append: [App\Http\Middleware\LogoutDisabledUsers::class]);
+        $middleware->redirectGuestsTo(fn (Request $r) => $r->is('api/*') ? null : ($r->is('admin', 'admin/*') ? route('login') : route('account.login')));
+        $middleware->redirectUsersTo(fn (Request $r) => $r->is('account/*') ? route('account.home') : route('admin.index'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
