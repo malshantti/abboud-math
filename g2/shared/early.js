@@ -43,7 +43,7 @@
   function reference(lesson) {
     const refs=Array.isArray(lesson.references)&&lesson.references.length?lesson.references:[{book:lesson.book,page:lesson.page}];
     const links=refs.map(ref=>{const book=C.books.find(item=>item.id===ref.book);if(!book)return '';const page=Number.isInteger(ref.page)&&ref.page>0?ref.page:null,pdfPage=Number.isInteger(ref.pdfPage)?ref.pdfPage:page&&Number.isInteger(book.pdfOffset)?page+book.pdfOffset:null;
-      return '<a href="'+esc(book.url.split('#')[0]+(pdfPage?'#page='+pdfPage:''))+'" target="_blank" rel="noopener">'+shown(book.title)+(page?' · الصفحة المطبوعة '+ar(page):'')+'</a>';}).filter(Boolean);
+      return '<a href="'+esc(book.url.split('#')[0]+(pdfPage?'#page='+pdfPage:''))+'" target="_blank" rel="noopener" data-book-link>'+shown(book.title)+(page?' · الصفحة المطبوعة '+ar(page):'')+'</a>';}).filter(Boolean);
     const practice=Array.isArray(lesson.guidedPractice)?lesson.guidedPractice.slice():[];
     if(lesson.homeActivity&&typeof lesson.homeActivity.text==='string')practice.push({title:lesson.homeActivity.title||'أجرّب مع الكبير',text:lesson.homeActivity.text});
     return (links.length?'<p class="g1-reference">'+shown(lesson.referenceLabel||'نشاط مساند؛ المرجع:')+' '+links.join(' · ')+' <span>يفتح المصدر مع الإنترنت.</span></p>':'')+(practice.length?'<details class="g1-card g1-guided-practice"><summary>مع الكبير: أقرأ وأحكي وأكتب</summary><p>أنشطة شفهية وورقية؛ لا يصححها الموقع ولا يسجّل إتقانها.</p><ol>'+practice.map(item=>'<li><b>'+shown(item.title)+'</b><p>'+shown(item.text)+'</p></li>').join('')+'</ol></details>':'');
@@ -154,3 +154,6 @@
     if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(()=>{const target=query('.g1-connection');if(target)target.textContent='تعذّر تجهيز الأنشطة دون إنترنت. أبقِ الصفحة مفتوحة.';});
   }).catch(()=>{app.innerHTML='<p class="g1-notice" role="alert">تعذّر فتح ملف الطالب. عُد إلى صفحة الدخول.</p>';});
 })();
+
+/* إطلاق: روابط الكتاب الرسمية خارجية؛ دون اتصال نعرض ملاحظة بدل صفحة معطلة. */
+if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-book-link]');if(!a||navigator.onLine!==false)return;e.preventDefault();var n=a.parentNode.querySelector('.g1-offline-book');if(!n){n=document.createElement('span');n.className='g1-offline-book';n.setAttribute('role','status');a.insertAdjacentElement('afterend',n);}n.textContent='كتاب الوزارة يحتاج إلى اتصال بالإنترنت. يمكنك متابعة التدريب الآن، وفتح الكتاب حين يعود الاتصال.';},true);

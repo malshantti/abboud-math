@@ -1882,3 +1882,12 @@
     font-size:15px
   }
 }
+
+/* إطلاق: تغذية راجعة مرئية عند اختيار التجربة أو الحاسة */
+@keyframes g1-flash{0%{box-shadow:0 0 0 0 rgba(100,123,67,.55)}100%{box-shadow:0 0 0 14px rgba(100,123,67,0)}}
+.g1-flash{animation:g1-flash .7s ease-out}
+@media (prefers-reduced-motion:reduce){.g1-flash{animation:none;outline:3px solid #647b43;outline-offset:3px}}
+/* إطلاق: أهداف لمس لا تقل عن ٤٤ بكسل ونصوص لا تقل عن ١٥ بكسل على الهاتف */
+.g1-brand,.g1-switch,a.g1-switch{min-height:44px;display:inline-flex;align-items:center}
+@media (max-width:820px){.g1-switch{min-height:44px;font-size:15px}.g1-connection,.j-sidebar .g1-brand small,.g1-topbar small{font-size:15px}}
+.g1-offline-book{display:block;margin-top:6px;padding:8px 12px;border-radius:12px;background:#fff6dc;color:#5b4a12;font-size:15px;line-height:1.7}

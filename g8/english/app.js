@@ -110,7 +110,7 @@ async function offline(u,b){const fs=offFiles(u);if(!fs.length){b.textContent='�
   for(let t=0;t<3&&!ok;t++){try{if(await c.match(f,{ignoreVary:true})){ok=true;break}if(navigator.onLine===false)throw 0;const r=await fetch(f,{cache:'no-cache'});if(!r.ok)throw r.status;await c.put(f,r);ok=true}catch(e){if(navigator.onLine===false)break;await wait(400*(t+1))}}
   if(ok)n++;else fail.push(f);bar.value=n+fail.length;msg.textContent='جارٍ التنزيل: '+n+' من '+fs.length+(fail.length?' (تعذّر '+fail.length+')':'')}
  delete b.dataset.run;if(!document.body.contains(b))return;b.disabled=false;
- if(!fail.length){try{localStorage.setItem('en_off_'+(u.id||'all'),'1')}catch(e){}b.textContent='متاح دون إنترنت ✓ ('+n+' ملفًا محفوظًا على هذا الجهاز)';msg.textContent='اكتمل التنزيل.';b.disabled=true}
+ if(!fail.length){try{localStorage.setItem('en_off_'+(u.id||'all'),'1')}catch(e){}b.textContent='متاح دون إنترنت ('+n+' ملفًا محفوظًا على هذا الجهاز)';msg.textContent='اكتمل التنزيل.';b.disabled=true}
  else{b.textContent='أكمل التنزيل ('+fail.length+' ملفات متبقية)';msg.textContent=(navigator.onLine===false?'انقطع الاتصال بالإنترنت. ':'تعذّر تنزيل بعض الملفات. ')+'حُفظ '+n+' من '+fs.length+'، واضغط «أكمل التنزيل» للمتابعة من حيث توقّف.'}}
 /* ---------- محرّك الأسئلة ---------- */
 let SES=null;

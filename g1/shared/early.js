@@ -43,7 +43,7 @@
   function reference(lesson) {
     const refs=Array.isArray(lesson.references)&&lesson.references.length?lesson.references:[{book:lesson.book,page:lesson.page}];
     const links=refs.map(ref=>{const book=C.books.find(item=>item.id===ref.book);if(!book)return '';const page=Number.isInteger(ref.page)&&ref.page>0?ref.page:null,pdfPage=Number.isInteger(ref.pdfPage)?ref.pdfPage:page&&Number.isInteger(book.pdfOffset)?page+book.pdfOffset:null;
-      return '<a href="'+esc(book.url.split('#')[0]+(pdfPage?'#page='+pdfPage:''))+'" target="_blank" rel="noopener">'+shown(book.title)+(page?' · الصفحة المطبوعة '+ar(page):'')+'</a>';}).filter(Boolean);
+      return '<a href="'+esc(book.url.split('#')[0]+(pdfPage?'#page='+pdfPage:''))+'" target="_blank" rel="noopener" data-book-link>'+shown(book.title)+(page?' · الصفحة المطبوعة '+ar(page):'')+'</a>';}).filter(Boolean);
     const practice=Array.isArray(lesson.guidedPractice)?lesson.guidedPractice.slice():[];
     if(lesson.homeActivity&&typeof lesson.homeActivity.text==='string')practice.push({title:lesson.homeActivity.title||'أجرّب مع الكبير',text:lesson.homeActivity.text});
     return (links.length?'<p class="g1-reference">'+shown(lesson.referenceLabel||'نشاط مساند؛ المرجع:')+' '+links.join(' · ')+' <span>يفتح المصدر مع الإنترنت.</span></p>':'')+(practice.length?'<details class="g1-card g1-guided-practice"><summary>مع الكبير: أقرأ وأحكي وأكتب</summary><p>أنشطة شفهية وورقية؛ لا يصححها الموقع ولا يسجّل إتقانها.</p><ol>'+practice.map(item=>'<li><b>'+shown(item.title)+'</b><p>'+shown(item.text)+'</p></li>').join('')+'</ol></details>':'');
@@ -131,12 +131,12 @@
     else if(action==='retry-save')finish();
     else if(action==='answer')answer(Number(target.dataset.answer));
     else if(action==='adventure'){const unit=C.units.find(u=>u.id===target.dataset.unit);if(!unit)return;const pool=unit.lessons.flatMap(l=>l.tasks);const shuffled=pool.map(task=>({task,key:Math.random()})).sort((a,b)=>a.key-b.key).slice(0,3).map(row=>row.task);if(shuffled.length)begin({title:unit.title,tasks:shuffled,steps:[]},true);}
-    else if(action==='lab-mode'){labMode=target.dataset.mode;query('.j-count-lab').hidden=labMode!=='count';query('.j-shape-lab').hidden=labMode!=='shapes';app.querySelectorAll('[data-action="lab-mode"]').forEach(item=>{const selected=item.dataset.mode===labMode;item.setAttribute('aria-pressed',String(selected));item.classList.toggle('g1-selected',selected);});}
+    else if(action==='lab-mode'){labMode=target.dataset.mode;query('.j-count-lab').hidden=labMode!=='count';query('.j-shape-lab').hidden=labMode!=='shapes';app.querySelectorAll('[data-action="lab-mode"]').forEach(item=>{const selected=item.dataset.mode===labMode;item.setAttribute('aria-pressed',String(selected));item.classList.toggle('g1-selected',selected);});const shown=query(labMode==='count'?'.j-count-lab':'.j-shape-lab');if(shown){shown.classList.remove('g1-flash');void shown.offsetWidth;shown.classList.add('g1-flash');shown.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});}}
     else if(action==='add'||action==='subtract'){labCount=Math.max(0,Math.min(20,labCount+(action==='add'?1:-1)));counter();}
     else if(action==='new-counter'){labTarget=1+Math.floor(Math.random()*10);labCount=0;query('.j-count-prompt b').textContent=ar(labTarget);counter();}
     else if(action==='check-counter'){const ok=labCount===labTarget,feedback=query('[data-lab-feedback]');feedback.className='g1-feedback '+(ok?'g1-success':'g1-retry');feedback.textContent=ok?'أحسنت، هذه هي المجموعة المطلوبة.':'عُدّ التفاحات، ثم أضف أو أزل حتى تصبح '+ar(labTarget)+'.';}
     else if(action==='shape'){const texts={circle:'هذه دائرة. حدّها منحنٍ، وليس لها أضلاع مستقيمة.',square:'هذا مربّع. له أربعة أضلاع متساوية.',triangle:'هذا مثلّث. له ثلاثة أضلاع.',rectangle:'هذا مستطيل. له أربعة أضلاع، وكل ضلعين متقابلين متساويان.'};query('[data-shape-feedback]').textContent=texts[target.dataset.shape];app.querySelectorAll('[data-shape]').forEach(item=>item.setAttribute('aria-pressed',String(item===target)));}
-    else if(action==='sense'){query('[data-sense-feedback]').textContent=senses[Number(target.dataset.sense)].text;app.querySelectorAll('[data-sense]').forEach(item=>item.setAttribute('aria-pressed',String(item===target)));}
+    else if(action==='sense'){query('[data-sense-feedback]').textContent=senses[Number(target.dataset.sense)].text;app.querySelectorAll('[data-sense]').forEach(item=>{item.setAttribute('aria-pressed',String(item===target));item.classList.toggle('g1-selected',item===target);});const fb=query('[data-sense-feedback]');fb.classList.remove('g1-flash');void fb.offsetWidth;fb.classList.add('g1-flash');}
     else if(action==='clear-trace'){const canvas=query('.g1-canvas'),ctx=canvas.getContext('2d');ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.restore();}
     else if(action==='print')window.print();
   });
@@ -147,3 +147,6 @@
     if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(()=>{const target=query('.g1-connection');if(target)target.textContent='تعذّر تجهيز الأنشطة دون إنترنت. أبقِ الصفحة مفتوحة.';});
   }).catch(()=>{app.innerHTML='<p class="g1-notice" role="alert">تعذّر فتح ملف الطالب. عُد إلى صفحة الدخول.</p>';});
 })();
+
+/* إطلاق: روابط الكتاب الرسمية خارجية؛ دون اتصال نعرض ملاحظة بدل صفحة معطلة. */
+if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-book-link]');if(!a||navigator.onLine!==false)return;e.preventDefault();var n=a.parentNode.querySelector('.g1-offline-book');if(!n){n=document.createElement('span');n.className='g1-offline-book';n.setAttribute('role','status');a.insertAdjacentElement('afterend',n);}n.textContent='كتاب الوزارة يحتاج إلى اتصال بالإنترنت. يمكنك متابعة التدريب الآن، وفتح الكتاب حين يعود الاتصال.';},true);
