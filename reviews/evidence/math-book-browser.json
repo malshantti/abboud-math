@@ -1,0 +1,62 @@
+[
+  {
+    "grade": 1,
+    "width": 320,
+    "newLessons": 28,
+    "newQuestions": 91,
+    "wrongAnswerGuard": true,
+    "offlineSubjects": [
+      "math",
+      "arabic",
+      "english",
+      "life"
+    ],
+    "offlineRoutes": 20,
+    "errors": []
+  },
+  {
+    "grade": 2,
+    "width": 320,
+    "newLessons": 41,
+    "newQuestions": 120,
+    "wrongAnswerGuard": true,
+    "offlineSubjects": [
+      "math",
+      "arabic",
+      "english",
+      "life"
+    ],
+    "offlineRoutes": 20,
+    "errors": []
+  },
+  {
+    "grade": 1,
+    "width": 1366,
+    "newLessons": 28,
+    "newQuestions": 91,
+    "wrongAnswerGuard": true,
+    "offlineSubjects": [
+      "math",
+      "arabic",
+      "english",
+      "life"
+    ],
+    "offlineRoutes": 20,
+    "errors": []
+  },
+  {
+    "grade": 2,
+    "width": 1366,
+    "newLessons": 41,
+    "newQuestions": 120,
+    "wrongAnswerGuard": true,
+    "offlineSubjects": [
+      "math",
+      "arabic",
+      "english",
+      "life"
+    ],
+    "offlineRoutes": 20,
+    "errors": []
+  }
+]

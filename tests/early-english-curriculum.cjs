@@ -44,6 +44,11 @@ for(const grade of [1,2]){
  assert(index.indexOf('../shared/language-art.js')>index.indexOf('../shared/art.js')&&index.indexOf('../shared/language-art.js')<index.indexOf('../shared/early.js'),'Scene extension is ready before the application captures it');
  assert(sw.includes('"../shared/language-art.js"'),'Language scenes are available offline');
  const oldSw=cp.execFileSync('git',['show',`origin/main:g${grade}/english/sw.js`],{cwd:root,encoding:'utf8'});
- assert.notEqual(sw.match(/const V='([^']+)'/)[1],oldSw.match(/const V='([^']+)'/)[1],'Changed dependency receives changed cache version');
+ const dependencies=[`g${grade}/english/content.js`,`g${grade}/english/index.html`,`g${grade}/shared/language-art.js`];
+ const changed=dependencies.some(file=>{
+  let old;try{old=cp.execFileSync('git',['show','origin/main:'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});}catch{return true;}
+  return old.replace(/\r\n/g,'\n')!==read(file).replace(/\r\n/g,'\n');
+ });
+ if(changed)assert.notEqual(sw.match(/const V='([^']+)'/)[1],oldSw.match(/const V='([^']+)'/)[1],'Changed dependency receives changed cache version');
 }
 console.log('Early English curriculum: preserved IDs, quantity answers ('+checked+'), review coverage, visual evidence, safe local offline scenes.');

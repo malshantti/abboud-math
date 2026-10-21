@@ -25,7 +25,7 @@ for(const grade of [6,8])for(const subject of ['math','english','arabic','scienc
 const progress=load('g1/shared/early.js').G1_PROGRESS;
 const numeral=value=>String(value).replace(/[٠-٩]/g,n=>'٠١٢٣٤٥٦٧٨٩'.indexOf(n)).trim();
 const number=value=>/^\d+$/.test(numeral(value))?Number(numeral(value)):NaN;
-const supportedScenes=new Set(['ten-bridge','column-operation','ordinal','line-kind','solid','week-table','measure','data-table','survey','number-writing','position','count','items','symbol','shape','operation','fraction','place-value']);
+const supportedScenes=new Set(['number-line','ten-bridge','column-operation','ordinal','line-kind','solid','week-table','measure','data-table','survey','number-writing','clock','position','count','items','symbol','shape','operation','fraction','place-value']);
 const allIds=new Set(),usedIcons=new Set(),courses=[];
 function validateScene(scene,where){
   if(scene==null)return;

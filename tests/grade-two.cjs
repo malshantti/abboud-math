@@ -43,7 +43,7 @@ for(const grade of [6,8])for(const subject of ['math','english','arabic','scienc
 const progress=load('g2/shared/early.js').G1_PROGRESS;
 const numeral=value=>String(value).replace(/[٠-٩]/g,n=>'٠١٢٣٤٥٦٧٨٩'.indexOf(n)).trim();
 const number=value=>/^\d+$/.test(numeral(value))?Number(numeral(value)):NaN;
-const supportedScenes=new Set(['ten-bridge','column-operation','ordinal','line-kind','solid','week-table','measure','data-table','survey','number-writing','position','count','items','symbol','shape','operation','fraction','place-value','groups','clock']);
+const supportedScenes=new Set(['number-line','ten-bridge','column-operation','ordinal','line-kind','solid','week-table','measure','data-table','survey','number-writing','position','count','items','symbol','shape','operation','fraction','place-value','groups','clock']);
 const allIds=new Set(),usedIcons=new Set(),courses=[];
 function visibleText(value,where){ok(typeof value==='string'&&value.trim().length>0,'Visible text: '+where);ok(!/[0-9۰-۹]/.test(value),'Visible numbers use Arabic-Indic digits: '+where);ok(!/[\p{Extended_Pictographic}]/u.test(value),'No emoji in visible text: '+where);}
 function validateScene(scene,where){
@@ -72,7 +72,7 @@ function validateMath(task,where){
   }
   if(scene?.type==='operation')equal(number(answer),scene.operator==='+'?scene.left+scene.right:scene.left-scene.right,'Correct pictured arithmetic: '+where);
   if(scene?.type==='place-value'&&Number.isFinite(number(answer))){const expected=/كم (?:عشرة|عشرات)/.test(task.prompt)?scene.tens:/كم (?:مئة|مئات)/.test(task.prompt)?scene.hundreds:/كم (?:واحد|آحاد)/.test(task.prompt)?scene.ones:(scene.hundreds||0)*100+scene.tens*10+scene.ones;equal(number(answer),expected,'Correct pictured place value: '+where);}
-  if(scene?.type==='groups'&&Number.isFinite(number(answer)))equal(number(answer),/كم مجموعة|عدد المجموعات/.test(task.prompt)?scene.groups:/كل مجموعة/.test(task.prompt)&&!/المجموع/.test(task.prompt)?scene.countPerGroup:scene.groups*scene.countPerGroup,'Correct equal groups: '+where);
+  if(scene?.type==='groups'&&Number.isFinite(number(answer)))equal(number(answer),/كم مجموعة|عدد المجموعات/.test(task.prompt)?scene.groups:/(?:نصف|ثلث|ربع|خمس|ثمن) مجموعة/.test(task.prompt)||/كل مجموعة/.test(task.prompt)&&!/المجموع/.test(task.prompt)?scene.countPerGroup:scene.groups*scene.countPerGroup,'Correct quantity for the stated equal-group or set-fraction question: '+where);
   if(scene?.type==='fraction'&&scene.selected===1){const named={2:'نصف',3:'ثلث',4:'ربع',5:'خمس',8:'ثمن'}[scene.parts];ok(answer===named||numeral(answer).replace(/\s/g,'')==='1/'+scene.parts,'Correct pictured unit fraction: '+where);}
   if(scene?.type==='shape'&&/اسم هذا الشكل/.test(task.prompt))equal(answer,{circle:'دائرة',square:'مربع',triangle:'مثلث',rectangle:'مستطيل'}[scene.value],'Correct pictured shape: '+where);
   if(scene?.type==='symbol'){

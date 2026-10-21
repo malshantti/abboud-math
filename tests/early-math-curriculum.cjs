@@ -21,7 +21,9 @@ for(const g of[1,2]){
  }
  for(const sub of['math','english','arabic','life']){
   const worker=`g${g}/${sub}/sw.js`,version=s=>s.match(/const V=['"]([^'"]+)/)[1];
-  assert.notEqual(version(read(worker)),version(old(worker)),'Every shared-art consumer gets a new cache version');
+  const dependencies=[`g${g}/${sub}/content.js`,`g${g}/${sub}/index.html`,`g${g}/shared/art.js`,`g${g}/shared/early.js`,`g${g}/shared/early.css`,`g${g}/shared/offline.js`,'profiles.js'];
+  const changed=dependencies.some(p=>old(p).replace(/\r\n/g,'\n')!==read(p).replace(/\r\n/g,'\n'));
+  if(changed)assert.notEqual(version(read(worker)),version(old(worker)),'Changed runtime dependencies receive a new cache version');
  }
  const refs=lessons(c).flatMap(l=>l.references||[]);assert(refs.every(r=>c.books.some(b=>b.id===r.book)&&Number.isInteger(r.page)&&r.page>0),'Each multiple reference is a real book/page pair');
 }
