@@ -1,7 +1,7 @@
 @font-face{font-family:Cairo;src:url(fonts/cairo-arabic.woff2) format('woff2');font-weight:200 1000;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC,U+200C-200E}
 @font-face{font-family:Cairo;src:url(fonts/cairo-latin.woff2) format('woff2');font-weight:200 1000;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F,U+2212}
 @font-face{font-family:Baloo;src:url(fonts/baloo-arabic.woff2) format('woff2');font-weight:400 800;font-display:swap;unicode-range:U+0600-06FF,U+FB50-FDFF,U+FE70-FEFC}
-@font-face{font-family:Naskh;src:url(fonts/naskh.woff2) format('woff2');font-weight:400 700;font-display:swap}
+@font-face{font-family:Naskh;src:url(../arabic/fonts/naskh.woff2) format('woff2');font-weight:400 700;font-display:swap}
 :root{--bg:#f6f4ec;--card:#fff;--tx:#2d3320;--mut:#69705a;--line:#e5e2d3;--pri:#647b43;--pri-d:#4a5c30;--pri-l:#eef3e2;--acc:#e8a33d;--acc-d:#bf7f1f;--ok:#4f9a2c;--ok-d:#3b7a1e;--ok-bg:#e3f4d6;--bad:#d9483b;--bad-d:#a8332a;--bad-bg:#fde5e1;--blue:#2f7fb5;--blue-bg:#e2f0fa;--r:18px;--nav:66px}
 [data-theme=dark]{--bg:#171a12;--card:#22271a;--tx:#eef0e6;--mut:#aeb59c;--line:#353c29;--pri-l:#2c3520;--ok-bg:#20361a;--bad-bg:#3d1e1a;--blue-bg:#16303f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}

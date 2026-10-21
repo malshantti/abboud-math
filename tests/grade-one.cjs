@@ -74,7 +74,7 @@ for(const subject of ['math','arabic','english','life']){
   for(const unit of C.units){id(unit.id,'unit');ok([1,2].includes(unit.term),'Valid semester: '+unit.id);ok(C.books.some(b=>b.id===unit.book),'Unit book reference');equal(unit.book,`p${unit.term}`,'Unit book matches semester');ok(Number.isInteger(unit.page)&&unit.page>0,'Unit printed reference page');ok(unit.lessons.length>0,'Unit activities exist');unit.lessons.forEach(L=>lesson(L,unit.term));}
   (C.foundations||[]).forEach(L=>lesson(L));
   const serialized=JSON.stringify(C);ok(!/[\p{Extended_Pictographic}]/u.test(serialized),'No emoji: '+subject);
-  const index=read(`g1/${subject}/index.html`);ok(/lang="ar"/.test(index)&&/dir="rtl"/.test(index),'Arabic RTL page');for(const asset of ['../../profiles.js','content.js','../shared/art.js','../shared/early.js','../shared/early.css'])ok(index.includes(asset),'Local page dependency: '+asset);ok(!/<(?:script|link)\b[^>]*(?:src|href)="https?:/i.test(index),'No remote code or font dependency');
+  const index=read(`g1/${subject}/index.html`);ok(/lang="ar"/.test(index)&&/dir="rtl"/.test(index),'Arabic RTL page');for(const asset of ['../../profiles.js','content.js','../shared/art.js','../shared/early.js','../shared/early.css'])ok(index.includes(asset),'Local page dependency: '+asset);ok(!/<(?:script|link)\b(?![^>]*rel="canonical")[^>]*(?:src|href)="https?:/i.test(index),'No remote code or font dependency');
   courses.push({subject,units:C.units.length,lessons:lessonCount,tasks:taskCount,key:C.key});
 }
 const English=load('g1/english/content.js').G1_COURSE;
