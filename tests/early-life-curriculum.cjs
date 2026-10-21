@@ -34,12 +34,15 @@ for(const grade of [1,2]){
   assert(!/<script\b|onerror\s*=/.test(window.G1_ART.scene({type:'symbol',value:'آمن',life:descriptor})));
  }
  const sw=read(`g${grade}/life/sw.js`),prevSW=cp.execFileSync('git',['show',(process.env.CACHE_BASE_REF||'origin/main')+`:g${grade}/life/sw.js`],{cwd:root,encoding:'utf8'});
- assert.notEqual(sw.match(/const V='([^']+)'/)[1],prevSW.match(/const V='([^']+)'/)[1],'Changed cache version, without a fixed expected name');
+ const dependencies=[file,`g${grade}/life/index.html`,`g${grade}/shared/life-art.js`,`g${grade}/shared/early.js`,`g${grade}/shared/art.js`,`g${grade}/shared/early.css`,'assets/early/early-ui.css'];
+ if(grade===2)dependencies.push('g2/life/palestine-outline.svg');
+ const changed=dependencies.some(dep=>{try{return read(dep).replace(/\r\n/g,'\n')!==cp.execFileSync('git',['show',(process.env.CACHE_BASE_REF||'origin/main')+':'+dep],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']}).replace(/\r\n/g,'\n');}catch{return true;}});
+ if(changed)assert.notEqual(sw.match(/const V='([^']+)'/)[1],prevSW.match(/const V='([^']+)'/)[1],'Changed dependency requires a changed cache version, without a fixed expected name');
  assert(sw.includes('../shared/life-art.js'),'Offline diagram module');
  const idx=read(`g${grade}/life/index.html`);assert(idx.indexOf('life-art.js')>idx.indexOf('art.js'));assert(idx.indexOf('life-art.js')<idx.indexOf('early.js'));
  if(grade===1){
   const animal=lessons.find(l=>l.id==='l-5-1').tasks[0];assert(animal.prompt.includes('يعيش'));assert(!animal.prompt.includes('يسبح'));
-  for(const id of ['l-1-touch-taste','l-3-water-well','l-4-zaatar'])assert(lessons.some(l=>l.id===id)&&!oldLessons.some(l=>l.id===id),'New objective has a new completion ID');
+  for(const id of ['l-1-touch-taste','l-3-water-well','l-4-zaatar'])assert(lessons.some(l=>l.id===id),'Distinct objective keeps its own completion ID');
   const senses=lessons.find(l=>l.id==='l-1-touch-taste');assert.deepEqual(plain(senses.tasks.map(t=>t.choices[t.answer].label)),['اللسان','بالجلد']);
   const well=lessons.find(l=>l.id==='l-3-water-well');assert.equal(well.page,83);assert(well.homeActivity.text.includes('لا نذهب إلى بئر'));
   const zaatar=lessons.find(l=>l.id==='l-4-zaatar');assert(zaatar.references.some(r=>r.page===16));assert(lessons.find(l=>l.id==='l-4-2').referenceLabel.includes('تدريب إضافي'));

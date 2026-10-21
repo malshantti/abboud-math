@@ -148,7 +148,7 @@
     return supplement(number,suffix,title,models.map(m=>typeof m==='string'?{text:m}:m),tasks);
   }
   function addReviews(number,sourceNumbers){
-    const pool=sourceNumbers.flatMap(n=>getUnit(n).lessons.map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
+    const pool=sourceNumbers.flatMap(n=>getUnit(n).lessons.filter(lesson=>!lesson.id.includes('-book-')).map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
     for(let start=0;start<pool.length;start+=4){
       const rows=pool.slice(start,start+4),review=supplement(number,'mixed-review-'+(start/4+1),'أراجع كلمات ومواقف',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(c=>({...c}))})));
       review.reviewOf=rows.map(({lesson})=>lesson.id);
@@ -378,9 +378,109 @@
     lesson.referenceKind='unit-start';
   }
 
-  addReviews(5,[1,2,3,4]);addReviews(9,[6,7,8]);addReviews(14,[10,11,12,13]);addReviews(18,[10,11,12,13,15,16,17]);
 
-  window.G1_COURSE={grade:2,id:'english',title:'اللغة الإنجليزية',key:'bustan_g2_english_v1',books:[{id:'p1',title:'English for Palestine 2A',url:'https://elearn.azureedge.net/Books/c2/en2-p1.pdf'},{id:'p2',title:'English for Palestine 2B',url:'https://elearn.azureedge.net/Books/c2/en2-p2.pdf'}],sourceNote:'أنشطة أصلية قصيرة لدعم كلمات وتراكيب الصف الثاني. عناوين الوحدات وإحالات بداية الوحدة من الكتابين الرسميين؛ لا تنقل هذه الأنشطة تمارين الكتاب، ولا تمثل تغطية كاملة لجميع الفترات أو مهارات الاستماع والمحادثة والقراءة والكتابة. لا توجد تسجيلات جديدة في هذه الإضافة. يقرأ شخص كبير الكلمة عند الحاجة، ويُرجع إلى الكتاب والمعلم.',units,foundations:[language('en2-foundation','p1',4,'أربط الكلمة بجملة',[
+  // Uppercase forms occur throughout part A, including new letters in Revision.
+  for(const [number,letters,page] of [[1,'ac',9],[2,'eo',15],[3,'dgq',21],[4,'ilt',25],[5,'bhp',31],[6,'mnr',37],[7,'juy',45],[8,'vwx',49],[9,'fksz',57]]){
+    const set=[...letters],L=supplement(number,'book-letter-pairs-'+letters,'أربط الحروف الصغيرة بالكبيرة',set.map(letter=>({text:'الحرف '+letter+' وصورته الكبيرة '+letter.toUpperCase()+'. ألاحظ الشكلين وأكتبهما مع الكبير.',scene:sym(letter+' '+letter.toUpperCase())})),set.map(letter=>question('أي حرف كبير يقابل الحرف الصغير '+letter+'؟',letter.toUpperCase(),letter==='c'?'A':'C','الصغير '+letter+' يقابله الكبير '+letter.toUpperCase()+'.')));
+    L.goal='أطابق الحروف الصغيرة والكبيرة وأتدرّب على خطّها مع الكبير.';L.page=page;L.references=[{book:'p1',page,pdfPage:page}];L.referenceKind='verified-pages';L.referenceLabel='تدريب مساند لمجموعة الحروف في الصفحة المتحققة:';
+    L.guidedPractice=[{title:'أكتب الشكلين',text:'أفتح الصفحة '+indic(page)+' من الجزء الأول مع الكبير. ألاحظ نموذج الحرف الصغير والكبير وأرقام مسارهما في الكتاب، ثم أتتبعهما وأنسخهما على ورقة. لا يصحح الموقع جودة خطي أو اتجاهه.'}];
+  }
+  for(let n=1;n<=10;n+=2){
+    const values=[n,n+1],L=supplement(1,'book-number-review-'+n,'أراجع أسماء الأعداد',values.map(value=>({text:'أعدّ '+indic(value)+' عناصر، وأقرأ اسم العدد: '+numberWords[value]+'.',scene:{type:'count',icon:'ball',count:value}})),values.map(value=>question('أعدّ الكرات وأختار اسم العدد بالإنجليزية.',numberWords[value],numberWords[value===10?9:value+1],numberWords[value]+' هو اسم العدد '+indic(value)+'.',{type:'count',icon:'ball',count:value})));
+    L.references=[{book:'p1',page:4,pdfPage:4},{book:'p1',page:5,pdfPage:5}];L.referenceKind='verified-pages';L.referenceLabel='مراجعة مساندة للأعداد من واحد إلى عشرة؛ الصفحات المتحققة:';
+  }
+  const name=supplement(1,'book-friend-profile','أقرأ اسم الصديق والصديقة',[
+    {text:'This is my friend. His name’s Sami. هذا صديقي. اسمه سامي.',scene:personScene({role:'boy'})},
+    {text:'This is my friend. Her name’s Mira. هذه صديقتي. اسمها ميرا.',scene:personScene({role:'girl'})}
+  ],[
+    question('أتحدث عن اسم صديق، فأقول: ... name’s Sami.','His','Her','His name’s تعني اسمه في هذا المثال.'),
+    question('أتحدث عن اسم صديقة، فأقول: ... name’s Mira.','Her','His','Her name’s تعني اسمها في هذا المثال.')
+  ]);name.references=[{book:'p1',page:9,pdfPage:9}];name.referenceKind='verified-pages';name.referenceLabel='حوار أصلي مساند لبطاقة الصديق؛ الصفحة المتحققة:';
+  const food=supplement(2,'book-food-dialogue','أخبر عن الطعام الذي أحبه',[
+    'يسألني الكبير: What do you like? أجيب عن نفسي: I like fish. أحب السمك.',
+    'أقرأ عن سامي: He likes fish and rice. هو يحب السمك والأرز. and تعني و.'
+  ],[
+    question('يسألني شخص: What do you like? وأحب السمك. ماذا أقول عن نفسي؟','I like fish.','He likes fish.','أستعمل I حين أتحدث عن نفسي.'),
+    question('أقرأ: He likes fish and rice. ماذا يحب؟','السمك والأرز.','السمك فقط.','and تجمع الطعامين المذكورين في المثال.')
+  ]);food.references=[{book:'p1',page:10,pdfPage:10},{book:'p1',page:13,pdfPage:13}];food.referenceKind='verified-pages';food.referenceLabel='حوار أصلي مساند لتفضيلات الطعام؛ الصفحات المتحققة:';
+  const negative=supplement(6,'book-negative-instructions','أفهم التعليمة والنهي عنها',[
+    'Open the door. افتح الباب. Don’t open the door. لا تفتح الباب. أقرأ التعليمتين ولا يلزم تنفيذ أي حركة.',
+    'Jump. اقفز. Don’t jump. لا تقفز. كلمة Don’t تغيّر التعليمة إلى النهي عن الفعل.'
+  ],[
+    question('أي عبارة تعني: لا تفتح الباب؟','Don’t open the door.','Open the door.','Don’t open نهي عن الفتح.'),
+    question('أي عبارة تعني: لا تقفز؟','Don’t jump.','Jump.','Don’t jump نهي عن القفز. تكفي قراءة العبارة وفهمها.')
+  ]);negative.references=[{book:'p1',page:38,pdfPage:38},{book:'p1',page:39,pdfPage:39}];negative.referenceKind='verified-pages';negative.referenceLabel='تدريب أصلي على التعليمات والنهي؛ الصفحات المتحققة:';
+  const alphabet=supplement(9,'book-alphabet-order','أراجع ترتيب الحروف',[
+    {text:'ألاحظ بداية ترتيب الحروف الكبيرة: A B C D.',scene:sym('A B C D')},
+    {text:'ألاحظ نهاية ترتيب الحروف الصغيرة: w x y z. أراجع الأبجدية مع الكبير في نهاية الكتاب.',scene:sym('w x y z')}
+  ],[
+    question('أكمل بالترتيب: A B ... D','C','F','يأتي C بعد B في الأبجدية.'),
+    question('أكمل بالترتيب: w ... y z','x','a','يأتي x بعد w وقبل y.')
+  ]);alphabet.references=[{book:'p1',page:57,pdfPage:57},{book:'p1',page:62,pdfPage:62},{book:'p1',page:63,pdfPage:63}];alphabet.referenceKind='verified-pages';alphabet.referenceLabel='مراجعة أصلية لترتيب الأبجدية؛ الصفحات المتحققة:';
+  const hobby=supplement(10,'book-we-like','أتحدث عن هواية نحبها معًا',[
+    'I like drawing. أحب الرسم. We like drawing. نحب الرسم. We تعني نحن.',
+    'She likes drawing. هي تحب الرسم. ألاحظ الفرق بين We like وShe likes.'
+  ],[
+    question('مجموعة تتحدث عن نفسها: ... like drawing.','We','She','مع We نقول like.'),
+    question('أتحدث عن صديقة: She ... drawing.','likes','like','مع She نقول likes.')
+  ]);hobby.references=[{book:'p2',page:8,pdfPage:8},{book:'p2',page:9,pdfPage:9}];hobby.referenceKind='verified-pages';hobby.referenceLabel='حوار أصلي مساند للهوايات؛ الصفحات المتحققة:';
+  const desk=supplement(12,'book-desk-relationships','ألاحظ أدواتي ومكانها',[
+    {text:'The keyboard is next to the mouse. لوحة المفاتيح بجانب فأرة الحاسوب.',scene:{type:'symbol',value:'ألاحظ الأداتين.',deskItems:'keyboard-mouse'}},
+    {text:'The eraser is between the ruler and the pen. الممحاة بين المسطرة وقلم الحبر.',scene:{type:'symbol',value:'ألاحظ الأدوات الثلاث.',deskItems:'ruler-eraser-pen'}}
+  ],[
+    question('ألاحظ الأداتين وأكمل: The keyboard is ... the mouse.','next to','under','لوحة المفاتيح بجانب فأرة الحاسوب.',{type:'symbol',value:'ألاحظ الأداتين.',deskItems:'keyboard-mouse'}),
+    question('ألاحظ الأدوات وأكمل: The eraser is ... the ruler and the pen.','between','under','الممحاة بين المسطرة وقلم الحبر.',{type:'symbol',value:'ألاحظ الأدوات الثلاث.',deskItems:'ruler-eraser-pen'})
+  ]);desk.references=[{book:'p2',page:19,pdfPage:19},{book:'p2',page:20,pdfPage:20},{book:'p2',page:21,pdfPage:21}];desk.referenceKind='verified-pages';desk.referenceLabel='نشاط أصلي لعلاقات الأدوات؛ الصفحات المتحققة:';
+  const looks=supplement(15,'book-eye-hair-colours','ألاحظ لون الشعر والعينين',[
+    {text:'He has brown hair and blue eyes. له شعر بني وعينان زرقاوان.',scene:personScene({role:'boy',hairColor:'brown',eyeColor:'blue'})},
+    {text:'She has red hair and brown eyes. لها شعر أحمر وعينان بنيتان.',scene:personScene({role:'girl',hair:'long',hairColor:'red',eyeColor:'brown'})}
+  ],[
+    question('ألاحظ الشخصية. ما لون عينيها؟','Blue.','Green.','العينان زرقاوان: blue eyes.',personScene({role:'boy',hairColor:'brown',eyeColor:'blue'})),
+    question('ألاحظ الشخصية. ما لون شعرها؟','Red.','Black.','الشعر أحمر: red hair.',personScene({role:'girl',hair:'long',hairColor:'red',eyeColor:'brown'}))
+  ]);looks.references=[{book:'p2',page:37,pdfPage:37},{book:'p2',page:39,pdfPage:39}];looks.referenceKind='verified-pages';
+  const speed=supplement(11,'book-speed-words','أفهم وصف السرعة',[
+    'fast تعني سريعًا، وslow تعني بطيئًا. very fast تعني سريعًا جدًا، وvery slow تعني بطيئًا جدًا.',
+    'أقرأ وصفًا في قصة: This car is very slow. هذه السيارة بطيئة جدًا. الوصف في الجملة؛ لا نحكم على سرعة سيارة حقيقية من صورة ثابتة.'
+  ],[
+    question('ما معنى very fast في وصف وسيلة نقل؟','سريعة جدًا.','بطيئة جدًا.','very fast تعني سريعة جدًا.'),
+    question('أقرأ: This car is very slow. كيف يصف النص السيارة؟','بطيئة جدًا.','سريعة جدًا.','slow تعني بطيئة؛ وvery تضيف معنى جدًا.')
+  ]);speed.references=[{book:'p2',page:13,pdfPage:13}];speed.referenceKind='verified-pages';
+  const nearFar=supplement(16,'book-near-far','أسأل عن شيء قريب أو بعيد',[
+    'أشير إلى زهرة قريبة مني وأسأل: What’s this? ما هذا؟',
+    'أشير إلى جبل بعيد عني وأسأل: What’s that? ما ذاك؟ يستعمل المتحدث this للقريب وthat للبعيد في هذا الموقف.'
+  ],[
+    question('أشير إلى زهرة قريبة مني. أي سؤال يناسب الموقف؟','What’s this?','What’s that?','في هذا الموقف نستعمل this للشيء القريب.'),
+    question('أشير إلى جبل بعيد عني. أي سؤال يناسب الموقف؟','What’s that?','What’s this?','في هذا الموقف نستعمل that للشيء البعيد.')
+  ]);nearFar.references=[{book:'p2',page:40,pdfPage:40}];nearFar.referenceKind='verified-pages';
+  const candles=supplement(17,'book-count-candles','أعدّ شموع الكعكة',[
+    {text:'candles تعني شموعًا. أعدّ الشموع في الرسم، ولا ألمس شموعًا مشتعلة.',scene:{type:'symbol',value:'أعدّ الشموع.',birthdayCandles:7}},
+    {text:'Seven candles. سبع شموع. نحن نعدّ عناصر الرسم؛ ولا نستنتج عمر شخص حقيقي من صورة الكعكة.',scene:{type:'symbol',value:'أعدّ الشموع.',birthdayCandles:7}}
+  ],[
+    question('أعدّ الشموع في الرسم وأختار الوصف.','Seven candles.','Five candles.','في الرسم سبع شموع.',{type:'symbol',value:'أعدّ الشموع.',birthdayCandles:7}),
+    question('أعدّ الشموع في الرسم وأختار الوصف.','Five candles.','Seven candles.','في الرسم خمس شموع.',{type:'symbol',value:'أعدّ الشموع.',birthdayCandles:5})
+  ]);candles.references=[{book:'p2',page:46,pdfPage:46},{book:'p2',page:54,pdfPage:54}];candles.referenceKind='verified-pages';
+  const yearAlphabet=supplement(18,'book-year-alphabet','أراجع الأبجدية في نهاية العام',[
+    {text:'أرتب جزءًا من الحروف الكبيرة: D E F G.',scene:sym('D E F G')},
+    {text:'أرتب جزءًا من الحروف الصغيرة: m n o p. أكمل الأبجدية مع الكبير في الكراس.',scene:sym('m n o p')}
+  ],[
+    question('أكمل بالترتيب: D E ... G','F','B','الحرف F يأتي بعد E وقبل G.'),
+    question('أكمل بالترتيب: m n ... p','o','x','الحرف o يأتي بعد n وقبل p.')
+  ]);yearAlphabet.references=[{book:'p2',page:57,pdfPage:57}];yearAlphabet.referenceKind='verified-pages';yearAlphabet.guidedPractice=[{title:'أكمل الحروف مع الكبير',text:'أفتح الصفحة ٥٧ من الجزء الثاني وأكمل تدريب الأبجدية مع الكبير. لا يصحح الموقع كتابتي أو يسجل إتقان جميع الحروف من سؤالين.'}];
+  for(const L of units.flatMap(unit=>unit.lessons).filter(L=>L.id.includes('-book-')))L.steps=L.steps.map(step=>typeof step==='string'?{text:step}:step);
+
+  // Keep established review IDs on their original targets; book additions get new IDs.
+  function addBookReviews(number,sources){
+    const pool=sources.flatMap(n=>getUnit(n).lessons.filter(l=>l.id.includes('-book-')&&!l.reviewOf).map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
+    for(let start=0;start<pool.length;start+=4){
+      const rows=pool.slice(start,start+4),L=supplement(number,'book-review-'+(start/4+1),'أراجع مهارات الكتاب',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(choice=>({...choice}))})));
+      L.reviewOf=rows.map(({lesson})=>lesson.id);L.referenceLabel='مراجعة أصلية للمهارات المضافة؛ صفحات مرجعية:';
+      const seen=new Set();L.references=rows.flatMap(({lesson})=>lesson.references||[{book:lesson.book,page:lesson.page}]).filter(ref=>{const key=ref.book+':'+ref.page;if(seen.has(key))return false;seen.add(key);return true;});
+    }
+  }
+  addReviews(5,[1,2,3,4]);addReviews(9,[6,7,8]);addReviews(14,[10,11,12,13]);addReviews(18,[10,11,12,13,15,16,17]);
+  addBookReviews(5,[1,2,3,4]);addBookReviews(9,[6,7,8]);addBookReviews(14,[10,11,12,13]);addBookReviews(18,[10,11,12,13,15,16,17]);
+
+  window.G1_COURSE={grade:2,id:'english',title:'اللغة الإنجليزية',key:'bustan_g2_english_v1',books:[{id:'p1',title:'English for Palestine 2A',url:'https://elearn.azureedge.net/Books/c2/en2-p1.pdf'},{id:'p2',title:'English for Palestine 2B',url:'https://elearn.azureedge.net/Books/c2/en2-p2.pdf'}],sourceNote:'أنشطة أصلية قصيرة لدعم كلمات وتراكيب الصف الثاني. عناوين الوحدات وإحالات بدايتها من الكتابين الرسميين، والأنشطة الإضافية تحيل إلى صفحات روجعت؛ لا تنقل هذه الأنشطة تمارين الكتاب، ولا تمثل تغطية كاملة لجميع الفترات أو مهارات الاستماع والمحادثة والقراءة والكتابة. لا توجد تسجيلات جديدة في هذه الإضافة. يقرأ شخص كبير الكلمة عند الحاجة، ويُرجع إلى الكتاب والمعلم.',units,foundations:[language('en2-foundation','p1',4,'أربط الكلمة بجملة',[
     {text:'book تعني كتابًا.',scene:picture('book')},
     {text:'This is a book. تعني: هذا كتاب.'}
   ],[
@@ -393,7 +493,9 @@
     {words:['I','am','from','Palestine.'],scene:picture('flag'),hint:'أبدأ بكلمة I، ثم am، ثم from.'}
   ]}};
   for(const lesson of [...window.G1_COURSE.units.flatMap(unit=>unit.lessons),...window.G1_COURSE.foundations]){
-    lesson.referenceKind='unit-start';
-    lesson.referenceLabel='نشاط مساند للوحدة؛ مرجع بداية الوحدة:';
+    lesson.referenceKind||='unit-start';
+    lesson.referenceLabel||='نشاط مساند للوحدة؛ مرجع بداية الوحدة:';
+    if(lesson.id.includes('-book-'))lesson.referenceLabel='نشاط مساند؛ مرجع الكتاب:';
+    if(lesson.referenceKind==='verified-pages'&&lesson.references?.[0])lesson.page=lesson.references[0].page;
   }
 })();
