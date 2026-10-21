@@ -8,7 +8,7 @@
 if(window.BUSTAN_SYNC)return;
 const LS=window.localStorage,me=document.currentScript,root=new URL('./',me&&me.src||location.href);
 const API=window.BUSTAN_API||new URL('admin-api/api/',root).href;
-const K={account:'bustan_account',on:'bustan_sync',state:'bustan_sync_state',access:'bustan_sync_access',dismiss:'bustan_banner_dismissed',trialDismiss:'bustan_trial_dismissed'};
+const K={roster:'bustan_roster',account:'bustan_account',on:'bustan_sync',state:'bustan_sync_state',access:'bustan_sync_access',dismiss:'bustan_banner_dismissed',trialDismiss:'bustan_trial_dismissed'};
 const get=k=>{try{return LS.getItem(k)}catch(e){return null}},set=(k,v)=>{try{v==null?LS.removeItem(k):LS.setItem(k,v)}catch(e){}};
 const J=(k,d)=>{try{const v=JSON.parse(get(k));return v==null?d:v}catch(e){return d}};
 const web=/^https?:$/.test(location.protocol);
@@ -52,14 +52,18 @@ function badge(){
 
 // ---- قفل المادة غير المشترك فيها ----
 function gate(access,urls){
- if(!subject||!access||access.subjects==null||access.subjects.includes(subject))return;
+ if(!subject||!access)return;
+ const P=window.PROFILES,me=P&&P.current&&P.current(),[gc,sc]=subject.split('-'),g=+gc.slice(1);
+ const ent=me&&P.roster&&P.roster()?P.entitlement(me.id,g,sc):(access.subjects==null?(access.allowed===false?'locked':'ok'):access.subjects.includes(subject)?'ok':'locked');
+ if(ent==='ok')return;
  const show=()=>{if(document.getElementById('bustan-locked'))return;const app=document.querySelector('#app');if(app)app.inert=true;
   const d=document.createElement('div');d.id='bustan-locked';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');d.setAttribute('aria-labelledby','bustan-locked-t');
   d.style.cssText='position:fixed;inset:0;z-index:10000;background:#fbf8efee;display:grid;place-items:center;padding:20px;direction:rtl';
   d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;box-shadow:0 4px 0 #e2e7d9;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b"><h2 id="bustan-locked-t" style="margin:0 0 8px;color:#3e5729"></h2><p style="margin:0 0 18px"></p><a style="display:inline-flex;align-items:center;min-height:48px;padding:10px 24px;border-radius:16px;background:#1f9d55;color:#fff;font-weight:700;text-decoration:none;box-shadow:0 4px 0 #13693a"></a><p style="margin:16px 0 0"><a style="color:#3e5729"></a></p></div>';
-  d.querySelector('h2').textContent=access.kind==='expired'?'انتهت الفترة التجريبية':'هذه المادة غير مشمولة باشتراكك';
-  d.querySelector('p').textContent='تقدّم طفلك محفوظ ولن يضيع. اشترك في هذه المادة لمتابعة الدروس، والدفع عبر واتساب.';
-  const [go,back]=d.querySelectorAll('a');go.textContent='صفحة الاشتراك';go.href=urls.subscribe;back.textContent='العودة إلى البداية';back.href=new URL('login.html',root).href;
+  const other=ent==='grade'||ent==='none';
+  d.querySelector('h2').textContent=other?(ent==='grade'?'هذه المادة ليست من صف الطالب':'هذا الملف ليس من أبناء الحساب'):access.kind==='expired'?'انتهت الفترة التجريبية':'هذه المادة غير مشمولة باشتراكك';
+  d.querySelector('p').textContent=other?'يحدّد ولي الأمر صف كل طالب من صفحة الحساب، ويتعلّم الطالب مواد صفه فقط.':'تقدّم طفلك محفوظ ولن يضيع. اشترك في هذه المادة لمتابعة الدروس، والدفع عبر واتساب.';
+  const [go,back]=d.querySelectorAll('a');go.textContent=other?'إدارة الأبناء':'اشترك';go.href=other?new URL('admin-api/account',root).href:urls.subscribe;back.textContent='العودة إلى البداية';back.href=new URL('login.html',root).href;
   document.body.append(d);go.focus()};
  document.body?show():addEventListener('DOMContentLoaded',show);
 }
@@ -86,7 +90,7 @@ function trialBanner(access){
 // من سجّل الدخول من قبل على هذا الجهاز (bustan_account) يتابع دون إنترنت أو مع اتصال ضعيف؛ لا نُقفل إلا حين يؤكد الخادم أن الجلسة انتهت.
 const loginUrl=()=>new URL('admin-api/account/login',root).href+'?return='+encodeURIComponent(location.href);
 function reveal(){try{delete document.documentElement.dataset.gate}catch(e){}}
-function requireLogin(){set(K.account,null);set(K.access,null);location.replace(loginUrl())}
+function requireLogin(){set(K.account,null);set(K.access,null);set(K.roster,null);location.replace(loginUrl())}
 function offlineNotice(){
  const show=()=>{if(document.getElementById('bustan-signin'))return;reveal();const app=document.querySelector('#app');if(app)app.inert=true;
   const d=document.createElement('div');d.id='bustan-signin';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
@@ -109,7 +113,6 @@ async function lessonGate(){
 }
 
 // ---- المزامنة ----
-function grade(data){let g=parseInt(data&&data.bustan_grade,10);if(!g)try{g=JSON.parse(data.bustan_last).grade}catch(e){}return [1,2,6,8].includes(g)?g:null}
 async function sync(){
  if(!enabled()||!web||!window.PROFILES||!navigator.onLine)return;
  const P=window.PROFILES;await P.ready;
@@ -118,13 +121,13 @@ async function sync(){
  const save=()=>set(K.state,JSON.stringify(st));
  const servers=new Map(session.students.map(s=>[s.id,s]));
  let backup=P.backup();const local=backup.profiles;
- // ١) كل ملف محلي غير مربوط يُنشأ له طالب على الخادم ويُستورد تقدّمه كاملًا (أول دخول: لا شيء يضيع).
+ // ١) ملف محلي يعرفه الخادم (local_id) يُربط بطالبه ويُستورد تقدّمه. الملفات الأخرى لا تُرفع.
  for(const p of local){
   if(st.map[p.id]&&servers.has(st.map[p.id]))continue;
   const data=backup.data[p.id]||{};
-  const found=session.students.find(s=>s.local_id===p.id);
-  const s=found||(await api('students',{body:{name:p.name||'طالب',local_id:p.id,avatar:p.avatar,grade:grade(data)}})).student;
-  servers.set(s.id,s);st.map[p.id]=s.id;st.base[p.id]={};
+  // لا يُنشأ طالب من الجهاز: يضيف ولي الأمر أبناءه من صفحة الحساب. يُربط الملف المحلي فقط إن كان الخادم يعرفه.
+  const s=session.students.find(x=>x.local_id===p.id);if(!s)continue;
+  st.map[p.id]=s.id;st.base[p.id]={};
   const items={},now=Date.now();Object.entries(data).forEach(([k,v])=>{if(typeof v==='string')items[k]={value:v,updated:now}});
   const res=await api('students/'+s.id+'/import',{method:'POST',body:{items}});
   Object.keys(items).forEach(k=>{if(res.items[k]&&res.items[k].value===items[k].value)st.base[p.id][k]=fnv(items[k].value)});
@@ -141,16 +144,23 @@ async function sync(){
   await P.restore({app:'bustan-backup-v1',profiles:[{id,name:s.name,avatar:s.avatar}],data:{[id]:data}});
   st.map[id]=s.id;st.base[id]={};Object.entries(data).forEach(([k,v])=>st.base[id][k]=fnv(v));save();
  }
+ // ٢ب) قائمة أبناء الحساب، وإزالة الملفات المحلية التي لا تخصّه، وتثبيت صف كل طالب كما حدّده ولي الأمر.
+ for(const [lid,sid] of Object.entries(st.map))if(!servers.has(sid)){delete st.map[lid];delete st.base[lid]}
+ const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null}});
+ set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster}));save();
+ if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id))await P.remove(p.id);
+  for(const r of roster){const p=P.find(r.local);if(p&&r.grade&&P.dataOf(r.local,'bustan_grade')!==r.grade)await P.restore({app:'bustan-backup-v1',profiles:[p],data:{[r.local]:{bustan_grade:String(r.grade)}}})}}
+ try{if(typeof CustomEvent==='function')dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}
  // ٣) رفع ما تغيّر محليًا، وسحب ما تغيّر على الخادم (السحب في صفحات الدخول فقط).
  backup=P.backup();
  for(const [lid,sid] of Object.entries(st.map)){
   const p=P.find(lid);if(!p){delete st.map[lid];delete st.base[lid];save();continue}
   const data=backup.data[lid]||{},base=st.base[lid]||(st.base[lid]={}),items={},now=Date.now();
-  Object.entries(data).forEach(([k,v])=>{if(typeof v==='string'&&base[k]!==fnv(v))items[k]={value:v,updated:now}});
+  Object.entries(data).forEach(([k,v])=>{if(k!=='bustan_grade'&&typeof v==='string'&&base[k]!==fnv(v))items[k]={value:v,updated:now}});
   const res=Object.keys(items).length?await api('students/'+sid+'/progress',{method:'PUT',body:{items}}):(entryPage?await api('students/'+sid+'/progress'):null);
   if(!res)continue;
-  const pull={};
-  Object.entries(res.items||{}).forEach(([k,v])=>{if(typeof v.value!=='string')return;
+  const pull={};(res.rejected||[]).forEach(k=>{if(items[k])base[k]=fnv(items[k].value)});// رفضه الخادم (صف آخر أو مادة غير مشمولة): لا يُعاد إرساله، ويبقى محليًا
+  Object.entries(res.items||{}).forEach(([k,v])=>{if(typeof v.value!=='string'||k==='bustan_grade')return;
    if(items[k]&&items[k].value===v.value){base[k]=fnv(v.value);return}
    if(entryPage&&data[k]!==v.value&&!items[k])pull[k]=v.value;});
   if(Object.keys(pull).length){await P.restore({app:'bustan-backup-v1',profiles:[p],data:{[lid]:pull}});Object.entries(pull).forEach(([k,v])=>base[k]=fnv(v))}
@@ -174,6 +184,6 @@ async function start(){
  addEventListener('online',run);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});
 }
-window.BUSTAN_SYNC={run,enabled,daysText,disable(){set(K.on,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
+window.BUSTAN_SYNC={run,enabled,daysText,disable(){set(K.on,null);set(K.roster,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();

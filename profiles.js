@@ -143,6 +143,16 @@ const P={
     try{required(K.restore,JSON.stringify(before));changes.forEach((v,k)=>required(k,null));changes.forEach((v,k)=>required(k,v));required(K.restore,null);drafts.clear();lastError='';return a.length}
     catch(e){recoverRestore();storageError();throw Error(lastError)}
   })},
+  // حذف ملف محلي لا يخصّ الحساب (لا تُرسل منه بيانات). إن كان هو المفتوح تُنهى جلسته.
+  remove(id){return locked(()=>{const a=list(),i=a.findIndex(x=>x.id===id);if(i<0)return true;if(!recoverRestore()||!recover())return false;
+    try{if(get(K.owner)===id){PER.forEach(k=>required(k,null));required(K.owner,null);required(K.session,null)}
+     PER.forEach(k=>required(slot(id,k),null));required(storeKey(id),null);a.splice(i,1);required(K.list,JSON.stringify(a));drafts.forEach((v,k)=>{if(k.startsWith(id+'|'))drafts.delete(k)});return true}catch(e){return storageError()}})},
+  // قائمة أبناء الحساب كما أرسلها الخادم (يكتبها sync.js): {email, access, students:[{sid,local,name,grade}]}
+  roster:()=>J('bustan_roster',null),
+  accountStudent(id){const r=J('bustan_roster',null);return r&&Array.isArray(r.students)?r.students.find(s=>s.local===id)||null:null},
+  // 'ok' | 'grade' (ليس صف الطالب) | 'locked' (لا تجربة ولا اشتراك) | 'none' (ليس من أبناء الحساب)
+  entitlement(id,g,s){const r=J('bustan_roster',null);if(!r)return 'ok';const st=P.accountStudent(id);if(!st)return 'none';if(+st.grade!==+g)return 'grade';
+    const a=r.access||{};if(a.subjects==null)return a.allowed===false?'locked':'ok';return a.subjects.includes('g'+g+'-'+s)?'ok':'locked'},
   avatarSrc:(a,base)=>(base||'')+'assets/img/av-'+(AVATARS.includes(a)?a:'idle')+'.webp'
 };
 window.PROFILES=P;
