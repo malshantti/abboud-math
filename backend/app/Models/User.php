@@ -30,6 +30,12 @@ class User extends Authenticatable
         return $this->hasMany(Subscription::class);
     }
 
+    /** Parent (family) accounts only: excludes admins, teachers and legacy is_admin flags. */
+    public function scopeParents($query)
+    {
+        return $query->where('role', 'parent')->where(fn ($q) => $q->where('is_admin', false)->orWhereNull('is_admin'));
+    }
+
     public function isAdminRole(): bool
     {
         return $this->is_admin === true || $this->role === 'admin';

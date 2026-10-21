@@ -10,11 +10,11 @@
     <div class="field"><label for="role">الدور</label><select id="role" name="role">@foreach (\App\Models\User::ROLES as $k => $v)<option value="{{ $k }}" @selected(($user->isAdminRole() ? 'admin' : $user->role) === $k)>{{ $v }}</option>@endforeach</select><p class="hint">المعلّم يرى لوحة المعلومات والطلاب والمحتوى فقط.</p></div>
     <button class="btn" type="submit">حفظ</button>
   </form>
-  <p class="hint">التسجيل: {{ $ar::date($user->created_at) }} — آخر دخول: {{ $ar::date($user->last_login_at) }}</p>
+  <p class="hint">التسجيل: {{ $ar::when($user->created_at) }} — آخر دخول: {{ $ar::when($user->last_login_at) }}</p>
 </section>
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'lock'])الحالة وكلمة المرور</h2>
   <form method="post" action="{{ route('manage.user.toggle', $user) }}" onsubmit="return confirm('{{ $user->disabled_at ? 'تفعيل' : 'تعطيل' }} هذا الحساب؟')">@csrf
-    <p>@if($user->disabled_at)<span class="chip bad">معطّل منذ {{ $ar::date($user->disabled_at) }}</span>@else<span class="chip">فعّال</span>@endif</p>
+    <p>@if($user->disabled_at)<span class="chip bad">معطّل منذ {{ $ar::when($user->disabled_at) }}</span>@else<span class="chip">فعّال</span>@endif</p>
     <button class="btn {{ $user->disabled_at ? '' : 'ghost' }} small" type="submit">{{ $user->disabled_at ? 'تفعيل الحساب' : 'تعطيل الحساب' }}</button>
   </form>
   <form method="post" action="{{ route('manage.user.password', $user) }}" style="margin-top:16px">@csrf<input type="hidden" name="mode" value="link"><button class="btn ghost small" type="submit">إرسال رابط إعادة التعيين بالبريد</button></form>
@@ -24,18 +24,18 @@
 </section>
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'card'])الوصول والاشتراكات</h2>
   <p>الحالة: <b>{{ ['staff'=>'فريق الموقع','open'=>'مفتوح للجميع','trial'=>'فترة تجريبية','paid'=>'مشترك','expired'=>'منتهٍ'][$access['kind']] }}</b>
-  @if($user->trial_ends_at) — نهاية التجربة: {{ $ar::date($user->trial_ends_at) }}@endif</p>
+  @if($user->trial_ends_at) — نهاية التجربة: {{ $ar::when($user->trial_ends_at) }}@endif</p>
   <form method="post" action="{{ route('manage.user.trial', $user) }}" class="row">@csrf<div><label for="days">مدّ الفترة التجريبية (أيام من الآن، ٠ لإنهائها)</label><input id="days" name="days" type="number" min="0" max="365" value="3" style="max-width:140px"></div><button class="btn small" type="submit" style="align-self:end">تطبيق</button></form>
   <form method="post" action="{{ route('manage.user.grant', $user) }}" class="row" style="margin-top:12px">@csrf
     <div style="flex:1"><label for="plan">تفعيل مادة يدويًا</label><select id="plan" name="plan">@foreach ($plans as $p)<option value="{{ $p['code'] }}">{{ $p['name'] }}</option>@endforeach</select></div>
     <div><label for="gdays">الأيام</label><input id="gdays" name="days" type="number" min="1" max="1000" placeholder="افتراضي" style="max-width:110px"></div>
     <button class="btn small" type="submit" style="align-self:end">تفعيل</button></form>
-  <table style="margin-top:12px"><tbody>@foreach ($subscriptions as $s)<tr><td dir="ltr" class="mono">{{ $s->code }}</td><td>{{ $s->plan_name }}</td><td><span class="chip {{ $s->status==='pending' ? 'warn' : ($s->status==='active' ? '' : ($s->status==='cancelled' ? 'bad' : 'grey')) }}">{{ $s->statusLabel() }}</span></td><td>{{ $ar::date($s->ends_at, false) }}</td></tr>@endforeach</tbody></table>
+  <table style="margin-top:12px"><tbody>@foreach ($subscriptions as $s)<tr><td dir="ltr" class="mono">{{ $s->code }}</td><td>{{ $s->plan_name }}</td><td><span class="chip {{ $s->status==='pending' ? 'warn' : ($s->status==='active' ? '' : ($s->status==='cancelled' ? 'bad' : 'grey')) }}">{{ $s->statusLabel() }}</span></td><td>{{ $ar::when($s->ends_at, false) }}</td></tr>@endforeach</tbody></table>
 </section>
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'students'])الطلاب</h2>
   @forelse ($user->students as $s)<p><a href="{{ route('manage.student', $s) }}">{{ $s->name }}</a> — {{ $ar::grade($s->grade) }}</p>@empty<p>لا طلاب.</p>@endforelse
   <h3>آخر النشاط</h3>
-  @foreach ($log as $l)<p style="margin:2px 0"><span class="chip grey">{{ $l->label() }}</span> {{ $l->subject }} <small class="hint">{{ $ar::date($l->created_at) }}</small></p>@endforeach
+  @foreach ($log as $l)<p style="margin:2px 0"><span class="chip grey">{{ $l->label() }}</span> {{ $l->subject }} <small class="hint">{{ $ar::when($l->created_at) }}</small></p>@endforeach
 </section>
 <section class="card danger-zone"><h2>@include('partials.admin-icon',['name'=>'alert'])حذف الحساب</h2>
   <p>يحذف الحساب وطلابه وتقدّمهم على الخادم نهائيًا. لا يمكن التراجع.</p>
