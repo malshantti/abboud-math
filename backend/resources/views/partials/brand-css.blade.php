@@ -35,5 +35,9 @@ input[type=checkbox],input[type=radio]{width:22px;min-height:22px;height:22px;ac
 table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}th{font-size:15px;color:var(--muted)}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.grid{display:grid;gap:18px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* صفحات الحساب والدخول: خط واحد معتمد (نفس خط الصفحة الرئيسية) لكل العناصر */
+body.brand-font,body.brand-font :is(h1,h2,h3,h4,p,span,b,strong,small,a,label,legend,li,input,select,textarea,button,.btn,.hint,.alert,.bubble,.trial,.links,.foot,.lead){font-family:Baloo,Cairo,Tahoma,sans-serif}
+.back-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:6px 18px;border:2px solid var(--line);border-radius:14px;background:#fff;color:var(--gd);font-size:16px;font-weight:800;text-decoration:none;box-shadow:0 4px 0 var(--line);transition:transform .12s,box-shadow .12s}
+.back-link:hover{background:var(--gl)}.back-link:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>

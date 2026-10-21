@@ -48,7 +48,7 @@ class AdminAuthenticationTest extends TestCase
             'password' => 'An-example-passphrase-123',
         ]);
 
-        $response->assertRedirect('/admin')->assertSessionHas('session-probe', 'kept');
+        $response->assertRedirect('/admin/manage')->assertSessionHas('session-probe', 'kept');
         $this->assertAuthenticatedAs($admin);
         $this->assertNotSame($oldSessionId, session()->getId());
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
@@ -93,14 +93,15 @@ class AdminAuthenticationTest extends TestCase
     {
         $member = User::factory()->create();
         $response = $this->actingAs($member)->get('/admin');
-        $response->assertForbidden()->assertSee('لا توجد صلاحية')->assertSee('تسجيل الخروج');
+        $response->assertRedirect('/account');
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
+        $this->getJson('/admin/api/summary')->assertForbidden();
 
         $admin = $this->admin();
         $this->actingAs($admin)->get('/admin')->assertOk();
         $admin->is_admin = false;
         $admin->save();
-        $this->get('/admin')->assertForbidden();
+        $this->get('/admin')->assertRedirect('/account');
     }
 
     public function test_the_admin_flag_is_not_mass_assignable_and_existing_accounts_default_to_no_access(): void
@@ -140,7 +141,7 @@ class AdminAuthenticationTest extends TestCase
 
         $this->travel(61)->seconds();
         $this->post('/login', ['email' => 'owner@example.test', 'password' => 'An-example-passphrase-123'])
-            ->assertRedirect('/admin');
+            ->assertRedirect('/admin/manage');
         $this->assertAuthenticated();
     }
 

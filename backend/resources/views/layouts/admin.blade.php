@@ -12,7 +12,7 @@
         body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 48px;background:radial-gradient(circle at 85% 0,#eef5dc 0,transparent 45%),var(--cream)}
         .logo{display:flex;margin:0 0 22px}.logo img{height:52px;width:auto}
         main{width:min(500px,100%);background:#fff;border:2px solid var(--line);border-radius:26px;box-shadow:0 6px 0 var(--line);padding:clamp(24px,5vw,40px);position:relative}
-        main .badge{position:absolute;top:-34px;inset-inline-start:24px;width:62px;height:auto}
+        main .badge{display:block;width:56px;height:auto;margin:-6px 0 10px}
         h1{font-size:clamp(26px,5vw,32px);margin:0 0 6px}h2{font-size:21px;margin:0 0 8px}
         p{margin:8px 0;color:var(--ink2)}
         button,.button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;border:0;border-radius:16px;background:var(--g);color:#fff;padding:10px 24px;font:800 18px/1.2 Baloo,Cairo,sans-serif;cursor:pointer;text-decoration:none;box-shadow:0 5px 0 var(--gd);transition:transform .12s,box-shadow .12s}
@@ -23,12 +23,12 @@
         .status{background:var(--gl);border:2px solid #cfe3a8;color:var(--gd)}
         .account{display:grid;gap:4px;margin:20px 0;padding:16px 18px;border:2px solid var(--line);border-radius:18px}.account bdi{overflow-wrap:anywhere}
         .scope{border-top:2px dashed var(--line);padding-top:20px;margin:20px 0}
-        .foot{font-size:16px;margin-top:22px;padding-top:16px;border-top:2px dashed var(--line)}.muted{font-size:15px;color:var(--muted)}
+        .foot{text-align:center;font-size:16px;margin-top:22px;padding-top:16px;border-top:2px dashed var(--line)}.muted{font-size:15px;color:var(--muted)}
         input[aria-invalid=true]{border-color:var(--red)}
         form{margin:0}
     </style>
 </head>
-<body>
+<body class="brand-font">
 <a class="logo" href="{{ route('home') }}"><img src="{{ asset('ui/logo-horizontal.webp') }}" alt="{{ config('app.name') }}" width="163" height="52"></a>
 <main>
     <img class="badge" src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="62" height="82">

@@ -58,6 +58,9 @@ class AuthController extends Controller
             || strcasecmp($p['host'] ?? '', $request->getHost()) !== 0 || ($p['scheme'].'://'.$p['host'].(isset($p['port']) ? ':'.$p['port'] : '')) !== $origin) {
             return;
         }
+        if (\App\Support\Landing::isAdminUrl($request, $url)) {
+            return; // never send account users back to an admin page
+        }
         $request->session()->put('url.intended', $url);
     }
 
@@ -95,6 +98,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         ActivityLog::record('register', $user->email, null, $user);
+        \App\Support\Landing::scrubIntended($request);
 
         return redirect()->intended(route('account.home', absolute: false))->with('status', 'أهلًا بك! أُنشئ حسابك. أضف الآن طلابك.');
     }
@@ -129,8 +133,9 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $user->forceFill(['last_login_at' => now()])->save();
         ActivityLog::record('login', $user->email);
+        \App\Support\Landing::scrubIntended($request);
 
-        return redirect()->intended(route('account.home', absolute: false));
+        return redirect()->intended(\App\Support\Landing::home($user));
     }
 
     public function logout(Request $request): RedirectResponse
