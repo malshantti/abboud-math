@@ -56,11 +56,12 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! Auth::attempt([
-            'email' => $this->validated('email'),
-            'password' => $this->validated('password'),
-            'is_admin' => true,
-        ])) {
+        $ok = Auth::attempt(['email' => $this->validated('email'), 'password' => $this->validated('password')]);
+        if ($ok && ! \Illuminate\Support\Facades\Gate::allows('access-admin')) {
+            Auth::logout();
+            $ok = false;
+        }
+        if (! $ok) {
             RateLimiter::hit($identityKey, 60);
             RateLimiter::hit($ipKey, 60);
 
@@ -70,5 +71,7 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($identityKey);
+        Auth::user()->forceFill(['last_login_at' => now()])->save();
+        \App\Models\ActivityLog::record('login', Auth::user()->email, 'لوحة الإدارة');
     }
 }

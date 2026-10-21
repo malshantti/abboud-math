@@ -4,6 +4,15 @@ return [
 
     'student_site_url' => env('STUDENT_SITE_URL', ''),
 
+    // Folder holding admin/, assets/ and catalog.js. Empty = backend/frontend if present, else the repo root.
+    'frontend_path' => env('ADMIN_FRONTEND_PATH', ''),
+    'display_timezone' => env('DISPLAY_TIMEZONE', 'Asia/Hebron'),
+
+    // One-time setup token for hosts without SSH. Leave empty (disabled) except during setup.
+    'setup_token' => env('SETUP_TOKEN', ''),
+    'setup_admin_email' => env('SETUP_ADMIN_EMAIL', 'mohammedalshantti2000@gmail.com'),
+    'setup_admin_name' => env('SETUP_ADMIN_NAME', 'Mohammed Alshantti'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

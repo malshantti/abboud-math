@@ -8,11 +8,13 @@
 (function(){var h=location.hash||'';if(/^#\/[a-z]/i.test(h)){location.replace('g8/math/'+location.search+h);}})();
 try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')||'light'}catch(e){}
 /* لطالب مسجَّل: نُخفي صفحة الزائر حتى تُفتح قائمة المواد، فلا تومض قبلها */
+/* حساب ولي الأمر مسجَّل دون ملف طالب مفتوح: لا نعرض صفحة الزائر، بل اختيار الطالب ثم صفّه */
+try{if(!/[?&]welcome/.test(location.search)&&localStorage.getItem('bustan_account')){var a0=JSON.parse(localStorage.getItem('bustan_session')||'null');if(!a0||a0.pending||localStorage.getItem('bustan_owner')!==a0.id)location.replace('login.html')}}catch(e){}
 try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getItem('bustan_session')||'null');if(s0&&!s0.pending&&localStorage.getItem('bustan_owner')===s0.id)document.documentElement.dataset.entry='checking'}}catch(e){}
 </script>
-<meta name="theme-color" content="#647b43">
-<meta name="description" content="بستان التعلّم مع زيتون: دروس، ألعاب تعليمية ومختبرات للصفين السادس والثامن. جرّب نشاطًا تفاعليًا وابدأ من الأساسيات.">
-<title>بستان التعلّم — كل فكرة تنمو معك</title>
+<meta name="theme-color" content="#6f9e23">
+<meta name="description" content="بستان التعلّم: دروس تفاعلية بالصوت مطابقة لكتب المنهاج الفلسطيني للصفوف الأول والثاني والسادس والثامن. تابع تقدّم طفلك، وجرّب كل المواد مجانًا ٣ أيام.">
+<title>بستان التعلّم — دروس تفاعلية للمنهاج الفلسطيني</title>
 <link rel="canonical" href="https://bustankids.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="بستان التعلّم">
@@ -27,83 +29,233 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
 <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="preload" href="assets/fonts/baloo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/brand/logo-mascot.webp" as="image" type="image/webp">
 <link rel="stylesheet" href="entry.css">
-<link rel="stylesheet" href="welcome.css">
+<link rel="stylesheet" href="landing.css">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 </head>
 <body>
 <a class="skip" href="#visitor-main">انتقل إلى المحتوى</a>
 
-<div class="welcome" id="visitor-home">
-<svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><defs><symbol id="wi-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 11 10 5 20 4c-1 10-7 15-15 15Z"/><path d="m5 19 10-11"/></symbol><symbol id="wi-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m6-6-6 6 6 6"/></symbol><symbol id="wi-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h5a5 5 0 0 1 4 2 5 5 0 0 1 4-2h5v14h-5a5 5 0 0 0-4 2 5 5 0 0 0-4-2H3V5Zm9 2v14M6 9h3m-3 4h3m6-4h3m-3 4h3"/></symbol><symbol id="wi-math" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6h6m6 0h6M4 15l4 4m0-4-4 4m11-4h6m-6 4h6"/></symbol><symbol id="wi-english" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 19 5-14 5 14M5 14h6m6-3v8m0-5a3 3 0 1 1 5 0v2a3 3 0 0 1-5 0"/></symbol><symbol id="wi-science" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v6L5 19a1 1 0 0 0 1 2h12a1 1 0 0 0 1-2L14 9V3M7 15h10"/><circle cx="11" cy="17" r=".6"/></symbol><symbol id="wi-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></symbol><symbol id="wi-sprout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-9m0 2C5 14 3 10 3 5c6 0 9 3 9 9Zm0-2c0-6 3-9 9-9 0 6-3 9-9 9Z"/></symbol><symbol id="wi-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 5 6-2 6 3 6-2v15l-6 2-6-3-6 2V5Zm6-2v15m6-12v15"/></symbol><symbol id="wi-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="4"/><path d="m10 9 5 3.5-5 3.5V9Z"/></symbol><symbol id="wi-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v18h17M8 16v-4m5 4V8m5 8v-6"/></symbol><symbol id="wi-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M4 15v5h16v-5"/></symbol><symbol id="wi-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 2.8 7.2L22 12l-7.2 2.8L12 22l-2.8-7.2L2 12l7.2-2.8L12 2Z"/></symbol><symbol id="wi-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></symbol><symbol id="wi-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-4 5 2 10 8 15 6-5 12-10 8-15Z"/></symbol></defs></svg>
-<div class="w-shell">
-  <header class="w-header">
-    <a class="w-brand" href="./" aria-label="بستان التعلّم — الرئيسية"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-leaf"/></svg><span>بستان التعلّم<small>نزرع الفهم، ونحصد المعرفة</small></span></a>
-    <nav class="w-nav" aria-label="التنقل الرئيسي"><a href="#how-it-works">كيف نتعلّم؟</a><a href="#our-subjects">المواد</a><a href="#fraction-demo">جرّب بنفسك</a><a class="w-button outline small" href="login.html">دخول الطلاب<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></nav>
-  </header>
-  <p class="w-message" id="entry-message" role="status" hidden></p>
-</div>
+<div class="welcome L" id="visitor-home">
+<div class="L-splash" id="L-splash" aria-hidden="true"><div class="L-loader"><span class="L-loader-shadow"></span><img src="assets/brand/logo-mascot-sm.webp" width="120" height="158" alt=""></div></div>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><defs>
+<symbol id="li-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m6-6-6 6 6 6"/></symbol>
+<symbol id="li-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+<symbol id="li-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5-.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></symbol>
+<symbol id="li-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16M8 16v-4m4 4V8m4 8v-6"/></symbol>
+<symbol id="li-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1.2" fill="currentColor"/></symbol>
+<symbol id="li-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+<symbol id="li-noad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 4 16 16"/></symbol>
+<symbol id="li-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="li-grade" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3V5Zm18 0h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7V5Z"/></symbol>
+<symbol id="li-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 5 3.5-5 3.5v-7Z" fill="currentColor"/></symbol>
+<symbol id="li-wa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4A8.5 8.5 0 1 1 8 18.8L4 20Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 .8a4.5 4.5 0 0 1-2.2-2.2l.8-1-1-2L9 8.5Z" fill="currentColor" stroke-width="1"/></symbol>
+<symbol id="li-star" viewBox="0 0 24 24"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9L12 2.8Z" fill="currentColor"/></symbol>
+<symbol id="li-leaf" viewBox="0 0 24 24"><path d="M4 20C4 11 10 4 21 3c-1 11-7 17-17 17Z" fill="currentColor"/><path d="M4 20 15 9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".7"/></symbol>
+<symbol id="li-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5Zm0 0V19"/></symbol>
+</defs></svg>
+
+<header class="L-top" id="L-top">
+ <div class="L-wrap L-top-in">
+  <a class="L-logo" href="./" aria-label="بستان التعلّم — الرئيسية"><picture><source srcset="assets/brand/logo-horizontal.webp" type="image/webp"><img src="assets/brand/logo-horizontal.png" width="174" height="57" alt="بستان التعلّم"></picture></a>
+  <nav class="L-nav" aria-label="التنقل الرئيسي"><a href="#L-demos">جرّب الآن</a><a href="#L-how">كيف يعمل</a><a href="#L-curriculum">المنهاج</a><a href="#L-pricing">الأسعار</a></nav>
+  <a class="L-btn L-btn-ghost L-btn-sm" href="/admin-api/account/login">دخول</a>
+ </div>
+</header>
+<p class="w-message L-wrap" id="entry-message" role="status" hidden></p>
+
 <main id="visitor-main" tabindex="-1">
-<div class="w-shell">
-    <section class="w-hero" aria-labelledby="welcome-title">
-      <div class="w-hero-copy">
-        <span class="w-eyebrow">من المنهاج الفلسطيني، إلى عالم من الاكتشاف</span>
-        <h1 id="welcome-title">كل فكرة صغيرة،<br>تفتح <em>بابًا كبيرًا.</em></h1>
-        <p class="w-lead">هنا نفهم، ونجرّب، ونخطئ، ونتعلّم. دروس واضحة وألعاب هادفة، وزيتون يرافقك من أول خطوة.</p>
-        <div class="w-actions"><a class="w-button " href="login.html">لنبدأ التعلّم<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a><a class="w-button outline" href="#fraction-demo">جرّب نشاطًا<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></div>
-        <p class="w-micro"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-check"/></svg> مجاني · للصفين السادس والثامن · على مهل، وبطريقتك</p>
-      </div>
-      <div class="w-art">
-        <img src="assets/img/visitor-hero-v1.webp" width="960" height="960" alt="زيتون يفتح كتابًا وسط نباتات وأدوات للتعلّم والاكتشاف" fetchpriority="high" decoding="async">
-        <span class="w-note" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-spark"/></svg> فضولك بداية الحكاية</span>
-        <span class="w-note second" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg> خطوة صغيرة، فهم أكبر</span>
-        <span class="w-spark" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-spark"/></svg></span>
-      </div>
-    </section>
-    <section class="w-subject-section" id="our-subjects" aria-labelledby="subjects-title" data-demo-group><div class="w-strip"><p id="subjects-title">بستان واحد، <strong>وأبواب كثيرة للمعرفة</strong><br>اختر مادة واكتشف كيف نقترب منها</p><div class="w-subjects" role="tablist" aria-label="معاينات المواد"><button type="button" role="tab" id="subject-tab-math" aria-controls="subject-panel-math" aria-selected="true" tabindex="0"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-math"/></svg>الرياضيات</button><button type="button" role="tab" id="subject-tab-arabic" aria-controls="subject-panel-arabic" aria-selected="false" tabindex="-1"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-book"/></svg>اللغة العربية</button><button type="button" role="tab" id="subject-tab-english" aria-controls="subject-panel-english" aria-selected="false" tabindex="-1"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-english"/></svg>الإنجليزية</button><button type="button" role="tab" id="subject-tab-science" aria-controls="subject-panel-science" aria-selected="false" tabindex="-1"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-science"/></svg>العلوم والحياة</button></div></div><div class="w-subject-panels"><div class="w-subject-panel" role="tabpanel" id="subject-panel-math" aria-labelledby="subject-tab-math" tabindex="0"><div class="w-subject-visual"><svg viewBox="0 0 320 170" role="img" aria-label="مستطيل أربعة أجزاء متساوية، جزآن منها ملوّنان"><rect x="24" y="44" width="272" height="82" rx="16" fill="#f0f4e5" stroke="#8ba36c" stroke-width="3"/><path d="M92 45v80M160 45v80M228 45v80" stroke="#8ba36c" stroke-width="3"/><path d="M40 45h52v80H40q-15 0-15-15V60q0-15 15-15ZM93 46h66v78H93" fill="#a8c576"/><text x="160" y="155" text-anchor="middle" fill="#426037" font-size="20">جزآن من أربعة أجزاء متساوية</text></svg></div><div><span class="w-kicker">معاينة الفكرة · للصفين السادس والثامن</span><h3>فكرة تستطيع رؤيتها</h3><p>نبدأ من الأساس، ونربط الرمز برسم واضح، ثم نتدرّب خطوة بخطوة.</p><a href="#fraction-demo" class="w-text-link">جرّب عينة الكسور <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></div></div><div class="w-subject-panel" role="tabpanel" id="subject-panel-arabic" aria-labelledby="subject-tab-arabic" tabindex="0" hidden><div class="w-subject-visual"><svg viewBox="0 0 320 170" role="img" aria-label="كتاب مفتوح يربط القراءة بالفهم"><path d="M38 48q58-22 122 0 64-22 122 0v91q-58-22-122 0-64-22-122 0Z" fill="#fbf2dd" stroke="#b69363" stroke-width="3"/><path d="M160 48v91" stroke="#b69363" stroke-width="2"/><text x="220" y="91" text-anchor="middle" fill="#755535" font-size="30">أقرأ</text><text x="99" y="91" text-anchor="middle" fill="#755535" font-size="30">وأفهم</text><path d="M55 107h78M187 107h78" stroke="#dcc391" stroke-width="5" stroke-linecap="round"/></svg></div><div><span class="w-kicker">معاينة الفكرة · للصفين السادس والثامن</span><h3>نقرأ، ونسأل، ونفهم</h3><p>نربط القراءة بالمعنى، ثم نراجع المفردات والقواعد ونتدرّب عليها.</p><a href="#fraction-demo" class="w-text-link">جرّب عينة الكسور <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></div></div><div class="w-subject-panel" role="tabpanel" id="subject-panel-english" aria-labelledby="subject-tab-english" tabindex="0" hidden><div class="w-subject-visual"><svg viewBox="0 0 320 170" role="img" aria-label="بطاقتا حوار إنجليزي قصير للتحية"><rect x="30" y="29" width="184" height="75" rx="24" fill="#dfedf0"/><path d="m65 103-10 20 35-20" fill="#dfedf0"/><rect x="127" y="101" width="165" height="51" rx="20" fill="#f5e7cd"/><text x="122" y="77" text-anchor="middle" fill="#426878" font-size="28" lang="en" direction="ltr" unicode-bidi="embed">Hello!</text><text x="210" y="136" text-anchor="middle" fill="#86653f" font-size="25" lang="en" direction="ltr" unicode-bidi="embed">Hi!</text></svg></div><div><span class="w-kicker">معاينة الفكرة · للصفين السادس والثامن</span><h3>كلمة تفتح حوارًا</h3><p>نتعلّم الكلمات في سياقها، ونقرأ الحوار، ونستمع حين يتوفر التسجيل.</p><a href="#fraction-demo" class="w-text-link">جرّب عينة الكسور <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></div></div><div class="w-subject-panel" role="tabpanel" id="subject-panel-science" aria-labelledby="subject-tab-science" tabindex="0" hidden><div class="w-subject-visual"><svg viewBox="0 0 320 170" role="img" aria-label="رسم نبات مبسط يدعو إلى الملاحظة، وليس نموذجًا علميًا كميًا"><path d="M160 148V66" stroke="#68854a" stroke-width="6" stroke-linecap="round"/><path d="M159 106Q83 111 87 59q69-3 72 47M162 83q-1-58 70-54 4 53-70 54" fill="#a6bd78" stroke="#779553" stroke-width="3"/><circle cx="54" cy="31" r="15" fill="#e8c574"/><path d="M54 8V2M29 31h-7M54 55v8M78 31h8" stroke="#d1aa57" stroke-width="3"/><path d="M125 150h70" stroke="#bca079" stroke-width="6" stroke-linecap="round"/></svg></div><div><span class="w-kicker">معاينة الفكرة · للصفين السادس والثامن</span><h3>فضول يتحول إلى سؤال</h3><p>نلاحظ الرسوم، ونربطها بشرح الدرس، ثم نجرّب الأنشطة المتاحة داخل المادة.</p><a href="#fraction-demo" class="w-text-link">جرّب عينة الكسور <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></div></div></div><p class="w-demo-notice">رسوم تعريفية لطريقة التعلّم؛ دروس كل صف وتدريباته تجدها داخل المادة.</p><span class="w-sr-only" data-demo-status role="status" aria-live="polite"></span></section>
-    <section class="w-section" id="how-it-works" aria-labelledby="how-title">
-      <div class="w-section-heading" data-reveal><span class="w-kicker">الفهم ينمو خطوة بخطوة</span><h2 id="how-title">رحلة تبدأ من حيث أنت</h2><p>لا تحتاج أن تعرف كل شيء قبل أن تبدأ.<br>نبني الأساس، ثم نربط الفكرة، ثم نمنحك مساحة لتجربتها.</p></div>
-      <div class="w-learning" data-demo-group><div class="w-steps" role="tablist" aria-label="خطوات التعلّم"><button class="w-step" type="button" role="tab" id="learn-tab-roots" aria-controls="learn-panel-roots" aria-selected="true" tabindex="0"><span class="w-step-art"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg></span><span class="w-step-heading"><b>١</b>نقوّي الجذور</span><span class="w-step-hint">اضغط لاستكشاف هذه الخطوة <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></span></button><button class="w-step" type="button" role="tab" id="learn-tab-discover" aria-controls="learn-panel-discover" aria-selected="false" tabindex="-1"><span class="w-step-art"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-book"/></svg></span><span class="w-step-heading"><b>٢</b>نكتشف الفكرة</span><span class="w-step-hint">اضغط لاستكشاف هذه الخطوة <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></span></button><button class="w-step" type="button" role="tab" id="learn-tab-try" aria-controls="learn-panel-try" aria-selected="false" tabindex="-1"><span class="w-step-art"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-science"/></svg></span><span class="w-step-heading"><b>٣</b>نتعلّم بالتجربة</span><span class="w-step-hint">اضغط لاستكشاف هذه الخطوة <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></span></button></div><div class="w-learning-scenes"><div class="w-learning-scene" role="tabpanel" id="learn-panel-roots" aria-labelledby="learn-tab-roots" tabindex="0"><div class="w-scene-art"><span class="w-orbit one" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg></span><img src="assets/img/zaytoun-think.webp" width="800" height="800" loading="lazy" decoding="async" alt="زيتون يتأمّل الفكرة"><span class="w-orbit two" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-spark"/></svg></span></div><div><span class="w-kicker">نقوّي الجذور</span><h3>فكرة واحدة، قبل الخطوة التالية</h3><p>راجع المهارة التي تحتاجها، وتأمّل مثالها، ثم اختبر فهمك بهدوء. يمكنك الرجوع إليها متى احتجت.</p><span class="w-scene-foot"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-check"/></svg>ابدأ بما تعرفه، واسأل عمّا تحتاجه.</span></div></div><div class="w-learning-scene" role="tabpanel" id="learn-panel-discover" aria-labelledby="learn-tab-discover" tabindex="0" hidden><div class="w-scene-art"><span class="w-orbit one" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-book"/></svg></span><img src="assets/img/zaytoun-read.webp" width="800" height="800" loading="lazy" decoding="async" alt="زيتون يقرأ كتابًا"><span class="w-orbit two" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-spark"/></svg></span></div><div><span class="w-kicker">نكتشف الفكرة</span><h3>نربط الشرح بما نراه</h3><p>افتح الدرس، واقرأ المثال، وقارنه بصفحة الكتاب المتاحة. كل تمثيل يساعدك على النظر إلى الفكرة من جهة أخرى.</p><span class="w-scene-foot"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-check"/></svg>اقرأ، وتأمّل، ثم اشرح الفكرة بكلماتك.</span></div></div><div class="w-learning-scene" role="tabpanel" id="learn-panel-try" aria-labelledby="learn-tab-try" tabindex="0" hidden><div class="w-scene-art"><span class="w-orbit one" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-science"/></svg></span><img src="assets/img/visitor-discover-v1.webp" width="800" height="800" loading="lazy" decoding="async" alt="زيتون يكتشف ويتعلّم بالتجربة"><span class="w-orbit two" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-spark"/></svg></span></div><div><span class="w-kicker">نتعلّم بالتجربة</span><h3>الآن، جرّب بيدك</h3><p>حرّك أدوات النشاط، ولاحظ ما يتغيّر، ثم ارجع إلى شرح الدرس. التجربة فرصة للسؤال، وليست سباقًا.</p><span class="w-scene-foot"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-check"/></svg>كل محاولة تفتح سؤالًا جديدًا.</span></div></div></div><span class="w-sr-only" data-demo-status role="status" aria-live="polite"></span></div>
-    </section>
-</div>
-<section class="w-preview-band" aria-labelledby="preview-title">
-  <div class="w-shell w-preview">
-    <div class="w-preview-copy" data-reveal><span class="w-kicker">دع الفكرة تصبح مرئية</span><h2 id="preview-title">أحيانًا، تجربة صغيرة<br>تشرح فكرة كاملة.</h2><p>ما رأيك أن تجرّب الآن؟<br>لوّن أجزاء المستطيل واكتشف النصف بنفسك.</p><span class="w-preview-label"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-play"/></svg> عينة مجانية · بلا دخول · بلا تسجيل للتقدّم</span></div>
-    <div class="w-demo" id="fraction-demo" data-reveal>
-      <div class="w-demo-top"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-math"/></svg> من بستان الرياضيات</span><span>اكتشف الكسور</span></div>
-      <h3>هل تستطيع تلوين النصف؟</h3><p>المستطيل مقسّم إلى أربعة أجزاء متساوية.<br>اضغط على الأجزاء التي تريد تلوينها، ثم تحقّق.</p>
-      <div class="w-pieces" role="group" aria-label="أجزاء المستطيل الأربعة المتساوية"><button type="button" data-piece="1" aria-pressed="false" aria-label="تلوين الجزء الأول"><span aria-hidden="true">١</span></button><button type="button" data-piece="2" aria-pressed="false" aria-label="تلوين الجزء الثاني"><span aria-hidden="true">٢</span></button><button type="button" data-piece="3" aria-pressed="false" aria-label="تلوين الجزء الثالث"><span aria-hidden="true">٣</span></button><button type="button" data-piece="4" aria-pressed="false" aria-label="تلوين الجزء الرابع"><span aria-hidden="true">٤</span></button></div>
-      <div class="w-demo-meta"><span>الأجزاء الملوّنة: <strong id="piece-count">٠</strong> من ٤</span><span>تأمّل، ثم اختر</span></div>
-      <div class="w-demo-actions"><button class="w-button" id="check-fraction" type="button">تحقّق من فكرتك <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-check"/></svg></button><button type="button" class="w-reset" id="reset-fraction">ابدأ من جديد</button></div>
-      <p class="w-feedback" id="fraction-feedback" role="status" aria-live="polite" data-state="idle">اختر أجزاء متساوية، ثم تحقّق من فكرتك.</p>
-      <noscript><p>فعّل JavaScript لتجربة تلوين الأجزاء. يمكنك الاطلاع على بقية الصفحة دون تفعيله.</p></noscript>
-    </div>
+<section class="L-hero" aria-labelledby="L-hero-title">
+ <div class="L-wrap L-hero-grid">
+  <div class="L-hero-copy">
+   <p class="L-pill"><svg width="16" height="16" aria-hidden="true"><use href="#li-book"/></svg> مطابق لكتب المنهاج الفلسطيني · الصفوف ١ و٢ و٦ و٨</p>
+   <h1 id="L-hero-title">طفلك يفهم الدرس<br><span class="L-mark">ويحبّ أن يتعلّمه.</span></h1>
+   <p class="L-tagline">نزرع الفهم، ونحصد المعرفة</p>
+   <p class="L-lead">دروس تفاعلية قصيرة بالصوت والصورة، مرتّبة كما في كتاب المدرسة، مع زيتون الذي يشجّع طفلك عند كل إجابة. وأنت تتابع تقدّمه من حسابك.</p>
+   <div class="L-cta"><a class="L-btn L-btn-main" href="/admin-api/account/register">جرّب كل المواد مجانًا ٣ أيام<svg width="22" height="22" aria-hidden="true"><use href="#li-arrow"/></svg></a><a class="L-btn L-btn-ghost" href="/admin-api/account/login">دخول</a></div>
+   <ul class="L-trust"><li><svg width="18" height="18" aria-hidden="true"><use href="#li-noad"/></svg>بلا إعلانات</li><li><svg width="18" height="18" aria-hidden="true"><use href="#li-wifi"/></svg>يعمل مع إنترنت ضعيف</li><li><svg width="18" height="18" aria-hidden="true"><use href="#li-sound"/></svg>صوت مرافق</li></ul>
   </div>
+  <div class="L-hero-art" aria-hidden="true">
+   <div class="L-blob"></div>
+   <div class="L-phone L-phone-hero"><img src="assets/landing/shot-g1-math.webp" width="540" height="1169" alt="" decoding="async"></div>
+   <div class="L-mascot"><picture><source srcset="assets/brand/logo-mascot.webp" type="image/webp"><img src="assets/brand/logo-mascot.png" width="361" height="475" alt="" fetchpriority="high"></picture></div>
+   <span class="L-chip L-chip-a"><svg width="18" height="18"><use href="#li-check"/></svg>أحسنت!</span>
+   <span class="L-chip L-chip-b"><svg width="18" height="18"><use href="#li-star"/></svg>نجمة جديدة</span>
+   <span class="L-chip L-chip-c"><svg width="18" height="18"><use href="#li-sound"/></svg>olive</span>
+  </div>
+ </div>
+ <div class="L-wrap"><ul class="L-stats" data-reveal><li><b>١٦</b>مادة دراسية متاحة</li><li><b>٤</b>صفوف: ١، ٢، ٦، ٨</li><li><b>٣</b>أيام تجربة مجانية</li><li><b>آمن</b>بلا إعلانات ولا غرباء</li></ul></div>
 </section>
-<div class="w-shell">
-  <section class="w-section w-features" aria-labelledby="features-title">
-    <div class="w-journey" data-demo-group data-journey data-active="0" aria-label="معاينة تفاعلية لمسار التعلّم" data-reveal><div class="w-journey-title">رحلة لها معنى <small>اختر محطة في المسار</small></div><div class="w-journey-map"><div class="w-journey-line" aria-hidden="true"><i></i></div><div class="w-journey-track" role="tablist" aria-label="محطات الرحلة" aria-orientation="vertical"><button type="button" class="w-node" role="tab" id="journey-tab-foundation" aria-controls="journey-panel-foundation" aria-selected="true" tabindex="0"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg><span>أفهم الأساس</span></button><button type="button" class="w-node" role="tab" id="journey-tab-lesson" aria-controls="journey-panel-lesson" aria-selected="false" tabindex="-1"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-book"/></svg><span>أكتشف الدرس</span></button><button type="button" class="w-node" role="tab" id="journey-tab-practice" aria-controls="journey-panel-practice" aria-selected="false" tabindex="-1"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-star"/></svg><span>أطبّق ما تعلّمته</span></button></div><img src="assets/img/zaytoun-think.webp" alt="زيتون يرافقك في الرحلة" width="216" height="252" loading="lazy" decoding="async"></div><div role="tabpanel" class="w-journey-reply" id="journey-panel-foundation" aria-labelledby="journey-tab-foundation" tabindex="0"><h3>انطلق من فكرة واضحة</h3><p>اختَر مهارة أساسية واقرأ مثالها قبل أن تنتقل. هذه معاينة للمسار؛ لا تُسجّل تقدّمًا.</p></div><div role="tabpanel" class="w-journey-reply" id="journey-panel-lesson" aria-labelledby="journey-tab-lesson" tabindex="0" hidden><h3>اربط الفكرة بما قبلها</h3><p>انتقل إلى شرح الدرس وصفحات الكتاب المتاحة، وخذ وقتك في كل مثال.</p></div><div role="tabpanel" class="w-journey-reply" id="journey-panel-practice" aria-labelledby="journey-tab-practice" tabindex="0" hidden><h3>حاول، ثم تأمّل النتيجة</h3><p>تدرّب على الفكرة، واقرأ التغذية الراجعة، ثم أعد المحاولة حين تحتاج.</p></div><span class="w-sr-only" data-demo-status role="status" aria-live="polite"></span></div>
-    <div data-reveal><span class="w-kicker">أكثر من شرح على شاشة</span><h2 id="features-title">مساحة آمنة للسؤال،<br>والتجربة، والمحاولة.</h2>
-      <article class="w-feature"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-map"/></svg></span><div><h3>طريق واضح، وسرعتك أنت</h3><p>تنقّل بين رحلتك والأساسيات والمغامرات والمختبر، وارجع إلى ما تحتاجه.</p></div></article>
-      <article class="w-feature"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-chart"/></svg></span><div><h3>تقدّم يراه الطالب وولي الأمر</h3><p>ملف مستقل لكل طالب على الجهاز، وتقرير يساعد على متابعة ما أُنجز وما يحتاج إلى مراجعة.</p></div></article>
-      <article class="w-feature"><span><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-offline"/></svg></span><div><h3>تعلّم يستمر دون إنترنت</h3><p>نزّل دروس المادة مسبقًا من داخلها، ثم افتح المحتوى المحفوظ عندما تنقطع الشبكة.</p></div></article>
+
+<section class="L-sec L-demos" id="L-demos" aria-labelledby="L-demos-title">
+ <div class="L-wrap">
+  <div class="L-head" data-reveal><p class="L-kicker">جرّب كما يجرّب طفلك</p><h2 id="L-demos-title">خمس دقائق من درس حقيقي</h2><p>هذه أسئلة من دروس البستان نفسها. اختر مادة وأجب، وشاهد كيف يتلقّى طفلك التشجيع والتصحيح فورًا.</p></div>
+  <div class="L-demo-box" data-demo-group data-reveal>
+   <div class="L-tabs" role="tablist" aria-label="عينات من المواد">
+    <button type="button" role="tab" id="L-tab-math" aria-controls="L-p-math" aria-selected="true" tabindex="0"><i class="t-g">١</i>رياضيات</button>
+    <button type="button" role="tab" id="L-tab-ar" aria-controls="L-p-ar" aria-selected="false" tabindex="-1"><i class="t-o">١</i>لغتنا الجميلة</button>
+    <button type="button" role="tab" id="L-tab-en" aria-controls="L-p-en" aria-selected="false" tabindex="-1"><i class="t-b">١</i>English</button>
+    <button type="button" role="tab" id="L-tab-sc" aria-controls="L-p-sc" aria-selected="false" tabindex="-1"><i class="t-p">٨</i>العلوم</button>
+    <button type="button" role="tab" id="L-tab-fr" aria-controls="L-p-fr" aria-selected="false" tabindex="-1"><i class="t-y">٦</i>الكسور</button>
+   </div>
+   <p class="L-sr" data-demo-status aria-live="polite"></p>
+
+   <div class="L-panel" role="tabpanel" id="L-p-math" aria-labelledby="L-tab-math" data-quiz>
+    <div class="L-q-meta"><span>الصف الأول · الرياضيات</span><span>درس «نجمع مجموعتين» · الكتاب ص ٦٧</span></div>
+    <h3>عدد الكرات ٢. أضفت ١. كم أصبح عددها؟</h3>
+    <div class="L-balls" aria-hidden="true"><span class="L-ball"></span><span class="L-ball"></span><b>+</b><span class="L-ball L-ball-new"></span><b>=</b><span class="L-slot" data-slot>؟</span></div>
+    <p class="L-hint-sm">اسحب الرقم الصحيح إلى المربّع، أو اضغط عليه.</p>
+    <div class="L-opts L-tiles" role="group" aria-label="الخيارات"><button type="button" class="L-opt L-tile" data-v="4">٤</button><button type="button" class="L-opt L-tile" data-v="3" data-ok>٣</button><button type="button" class="L-opt L-tile" data-v="2">٢</button></div>
+    <p class="L-fb" role="status" aria-live="polite" data-ok-text="أحسنت! عندما نضمّ ٢ و١ نحصل على ٣." data-no-text="لننظر مرة أخرى: عُدّ الكرات كلها واحدة واحدة."></p>
+   </div>
+
+   <div class="L-panel" role="tabpanel" id="L-p-ar" aria-labelledby="L-tab-ar" data-quiz hidden>
+    <div class="L-q-meta"><span>الصف الأول · لغتنا الجميلة</span><span>درس «حرف الزاي» · الجزء الأول</span></div>
+    <h3>أيّ كلمة تبدأ بحرف الزاي؟</h3>
+    <div class="L-letter" aria-hidden="true"><span>ز</span><small>ز · زـ · ـز</small></div>
+    <div class="L-opts L-words" role="group" aria-label="الكلمات"><button type="button" class="L-opt" data-ok><b>زَ</b>يْتُونٌ</button><button type="button" class="L-opt">مَوْزٌ</button><button type="button" class="L-opt">بَابٌ</button></div>
+    <p class="L-fb" role="status" aria-live="polite" data-ok-text="ممتاز! «زَيْتُونٌ» تبدأ بالزاي، مثل اسم صديقنا زيتون." data-no-text="انتبه إلى أول حرف في الكلمة. في «مَوْزٌ» تأتي الزاي في آخرها."></p>
+   </div>
+
+   <div class="L-panel" role="tabpanel" id="L-p-en" aria-labelledby="L-tab-en" data-quiz hidden>
+    <div class="L-q-meta"><span>الصف الأول · الإنجليزية</span><span>Unit 2 · Let’s eat!</span></div>
+    <h3>استمع، ثم اختر صورة الكلمة</h3>
+    <button type="button" class="L-say" data-audio="assets/landing/en-olive.mp3"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg><span lang="en" dir="ltr">olive</span></button>
+    <div class="L-opts L-pics" role="group" aria-label="الصور">
+     <button type="button" class="L-opt" aria-label="بيضة" data-audio="assets/landing/en-egg.mp3"><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><ellipse cx="32" cy="36" rx="17" ry="21" fill="#fff6e4" stroke="#c99d55" stroke-width="3"/><ellipse cx="25" cy="28" rx="4" ry="7" fill="#fff" opacity=".9"/></svg></button>
+     <button type="button" class="L-opt" aria-label="حبّة زيتون" data-ok><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><path d="M33 14c3-6 9-8 15-7-2 6-8 9-15 7Z" fill="#7fae3c"/><path d="M32 16v6" stroke="#5b4a25" stroke-width="3" stroke-linecap="round"/><ellipse cx="32" cy="39" rx="15" ry="19" fill="#6f8f2b" stroke="#3f561a" stroke-width="3"/><ellipse cx="26" cy="32" rx="4" ry="6" fill="#b9d46d" opacity=".8"/></svg></button>
+     <button type="button" class="L-opt" aria-label="خبز" data-audio="assets/landing/en-bread.mp3"><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><path d="M10 30c0-9 10-14 22-14s22 5 22 14c0 4-3 5-5 5v13H15V35c-2 0-5-1-5-5Z" fill="#f2c27a" stroke="#b07a35" stroke-width="3" stroke-linejoin="round"/><path d="M22 26l4 4m6-6 4 4m6-4 3 3" stroke="#b07a35" stroke-width="2.5" stroke-linecap="round"/></svg></button>
     </div>
-  </section>
-  <section class="w-section w-faq w-shell" aria-labelledby="faq-title">
-    <div class="w-section-heading" data-reveal><span class="w-kicker">قبل أول خطوة</span><h2 id="faq-title">أشياء قد تحب أن تعرفها</h2></div>
-    <details><summary>لمن صُمّم بستان التعلّم؟</summary><p>للطلاب الذين يريدون فهم الدرس والتدرّب عليه بهدوء، بمن فيهم من يحتاج إلى تقوية الأساسيات. تتوفر الآن الرياضيات والعربية والإنجليزية والعلوم والحياة للصفين السادس والثامن.</p></details>
-    <details><summary>هل المحتوى من المنهاج الفلسطيني؟</summary><p>تُنظّم المواد حول وحدات المنهاج الفلسطيني، مع شروح وأنشطة للتعلّم والمراجعة وصفحات من الكتاب داخل المواد. البستان أداة مساعدة للتعلّم، ويمكن الرجوع إلى الكتاب والمعلم عند الحاجة.</p></details>
-    <details><summary>هل أحتاج إلى اتصال دائم بالإنترنت؟</summary><p>تحتاج إلى الإنترنت عند الزيارة الأولى ولتنزيل المحتوى. بعد تنزيل دروس المادة، يمكنك استعمال المحتوى المحفوظ دون إنترنت على الجهاز والمتصفح نفسيهما.</p></details>
-    <details><summary>أين يُحفظ تقدّم الطالب؟</summary><p>يُحفظ الآن في المتصفح على هذا الجهاز، ويمكن لولي الأمر تصدير نسخة احتياطية. لا تنتقل البيانات تلقائيًا إلى جهاز آخر حاليًا. احتفظ بنسخة من التقدّم قبل حذف بيانات المتصفح أو تغيير الجهاز.</p></details>
-    <details><summary>هل يمكن أن أجرّب قبل إنشاء ملف؟</summary><p>نعم، يمكنك تجربة نشاط الكسور في هذه الصفحة دون تسجيل. عندما تكون مستعدًا، افتح صفحة الدخول وأنشئ ملفًا مستقلًا ليُحفظ تقدّمك في المواد.</p></details>
-  </section>
-  <section class="w-final" aria-labelledby="final-title" data-reveal><span class="w-sprout" aria-hidden="true"><svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-sprout"/></svg></span><h2 id="final-title">لنزرع اليوم فكرة جديدة.</h2><p>خطوة واحدة تكفي لتبدأ. وزيتون ينتظرك في البستان.</p><a class="w-button " href="login.html">ابدأ رحلتك<svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></section>
-</div>
+    <p class="L-fb" role="status" aria-live="polite" data-ok-text="Great! olive تعني حبّة زيتون. في الدرس يسمع طفلك كل كلمة وجملة." data-no-text="ليست هذه. اضغط زر الصوت واستمع مرة أخرى."></p>
+   </div>
+
+   <div class="L-panel" role="tabpanel" id="L-p-sc" aria-labelledby="L-tab-sc" data-quiz hidden>
+    <div class="L-q-meta"><span>الصف الثامن · العلوم والحياة</span><span>درس «المجاهر» · الكتاب ص ٤</span></div>
+    <h3>عدسة عينية تكبيرها ١٠× وعدسة شيئية تكبيرها ٤٠×. ما مقدار التكبير؟</h3>
+    <div class="L-scope" aria-hidden="true"><svg viewBox="0 0 220 120" width="220" height="120"><g fill="none" stroke="#5e4b8b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M40 110h60M70 110V92M54 92h32M62 92l10-50M58 30l22 6-4 14-22-6z"/><path d="M60 26l6-14"/></g><circle class="L-lens" cx="165" cy="60" r="44" fill="#f3eefb" stroke="#5e4b8b" stroke-width="4"/><g class="L-cells"><circle cx="150" cy="50" r="9" fill="#a8d08d"/><circle cx="172" cy="46" r="8" fill="#a8d08d"/><circle cx="160" cy="72" r="10" fill="#a8d08d"/><circle cx="182" cy="68" r="7" fill="#a8d08d"/><circle cx="150" cy="50" r="2.5" fill="#4f7a34"/><circle cx="172" cy="46" r="2.5" fill="#4f7a34"/><circle cx="160" cy="72" r="2.5" fill="#4f7a34"/><circle cx="182" cy="68" r="2" fill="#4f7a34"/></g></svg></div>
+    <div class="L-opts L-words" role="group" aria-label="الخيارات"><button type="button" class="L-opt">٥٠×</button><button type="button" class="L-opt" data-ok>٤٠٠×</button><button type="button" class="L-opt">٤٠×</button></div>
+    <p class="L-fb" role="status" aria-live="polite" data-ok-text="صحيح! مقدار التكبير = تكبير العينية × تكبير الشيئية = ١٠ × ٤٠ = ٤٠٠." data-no-text="تذكّر القاعدة من الكتاب: نضرب التكبيرين، لا نجمعهما."></p>
+   </div>
+
+   <div class="L-panel" role="tabpanel" id="L-p-fr" aria-labelledby="L-tab-fr" hidden>
+    <div class="L-q-meta"><span>الصف السادس · الرياضيات</span><span>وحدة الكسور</span></div>
+    <h3 id="fraction-demo">هل تستطيع تلوين النصف؟</h3>
+    <p class="L-hint-sm">المستطيل مقسّم إلى أربعة أجزاء متساوية. لوّن ما يساوي النصف، ثم تحقّق.</p>
+    <div class="L-pieces" role="group" aria-label="أجزاء المستطيل الأربعة المتساوية"><button type="button" data-piece="1" aria-pressed="false" aria-label="تلوين الجزء الأول"></button><button type="button" data-piece="2" aria-pressed="false" aria-label="تلوين الجزء الثاني"></button><button type="button" data-piece="3" aria-pressed="false" aria-label="تلوين الجزء الثالث"></button><button type="button" data-piece="4" aria-pressed="false" aria-label="تلوين الجزء الرابع"></button></div>
+    <p class="L-hint-sm">الأجزاء الملوّنة: <strong id="piece-count">٠</strong> من ٤</p>
+    <div class="L-row"><button class="L-btn L-btn-main L-btn-sm" id="check-fraction" type="button">تحقّق</button><button type="button" class="L-btn L-btn-ghost L-btn-sm" id="reset-fraction">ابدأ من جديد</button></div>
+    <p class="L-fb L-fb-frac" id="fraction-feedback" role="status" aria-live="polite" data-state="idle">اختر أجزاء متساوية، ثم تحقّق من فكرتك.</p>
+   </div>
+   <div class="L-cheer" aria-hidden="true"><img src="assets/brand/logo-mascot-sm.webp" width="160" height="211" alt="" loading="lazy" decoding="async"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+ </div>
+</section>
+
+<section class="L-sec L-screens" aria-labelledby="L-screens-title">
+ <div class="L-wrap">
+  <div class="L-head" data-reveal><p class="L-kicker">من داخل البستان</p><h2 id="L-screens-title">شاشات حقيقية من دروس طفلك</h2><p>لا صور توضيحية: هكذا تبدو الدروس على هاتف ولي الأمر أو جهاز البيت.</p></div>
+  <div class="L-phones" data-reveal>
+   <figure class="L-phone"><img src="assets/landing/shot-g1-arabic.webp" width="540" height="1169" alt="درس حرف الزاي في لغتنا الجميلة للصف الأول" loading="lazy" decoding="async"><figcaption>لغتنا الجميلة · الصف الأول</figcaption></figure>
+   <figure class="L-phone"><img src="assets/landing/shot-g8-science.webp" width="540" height="1169" alt="محاكاة المجهر المركّب في العلوم للصف الثامن" loading="lazy" decoding="async"><figcaption>مختبر العلوم · الصف الثامن</figcaption></figure>
+   <figure class="L-phone"><img src="assets/landing/shot-g1-english.webp" width="540" height="1169" alt="درس كلمات الطعام في الإنجليزية للصف الأول" loading="lazy" decoding="async"><figcaption>English · الصف الأول</figcaption></figure>
+   <figure class="L-phone"><img src="assets/landing/shot-g6-math.webp" width="540" height="1169" alt="الصفحة الرئيسية لرياضيات الصف السادس" loading="lazy" decoding="async"><figcaption>رياضيات · الصف السادس</figcaption></figure>
+  </div>
+ </div>
+</section>
+
+<section class="L-sec" id="L-how" aria-labelledby="L-how-title">
+ <div class="L-wrap">
+  <div class="L-head" data-reveal><p class="L-kicker">كيف يعمل</p><h2 id="L-how-title">أربع خطوات، وتبدأ الليلة</h2></div>
+  <ol class="L-steps" data-reveal>
+   <li><span class="L-step-ic"><svg width="28" height="28" aria-hidden="true"><use href="#li-user"/></svg></span><b>أنشئ حسابًا</b><p>حساب ولي أمر واحد للعائلة، وتبدأ التجربة المجانية فورًا.</p></li>
+   <li><span class="L-step-ic"><svg width="28" height="28" aria-hidden="true"><use href="#li-grade"/></svg></span><b>اختر صفّ طفلك</b><p>أضف ملفًا لكل طفل، واختر صفّه ومادته.</p></li>
+   <li><span class="L-step-ic"><svg width="28" height="28" aria-hidden="true"><use href="#li-play"/></svg></span><b>يتعلّم بدروس تفاعلية وصوت</b><p>شرح قصير، ثم أسئلة بتصحيح فوري وتشجيع من زيتون.</p></li>
+   <li><span class="L-step-ic"><svg width="28" height="28" aria-hidden="true"><use href="#li-chart"/></svg></span><b>تابع تقدّمه من حسابك</b><p>ترى ما أنجزه وما يحتاج إلى مراجعة، من أي جهاز.</p></li>
+  </ol>
+ </div>
+</section>
+
+<section class="L-sec L-cur" id="L-curriculum" aria-labelledby="L-cur-title">
+ <div class="L-wrap">
+  <div class="L-head" data-reveal><p class="L-kicker">مطابق لكتب المدرسة</p><h2 id="L-cur-title">نفس وحدات الكتاب، بترتيبها وصفحاتها</h2><p>كل درس يذكر مرجعه في كتاب المنهاج الفلسطيني، فيراجع طفلك ما أخذه في الصف تمامًا.</p></div>
+  <div class="L-grades" data-demo-group data-reveal>
+   <div class="L-gtabs" role="tablist" aria-label="الصفوف">
+    <button type="button" role="tab" id="L-g1" aria-controls="L-gp1" aria-selected="true" tabindex="0">الصف الأول</button>
+    <button type="button" role="tab" id="L-g2" aria-controls="L-gp2" aria-selected="false" tabindex="-1">الصف الثاني</button>
+    <button type="button" role="tab" id="L-g6" aria-controls="L-gp6" aria-selected="false" tabindex="-1">الصف السادس</button>
+    <button type="button" role="tab" id="L-g8" aria-controls="L-gp8" aria-selected="false" tabindex="-1">الصف الثامن</button>
+   </div>
+   <p class="L-sr" data-demo-status aria-live="polite"></p>
+   <div role="tabpanel" id="L-gp1" aria-labelledby="L-g1" class="L-gpanel"><h3 class="L-sr">مواد الصف الأول</h3><ul class="L-subj">
+    <li class="c-g"><b>الرياضيات</b><span>نعدّ ونقارن ونجرّب بخطوات صغيرة ورسوم واضحة.</span></li>
+    <li class="c-o"><b>لغتنا الجميلة</b><span>نكتشف الحروف ونميّزها بأنشطة بصرية قصيرة.</span></li>
+    <li class="c-b"><b>اللغة الإنجليزية</b><span>كلمات وصور وخطوات قصيرة داعمة لكتاب English for Palestine 1.</span></li>
+    <li class="c-p"><b>التربية الوطنية والحياتية</b><span>حواسي وأسرتي وبيئتي في أنشطة بصرية مناسبة للطفل.</span></li></ul></div>
+   <div role="tabpanel" id="L-gp2" aria-labelledby="L-g2" class="L-gpanel" hidden><h3 class="L-sr">مواد الصف الثاني</h3><ul class="L-subj">
+    <li class="c-g"><b>الرياضيات</b><span>أعداد ومئات وعشرات، وعمليات ومجموعات متساوية بخطوات مصوّرة.</span></li>
+    <li class="c-o"><b>لغتنا الجميلة</b><span>نقرأ نصوصًا قصيرة، ونفهم الكلمات، ونرتّب الجمل.</span></li>
+    <li class="c-b"><b>اللغة الإنجليزية</b><span>كلمات وعبارات وصور داعمة لكتاب English for Palestine 2.</span></li>
+    <li class="c-p"><b>التربية الوطنية والحياتية</b><span>وطني وصحتي وبيئتي في أنشطة اكتشاف قصيرة.</span></li></ul></div>
+   <div role="tabpanel" id="L-gp6" aria-labelledby="L-g6" class="L-gpanel" hidden><h3 class="L-sr">مواد الصف السادس</h3><ul class="L-subj">
+    <li class="c-g"><b>الرياضيات</b><span>دروس المنهاج بجزأيه بصور الكتاب، مختبر تفاعلي، ومغامرات مع زيتون.</span></li>
+    <li class="c-o"><b>اللغة العربية</b><span>نصوص «لغتنا الجميلة» بجزأيه، القواعد والإملاء، ومختبر للهمزة والإعراب.</span></li>
+    <li class="c-b"><b>اللغة الإنجليزية</b><span>وحدات English for Palestine 6 مع الصوت لكل كلمة وجملة.</span></li>
+    <li class="c-p"><b>العلوم والحياة</b><span>دروس الكتاب بجزأيه بأنشطته وأشكاله، ومحاكاة تفاعلية لكل فكرة.</span></li></ul></div>
+   <div role="tabpanel" id="L-gp8" aria-labelledby="L-g8" class="L-gpanel" hidden><h3 class="L-sr">مواد الصف الثامن</h3><ul class="L-subj">
+    <li class="c-g"><b>الرياضيات</b><span>دروس المنهاج بجزأيه، مختبر تفاعلي، ومغامرات مع زيتون.</span></li>
+    <li class="c-o"><b>اللغة العربية</b><span>نصوص «لغتنا الجميلة» بجزأيه، القواعد والبلاغة والإملاء، ومختبر للإعراب.</span></li>
+    <li class="c-b"><b>اللغة الإنجليزية</b><span>وحدات English for Palestine 8 مع الصوت لكل كلمة وجملة، ومسار تأسيس للحروف.</span></li>
+    <li class="c-p"><b>العلوم والحياة</b><span>الطاقة والذرة والموجات والدارات، بمحاكاة لكل درس.</span></li></ul></div>
+  </div>
+ </div>
+</section>
+
+<section class="L-sec L-benefits" aria-labelledby="L-ben-title">
+ <div class="L-wrap">
+  <div class="L-head" data-reveal><p class="L-kicker">لماذا يختاره الأهل</p><h2 id="L-ben-title">مصمَّم ليطمئن ولي الأمر</h2></div>
+  <ul class="L-cards" data-reveal>
+   <li><span class="ic c-g"><svg width="26" height="26" aria-hidden="true"><use href="#li-chart"/></svg></span><b>تقدّم محفوظ على الخادم</b><p>يُحفظ إنجاز كل طفل في حسابك، فلا يضيع عند تغيير الجهاز.</p></li>
+   <li><span class="ic c-b"><svg width="26" height="26" aria-hidden="true"><use href="#li-wifi"/></svg></span><b>إنترنت ضعيف؟ لا مشكلة</b><p>الدروس المنزّلة تعمل دون اتصال، والتقدّم يُزامَن حين تعود الشبكة.</p></li>
+   <li><span class="ic c-p"><svg width="26" height="26" aria-hidden="true"><use href="#li-shield"/></svg></span><b>بيئة آمنة</b><p>لا محادثات مع غرباء، ولا روابط خارجية تشتّت الطفل.</p></li>
+   <li><span class="ic c-o"><svg width="26" height="26" aria-hidden="true"><use href="#li-noad"/></svg></span><b>بلا إعلانات إطلاقًا</b><p>وقت الشاشة كله للتعلّم، لا لمقاطع دعائية.</p></li>
+   <li><span class="ic c-y"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg></span><b>صوت مرافق</b><p>تعليمات مسموعة، ونطق لكل كلمة وجملة في الإنجليزية.</p></li>
+  </ul>
+ </div>
+</section>
+
+<section class="L-sec L-pricing" id="L-pricing" aria-labelledby="L-price-title">
+ <div class="L-wrap">
+  <div class="L-head" data-reveal><p class="L-kicker">أسعار واضحة</p><h2 id="L-price-title">ادفع فقط للمواد التي يحتاجها طفلك</h2><p>الاشتراك لكل مادة في كل صف، لمدة ٣٠ يومًا. وأول ٣ أيام مجانية لكل المواد.</p></div>
+  <div class="L-plans" data-reveal>
+   <article class="L-plan"><p class="L-plan-for">الصفان الأول والثاني</p><p class="L-price"><b>١٥</b> شيكلًا</p><p class="L-per">لكل مادة · ٣٠ يومًا</p><ul><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>الرياضيات، لغتنا الجميلة، الإنجليزية، التربية الوطنية والحياتية</li><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>أنشطة قصيرة بالصوت والصورة</li></ul></article>
+   <article class="L-plan L-plan-hot"><p class="L-plan-for">الصفان السادس والثامن</p><p class="L-price"><b>٢٠</b> شيكلًا</p><p class="L-per">لكل مادة · ٣٠ يومًا</p><ul><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>الرياضيات، العربية، الإنجليزية، العلوم والحياة</li><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>صفحات الكتاب، مختبرات ومحاكاة، واختبارات</li></ul></article>
+  </div>
+  <div class="L-pay" data-reveal><p><b>جرّب كل المواد مجانًا لمدة ٣ أيام</b> دون أي دفع. للاشتراك بعدها، تواصل معنا عبر واتساب ونفعّل المواد التي تختارها.</p><div class="L-row"><a class="L-btn L-btn-main" href="admin-api/account/register">إنشاء حساب مجاني</a><a class="L-btn L-btn-wa" href="https://wa.me/972592945557" rel="noopener"><svg width="22" height="22" aria-hidden="true"><use href="#li-wa"/></svg>اشترك عبر واتساب <span dir="ltr">٠٠٩٧٢٥٩٢٩٤٥٥٥٧</span></a></div></div>
+ </div>
+</section>
+
+<section class="L-sec L-faq" aria-labelledby="L-faq-title">
+ <div class="L-wrap L-narrow">
+  <div class="L-head" data-reveal><p class="L-kicker">أسئلة الأهل</p><h2 id="L-faq-title">قبل أن تبدأ</h2></div>
+  <details><summary>هل المحتوى مطابق لكتب المدرسة؟</summary><p>نعم. الدروس منظّمة حسب وحدات كتب المنهاج الفلسطيني بجزأيها، وكل نشاط يذكر صفحته في الكتاب المطبوع. البستان مساند للكتاب والمعلّم ولا يغني عنهما.</p></details>
+  <details><summary>ماذا يحدث بعد الأيام الثلاثة المجانية؟</summary><p>لا يُخصم أي مبلغ تلقائيًا. إن أعجبك البستان، راسلنا عبر واتساب واختر المواد، فنفعّلها لمدة ٣٠ يومًا.</p></details>
+  <details><summary>هل أستطيع إضافة أكثر من طفل؟</summary><p>نعم، يضيف ولي الأمر ملفًا مستقلًا لكل طفل، ويتابع تقدّم كل واحد منهم من حسابه.</p></details>
+  <details><summary>هل يحتاج طفلي إلى إنترنت دائم؟</summary><p>يلزم الاتصال عند تسجيل الدخول أول مرة وعند تنزيل الدروس. بعدها تعمل الدروس المنزّلة على الجهاز نفسه حتى مع انقطاع الشبكة.</p></details>
+  <details><summary>على أي جهاز يعمل؟</summary><p>على الهاتف والجهاز اللوحي والحاسوب، من المتصفح مباشرة ودون تثبيت تطبيق.</p></details>
+ </div>
+</section>
+
+<section class="L-final" aria-labelledby="L-final-title" data-reveal>
+ <div class="L-wrap L-final-in">
+  <picture><source srcset="assets/brand/logo-mascot-sm.webp" type="image/webp"><img src="assets/brand/logo-mascot-sm.png" width="160" height="211" alt="" loading="lazy"></picture>
+  <div><h2 id="L-final-title">ازرع اليوم بذرة فهم، واحصد غدًا ثقة طفلك.</h2><p>ثلاثة أيام مجانية لكل المواد. دون بطاقة، ودون التزام.</p><a class="L-btn L-btn-main L-btn-lg" href="/admin-api/account/register">جرّب كل المواد مجانًا ٣ أيام<svg width="22" height="22" aria-hidden="true"><use href="#li-arrow"/></svg></a></div>
+ </div>
+</section>
 </main>
-<div class="w-shell">
-  <footer class="w-footer"><p>بستان التعلّم · نزرع الفهم، ونحصد المعرفة<br>صُنع بمحبة لفضولٍ لا يتوقّف.</p><a href="login.html">لديّ ملف طالب <svg width="24" height="24" aria-hidden="true" focusable="false"><use href="#wi-arrow"/></svg></a></footer>
-</div>
+<footer class="L-foot"><div class="L-wrap L-foot-in"><picture><source srcset="assets/brand/logo-horizontal.webp" type="image/webp"><img src="assets/brand/logo-horizontal.png" width="146" height="48" alt="بستان التعلّم" loading="lazy"></picture><p>نزرع الفهم، ونحصد المعرفة · المنهاج الفلسطيني للصفوف ١ و٢ و٦ و٨</p><nav aria-label="روابط"><a href="/admin-api/account/login">دخول</a><a href="login.html">ملفات الطلاب</a><a href="https://wa.me/972592945557" rel="noopener">واتساب</a></nav></div></footer>
+<div class="L-sticky"><a class="L-btn L-btn-main" href="/admin-api/account/register">جرّب مجانًا ٣ أيام</a></div>
 </div>
 
 <div class="wrap" id="student-home" hidden>
@@ -133,6 +285,8 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
   <p class="foot">المنهاج الفلسطيني · نضيف صفوفًا ومواد جديدة تباعًا</p>
 </div>
 <script src="welcome.js"></script>
+<script src="landing.js" defer></script>
+<script src="sync.js" defer></script>
 <script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
 </body>
 </html>

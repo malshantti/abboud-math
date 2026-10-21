@@ -15,7 +15,46 @@ class User extends Authenticatable
 
     protected $attributes = [
         'is_admin' => false,
+        'role' => 'parent',
     ];
+
+    public const ROLES = ['parent' => 'ولي أمر', 'teacher' => 'معلّم', 'admin' => 'مشرف'];
+
+    public function students(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function isAdminRole(): bool
+    {
+        return $this->is_admin === true || $this->role === 'admin';
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->isAdminRole() || $this->role === 'teacher';
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->disabled_at !== null;
+    }
+
+    public function setRole(string $role): void
+    {
+        $this->role = array_key_exists($role, self::ROLES) ? $role : 'parent';
+        $this->is_admin = $this->role === 'admin';
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordAr($token));
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -48,6 +87,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'is_admin' => 'boolean',
+            'disabled_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'trial_ends_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

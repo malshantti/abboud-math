@@ -9,7 +9,7 @@ class WorkspaceAssetController extends Controller
 {
     public function __invoke(string $asset): BinaryFileResponse
     {
-        $root = dirname(base_path());
+        $root = config('app.frontend_path') ?: (is_dir(base_path('frontend')) ? base_path('frontend') : dirname(base_path()));
         $files = [];
         foreach (['admin.css', 'math-editor.css', 'quiz-builder.css', 'content-builder.css', 'math-editor.js', 'content-preview.js'] as $file) {
             $files[$file] = $root.'/admin/'.$file;

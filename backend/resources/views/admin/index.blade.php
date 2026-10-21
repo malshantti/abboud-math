@@ -29,6 +29,7 @@
             <a class="nav-item" href="#courses" data-view="courses"><span data-icon="book"></span>مواد الموقع</a>
             <a class="nav-item" href="#students" data-view="students"><span data-icon="students"></span>الطلاب</a>
             <a class="nav-item" href="#accounts" data-view="accounts"><span data-icon="users"></span>المشرفون</a>
+            <a class="nav-item" href="{{ route('manage.dashboard') }}"><span data-icon="grid"></span>إدارة الموقع والحسابات</a>
         </nav>
         <div class="sidebar-foot"><img src="{{ route('admin.assets',['asset'=>'img/av-read.webp']) }}" width="88" height="88" alt=""><b>نعلّم بفكرة واضحة</b><p>أنشئ المحتوى، راجعه، واحتفظ بنسختك في الخادم.</p></div>
         <span class="sidebar-version">مساحة إدارة خاصة</span>

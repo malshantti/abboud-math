@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Admin\WorkspaceAssetController;
 use App\Http\Controllers\Admin\WorkspaceController;
+use App\Http\Controllers\Account\AuthController as AccountAuth;
+use App\Http\Controllers\Account\HomeController as AccountHome;
+use App\Http\Controllers\Admin\ManageController as Manage;
+use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +34,86 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin'])->group(function
     Route::post('api/documents/{document}/restore', [WorkspaceController::class, 'restore'])->whereNumber('document');
 });
 
+// ---- Parents and students (public accounts) ----
+Route::get('/brand/{asset}', App\Http\Controllers\PublicAssetController::class)->where('asset', '[a-z0-9./-]+')->name('brand.asset');
+Route::prefix('account')->group(function () {
+    Route::middleware('guest')->group(function () {
+        Route::get('register', [AccountAuth::class, 'registerForm'])->name('account.register');
+        Route::post('register', [AccountAuth::class, 'register'])->middleware('throttle:register')->name('account.register.store');
+        Route::get('login', [AccountAuth::class, 'loginForm'])->name('account.login');
+        Route::post('login', [AccountAuth::class, 'login'])->middleware('throttle:account-login')->name('account.login.store');
+        Route::get('forgot-password', [AccountAuth::class, 'forgotForm'])->name('account.password.request');
+        Route::post('forgot-password', [AccountAuth::class, 'sendResetLink'])->middleware('throttle:password-email')->name('account.password.email');
+        Route::get('reset-password/{token}', [AccountAuth::class, 'resetForm'])->name('account.password.reset');
+        Route::post('reset-password', [AccountAuth::class, 'reset'])->middleware('throttle:password-email')->name('account.password.update');
+    });
+    Route::middleware('auth')->group(function () {
+        Route::get('/', [AccountHome::class, 'index'])->name('account.home');
+        Route::post('logout', [AccountAuth::class, 'logout'])->name('account.logout');
+        Route::post('students', [AccountHome::class, 'storeStudent'])->name('account.students.store');
+        Route::put('students/{student}', [AccountHome::class, 'updateStudent'])->name('account.students.update');
+        Route::delete('students/{student}', [AccountHome::class, 'destroyStudent'])->name('account.students.destroy');
+        Route::get('subscribe', [AccountHome::class, 'subscribe'])->name('account.subscribe');
+        Route::post('subscribe', [AccountHome::class, 'requestSubscription'])->middleware('throttle:10,1')->name('account.subscribe.store');
+    });
+});
+// Named so Laravel's password broker can build links.
+Route::get('/password-reset/{token}', fn (string $token) => redirect()->route('account.password.reset', ['token' => $token] + request()->query()))->name('password.reset');
+
+// ---- Progress sync API for the static site (same origin: /admin-api/api/...) ----
+Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
+    Route::get('site', [SyncController::class, 'site']);
+    Route::get('session', [SyncController::class, 'session']);
+    Route::middleware('auth')->group(function () {
+        Route::post('students', [SyncController::class, 'storeStudent']);
+        Route::get('students/{student}/progress', [SyncController::class, 'show']);
+        Route::put('students/{student}/progress', [SyncController::class, 'update']);
+        Route::post('students/{student}/import', [SyncController::class, 'import']);
+    });
+});
+
+// ---- Management panel (admin + teacher; some sections admin only) ----
+Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(function () {
+    Route::get('/', [Manage::class, 'dashboard'])->name('manage.dashboard');
+    Route::get('students', [Manage::class, 'students'])->name('manage.students');
+    Route::get('students/{student}', [Manage::class, 'student'])->name('manage.student');
+    Route::middleware('can:manage-site')->group(function () {
+        Route::put('students/{student}', [Manage::class, 'updateStudent'])->name('manage.student.update');
+        Route::delete('students/{student}', [Manage::class, 'destroyStudent'])->name('manage.student.destroy');
+        Route::get('users', [Manage::class, 'users'])->name('manage.users');
+        Route::post('users/bulk', [Manage::class, 'bulkUsers'])->name('manage.users.bulk');
+        Route::post('subscriptions/bulk', [Manage::class, 'bulkSubscriptions'])->name('manage.subscriptions.bulk');
+        Route::get('users/{user}', [Manage::class, 'editUser'])->name('manage.user');
+        Route::put('users/{user}', [Manage::class, 'updateUser'])->name('manage.user.update');
+        Route::post('users/{user}/toggle', [Manage::class, 'toggleUser'])->name('manage.user.toggle');
+        Route::delete('users/{user}', [Manage::class, 'destroyUser'])->name('manage.user.destroy');
+        Route::post('users/{user}/password', [Manage::class, 'passwordUser'])->name('manage.user.password');
+        Route::post('users/{user}/trial', [Manage::class, 'trialUser'])->name('manage.user.trial');
+        Route::post('users/{user}/grant', [Manage::class, 'grantSubscription'])->name('manage.user.grant');
+        Route::get('subscriptions', [Manage::class, 'subscriptions'])->name('manage.subscriptions');
+        Route::post('subscriptions/{subscription}/activate', [Manage::class, 'activateSubscription'])->name('manage.subscription.activate');
+        Route::post('subscriptions/{subscription}/cancel', [Manage::class, 'cancelSubscription'])->name('manage.subscription.cancel');
+        Route::get('settings', [Manage::class, 'settings'])->name('manage.settings');
+        Route::put('settings', [Manage::class, 'updateSettings'])->name('manage.settings.update');
+        Route::get('activity', [Manage::class, 'activity'])->name('manage.activity');
+        Route::get('export/{type}', [Manage::class, 'export'])->name('manage.export');
+    });
+});
+
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
+
+// One-time setup (disabled unless SETUP_TOKEN has 32+ chars). See DEPLOY-AR.md.
+// Stateless: no session/cookies, so it works before the sessions table exists.
+Route::withoutMiddleware([
+    Illuminate\Session\Middleware\StartSession::class,
+    Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+    Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    Illuminate\Cookie\Middleware\EncryptCookies::class,
+])->group(function () {
+    Route::post('/setup/migrate', [App\Http\Controllers\SetupController::class, 'migrate']);
+    Route::post('/setup/install', [App\Http\Controllers\SetupController::class, 'install']);
+    Route::post('/setup/admin', [App\Http\Controllers\SetupController::class, 'admin']);
+});
