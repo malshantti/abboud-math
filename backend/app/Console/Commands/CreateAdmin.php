@@ -81,7 +81,7 @@ class CreateAdmin extends Command
         }
 
         $user = new User(['name' => $name, 'email' => $email, 'password' => $password]);
-        $user->is_admin = true;
+        $user->setRole('admin'); // role and is_admin together, so the admin is never counted as a parent
 
         try {
             $user->save();

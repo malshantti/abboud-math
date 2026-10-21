@@ -92,6 +92,7 @@ class HomeController extends Controller
         $pending = $user->subscriptions()->where('status', 'pending')->count();
         abort_if($pending + count($codes) > 16, 429, 'لديك طلبات كثيرة بانتظار الدفع.');
         $subs = [];
+        $batch = count($codes) > 1 ? 'R-'.strtoupper(Str::random(6)) : null;
         foreach ($codes as $code) {
             $plan = $plans[$code];
             $sub = new Subscription([
@@ -100,10 +101,12 @@ class HomeController extends Controller
                 'scope' => $plan['code'], 'gateway' => 'whatsapp', 'status' => 'pending',
             ]);
             $sub->student_id = $student?->id;
+            $sub->batch = $batch;
             $user->subscriptions()->save($sub);
-            ActivityLog::record('subscription.request', $sub->code, $plan['name']);
             $subs[] = $sub->setRelation('user', $user)->setRelation('student', $student);
         }
+        // One submission = one activity entry listing every subject (codes kept for the WhatsApp match).
+        ActivityLog::record('subscription.request', $batch ?? $subs[0]->code, collect($subs)->map(fn ($s) => $s->code.' '.$s->plan_name)->join('؛ '));
         $url = (new WhatsAppGateway)->batchCheckoutUrl($subs);
         $list = collect($subs)->pluck('code')->join('، ');
 

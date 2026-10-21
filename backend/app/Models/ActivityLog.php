@@ -38,4 +38,43 @@ class ActivityLog extends Model
     {
         return self::LABELS[$this->action] ?? $this->action;
     }
+
+    /** Subscription items of a request entry: list of [code, subject name]. */
+    public function requestItems(): array
+    {
+        if ($this->action !== 'subscription.request') {
+            return [];
+        }
+        $out = [];
+        foreach (preg_split('/\s*؛\s*/u', (string) $this->details, -1, PREG_SPLIT_NO_EMPTY) as $part) {
+            [$code, $name] = array_pad(preg_split('/\s+/u', $part, 2), 2, '');
+            $out[] = preg_match('/^[A-Z0-9]{3,}-[A-Z0-9]+$/', $code) ? [$code, $name] : [(string) $this->subject, $part];
+        }
+
+        return $out ?: [[(string) $this->subject, '']];
+    }
+
+    /**
+     * Collapse subscription requests made in one submission into one entry.
+     * New submissions are logged once; older logs (one row per subject, same user, same minute) are merged here.
+     *
+     * @return list<array{log: self, items: array}>
+     */
+    public static function grouped(iterable $logs): array
+    {
+        $out = [];
+        foreach ($logs as $log) {
+            $prev = $out ? $out[array_key_last($out)] : null;
+            if ($log->action === 'subscription.request' && $prev && $prev['log']->action === 'subscription.request'
+                && $prev['log']->user_id === $log->user_id && $log->created_at && $prev['log']->created_at
+                && $prev['log']->created_at->format('YmdHi') === $log->created_at->format('YmdHi')) {
+                $out[array_key_last($out)]['items'] = array_merge($log->requestItems(), $prev['items']);
+
+                continue;
+            }
+            $out[] = ['log' => $log, 'items' => $log->requestItems()];
+        }
+
+        return $out;
+    }
 }

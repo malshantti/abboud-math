@@ -26,10 +26,14 @@ class ManageController extends Controller
     public function dashboard(): View
     {
         $since = now()->subDays(7);
+        $audit = \App\Support\StudentAudit::summary();
         $stats = [
-            'parents' => User::where('role', 'parent')->count(),
+            'parents' => User::parents()->count(),
             'staff' => User::whereIn('role', ['admin', 'teacher'])->orWhere('is_admin', true)->count(),
-            'students' => Student::count(),
+            // Real students belong to parent accounts; staff test students and legacy rows are counted apart.
+            'students' => Student::whereHas('user', fn ($u) => $u->parents())->whereNotIn('id', $audit['ids'])->count(),
+            'families' => User::parents()->whereHas('students', fn ($q) => $q->whereNotIn('id', $audit['ids']))->count(),
+            'students_all' => Student::count(),
             'new_week' => User::where('created_at', '>=', $since)->count(),
             'active_week' => Student::where('last_synced_at', '>=', $since)->count(),
             'trials' => User::where('trial_ends_at', '>', now())->count(),
@@ -46,8 +50,10 @@ class ManageController extends Controller
 
         return view('manage.dashboard', [
             'stats' => $stats, 'byGrade' => $byGrade, 'bySubject' => $bySubject,
-            'recent' => ActivityLog::with('user')->latest('id')->take(8)->get(),
-            'pending' => Subscription::with('user')->where('status', 'pending')->latest()->take(5)->get(),
+            'audit' => $audit,
+            'recent' => array_slice(ActivityLog::grouped(ActivityLog::with('user')->latest('id')->take(30)->get()), 0, 8),
+            'pending' => Subscription::with('user')->where('status', 'pending')->latest('id')->take(40)->get()
+                ->groupBy(fn ($s) => $s->batch ?? ($s->user_id.'@'.$s->created_at?->format('YmdHi')))->take(5),
         ]);
     }
 
@@ -181,6 +187,11 @@ class ManageController extends Controller
         if (array_key_exists((int) $request->query('grade'), Ar::GRADES)) {
             $q->where('grade', (int) $request->query('grade'));
         }
+        if ($request->query('owner') === 'parents') {
+            $q->whereHas('user', fn ($u) => $u->parents());
+        } elseif ($request->query('owner') === 'review') {
+            $q->whereIn('id', \App\Support\StudentAudit::reviewIds());
+        }
 
         return view('manage.students', ['students' => $q->latest('id')->paginate(25)->withQueryString()]);
     }
@@ -191,7 +202,7 @@ class ManageController extends Controller
         foreach ($student->progress()->get() as $p) {
             if (isset(Ar::KEYS[$p->key])) {
                 [$g, $subj] = Ar::KEYS[$p->key];
-                $rows[$g][] = ['subject' => $subj, 'key' => $p->key, 'summary' => Ar::summarize($p->value), 'updated' => $p->client_updated_at ? date('c', intdiv($p->client_updated_at, 1000)) : null, 'raw' => $p->value];
+                $rows[$g][] = ['subject' => $subj, 'key' => $p->key, 'progress' => Ar::progress($p->key, $p->value, $p->client_updated_at ?: null), 'updated' => $p->client_updated_at ? date('c', intdiv($p->client_updated_at, 1000)) : null, 'raw' => $p->value];
             }
         }
         ksort($rows);
@@ -225,7 +236,7 @@ class ManageController extends Controller
             $q->where('status', $st);
         }
         if ($s = trim((string) $request->query('q'))) {
-            $q->where(fn ($w) => $w->where('code', 'like', "%$s%")->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%$s%")->orWhere('name', 'like', "%$s%")));
+            $q->where(fn ($w) => $w->where('code', 'like', "%$s%")->orWhere('batch', $s)->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%$s%")->orWhere('name', 'like', "%$s%")));
         }
 
         return view('manage.subscriptions', ['subs' => $q->latest('id')->paginate(25)->withQueryString()]);
@@ -302,7 +313,9 @@ class ManageController extends Controller
             $q->where('action', $a);
         }
 
-        return view('manage.activity', ['logs' => $q->latest('id')->paginate(50)->withQueryString()]);
+        $logs = $q->latest('id')->paginate(50)->withQueryString();
+
+        return view('manage.activity', ['logs' => $logs, 'entries' => ActivityLog::grouped($logs->items())]);
     }
 
     public function export(Request $request, string $type): StreamedResponse

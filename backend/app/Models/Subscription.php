@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
-    protected $fillable = ['code', 'plan', 'plan_name', 'price', 'currency', 'days', 'scope', 'gateway', 'status', 'student_id', 'note'];
+    protected $fillable = ['code', 'batch', 'plan', 'plan_name', 'price', 'currency', 'days', 'scope', 'gateway', 'status', 'student_id', 'note'];
 
     public const STATUS = ['pending' => 'بانتظار الدفع', 'active' => 'مفعّل', 'cancelled' => 'ملغى', 'expired' => 'منتهٍ'];
 
