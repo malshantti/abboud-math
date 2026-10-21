@@ -48,7 +48,7 @@
 }
 </style>
 </head>
-<body>
+<body class="brand-font">
 @php($banner = \App\Models\Setting::publicData()['announcement'])
 @if ($banner)<div class="banner" role="note">{{ $banner }}</div>@endif
 <header class="top"><div class="top-in">

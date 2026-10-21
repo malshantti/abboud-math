@@ -21,5 +21,5 @@
         </div>
         <button class="primary" type="submit">تسجيل الدخول</button>
     </form>
-    <p class="foot"><a href="{{ route('home') }}">العودة إلى البداية</a></p>
+    <p class="foot"><a class="back-link" href="{{ route('home') }}">العودة إلى البداية</a></p>
 @endsection

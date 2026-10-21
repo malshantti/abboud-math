@@ -36,14 +36,14 @@ class ManagePanelTest extends TestCase
         $this->get('/admin/manage/users')->assertRedirect('/login');
         $parent = User::factory()->create();
         foreach (['/admin/manage', '/admin/manage/students', '/admin/manage/users', '/admin/manage/settings', '/admin/manage/activity', '/admin/manage/export/users'] as $url) {
-            $this->actingAs($parent)->get($url)->assertForbidden();
+            $this->actingAs($parent)->get($url)->assertRedirect('/account');
         }
     }
 
     public function test_teacher_can_log_in_and_see_students_but_not_admin_sections(): void
     {
         $this->teacher();
-        $this->post('/login', ['email' => 'teacher@example.test', 'password' => 'An-example-passphrase-123'])->assertRedirect('/admin');
+        $this->post('/login', ['email' => 'teacher@example.test', 'password' => 'An-example-passphrase-123'])->assertRedirect('/admin/manage');
         $this->get('/admin')->assertOk();
         $this->get('/admin/manage')->assertOk()->assertSee('لوحة المعلومات')->assertDontSee('سجل النشاط');
         $s = User::factory()->create()->students()->create(['name' => 'سامي', 'grade' => 6]);

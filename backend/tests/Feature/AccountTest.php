@@ -27,6 +27,20 @@ class AccountTest extends TestCase
         $this->assertStringContainsString('٣', $r->getContent());
     }
 
+    public function test_account_and_admin_login_pages_use_one_local_brand_font_that_resolves(): void
+    {
+        foreach (['/account/register', '/account/login', '/login'] as $url) {
+            $html = $this->get($url)->assertOk()->assertSee('class="brand-font"', false)->getContent();
+            preg_match_all('#url\("([^"]+\.woff2)"\)#', $html, $m);
+            $this->assertCount(4, $m[1], $url);
+            foreach ($m[1] as $font) {
+                $this->assertStringContainsString('/ui/fonts/', $font);
+                $this->assertFileExists(public_path(ltrim(parse_url($font, PHP_URL_PATH), '/')));
+            }
+        }
+        $this->assertStringContainsString('class="back-link"', $this->get('/login')->getContent());
+    }
+
     public function test_parent_registers_gets_trial_and_hashed_password(): void
     {
         $this->register()->assertRedirect('/account');
@@ -40,8 +54,41 @@ class AccountTest extends TestCase
         $this->assertAuthenticatedAs($u);
         $this->assertDatabaseHas('activity_logs', ['action' => 'register']);
         // A parent cannot open the admin panel.
-        $this->get('/admin')->assertForbidden();
-        $this->get('/admin/manage')->assertForbidden();
+        $this->get('/admin')->assertRedirect('/account');
+        $this->get('/admin/manage')->assertRedirect('/account');
+    }
+
+    public function test_parent_never_lands_on_admin_after_login_or_register_even_with_stale_intended_url(): void
+    {
+        \App\Models\Setting::put(['registration_open' => '1']);
+        // Parent first opened the admin area as a guest: Laravel stored /admin as the intended URL.
+        $this->get('/admin')->assertRedirect('/login');
+        $this->assertStringEndsWith('/admin', session('url.intended'));
+        $this->register()->assertRedirect('/account');
+        $this->get('/account')->assertOk();
+        $this->post('/account/logout');
+
+        $this->get('/admin/manage/users');
+        $this->post('/account/login', ['email' => 'parent@example.test', 'password' => 'secret-pass-1'])->assertRedirect('/account');
+
+        // ?return= pointing at admin is ignored.
+        $this->post('/account/logout');
+        $this->get('/account/login?return=/admin');
+        $this->assertNull(session('url.intended'));
+        // A logged-in parent visiting a guest-only page is sent to the account, not admin.
+        $this->post('/account/login', ['email' => 'parent@example.test', 'password' => 'secret-pass-1'])->assertRedirect('/account');
+        $this->get('/login')->assertRedirect('/account');
+        $this->get('/account/login')->assertRedirect('/account');
+        $this->get('/admin')->assertRedirect('/account');
+    }
+
+    public function test_staff_still_land_in_the_admin_area_from_account_login(): void
+    {
+        $admin = User::factory()->create(['email' => 'boss@example.test', 'password' => 'secret-pass-1']);
+        $admin->setRole('admin');
+        $admin->save();
+        $this->post('/account/login', ['email' => 'boss@example.test', 'password' => 'secret-pass-1'])->assertRedirect('/admin/manage');
+        $this->get('/login')->assertRedirect('/admin/manage');
     }
 
     public function test_trial_is_granted_once_per_normalized_email(): void
