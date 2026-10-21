@@ -16,34 +16,51 @@
 .stp{display:flex;align-items:center;gap:10px;margin:22px 0 10px;font:800 19px/1.4 Baloo,Cairo,sans-serif}
 .stp i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--g);color:#fff;font-style:normal;font-size:15px;flex:none}
 .plans-f{border:0;padding:0;margin:22px 0 0;min-width:0}.plans-f legend.stp{margin-top:0}.plans-f legend{padding:0}
-.grp{margin:14px 0 8px;font-weight:800;color:var(--muted);font-size:15px}
-.plans{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
-.plan{position:relative;display:flex;flex-direction:column;gap:8px;margin:0;padding:14px 16px;border:2px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 4px 0 var(--line);cursor:pointer;transition:border-color .15s,background .15s}
+.sub-page{overflow-x:clip}.sub-page>.card{min-width:0;max-width:100%}
+#subf,#subf *{box-sizing:border-box}#subf{min-width:0;max-width:100%}
+#student_id{max-width:100%}
+.gl{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+.gc{min-width:0;border:2px solid var(--line);border-radius:20px;background:#fffef9;overflow:hidden}
+.gc.cur{border-color:#cfe3a8}
+.gh{display:flex;align-items:center;gap:10px;padding:10px 12px;min-width:0}
+.gt{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:6px 4px;border:0;background:none;font:800 19px/1.4 Baloo,Cairo,sans-serif;color:var(--ink);cursor:pointer;text-align:start}
+.gt .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gt .cnt{flex:none;font:700 13px/1 Cairo,sans-serif;padding:6px 10px;border-radius:999px;background:var(--line);color:var(--ink2)}
+.gc.has .gt .cnt{background:var(--g);color:#fff}
+.gt svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.gc.open .gt svg{transform:rotate(180deg)}
+.gall{flex:none;display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--gd);cursor:pointer;white-space:nowrap}
+.gall input{margin:0;width:18px;height:18px}
+.gb{padding:0 12px 12px}.gb[hidden]{display:none}
+.plans{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.plan{position:relative;display:flex;align-items:center;gap:12px;min-width:0;margin:0;padding:12px 14px;border:2px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 3px 0 var(--line);cursor:pointer;transition:border-color .15s,background .15s}
 .plan:hover{border-color:#cfe3a8}
-.plan input{position:absolute;inset-inline-end:14px;top:14px;margin:0}
-.plan .pt b{display:block;font:800 19px/1.4 Baloo,Cairo,sans-serif;padding-inline-end:30px}
-.plan .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;padding-top:8px;border-top:2px dashed var(--line);color:var(--ink2);font-weight:700}
-.plan .price b{font:800 26px/1 Baloo,Cairo,sans-serif;color:var(--gd)}.plan .price small{margin-inline-start:auto;color:var(--muted);font-size:14px}
-.plan:has(input:checked){border-color:var(--g);background:var(--gl);box-shadow:0 4px 0 var(--g)}
+.plan input{flex:none;margin:0;width:20px;height:20px}
+.plan .pt{flex:1;min-width:0}.plan .pt b{display:block;font:800 18px/1.4 Baloo,Cairo,sans-serif;overflow-wrap:anywhere}
+.plan .pt small{display:block;color:var(--muted);font-size:13px}
+.plan .price{flex:none;display:flex;align-items:baseline;gap:4px;padding:6px 12px;border-radius:14px;background:var(--gl);color:var(--gd);font-weight:800;font-size:17px;white-space:nowrap}
+.plan .price b{font:800 32px/1 Baloo,Cairo,sans-serif}
+.plan:has(input:checked){border-color:var(--g);background:var(--gl);box-shadow:0 3px 0 var(--g)}
+.plan:has(input:checked) .price{background:#fff}
 .plan:has(input:focus-visible){outline:3px solid var(--b);outline-offset:3px}
-.plan[hidden]{display:none}
-.paybar{position:sticky;bottom:12px;z-index:5;margin-top:22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;background:#fff;border:2px solid #cfe3a8;border-radius:20px;box-shadow:0 6px 0 #dfeac4,0 10px 30px rgba(36,51,28,.12)}
-.paybar .sum{flex:1;min-width:0}
-.paybar .sum p{margin:0}.paybar .sel{font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.paybar{position:sticky;bottom:12px;z-index:5;margin-top:22px;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;min-width:0;max-width:100%;padding:14px 16px;background:#fff;border:2px solid #cfe3a8;border-radius:20px;box-shadow:0 6px 0 #dfeac4,0 10px 30px rgba(36,51,28,.12)}
+.paybar .sum{flex:1 1 220px;min-width:0}
+.paybar .sum p{margin:0;min-width:0}
+.paybar .sel{font-size:14px;color:var(--muted);line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
 .paybar .tot{font:800 18px/1.5 Baloo,Cairo,sans-serif}.paybar .tot b{font-size:26px;color:var(--gd)}
-.paybar .btn{flex:none}
+.paybar .btn{flex:none;max-width:100%}
 .pend{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 14px;padding:12px 0;border-top:2px solid var(--line);margin:0}
 .pend .code{font-size:14px;color:var(--muted)}
 @media (max-width:820px){.steps{grid-template-columns:1fr}.steps li{padding:10px 12px}}
 @media (max-width:600px){
   .card{padding:18px 16px}.sub-h img{width:48px}.sub-h h1{font-size:24px}
-  .plans{grid-template-columns:1fr 1fr;gap:10px}.plan{padding:12px}.plan .pt b{font-size:17px}.plan .price b{font-size:22px}.plan .price small{flex-basis:100%;margin:0}
+  .plans{grid-template-columns:minmax(0,1fr)}.gh{padding:8px 10px}.gt{font-size:17px}.gb{padding:0 10px 10px}
   .paybar{bottom:8px;padding:12px}.paybar .btn{width:100%}
   .pend{grid-template-columns:1fr}.pend .btn{width:100%}
 }
 </style>
 @php($daysLeft = $access['kind'] === 'trial' && $access['ends_at'] ? max(1, (int) ceil(now()->diffInSeconds($access['ends_at'], false) / 86400)) : null)
-<main class="wrap grid">
+<main class="wrap grid sub-page">
   @include('partials.flash')
   <section class="card">
     <div class="sub-h"><img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="72" height="95"><h1>الاشتراك في المواد</h1></div>
@@ -72,15 +89,21 @@
 
       <fieldset class="plans-f"><legend class="stp"><i>٢</i>اختر المواد</legend>
       <p class="hint" style="margin:-4px 0 0">يمكنك اختيار أكثر من مادة، ويُنشأ طلب مستقل لكل مادة.</p>
+      <div class="gl">
       @foreach (collect($plans)->groupBy('grade') as $g => $group)
-        <div class="grp-w" data-grade="{{ $g }}">
-        <p class="grp">{{ $ar::grade($g) }}</p>
-        <div class="plans">
-        @foreach ($group as $p)
-          <label class="plan"><input type="checkbox" name="plans[]" value="{{ $p['code'] }}" data-price="{{ $p['price'] }}" data-name="{{ $p['name'] }}"><span class="pt"><b>{{ $p['subject'] }}</b></span><span class="price"><b>{{ $ar::num($p['price']) }}</b> {{ $currency }}<small>لمدة {{ $ar::num($p['days']) }} يومًا</small></span></label>
-        @endforeach
-        </div></div>
+        <section class="gc" data-grade="{{ $g }}">
+          <div class="gh">
+            <button type="button" class="gt" aria-expanded="true" aria-controls="gb-{{ $loop->index }}"><span class="nm">{{ $ar::grade($g) }}</span><span class="cnt" data-cnt>{{ $ar::num(0) }} / {{ $ar::num($group->count()) }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+            <label class="gall"><input type="checkbox" data-all aria-label="اختر كل مواد {{ $ar::grade($g) }}">اختر الكل</label>
+          </div>
+          <div class="gb" id="gb-{{ $loop->index }}"><div class="plans">
+          @foreach ($group as $p)
+            <label class="plan"><input type="checkbox" name="plans[]" value="{{ $p['code'] }}" data-price="{{ $p['price'] }}" data-name="{{ $p['name'] }}"><span class="pt"><b>{{ $p['subject'] }}</b><small>لمدة {{ $ar::num($p['days']) }} يومًا</small></span><span class="price"><b>{{ $ar::num($p['price']) }}</b> {{ $currency }}</span></label>
+          @endforeach
+          </div></div>
+        </section>
       @endforeach
+      </div>
       </fieldset>
 
       <div class="paybar" aria-live="polite">
@@ -111,11 +134,20 @@
   function upd(){var on=boxes.filter(function(b){return b.checked}),t=0;on.forEach(function(b){t+=+b.dataset.price});
     document.getElementById('tot').textContent=ar(t);
     document.getElementById('sel').textContent=on.length?ar(on.length)+(on.length===1?' مادة: ':' مواد: ')+on.map(function(b){return b.dataset.name}).join('، '):'لم تختر أي مادة بعد.';}
-  function grade(){var g=st?st.options[st.selectedIndex].dataset.grade:'';
-    [].forEach.call(f.querySelectorAll('.grp-w'),function(w){var hide=g&&w.dataset.grade!==g;w.hidden=!!hide;if(hide)[].forEach.call(w.querySelectorAll('input'),function(i){i.checked=false})});upd();}
+  var cards=[].slice.call(f.querySelectorAll('.gc'));
+  function open(c,o){c.classList.toggle('open',o);c.querySelector('.gt').setAttribute('aria-expanded',o?'true':'false');c.querySelector('.gb').hidden=!o;}
+  function counts(){cards.forEach(function(c){var bs=[].slice.call(c.querySelectorAll('input[name="plans[]"]')),n=bs.filter(function(b){return b.checked}).length,all=c.querySelector('[data-all]');
+    c.querySelector('[data-cnt]').textContent=ar(n)+' / '+ar(bs.length);c.classList.toggle('has',n>0);all.checked=n===bs.length;all.indeterminate=n>0&&n<bs.length;});}
+  // Picking a student focuses (expands) their grade; other grades stay available, collapsed. Selections are never cleared.
+  function grade(){var g=st?st.options[st.selectedIndex].dataset.grade:'',hit=g&&cards.some(function(c){return c.dataset.grade===g});
+    cards.forEach(function(c,i){var cur=hit?c.dataset.grade===g:false,sel=!!c.querySelector('input[name="plans[]"]:checked');c.classList.toggle('cur',cur);open(c,hit?(cur||sel):(i===0||sel));});
+    if(hit&&st===document.activeElement){var c=cards.filter(function(c){return c.dataset.grade===g})[0];c.scrollIntoView({block:'nearest',behavior:'smooth'});}}
+  cards.forEach(function(c){c.querySelector('.gt').addEventListener('click',function(){open(c,!c.classList.contains('open'))});
+    c.querySelector('[data-all]').addEventListener('change',function(e){[].forEach.call(c.querySelectorAll('input[name="plans[]"]'),function(b){b.checked=e.target.checked});if(e.target.checked)open(c,true);upd();});});
+  var _upd=upd;upd=function(){_upd();counts();};
   boxes.forEach(function(b){b.addEventListener('change',upd)});if(st)st.addEventListener('change',grade);
   f.addEventListener('submit',function(e){if(!boxes.some(function(b){return b.checked})){e.preventDefault();alert('اختر مادة واحدة على الأقل.')}});
-  grade();
+  grade();upd();
 })();
 </script>
 @endsection
