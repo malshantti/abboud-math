@@ -4,6 +4,12 @@ return [
 
     'student_site_url' => env('STUDENT_SITE_URL', ''),
 
+    // Folder holding admin/, assets/ and catalog.js. Empty = backend/frontend if present, else the repo root.
+    'frontend_path' => env('ADMIN_FRONTEND_PATH', ''),
+
+    // One-time setup token for hosts without SSH. Leave empty (disabled) except during setup.
+    'setup_token' => env('SETUP_TOKEN', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
