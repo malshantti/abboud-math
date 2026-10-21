@@ -20,7 +20,7 @@
   <p class="lead" style="margin:-4px 0 14px">سعر كل مادة في كل صف ومدة الاشتراك بالأيام. تظهر هذه الأسعار لأولياء الأمور في صفحة الاشتراك.</p>
   <div class="table-wrap" style="box-shadow:none"><table class="prices"><thead><tr><th>المادة</th><th>الصف</th><th>السعر ({{ $s['currency'] }})</th><th>المدة بالأيام</th></tr></thead><tbody>
   @foreach ($ar::SUBJECTS as $code => [$g, $subj])
-    @php($p = $plans[$code] ?? ['price' => 0, 'days' => 30])
+    @php($p = $plans[$code] ?? \App\Models\Setting::defaultPlan($g))
     <tr><td><b>{{ $subj }}</b></td><td><span class="chip grey">{{ $ar::grade($g) }}</span></td><td><input name="prices[{{ $code }}][price]" type="number" min="0" max="100000" value="{{ $p['price'] }}" aria-label="سعر {{ $subj }} {{ $ar::grade($g) }}" ></td><td><input name="prices[{{ $code }}][days]" type="number" min="1" max="1000" value="{{ $p['days'] }}" aria-label="مدة {{ $subj }} {{ $ar::grade($g) }}" ></td></tr>
   @endforeach
   </tbody></table></div>

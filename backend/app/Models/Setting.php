@@ -62,15 +62,25 @@ class Setting extends Model
     }
 
     /** Price list, one entry per grade+subject. @return array<string, array{code:string,name:string,price:int,days:int,grade:int,subject:string}> */
+    /** Default price when the admin has not set one: 15 for grades 1-2, 20 for grades 6 and 8, 30 days. */
+    public static function defaultPlan(int $grade): array
+    {
+        return ['price' => $grade <= 2 ? 15 : 20, 'days' => 30];
+    }
+
     public static function plans(): array
     {
-        $out = [];
+        $set = [];
         foreach (preg_split('/\R/', static::get('prices')) as $line) {
             $p = array_map('trim', explode('|', $line));
-            if (count($p) === 3 && isset(\App\Support\Ar::SUBJECTS[$p[0]]) && ctype_digit($p[1]) && ctype_digit($p[2]) && (int) $p[2] > 0) {
-                [$g, $subj] = \App\Support\Ar::SUBJECTS[$p[0]];
-                $out[$p[0]] = ['code' => $p[0], 'name' => $subj.' — '.\App\Support\Ar::grade($g), 'price' => (int) $p[1], 'days' => (int) $p[2], 'grade' => $g, 'subject' => $subj];
+            if (count($p) === 3 && isset(\App\Support\Ar::SUBJECTS[$p[0]]) && ctype_digit($p[1]) && ctype_digit($p[2]) && (int) $p[1] > 0 && (int) $p[2] > 0) {
+                $set[$p[0]] = ['price' => (int) $p[1], 'days' => (int) $p[2]];
             }
+        }
+        $out = [];
+        foreach (\App\Support\Ar::SUBJECTS as $code => [$g, $subj]) {
+            $v = $set[$code] ?? static::defaultPlan($g);
+            $out[$code] = ['code' => $code, 'name' => $subj.' — '.\App\Support\Ar::grade($g), 'price' => $v['price'], 'days' => $v['days'], 'grade' => $g, 'subject' => $subj];
         }
 
         return $out;
