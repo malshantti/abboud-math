@@ -219,6 +219,51 @@ class AccountTest extends TestCase
         $this->post('/account/subscribe', ['plan' => 'g5-art'])->assertSessionHasErrors('plan');
     }
 
+    public function test_multi_subject_request_creates_one_subscription_per_subject_and_one_whatsapp_message(): void
+    {
+        $u = User::factory()->create(['name' => 'أم ليلى', 'email' => 'm@example.test']);
+        $s = $u->students()->create(['name' => 'ليلى', 'grade' => 6]);
+        $page = $this->actingAs($u)->get('/account/subscribe')->assertOk();
+        $page->assertSee('name="plans[]"', false)->assertSee('type="checkbox"', false)->assertSee('اختر الطالب')->assertSee('اختر المواد')->assertSee('ادفع عبر واتساب وسنفعّل الاشتراك بعد التأكيد')->assertSee('المجموع');
+        $r = $this->post('/account/subscribe', ['plans' => ['g6-math', 'g6-science', 'g6-math'], 'student_id' => $s->id]);
+        $subs = $u->subscriptions()->orderBy('id')->get();
+        $this->assertCount(2, $subs);
+        $this->assertSame(['g6-math', 'g6-science'], $subs->pluck('plan')->all());
+        $this->assertTrue($subs->every(fn ($x) => $x->status === 'pending' && $x->student_id === $s->id && $x->price === 20));
+        $loc = $r->headers->get('Location');
+        $this->assertStringStartsWith('https://wa.me/972592945557?text=', $loc);
+        $text = rawurldecode(substr($loc, strpos($loc, '=') + 1));
+        foreach (['أم ليلى', 'ليلى', 'الرياضيات — الصف السادس', 'العلوم — الصف السادس', 'المجموع: ٤٠', $subs[0]->code, $subs[1]->code] as $part) {
+            $this->assertStringContainsString($part, $text);
+        }
+        $this->post('/account/subscribe', ['plans' => ['g6-math', 'g5-art']])->assertSessionHasErrors('plans.1');
+        $this->post('/account/subscribe', [])->assertSessionHasErrors();
+        $this->assertSame(2, $u->subscriptions()->count());
+    }
+
+    public function test_prices_default_by_grade_when_unset_and_admin_values_override(): void
+    {
+        Setting::put(['prices' => "g6-math|0|30\ng8-arabic|35|60"]);
+        $p = Setting::plans();
+        $this->assertCount(16, $p);
+        $this->assertSame([15, 30], [$p['g1-math']['price'], $p['g1-math']['days']]);
+        $this->assertSame(15, $p['g2-life']['price']);
+        $this->assertSame([20, 30], [$p['g6-math']['price'], $p['g6-math']['days']]);
+        $this->assertSame(20, $p['g8-science']['price']);
+        $this->assertSame([35, 60], [$p['g8-arabic']['price'], $p['g8-arabic']['days']]);
+        Setting::put(['prices' => '']);
+        $u = User::factory()->create();
+        $this->actingAs($u)->get('/account/subscribe')->assertOk()->assertSee('data-price="15"', false)->assertSee('data-price="20"', false)->assertDontSee('data-price="0"', false);
+    }
+
+    public function test_subscribe_page_shows_trial_days_left_or_expired(): void
+    {
+        $u = User::factory()->create(['trial_ends_at' => now()->addDays(2)->addHour()]);
+        $this->actingAs($u)->get('/account/subscribe')->assertOk()->assertSee('متبقٍّ ٣ أيام');
+        $u->forceFill(['trial_ends_at' => now()->subDay()])->save();
+        $this->actingAs($u->fresh())->get('/account/subscribe')->assertOk()->assertSee('انتهت الفترة التجريبية');
+    }
+
     public function test_login_returns_to_the_lesson_that_required_sign_in(): void
     {
         $this->register()->assertRedirect('/account');

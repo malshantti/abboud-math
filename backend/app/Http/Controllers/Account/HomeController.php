@@ -78,23 +78,35 @@ class HomeController extends Controller
     {
         $plans = Setting::plans();
         $data = $request->validate([
-            'plan' => ['required', Rule::in(array_keys($plans))],
+            'plan' => ['required_without:plans', 'nullable', Rule::in(array_keys($plans))],
+            'plans' => ['required_without:plan', 'nullable', 'array', 'max:16'],
+            'plans.*' => ['string', Rule::in(array_keys($plans))],
             'student_id' => ['nullable', 'integer'],
-        ], ['plan.required' => 'اختر المادة.', 'plan.in' => 'اختر مادة من القائمة.']);
+        ], ['plan.required_without' => 'اختر مادة واحدة على الأقل.', 'plans.required_without' => 'اختر مادة واحدة على الأقل.', 'plan.in' => 'اختر مادة من القائمة.', 'plans.*.in' => 'اختر مادة من القائمة.', 'plans.max' => 'اختر ١٦ مادة على الأكثر.']);
+        $codes = array_values(array_unique(array_filter(array_merge((array) ($data['plans'] ?? []), [$data['plan'] ?? null]))));
+        if ($codes === []) {
+            return back()->withErrors(['plan' => 'اختر مادة واحدة على الأقل.']);
+        }
         $user = $request->user();
         $student = ! empty($data['student_id']) ? $user->students()->findOrFail($data['student_id']) : null;
-        abort_if($user->subscriptions()->where('status', 'pending')->count() >= 5, 429, 'لديك طلبات كثيرة بانتظار الدفع.');
-        $plan = $plans[$data['plan']];
-        $sub = new Subscription([
-            'code' => strtoupper(Str::random(4)).'-'.random_int(1000, 9999), 'plan' => $plan['code'], 'plan_name' => $plan['name'],
-            'price' => $plan['price'], 'currency' => Setting::get('currency'), 'days' => $plan['days'],
-            'scope' => $plan['code'], 'gateway' => 'whatsapp', 'status' => 'pending',
-        ]);
-        $sub->student_id = $student?->id;
-        $user->subscriptions()->save($sub);
-        ActivityLog::record('subscription.request', $sub->code, $plan['name']);
-        $url = (new WhatsAppGateway)->checkoutUrl($sub->setRelation('user', $user)->load('student'));
+        $pending = $user->subscriptions()->where('status', 'pending')->count();
+        abort_if($pending + count($codes) > 16, 429, 'لديك طلبات كثيرة بانتظار الدفع.');
+        $subs = [];
+        foreach ($codes as $code) {
+            $plan = $plans[$code];
+            $sub = new Subscription([
+                'code' => strtoupper(Str::random(4)).'-'.random_int(1000, 9999), 'plan' => $plan['code'], 'plan_name' => $plan['name'],
+                'price' => $plan['price'], 'currency' => Setting::get('currency'), 'days' => $plan['days'],
+                'scope' => $plan['code'], 'gateway' => 'whatsapp', 'status' => 'pending',
+            ]);
+            $sub->student_id = $student?->id;
+            $user->subscriptions()->save($sub);
+            ActivityLog::record('subscription.request', $sub->code, $plan['name']);
+            $subs[] = $sub->setRelation('user', $user)->setRelation('student', $student);
+        }
+        $url = (new WhatsAppGateway)->batchCheckoutUrl($subs);
+        $list = collect($subs)->pluck('code')->join('، ');
 
-        return $url ? redirect()->away($url) : redirect()->route('account.subscribe')->with('status', 'سُجّل طلبك برمز '.$sub->code.'. سنتواصل معك لإتمام الدفع.');
+        return $url ? redirect()->away($url) : redirect()->route('account.subscribe')->with('status', (count($subs) > 1 ? 'سُجّلت طلباتك برموز ' : 'سُجّل طلبك برمز ').$list.'. سنتواصل معك لإتمام الدفع.');
     }
 }
