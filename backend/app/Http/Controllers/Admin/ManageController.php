@@ -165,7 +165,7 @@ class ManageController extends Controller
         $data = $request->validate(['ids' => ['required', 'array', 'max:200'], 'ids.*' => ['integer'], 'action' => ['required', Rule::in(['activate', 'cancel'])]], ['ids.required' => 'اختر طلبًا واحدًا على الأقل.']);
         $subs = Subscription::whereIn('id', $data['ids'])->where('status', $data['action'] === 'activate' ? 'pending' : '!=', $data['action'] === 'activate' ? 'pending' : 'cancelled')->get();
         foreach ($subs as $s) {
-            $data['action'] === 'activate' ? $this->activateSubscription(new Request(['days' => $s->days]) ->setUserResolver(fn () => $request->user()), $s) : $this->cancelSubscription($s);
+            $data['action'] === 'activate' ? $this->activateSubscription((new Request(['days' => $s->days]))->setUserResolver(fn () => $request->user()), $s) : $this->cancelSubscription($s);
         }
 
         return back()->with('status', 'نُفّذ الإجراء على '.Ar::num($subs->count()).' طلب.');
