@@ -2,9 +2,9 @@
 @section('title', 'كلمة مرور جديدة')
 @section('body')
 <main class="auth">
-  <div class="mascot"><img src="{{ route('brand.asset',['asset'=>'img/av-encourage.webp']) }}" alt="" width="220" height="220"><p>اختر كلمة مرور تتذكرها</p></div>
   <section class="card">
     <h1>كلمة مرور جديدة</h1>
+    <p class="lead">٨ محارف على الأقل، ويُستحسن أن تمزج بين الحروف والأرقام.</p>
     @include('partials.flash')
     <form method="post" action="{{ route('account.password.update') }}">@csrf
       <input type="hidden" name="token" value="{{ $token }}">
@@ -14,5 +14,6 @@
       <button class="btn wide" type="submit">حفظ كلمة المرور</button>
     </form>
   </section>
+  @include('partials.auth-side', ['say' => 'اختر كلمة مرور تتذكرها'])
 </main>
 @endsection
