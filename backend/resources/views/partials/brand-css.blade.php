@@ -33,7 +33,7 @@ input[type=checkbox],input[type=radio]{width:22px;min-height:22px;height:22px;ac
 .brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--gd);font-weight:800;font-size:22px}
 .brand img{width:40px;height:40px}.brand small{display:block;font:500 14px/1.4 Cairo,sans-serif;color:var(--muted)}
 table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}th{font-size:15px;color:var(--muted)}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.grid{display:grid;gap:18px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.grid{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}.grid>*{min-width:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* صفحات الحساب والدخول: خط واحد معتمد (نفس خط الصفحة الرئيسية) لكل العناصر */
 body.brand-font,body.brand-font :is(h1,h2,h3,h4,p,span,b,strong,small,a,label,legend,li,input,select,textarea,button,.btn,.hint,.alert,.bubble,.trial,.links,.foot,.lead){font-family:Baloo,Cairo,Tahoma,sans-serif}
