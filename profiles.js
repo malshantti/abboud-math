@@ -150,4 +150,6 @@ const pending=!!(get(K.transition)||get(K.restore));
 P.ready=locked(()=>recoverRestore()&&recover()&&migrate()).then(ok=>{if(ok&&pending&&typeof location!=='undefined')location.reload();return ok});
 })();
 // مزامنة اختيارية مع حساب ولي الأمر (sync.js). لا تعمل إلا بعد تفعيلها، ولا تغيّر شيئًا في الحفظ المحلي أعلاه.
+// صفحات الدروس: الدخول بحساب ولي الأمر إلزامي. نُخفي الدرس حتى يتحقق sync.js من الحساب (من سجّل سابقًا يرى الدرس فورًا ولو دون إنترنت).
+try{if(typeof document!=='undefined'&&document.documentElement&&/^https?:$/.test(location.protocol)&&/\/g\d+\/[a-z]+\//.test(location.pathname)&&!localStorage.getItem('bustan_account')){document.documentElement.dataset.gate='checking';const st=document.createElement('style');st.textContent='html[data-gate=checking] body{visibility:hidden}';document.head.append(st)}}catch(e){}
 try{if(typeof document!=='undefined'&&document.currentScript&&document.head){const s=document.createElement('script');s.src=new URL('sync.js',document.currentScript.src).href;s.defer=true;document.head.append(s)}}catch(e){}

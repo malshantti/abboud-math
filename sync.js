@@ -8,7 +8,7 @@
 if(window.BUSTAN_SYNC)return;
 const LS=window.localStorage,me=document.currentScript,root=new URL('./',me&&me.src||location.href);
 const API=window.BUSTAN_API||new URL('admin-api/api/',root).href;
-const K={on:'bustan_sync',state:'bustan_sync_state',access:'bustan_sync_access',dismiss:'bustan_banner_dismissed'};
+const K={account:'bustan_account',on:'bustan_sync',state:'bustan_sync_state',access:'bustan_sync_access',dismiss:'bustan_banner_dismissed'};
 const get=k=>{try{return LS.getItem(k)}catch(e){return null}},set=(k,v)=>{try{v==null?LS.removeItem(k):LS.setItem(k,v)}catch(e){}};
 const J=(k,d)=>{try{const v=JSON.parse(get(k));return v==null?d:v}catch(e){return d}};
 const web=/^https?:$/.test(location.protocol);
@@ -21,8 +21,9 @@ let csrf='',session=null,busy=null;
 
 async function api(path,opt){
  opt=opt||{};const headers={'Accept':'application/json'};
+ let ctl=null,timer=0;if(opt.timeout&&typeof AbortController==='function'){ctl=new AbortController();timer=setTimeout(()=>ctl.abort(),opt.timeout)}
  if(opt.body!==undefined){headers['Content-Type']='application/json';headers['X-CSRF-TOKEN']=csrf}
- const r=await fetch(API+path,{method:opt.method||(opt.body===undefined?'GET':'POST'),credentials:'same-origin',cache:'no-store',headers,body:opt.body===undefined?undefined:JSON.stringify(opt.body),keepalive:!!opt.keepalive});
+ const r=await fetch(API+path,{method:opt.method||(opt.body===undefined?'GET':'POST'),credentials:'same-origin',cache:'no-store',headers,body:opt.body===undefined?undefined:JSON.stringify(opt.body),keepalive:!!opt.keepalive,signal:ctl?ctl.signal:undefined}).finally(()=>timer&&clearTimeout(timer));
  if(r.status===401||r.status===419){session=null;throw Error('auth')}
  if(!r.ok)throw Error('http '+r.status);
  return r.json();
@@ -61,6 +62,33 @@ function gate(access,urls){
   const [go,back]=d.querySelectorAll('a');go.textContent='صفحة الاشتراك';go.href=urls.subscribe;back.textContent='العودة إلى البداية';back.href=new URL('login.html',root).href;
   document.body.append(d);go.focus()};
  document.body?show():addEventListener('DOMContentLoaded',show);
+}
+
+// ---- الدخول إلزامي قبل أي درس ----
+// صفحة مادة دون حساب مسجَّل: تحويل إلى دخول/تسجيل ولي الأمر ثم العودة إلى الصفحة نفسها.
+// من سجّل الدخول من قبل على هذا الجهاز (bustan_account) يتابع دون إنترنت أو مع اتصال ضعيف؛ لا نُقفل إلا حين يؤكد الخادم أن الجلسة انتهت.
+const loginUrl=()=>new URL('admin-api/account/login',root).href+'?return='+encodeURIComponent(location.href);
+function reveal(){try{delete document.documentElement.dataset.gate}catch(e){}}
+function requireLogin(){set(K.account,null);set(K.access,null);location.replace(loginUrl())}
+function offlineNotice(){
+ const show=()=>{if(document.getElementById('bustan-signin'))return;reveal();const app=document.querySelector('#app');if(app)app.inert=true;
+  const d=document.createElement('div');d.id='bustan-signin';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+  d.style.cssText='position:fixed;inset:0;z-index:10000;background:#fbf8ef;display:grid;place-items:center;padding:20px;direction:rtl';
+  d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b"><h2 style="margin:0 0 8px;color:#3e5729">سجّل الدخول أولًا</h2><p style="margin:0 0 18px">يلزم الاتصال بالإنترنت مرة واحدة لتسجيل الدخول بحساب ولي الأمر. بعدها تعمل الدروس على هذا الجهاز حتى دون إنترنت.</p><a style="display:inline-flex;align-items:center;min-height:48px;padding:10px 24px;border-radius:16px;background:#1f9d55;color:#fff;font-weight:700;text-decoration:none">تسجيل الدخول</a></div>';
+  d.querySelector('a').href=loginUrl();document.body.append(d)};
+ document.body?show():addEventListener('DOMContentLoaded',show);
+ addEventListener('online',()=>location.reload(),{once:true});
+}
+function remember(s){set(K.account,JSON.stringify({email:s.user.email,name:s.user.name,t:Date.now()}));set(K.on,'1')}
+async function lessonGate(){
+ const had=J(K.account,null);
+ if(had)reveal();// جهاز سبق تسجيل الدخول عليه: الدرس يفتح فورًا ونتحقق في الخلفية
+ if(!navigator.onLine){if(!had)offlineNotice();else{const c=J(K.access,null);if(c)gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href})}return false}
+ try{session=await api('session',{timeout:had?15000:10000})}
+ catch(e){if(had){const c=J(K.access,null);if(c)gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href})}else offlineNotice();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
+ csrf=session.csrf||'';banner(session.site&&session.site.announcement);
+ if(!session.authenticated){requireLogin();return false}
+ remember(session);set(K.access,JSON.stringify(session.access));reveal();gate(session.access,session.urls);return true;
 }
 
 // ---- المزامنة ----
@@ -116,9 +144,11 @@ function run(){if(busy)return busy;busy=sync().catch(e=>{if(window.console)conso
 
 async function start(){
  if(!web)return;
+ if(subject){if(!await lessonGate())return;badge();await run();setInterval(run,20000);addEventListener('online',run);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});return}
  if(!enabled()){try{const s=await (await fetch(API+'site',{credentials:'same-origin'})).json();banner(s.announcement)}catch(e){}badge();return}
  try{session=await api('session');csrf=session.csrf||'';banner(session.site&&session.site.announcement);
-  if(session.authenticated){set(K.access,JSON.stringify(session.access));gate(session.access,session.urls)}
+  if(session.authenticated){remember(session);set(K.access,JSON.stringify(session.access));gate(session.access,session.urls)}else set(K.account,null)
  }catch(e){const cached=J(K.access,null);if(cached)gate(cached,{subscribe:new URL('admin-api/account/subscribe',root).href})}// دون إنترنت: آخر حالة معروفة
  badge();
  if(!session||!session.authenticated)return;
@@ -127,6 +157,6 @@ async function start(){
  addEventListener('online',run);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});
 }
-window.BUSTAN_SYNC={run,enabled,disable(){set(K.on,null);set(K.state,null);set(K.access,null)}};
+window.BUSTAN_SYNC={run,enabled,disable(){set(K.on,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();

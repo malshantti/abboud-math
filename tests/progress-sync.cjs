@@ -26,12 +26,12 @@ const tick=()=>new Promise(r=>setTimeout(r,30));
  const map=new Map([['abboud_math_v1',JSON.stringify({name:'عبّود',points:77})]]);const srv=server();
  let c=page(map,srv,'/login.html');await c.PROFILES.ready;await tick();
  assert.deepEqual(srv.calls,['GET site'],'not opted in: only the public banner request');
- const before=JSON.stringify([...map].filter(([k])=>!k.startsWith('bustan_sync')));
+ const before=JSON.stringify([...map].filter(([k])=>!k.startsWith('bustan_sync')&&k!=='bustan_account'));
  // Opt in and log in: the local profile and its progress are imported.
  map.set('bustan_sync','1');c=page(map,srv,'/login.html');await tick();await c.BUSTAN_SYNC.run();
  assert.equal(srv.students.length,1);assert.equal(srv.students[0].local_id,'p1');
  assert.equal(JSON.parse(srv.progress[1].abboud_math_v1.value).points,77,'local progress imported on first login');
- assert.equal(JSON.stringify([...map].filter(([k])=>!k.startsWith('bustan_sync'))),before,'existing local keys are untouched by the import');
+ assert.equal(JSON.stringify([...map].filter(([k])=>!k.startsWith('bustan_sync')&&k!=='bustan_account')),before,'existing local keys are untouched by the import');
  // A lesson played in a subject page is pushed.
  c=page(map,srv,'/g8/math/');await tick();await c.PROFILES.ready;await c.PROFILES.login('p1');
  const write=c.PROFILES.writer('abboud_math_v1');assert.equal(await write(JSON.stringify({name:'عبّود',points:90})),true);

@@ -171,4 +171,26 @@ class AccountTest extends TestCase
         }
         $this->post('/account/subscribe', ['plan' => 'g5-art'])->assertSessionHasErrors('plan');
     }
+
+    public function test_login_returns_to_the_lesson_that_required_sign_in(): void
+    {
+        $this->register()->assertRedirect('/account');
+        $this->post('/account/logout');
+        $this->get('/account/login')->assertOk();
+        $origin = request()->getSchemeAndHttpHost();
+        $this->get('/account/login?return='.urlencode($origin.'/g1/math/'))->assertOk();
+        $this->post('/account/login', ['email' => 'parent@example.test', 'password' => 'secret-pass-1'])->assertRedirect($origin.'/g1/math/');
+    }
+
+    public function test_register_returns_to_the_lesson_and_offsite_returns_are_ignored(): void
+    {
+        $this->get('/account/register?return=%2Fg8%2Fscience%2F')->assertOk();
+        $this->register()->assertRedirect(request()->getSchemeAndHttpHost().'/g8/science/');
+        $this->post('/account/logout');
+        foreach (['https://evil.test/g1/math/', '//evil.test/x', '/\\evil.test', 'javascript:alert(1)', 'http://localhost.evil.test/'] as $bad) {
+            $this->get('/account/login?return='.urlencode($bad))->assertOk();
+            $this->post('/account/login', ['email' => 'parent@example.test', 'password' => 'secret-pass-1'])->assertRedirect('/account');
+            $this->post('/account/logout');
+        }
+    }
 }

@@ -42,8 +42,28 @@ class AuthController extends Controller
         return ['required', 'string', 'confirmed', PasswordRule::min(8), 'max:72'];
     }
 
-    public function registerForm(): View
+    /** Remember a same-site page (a lesson) to return to after login/register. Anything off-site is ignored. */
+    public static function rememberReturn(Request $request): void
     {
+        $url = $request->query('return');
+        if (! is_string($url) || $url === '' || strlen($url) > 2000 || preg_match('#[\s\x5c]#', $url)) {
+            return;
+        }
+        $origin = $request->getSchemeAndHttpHost();
+        if (str_starts_with($url, '/') && ! str_starts_with($url, '//')) {
+            $url = $origin.$url;
+        }
+        $p = parse_url($url);
+        if (! $p || ! in_array($p['scheme'] ?? '', ['http', 'https'], true) || isset($p['user']) || isset($p['pass'])
+            || strcasecmp($p['host'] ?? '', $request->getHost()) !== 0 || ($p['scheme'].'://'.$p['host'].(isset($p['port']) ? ':'.$p['port'] : '')) !== $origin) {
+            return;
+        }
+        $request->session()->put('url.intended', $url);
+    }
+
+    public function registerForm(Request $request): View
+    {
+        self::rememberReturn($request);
         return view('account.register', ['open' => Setting::flag('registration_open')]);
     }
 
@@ -76,11 +96,12 @@ class AuthController extends Controller
         $request->session()->regenerate();
         ActivityLog::record('register', $user->email, null, $user);
 
-        return redirect()->route('account.home')->with('status', 'أهلًا بك! أُنشئ حسابك. أضف الآن طلابك.');
+        return redirect()->intended(route('account.home', absolute: false))->with('status', 'أهلًا بك! أُنشئ حسابك. أضف الآن طلابك.');
     }
 
-    public function loginForm(): View
+    public function loginForm(Request $request): View
     {
+        self::rememberReturn($request);
         return view('account.login');
     }
 
