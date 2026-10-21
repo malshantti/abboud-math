@@ -60,11 +60,9 @@ class SyncController extends Controller
         if (! empty($data['local_id']) && ($existing = $user->students()->where('local_id', $data['local_id'])->first())) {
             return response()->json(['student' => $existing->toApi()]);
         }
-        abort_if($user->students()->count() >= 12, 422, 'too many students');
-        $s = $user->students()->create(['name' => trim($data['name']), 'grade' => $data['grade'] ?? null, 'avatar' => $data['avatar'] ?? 'idle', 'local_id' => $data['local_id'] ?? null]);
-        ActivityLog::record('student.create', $s->name, 'من الموقع');
 
-        return response()->json(['student' => $s->toApi()], 201);
+        // Students (and their grade) are added by the parent on the account page only, never from the site.
+        return response()->json(['message' => 'students are managed from the account page', 'manage' => route('account.home')], 403);
     }
 
     public function show(Request $request, Student $student): JsonResponse
@@ -88,22 +86,50 @@ class SyncController extends Controller
     {
         $this->own($request, $student);
 
-        return response()->json(['student' => $student->toApi(), 'items' => $this->merge($request, $student), 'saved' => true]);
+        $items = $this->merge($request, $student, $rejected);
+
+        return response()->json(['student' => $student->toApi(), 'items' => $items, 'rejected' => $rejected, 'saved' => true]);
     }
 
     public function import(Request $request, Student $student): JsonResponse
     {
         $this->own($request, $student);
-        $items = $this->merge($request, $student);
+        $items = $this->merge($request, $student, $rejected);
         ActivityLog::record('progress.import', $student->name, Ar::num(count($request->input('items', []))).' مفتاح');
 
-        return response()->json(['student' => $student->toApi(), 'items' => $items, 'imported' => true]);
+        return response()->json(['student' => $student->toApi(), 'items' => $items, 'rejected' => $rejected, 'imported' => true]);
     }
 
-    private function merge(Request $request, Student $student): array
+    /** Subject code (e.g. g6-math) a progress key belongs to, or null for shared settings keys. */
+    public static function subjectOf(string $key): ?string
+    {
+        if ($key === 'abboud_math_v1') {
+            return 'g8-math';
+        }
+
+        return preg_match('/^bustan_g(\d+)_([a-z]+)_v1$/', $key, $m) ? 'g'.$m[1].'-'.$m[2] : null;
+    }
+
+    /** A student may save a subject only of their own grade, and only with an active trial or subscription for it. */
+    private function entitled(Student $student, string $code): bool
+    {
+        return $student->grade && $code === 'g'.$student->grade.'-'.explode('-', $code, 2)[1]
+            && Access::allows($student->user, $code);
+    }
+
+    private function merge(Request $request, Student $student, ?array &$rejected = null): array
     {
         $request->validate(['items' => ['present', 'array', 'max:40']]);
         $items = $request->input('items', []);
+        $rejected = [];
+        foreach (array_keys($items) as $key) {
+            $code = is_string($key) ? static::subjectOf($key) : null;
+            // The grade is fixed by the parent; subject progress needs grade + entitlement.
+            if ($key === 'bustan_grade' || ($code !== null && ! $this->entitled($student, $code))) {
+                $rejected[] = $key;
+                unset($items[$key]);
+            }
+        }
         DB::transaction(function () use ($items, $student) {
             foreach ($items as $key => $item) {
                 if (! in_array($key, Ar::SYNC_KEYS, true) || ! is_array($item)) {
@@ -120,9 +146,6 @@ class SyncController extends Controller
                     $student->progress()->create(['key' => $key, 'value' => $value, 'client_updated_at' => $updated]);
                 } elseif ($updated > $row->client_updated_at) {
                     $row->update(['value' => $value, 'client_updated_at' => $updated]);
-                }
-                if ($key === 'bustan_grade' && preg_match('/^\d+$/', (string) $value) && isset(Ar::GRADES[(int) $value]) && ! $student->grade) {
-                    $student->grade = (int) $value;
                 }
             }
             $student->last_synced_at = now();

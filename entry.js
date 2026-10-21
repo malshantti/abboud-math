@@ -29,43 +29,54 @@ const sname=s=>(C.subjects.find(x=>x.id===s)||{}).name||'';
 // الطالب الحالي (من صفحة الدخول)
 const me=window.PROFILES&&PROFILES.current();
 const myName=me?me.name:'';
+// صف الطالب ثابت كما حدّده ولي الأمر، ولا تُفتح إلا مواد صفه المشمولة بالتجربة أو الاشتراك.
+const acct=me&&PROFILES.roster&&PROFILES.roster()?PROFILES.accountStudent(me.id):null;
+const fixedG=acct&&acct.grade?+acct.grade:null;
+const ent=(g,s)=>acct?PROFILES.entitlement(me.id,g,s):'ok';
+const ACCOUNT='admin-api/account',SUBSCRIBE='admin-api/account/subscribe';
+ICON.lock='<rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>';
 $('#hello').textContent=myName?`أهلًا ${myName}، مرحبًا في البستان`:'أهلًا بك في البستان';
 ICON.user='<circle cx="9" cy="8" r="3.5"/><path d="M3 20c.5-3.5 3-5.5 6-5.5s5.5 2 6 5.5M16 7h5M19 4l2 3-2 3"/>';ICON.out='<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10"/>';
-if(me)$('#userbar').innerHTML=`<img src="${PROFILES.avatarSrc(me.avatar)}" alt="" width="46" height="46"><span class="un"><b>${esc(me.name)}</b><small>${PROFILES.list().length>1?'ملفات هذا الجهاز: '+AR(PROFILES.list().length):'ملفك على هذا الجهاز'}</small></span><a class="btn ghost sm" href="login.html?switch=1">${svg('user',18)} تبديل المستخدم</a><a class="btn ghost sm" href="login.html?logout=1">${svg('out',18)} خروج</a>`;
+if(me)$('#userbar').innerHTML=`<img src="${PROFILES.avatarSrc(me.avatar)}" alt="" width="46" height="46"><span class="un"><b>${esc(me.name)}</b><small>${PROFILES.list().length>1?'ملفات هذا الجهاز: '+AR(PROFILES.list().length):'ملفك على هذا الجهاز'}</small></span>${acct?`<a class="btn ghost sm" href="${ACCOUNT}">إدارة الأبناء</a>`:''}<a class="btn ghost sm" href="login.html?switch=1">${svg('user',18)} تبديل المستخدم</a><a class="btn ghost sm" href="login.html?logout=1">${svg('out',18)} خروج</a>`;
 function go(e){
+ if(ent(e.grade,e.subject)!=='ok')return;
  set('bustan_last',JSON.stringify({grade:e.grade,subject:e.subject,path:e.path,t:Date.now()}));
  location.href=e.path;
 }
 let selG=null;
 function renderGrades(){
+ if(acct){$('#s1h').classList.add('hidden');$('#grades').classList.add('hidden');return}
  $('#grades').innerHTML=C.grades.map(g=>`<button type="button" class="tile grade" data-g="${g.id}" aria-pressed="${selG===g.id}"><span class="num">${AR(g.id)}</span><span class="gn">${esc(g.name)}</span><span class="st">${esc(g.stage)}</span>${gradeActive(g.id)?'<span class="tag on">متاح</span>':'<span class="tag">قريبًا</span>'}</button>`).join('');
  $('#grades').querySelectorAll('.tile').forEach(b=>b.onclick=()=>{selG=+b.dataset.g;set('bustan_grade',String(selG));renderGrades();renderSubjects();$('#s2h').scrollIntoView({behavior:'smooth',block:'start'})});
 }
 function renderSubjects(){
  const box=$('#subjects');
- if(!selG){$('#s2h').classList.add('off');$('#s2p').textContent='اختر الصف أولًا';box.innerHTML='';return}
+ if(!selG){$('#s2h').classList.add('off');$('#s2p').textContent=acct?'لم يحدّد ولي الأمر صفك بعد؛ يحدّده من صفحة الحساب.':'اختر الصف أولًا';box.innerHTML=acct?`<a class="btn" href="${ACCOUNT}">إدارة الأبناء</a>`:'';return}
  $('#s2h').classList.remove('off');$('#s2t').textContent='اختر المادة — '+gname(selG);
  const any=gradeActive(selG);$('#s2p').textContent=any?'المواد المتاحة عليها زر «ابدأ»':'مواد هذا الصف قيد التحضير';
  box.innerHTML=C.subjects.filter(s=>(!s.grades||s.grades.includes(selG))&&(!C.gradeSubjects?.[selG]||C.gradeSubjects[selG].includes(s.id))).map(s=>{const e=active(selG,s.id);
+  const lk=e&&ent(selG,s.id)!=='ok';
+  if(lk)return `<div class="tile subject locked"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${svg('lock',16)} انتهت الفترة التجريبية أو المادة غير مشمولة باشتراكك.</span></span><a class="btn sm" href="${SUBSCRIBE}">اشترك</a></div>`;
   return e?`<button type="button" class="tile subject" data-s="${s.id}"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${esc(e.desc||'')}</span></span><span class="tag on">ابدأ</span></button>`
    :`<div class="tile subject soon" aria-disabled="true"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">نحضّر دروسها، وستُزهر قريبًا.</span></span><span class="tag">قريبًا</span></div>`}).join('')
-  +(any?'':`<div class="empty"><img src="assets/img/zaytoun-think.webp" alt="" width="64" height="75"><span>لم تُضَف مواد ${esc(gname(selG))} بعد. جرّب <b>الصف الثامن · الرياضيات</b> الآن.</span></div>`);
+  +(any||acct?'':`<div class="empty"><img src="assets/img/zaytoun-think.webp" alt="" width="64" height="75"><span>لم تُضَف مواد ${esc(gname(selG))} بعد. جرّب <b>الصف الثامن · الرياضيات</b> الآن.</span></div>`);
  box.querySelectorAll('button.subject').forEach(b=>b.onclick=()=>go(active(selG,b.dataset.s)));
 }
 // متابعة سريعة لآخر اختيار
 function renderResume(){
  let last=null;try{last=JSON.parse(get('bustan_last')||'null')}catch(e){}
- const e=last&&active(last.grade,last.subject);const r=$('#resume');
+ const e=last&&active(last.grade,last.subject)&&ent(last.grade,last.subject)==='ok'?active(last.grade,last.subject):null;const r=$('#resume');
  if(!e){r.classList.add('hidden');return}
  const sub=C.subjects.find(s=>s.id===e.subject)||{};
- r.innerHTML=`<span class="ri">${svg(sub.icon||'sprout',30)}</span><span class="rt"><b>تابع من حيث توقفت</b><small>${esc(sname(e.subject))} · ${esc(gname(e.grade))}</small></span><a class="btn" id="resumeBtn" href="${esc(e.path)}">متابعة ${svg('go',18)}</a><button type="button" class="btn ghost" id="changeBtn">${svg('swap',18)} تغيير</button>`;
+ r.innerHTML=`<span class="ri">${svg(sub.icon||'sprout',30)}</span><span class="rt"><b>تابع من حيث توقفت</b><small>${esc(sname(e.subject))} · ${esc(gname(e.grade))}</small></span><a class="btn" id="resumeBtn" href="${esc(e.path)}">متابعة ${svg('go',18)}</a>${acct?'':`<button type="button" class="btn ghost" id="changeBtn">${svg('swap',18)} تغيير</button>`}`;
  r.classList.remove('hidden');
  $('#resumeBtn').onclick=ev=>{ev.preventDefault();go(e)};
- $('#changeBtn').onclick=()=>{selG=e.grade;renderGrades();renderSubjects();$('#s1h').scrollIntoView({behavior:'smooth'})};
+ if($('#changeBtn'))$('#changeBtn').onclick=()=>{selG=e.grade;renderGrades();renderSubjects();$('#s1h').scrollIntoView({behavior:'smooth'})};
 }
 const q=new URLSearchParams(location.search);
 const g0=+(get('bustan_grade')||0);if(q.has('change')||g0)selG=C.grades.some(g=>g.id===g0)?g0:null;
-if(!selG){try{const l=JSON.parse(get('bustan_last')||'null');if(l)selG=l.grade}catch(e){}}
+if(acct)selG=fixedG;
+if(!selG&&!acct){try{const l=JSON.parse(get('bustan_last')||'null');if(l)selG=l.grade}catch(e){}}
 renderGrades();renderSubjects();renderResume();
 if(q.has('change'))setTimeout(()=>$('#s1h').scrollIntoView({block:'start'}),50);
 // الوضع الليلي (المفتاح نفسه المستخدم داخل المادة)
