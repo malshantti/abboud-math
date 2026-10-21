@@ -35,4 +35,16 @@ class SetupRouteTest extends TestCase
         $this->assertTrue(User::where('email', 'a@example.com')->first()->is_admin);
         $this->post('/setup/admin', ['email' => 'b@example.com'] + $body)->assertStatus(409);
     }
+
+    public function test_install_migrates_seeds_and_creates_default_admin(): void
+    {
+        config(['app.setup_token' => $this->token]);
+        $this->post('/setup/install', ['token' => 'wrong'])->assertNotFound();
+        $this->post('/setup/install', ['token' => $this->token, 'password' => 'long-password-123', 'password_confirmation' => 'long-password-123'])->assertCreated();
+        $u = User::where('email', 'mohammedalshantti2000@gmail.com')->first();
+        $this->assertTrue($u->is_admin);
+        $this->assertSame('972592945557', \App\Models\Setting::get('whatsapp_number'));
+        $this->assertDatabaseHas('site_settings', ['key' => 'trial_days', 'value' => '3']);
+        $this->post('/setup/install', ['token' => $this->token])->assertOk();
+    }
 }

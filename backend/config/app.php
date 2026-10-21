@@ -10,6 +10,8 @@ return [
 
     // One-time setup token for hosts without SSH. Leave empty (disabled) except during setup.
     'setup_token' => env('SETUP_TOKEN', ''),
+    'setup_admin_email' => env('SETUP_ADMIN_EMAIL', 'mohammedalshantti2000@gmail.com'),
+    'setup_admin_name' => env('SETUP_ADMIN_NAME', 'Mohammed Alshantti'),
 
     /*
     |--------------------------------------------------------------------------

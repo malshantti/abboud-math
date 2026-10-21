@@ -72,6 +72,14 @@ php artisan config:cache && php artisan route:cache && php artisan view:cache
 
 ### الطريقة ب — بلا SSH/Terminal (رابط إعداد لمرة واحدة)
 
+**الأسرع:** طلب واحد ينفّذ فحص صلاحيات storage وbootstrap/cache والترحيلات وبذر الإعدادات الافتراضية وإنشاء المشرف (`SETUP_ADMIN_EMAIL`):
+
+```bash
+curl -X POST -d "token=رمزك" -d "password=كلمة-المرور" -d "password_confirmation=كلمة-المرور" https://bustankids.com/admin-api/setup/install
+```
+
+أو خطوة بخطوة:
+
 1. في `.env` ضع `SETUP_TOKEN=` بقيمة عشوائية من ٣٢ محرفًا أو أكثر (وتأكد أن `APP_KEY` مضبوط).
 2. من جهازك (Windows/Mac فيهما curl):
 

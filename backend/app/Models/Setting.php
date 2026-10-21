@@ -25,7 +25,7 @@ class Setting extends Model
         'announcement' => '',
         'announcement_active' => '0',
         'trial_days' => '3',
-        'whatsapp_number' => '',
+        'whatsapp_number' => '972592945557',
         'currency' => 'شيكل',
         // One subject per line: gradeSubject|price|days  (e.g. g6-math|20|30). Unit = one subject in one grade.
         'prices' => "g1-math|15|30\ng1-arabic|15|30\ng1-english|15|30\ng1-life|15|30\ng2-math|15|30\ng2-arabic|15|30\ng2-english|15|30\ng2-life|15|30\ng6-math|20|30\ng6-arabic|20|30\ng6-english|20|30\ng6-science|20|30\ng8-math|20|30\ng8-arabic|20|30\ng8-english|20|30\ng8-science|20|30",

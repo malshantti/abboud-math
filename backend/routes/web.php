@@ -114,5 +114,6 @@ Route::withoutMiddleware([
     Illuminate\Cookie\Middleware\EncryptCookies::class,
 ])->group(function () {
     Route::post('/setup/migrate', [App\Http\Controllers\SetupController::class, 'migrate']);
+    Route::post('/setup/install', [App\Http\Controllers\SetupController::class, 'install']);
     Route::post('/setup/admin', [App\Http\Controllers\SetupController::class, 'admin']);
 });
