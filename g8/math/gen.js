@@ -23,11 +23,12 @@ function poly(cs){ // cs: [[coef,pow],...]
 const lin=(a,b)=>poly([[a,1],[b,0]]);
 const fac=(m)=>'('+X+(m<0?' − '+(-m):' + '+m)+')';
 // بناء خطوة اختيار من متعدد مع مشتّتات مرتبطة بأخطاء شائعة
+const NV=t=>{t=String(t).replace(/\s/g,'').replace(/−/g,'-').replace(/(\d),(\d)/g,'$1.$2');let m;if(m=t.match(/^(-?\d+(?:\.\d+)?)$/))return +m[1];if(m=t.match(/^(-?\d+)\/(\d+)$/))return +m[1]/+m[2];return null};// القيمة العددية لخيار بسيط لمنع خيارين متكافئين
 function mc(q,a,ds,hint,extra){
-  a=''+a;const seen=new Set([a]);const ch=[{t:a,ok:true}];
-  (ds||[]).forEach(d=>{const t=''+d[0];if(!seen.has(t)&&ch.length<4){seen.add(t);ch.push({t,m:d[1]||''})}});
-  if(/أيهما أكبر/.test(q)&&ch.length<3){ch.push({t:'متساويان',m:'العددان غير متساويين؛ وحّد الصورة (المقامات أو المنازل العشرية) ثم قارن.'})}
-  let guard=0;while(ch.length<3&&guard++<40){const t=PERT(a);if(t===null)break;if(!seen.has(t)){seen.add(t);ch.push({t,m:''})}}
+  a=''+a;const seen=new Set([a]);const ch=[{t:a,ok:true}];const vals=[];const fresh=t=>{const v=NV(t);if(v!==null&&vals.some(w=>Math.abs(w-v)<1e-9))return false;if(v!==null)vals.push(v);return true};fresh(a);
+  (ds||[]).forEach(d=>{const t=''+d[0];if(!seen.has(t)&&ch.length<4&&fresh(t)){seen.add(t);ch.push({t,m:d[1]||''})}});
+  if(/أيهما أكبر/.test(q)&&ch.length<3&&!seen.has('متساويان')){seen.add('متساويان');ch.push({t:'متساويان',m:'العددان غير متساويين؛ وحّد الصورة (المقامات أو المنازل العشرية) ثم قارن.'})}
+  let guard=0;while(ch.length<3&&guard++<40){const t=PERT(a);if(t===null)break;if(!seen.has(t)&&fresh(t)){seen.add(t);ch.push({t,m:''})}}
   for(let i=ch.length-1;i>0;i--){const j=R(0,i);[ch[i],ch[j]]=[ch[j],ch[i]]}
   return Object.assign({q,a,choices:ch,hint:hint||''},extra||{})}
 const one=(s,ex)=>({steps:[s],explain:ex||''});
