@@ -25,11 +25,12 @@ const fac=(m)=>'('+X+(m<0?' − '+(-m):' + '+m)+')';
 // بناء خطوة اختيار من متعدد مع مشتّتات مرتبطة بأخطاء شائعة
 // الكسور العشرية بالفاصلة «,» كما في الكتاب، ونستبعد المشتت ذا المنازل العشرية الطويلة
 const CLEAN=t=>{t=t.replace(/(\d+)\.(\d+)/g,(m,i,f)=>f.length>3?'\u0000':i+','+f);return t.includes('\u0000')?null:t};
+const NV=t=>{t=String(t).replace(/\s/g,'').replace(/−/g,'-').replace(/(\d),(\d)/g,'$1.$2');let m;if(m=t.match(/^(-?\d+(?:\.\d+)?)$/))return +m[1];if(m=t.match(/^(-?\d+)\/(\d+)$/))return +m[1]/+m[2];return null};// القيمة العددية لخيار بسيط لمنع خيارين متكافئين
 function mc(q,a,ds,hint,extra){
-  a=''+a;a=CLEAN(a)||a;const seen=new Set([a]);const ch=[{t:a,ok:true}];
-  (ds||[]).forEach(d=>{let t=CLEAN(''+d[0]);if(t===null)return;if(/^[−-]/.test(t)&&!/^[−-]/.test(a))return;if(!seen.has(t)&&ch.length<4){seen.add(t);ch.push({t,m:d[1]||''})}});
+  a=''+a;a=CLEAN(a)||a;const seen=new Set([a]);const ch=[{t:a,ok:true}];const vals=[];const fresh=t=>{const v=NV(t);if(v!==null&&vals.some(w=>Math.abs(w-v)<1e-9))return false;if(v!==null)vals.push(v);return true};fresh(a);
+  (ds||[]).forEach(d=>{let t=CLEAN(''+d[0]);if(t===null)return;if(/^[−-]/.test(t)&&!/^[−-]/.test(a))return;if(!seen.has(t)&&ch.length<4&&fresh(t)){seen.add(t);ch.push({t,m:d[1]||''})}});
   if(/أيهما أكبر/.test(q)&&ch.length<3&&!seen.has('متساويان')){seen.add('متساويان');ch.push({t:'متساويان',m:'العددان غير متساويين؛ وحّد الصورة (المقامات أو المنازل العشرية) ثم قارن.'})}
-  let guard=0;while(ch.length<3&&guard++<40){let t=PERT(a);if(t===null)break;t=CLEAN(t);if(t===null)continue;if(!seen.has(t)){seen.add(t);ch.push({t,m:''})}}
+  let guard=0;while(ch.length<3&&guard++<40){let t=PERT(a);if(t===null)break;t=CLEAN(t);if(t===null)continue;if(!seen.has(t)&&fresh(t)){seen.add(t);ch.push({t,m:''})}}
   for(let i=ch.length-1;i>0;i--){const j=R(0,i);[ch[i],ch[j]]=[ch[j],ch[i]]}
   return Object.assign({q,a,choices:ch,hint:hint||''},extra||{})}
 const one=(s,ex)=>({steps:[s],explain:ex||''});
@@ -126,7 +127,10 @@ const lst=a=>a.join('، ');
 const SUP=n=>String(n).replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
 const pw=(b,e)=>b+SUP(e);
 // ===== المتطلبات P01–P22 (الصفوف 3–5) =====
-G.P01=()=>{const ds=[R(1,9),R(0,9),R(0,9),R(0,9),R(0,9),R(0,9)];const n=+ds.join('');const pos=R(1,5);const names=['الآحاد','العشرات','المئات','الألوف','عشرات الألوف','مئات الألوف'];const s=String(n);const dig=+s[s.length-1-pos];if(!dig)return G.P01();const val=dig*10**pos;
+G.P01=()=>{const pos=R(1,5),dig=R(1,9),names=['الآحاد','العشرات','المئات','الألوف','عشرات الألوف','مئات الألوف'];
+ // الرقم المسؤول عنه يظهر مرة واحدة فقط في العدد ولا يكون صفرًا، فلا تصح إجابة ثانية
+ const others=[0,1,2,3,4,5,6,7,8,9].filter(x=>x!==dig);const ds=[];for(let i=5;i>=0;i--)ds.push(i===pos?dig:pick(i===5?others.filter(x=>x):others));
+ const n=+ds.join(''),val=dig*10**pos;
  return one(mc(`ما القيمة المنزلية للرقم ${dig} في العدد ${n}؟`,''+val,[[''+dig,'هذا الرقم نفسه، والمطلوب قيمته بحسب منزلته.'],[''+dig*10**(pos+1),'عُدّ المنازل من اليمين: آحاد، عشرات، مئات...'],[''+dig*10**Math.max(0,pos-1),'عُدّ المنازل من اليمين: آحاد، عشرات، مئات...']],`الرقم في منزلة ${names[pos]}.`))};
 G.P02=()=>{if(Math.random()<.5){const a=R(10000,99999);let b=a+pick([-1,1])*pick([9,90,900,10]);const big=Math.max(a,b);return one(mc(`أيهما أكبر: ${a} أم ${b}؟`,''+big,[[''+Math.min(a,b),'قارن الأرقام من أعلى منزلة.']],'قارن من اليسار: عشرات الألوف ثم الألوف ...'))}
  const a=R(1,9)/10,b=R(11,99)/100;if(Math.abs(a-b)<1e-9)return G.P02();const big=a>b?a:b,sm=a>b?b:a;return one(mc(`أيهما أكبر: ${D(a)} أم ${D(b)}؟`,D(big),[[D(sm),'أضف صفرًا ليصبح للعددين عدد المنازل نفسه ثم قارن: '+D(a)+'0 و '+D(b)+'.']],'اكتب العددين بمنزلتين عشريتين ثم قارن.'))};
@@ -174,9 +178,9 @@ G['S1-1-1']=()=>{const t=R(0,3),a=R(2,9),b=R(2,9),c=R(2,9);
  if(t===2)return one(mc(`(${a} + ${b}) × ${c} = ؟`,''+(a+b)*c,[[''+(a+b*c),'نبدأ بما داخل الأقواس.']],'ما داخل الأقواس أولًا.'));
  const q=R(2,5);return one(mc(`${a*q} ÷ ${q} × ${b} = ؟`,''+a*b,[[(a*q)%(q*b)===0?''+(a*q)/(q*b):''+(a*b+1),MIS.leftRight]],'الضرب والقسمة لهما الأولوية نفسها: نبدأ بالتي تأتي أولًا.'))};
 G['S1-1-2']=()=>{const t=R(0,2),b=R(2,5),e=R(2,5);
- if(t===0)return one(mc(`أكتب ${Array(e).fill(b).join(' × ')} بالصورة الأسية`,pw(b,e),[[pw(e,b),MIS.powSwap],[''+b*e,MIS.powMul]],''));
+ if(t===0){const v=b**e,ds=[];if(e**b!==v)ds.push([pw(e,b),MIS.powSwap]);if(b*e!==v)ds.push([''+b*e,MIS.powMul]);ds.push([pw(b,e+1),'عُدّ مرات تكرار العامل '+b+'.']);return one(mc(`أكتب ${Array(e).fill(b).join(' × ')} بالصورة الأسية`,pw(b,e),ds,''))}
  if(t===1)return one(mc(`أجد قيمة ${pw(b,e)}`,''+b**e,[[''+b*e,MIS.powMul],[''+e**b,MIS.powSwap]],Array(e).fill(b).join(' × ')));
- const bb=pick([2,3,5,10]),ee=bb===10?R(2,6):bb===5?R(2,3):R(2,6);return one(mc(`أكتب العدد ${bb**ee} بالصورة الأسية بالأساس ${bb}`,pw(bb,ee),[[pw(bb,ee+1),'عُدّ مرات تكرار العامل '+bb+'.'],[pw(ee,bb),MIS.powSwap]],'حلّل إلى العوامل الأولية.'))};
+ const bb=pick([2,3,5,10]),ee=bb===10?R(2,6):bb===5?R(2,3):R(2,6);return one(mc(`أكتب العدد ${bb**ee} بالصورة الأسية بالأساس ${bb}`,pw(bb,ee),[[pw(bb,ee+1),'عُدّ مرات تكرار العامل '+bb+'.'],ee**bb===bb**ee?[pw(bb,ee-1),'عُدّ مرات تكرار العامل '+bb+'.']:[pw(ee,bb),MIS.powSwap]],'حلّل إلى العوامل الأولية.'))};
 G['S1-1-3']=()=>{const t=R(0,2);let A,B;if(t===0){const b=R(2,9),e1=R(2,6);let e2=R(2,6);if(e1===e2)e2++;A=[b,e1];B=[b,e2]}else if(t===1){const e=R(2,4),b1=R(2,9);let b2=R(2,9);if(b1===b2)b2++;A=[b1,e];B=[b2,e]}else{const o=pick([[[3,4],[2,6]],[[2,5],[5,2]],[[4,3],[3,4]],[[2,4],[4,2]],[[5,3],[3,5]],[[10,2],[2,7]]]);A=o[0];B=o[1]}
  const va=A[0]**A[1],vb=B[0]**B[1];const ans=va>vb?pw(...A):va<vb?pw(...B):'متساويان';const other=va>vb?pw(...B):pw(...A);
  return one(mc(`أيهما أكبر: ${pw(...A)} أم ${pw(...B)}؟`,ans,[...(ans==='متساويان'?[[pw(...B),'أوجد قيمة كل منهما: كلاهما يساوي '+va+'.']]:[]),[other,t===0?'الأساسان متساويان، فالأكبر صاحب الأس الأكبر.':t===1?'الأسان متساويان، فالأكبر صاحب الأساس الأكبر.':'أوجد قيمة كل منهما: '+pw(...A)+' = '+va+' و '+pw(...B)+' = '+vb+'.'],...(ans!=='متساويان'?[['متساويان','أوجد قيمة كل منهما ثم قارن.']]:[])],''))};
