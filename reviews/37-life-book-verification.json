@@ -1,0 +1,840 @@
+{
+  "baseCommit": "456fa42",
+  "date": "2026-10-21",
+  "sourceUrls": [
+    "https://elearn.azureedge.net/Books/c1/tw1-p1.pdf",
+    "https://elearn.azureedge.net/Books/c1/tw1-p2.pdf",
+    "https://elearn.azureedge.net/Books/c2/tw2-p1.pdf",
+    "https://elearn.azureedge.net/Books/c2/tw2-p2.pdf"
+  ],
+  "scope": "قراءة نصوص الصفحات التعليمية للأجزاء الأربعة ومقارنة المهارات بمعطيات الموقع، مع عينات بصرية محددة؛ ليست شهادة وزارية أو نسخًا حرفيًّا لتمارين الكتب.",
+  "addedLessons": 54,
+  "addedQuestions": 131,
+  "rows": [
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 3,
+      "printedEnd": 19,
+      "topic": "الحواس",
+      "checkedSkills": "الأعضاء؛ المذاقات؛ الملامس؛ المحافظة على الجسم",
+      "lessonIds": [
+        "l-1-1",
+        "l-1-touch-taste",
+        "l-book-taste-texture"
+      ],
+      "newLessonIds": [
+        "l-book-taste-texture"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        13
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 20,
+      "printedEnd": 30,
+      "topic": "الأسرة",
+      "checkedSkills": "التعاون؛ الحقوق؛ سلوك آمن في المنزل",
+      "lessonIds": [
+        "l-1-2",
+        "l-book-rights"
+      ],
+      "newLessonIds": [
+        "l-book-rights"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        23,
+        29
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 31,
+      "printedEnd": 38,
+      "topic": "الزيارة والقرابة",
+      "checkedSkills": "آداب الزيارة؛ العم والخال؛ الأدوات",
+      "lessonIds": [
+        "l-1-3",
+        "l-book-relatives",
+        "l-book-tools"
+      ],
+      "newLessonIds": [
+        "l-book-relatives",
+        "l-book-tools"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        32
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 40,
+      "printedEnd": 50,
+      "topic": "المدرسة",
+      "checkedSkills": "مرافق المدرسة ووظيفتها؛ الحقوق والواجبات",
+      "lessonIds": [
+        "l-2-1",
+        "l-book-school-places"
+      ],
+      "newLessonIds": [
+        "l-book-school-places"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        41
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 51,
+      "printedEnd": 56,
+      "topic": "المجتمع",
+      "checkedSkills": "مكونات المحيط؛ العبور؛ العام والخاص",
+      "lessonIds": [
+        "l-2-2",
+        "l-book-crossing"
+      ],
+      "newLessonIds": [
+        "l-book-crossing"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        54
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 57,
+      "printedEnd": 64,
+      "topic": "الهوية الوطنية",
+      "checkedSkills": "العلم؛ العاصمة؛ المعالم؛ التعبير عن الانتماء",
+      "lessonIds": [
+        "l-2-3",
+        "l-book-flag-capital"
+      ],
+      "newLessonIds": [
+        "l-book-flag-capital"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 66,
+      "printedEnd": 74,
+      "topic": "مكونات البيئة",
+      "checkedSkills": "حي وغير حي؛ تضاريس؛ حالات المادة",
+      "lessonIds": [
+        "l-3-1",
+        "l-book-living",
+        "l-book-landscapes",
+        "l-book-matter"
+      ],
+      "newLessonIds": [
+        "l-book-living",
+        "l-book-landscapes",
+        "l-book-matter"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        70,
+        72
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 75,
+      "printedEnd": 82,
+      "topic": "الهواء",
+      "checkedSkills": "وجود الهواء وأثر حركته؛ حاجة الأحياء؛ النظافة",
+      "lessonIds": [
+        "l-3-2",
+        "l-book-air"
+      ],
+      "newLessonIds": [
+        "l-book-air"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        77
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 83,
+      "printedEnd": 88,
+      "topic": "الماء",
+      "checkedSkills": "المصادر والاستعمالات؛ الترشيد والنظافة",
+      "lessonIds": [
+        "l-3-water-well"
+      ],
+      "newLessonIds": [],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p1",
+      "printedStart": 89,
+      "printedEnd": 98,
+      "topic": "التربة والصخور",
+      "checkedSkills": "صفات التربتين؛ نمو النبات؛ فوائد مواد البيئة",
+      "lessonIds": [
+        "l-3-3",
+        "l-book-soil"
+      ],
+      "newLessonIds": [
+        "l-book-soil"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        91
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 3,
+      "printedEnd": 12,
+      "topic": "تنوع النباتات",
+      "checkedSkills": "أشجار وشجيرات وأعشاب؛ بري ومزروع؛ سوسن فقوعة",
+      "lessonIds": [
+        "l-4-1",
+        "l-book-plant-groups",
+        "l-book-wild-crops",
+        "l-book-national-plant"
+      ],
+      "newLessonIds": [
+        "l-book-plant-groups",
+        "l-book-wild-crops",
+        "l-book-national-plant"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        4,
+        6
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 13,
+      "printedEnd": 26,
+      "topic": "فوائد النبات",
+      "checkedSkills": "الغذاء والزعتر؛ الخشب؛ القطن؛ ملاحظة النباتات",
+      "lessonIds": [
+        "l-4-zaatar",
+        "l-4-2",
+        "l-book-plant-products"
+      ],
+      "newLessonIds": [
+        "l-book-plant-products"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        23
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 27,
+      "printedEnd": 32,
+      "topic": "العناية بالنبات",
+      "checkedSkills": "الري؛ الأدوات؛ سلوك يحافظ على المزروعات",
+      "lessonIds": [
+        "l-4-3",
+        "l-book-garden-tools"
+      ],
+      "newLessonIds": [
+        "l-book-garden-tools"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 34,
+      "printedEnd": 52,
+      "topic": "تنوع الحيوانات",
+      "checkedSkills": "الموطن؛ الغطاء؛ الحركة؛ الأرجل؛ الملاحظة",
+      "lessonIds": [
+        "l-5-1",
+        "l-book-covering",
+        "l-book-movement",
+        "l-book-legs"
+      ],
+      "newLessonIds": [
+        "l-book-covering",
+        "l-book-movement",
+        "l-book-legs"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        42,
+        46,
+        49
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 53,
+      "printedEnd": 64,
+      "topic": "فوائد الحيوانات",
+      "checkedSkills": "الحليب والبيض والعسل والصوف؛ استعمالات نافعة",
+      "lessonIds": [
+        "l-5-2",
+        "l-book-benefits"
+      ],
+      "newLessonIds": [
+        "l-book-benefits"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 65,
+      "printedEnd": 74,
+      "topic": "الرفق بالحيوان",
+      "checkedSkills": "الحاجات؛ المساكن؛ السلامة والعناية",
+      "lessonIds": [
+        "l-5-3",
+        "l-book-homes"
+      ],
+      "newLessonIds": [
+        "l-book-homes"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        69
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 76,
+      "printedEnd": 89,
+      "topic": "الشتاء والشهور",
+      "checkedSkills": "عدد الشهور؛ الفصول؛ الملابس والجو والنبات",
+      "lessonIds": [
+        "l-6-1",
+        "l-book-months"
+      ],
+      "newLessonIds": [
+        "l-book-months"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        76
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 90,
+      "printedEnd": 100,
+      "topic": "الربيع والرحلة",
+      "checkedSkills": "الأزهار؛ تنوع الجو؛ ملابس مناسبة؛ آداب المتنزه",
+      "lessonIds": [
+        "l-6-2",
+        "l-book-weather"
+      ],
+      "newLessonIds": [
+        "l-book-weather"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 101,
+      "printedEnd": 108,
+      "topic": "الصيف",
+      "checkedSkills": "الحر وطول النهار؛ الملابس؛ الحصاد",
+      "lessonIds": [
+        "l-6-2",
+        "l-book-summer"
+      ],
+      "newLessonIds": [
+        "l-book-summer"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        102
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 1,
+      "book": "p2",
+      "printedStart": 109,
+      "printedEnd": 115,
+      "topic": "الخريف",
+      "checkedSkills": "تساقط بعض الأوراق؛ الملابس؛ قطف الزيتون",
+      "lessonIds": [
+        "l-6-3",
+        "l-book-autumn-harvest"
+      ],
+      "newLessonIds": [
+        "l-book-autumn-harvest"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        114
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 3,
+      "printedEnd": 7,
+      "topic": "الرموز الوطنية",
+      "checkedSkills": "فلسطين والعلم؛ ترديد وقراءة مع الكبير",
+      "lessonIds": [
+        "l2-1-1"
+      ],
+      "newLessonIds": [],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 8,
+      "printedEnd": 13,
+      "topic": "شكل البلاد",
+      "checkedSkills": "شكل الخريطة؛ التضاريس؛ المدن والمعالم",
+      "lessonIds": [
+        "l2-1-map",
+        "l2-book-landforms",
+        "l2-book-cities"
+      ],
+      "newLessonIds": [
+        "l2-book-landforms",
+        "l2-book-cities"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        9,
+        12
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 14,
+      "printedEnd": 22,
+      "topic": "الألعاب والقوى",
+      "checkedSkills": "الدفع والسحب؛ المغناطيس؛ مشاركة آمنة",
+      "lessonIds": [
+        "l2-1-2",
+        "l2-book-push-pull",
+        "l2-book-magnet"
+      ],
+      "newLessonIds": [
+        "l2-book-push-pull",
+        "l2-book-magnet"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        15,
+        18
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 23,
+      "printedEnd": 30,
+      "topic": "التراث",
+      "checkedSkills": "أدوات وملابس؛ تعبير عن التراث",
+      "lessonIds": [
+        "l2-1-3",
+        "l2-book-heritage"
+      ],
+      "newLessonIds": [
+        "l2-book-heritage"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        25
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 32,
+      "printedEnd": 41,
+      "topic": "المحاصيل",
+      "checkedSkills": "أمثلة مدن ومحاصيل؛ النبات ومنتجاته",
+      "lessonIds": [
+        "l2-2-1",
+        "l2-book-crops-cities"
+      ],
+      "newLessonIds": [
+        "l2-book-crops-cities"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        33
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 42,
+      "printedEnd": 47,
+      "topic": "الزيتون",
+      "checkedSkills": "القطف والنقل والعصر؛ فوائد الزيت والخشب",
+      "lessonIds": [
+        "l2-2-2",
+        "l2-2-oil-order",
+        "l2-book-olive-products"
+      ],
+      "newLessonIds": [
+        "l2-book-olive-products"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        45
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 48,
+      "printedEnd": 56,
+      "topic": "القمح والخبز",
+      "checkedSkills": "الطحن والعجن والخبز؛ ترتيب المراحل",
+      "lessonIds": [
+        "l2-2-3",
+        "l2-book-bread-order"
+      ],
+      "newLessonIds": [
+        "l2-book-bread-order"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        53
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 57,
+      "printedEnd": 61,
+      "topic": "العناية بالأرض",
+      "checkedSkills": "التعشيب والتقليم والتسميد؛ احترام العمل",
+      "lessonIds": [
+        "l2-2-4",
+        "l2-book-care-words"
+      ],
+      "newLessonIds": [
+        "l2-book-care-words"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 63,
+      "printedEnd": 73,
+      "topic": "الماء وحالاته",
+      "checkedSkills": "الحالات؛ الصفات؛ شكل الوعاء؛ التحولات",
+      "lessonIds": [
+        "l2-3-1",
+        "l2-3-states",
+        "l2-book-water-properties",
+        "l2-book-water-change"
+      ],
+      "newLessonIds": [
+        "l2-book-water-properties",
+        "l2-book-water-change"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        64,
+        67
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 74,
+      "printedEnd": 76,
+      "topic": "حماية الماء",
+      "checkedSkills": "الترشيد؛ النظافة؛ الإبلاغ عن التسرب",
+      "lessonIds": [
+        "l2-3-2"
+      ],
+      "newLessonIds": [],
+      "textInspected": true,
+      "visualSamplePages": [],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p1",
+      "printedStart": 77,
+      "printedEnd": 87,
+      "topic": "مصادر المياه",
+      "checkedSkills": "بحر ونهر وبحيرة؛ أسماء فلسطينية؛ جوفي وعيون",
+      "lessonIds": [
+        "l2-3-3",
+        "l2-book-bodies",
+        "l2-book-named-water",
+        "l2-book-groundwater"
+      ],
+      "newLessonIds": [
+        "l2-book-bodies",
+        "l2-book-named-water",
+        "l2-book-groundwater"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        79,
+        85
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 4,
+      "printedEnd": 10,
+      "topic": "أجزاء النبات",
+      "checkedSkills": "الجذر والساق والورقة والزهرة؛ الجزء المأكول",
+      "lessonIds": [
+        "l2-4-1",
+        "l2-book-edible-parts"
+      ],
+      "newLessonIds": [
+        "l2-book-edible-parts"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        5,
+        6
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 11,
+      "printedEnd": 18,
+      "topic": "نمو النبات",
+      "checkedSkills": "المراحل ودورة الحياة؛ الحاجات؛ بعلي ومروي",
+      "lessonIds": [
+        "l2-4-2",
+        "l2-book-plant-cycle",
+        "l2-book-irrigation"
+      ],
+      "newLessonIds": [
+        "l2-book-plant-cycle",
+        "l2-book-irrigation"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        13,
+        16
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 19,
+      "printedEnd": 28,
+      "topic": "أنواع النباتات",
+      "checkedSkills": "معمر وموسمي؛ دائم الخضرة ومتساقط الأوراق",
+      "lessonIds": [
+        "l2-4-3",
+        "l2-book-perennial",
+        "l2-book-leaves"
+      ],
+      "newLessonIds": [
+        "l2-book-perennial",
+        "l2-book-leaves"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        23
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 30,
+      "printedEnd": 39,
+      "topic": "الغذاء والنمو",
+      "checkedSkills": "أسماء الصغار؛ نمو الأحياء؛ تصنيف الغذاء والقوارت",
+      "lessonIds": [
+        "l2-5-1",
+        "l2-book-young",
+        "l2-book-animal-food"
+      ],
+      "newLessonIds": [
+        "l2-book-young",
+        "l2-book-animal-food"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        38
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 40,
+      "printedEnd": 52,
+      "topic": "التكاثر",
+      "checkedSkills": "بيض وولادة؛ دورة الفراشة؛ رعاية الصغار",
+      "lessonIds": [
+        "l2-5-2",
+        "l2-book-butterfly-cycle"
+      ],
+      "newLessonIds": [
+        "l2-book-butterfly-cycle"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        47
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 53,
+      "printedEnd": 57,
+      "topic": "التجمع",
+      "checkedSkills": "قطيع وسرب وجماعة؛ فوائد التجمع",
+      "lessonIds": [
+        "l2-5-3",
+        "l2-book-groups"
+      ],
+      "newLessonIds": [
+        "l2-book-groups"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        54
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 59,
+      "printedEnd": 65,
+      "topic": "الشمس",
+      "checkedSkills": "ضوء وحرارة؛ أوقات اليوم؛ الظل",
+      "lessonIds": [
+        "l2-6-1",
+        "l2-book-day-times",
+        "l2-book-shadows"
+      ],
+      "newLessonIds": [
+        "l2-book-day-times",
+        "l2-book-shadows"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        63
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 66,
+      "printedEnd": 71,
+      "topic": "القمر",
+      "checkedSkills": "هلال وبدر؛ الشهور القمرية والمناسبات",
+      "lessonIds": [
+        "l2-6-2",
+        "l2-book-lunar-months",
+        "l2-book-moon-faces"
+      ],
+      "newLessonIds": [
+        "l2-book-lunar-months",
+        "l2-book-moon-faces"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        67,
+        68
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    },
+    {
+      "grade": 2,
+      "book": "p2",
+      "printedStart": 72,
+      "printedEnd": 83,
+      "topic": "الجهات",
+      "checkedSkills": "شرق وغرب وشمال وجنوب؛ البوصلة ومخطط الجهات",
+      "lessonIds": [
+        "l2-6-3",
+        "l2-book-compass"
+      ],
+      "newLessonIds": [
+        "l2-book-compass"
+      ],
+      "textInspected": true,
+      "visualSamplePages": [
+        81
+      ],
+      "manualAssessment": "الرسم والكتابة والقص والمشروع والنشاط الحركي مع الكبير؛ لا يدعي الموقع تصحيحها آليًا"
+    }
+  ]
+}
