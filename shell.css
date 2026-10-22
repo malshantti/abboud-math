@@ -31,3 +31,53 @@
 @media(min-width:900px){html[data-bk-trial] .tabs{top:var(--bk-trial,0px)!important;height:auto!important;bottom:0!important}
  html[data-bk-trial] .j-sidebar{top:var(--bk-trial,0px)!important;max-height:calc(100dvh - var(--bk-trial,0px))}}
 #bustan-trial{position:relative}
+/* صفحة إنجازاتي: سلّم المستويات أولًا، ثم الإحصاءات، ثم الإنجازات */
+.bk-page-h{margin:0 0 14px}
+.bk-lad{padding:20px!important;margin-bottom:18px}
+.bk-lad-head{display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--line,#e5e9df)}
+.bk-lad-head>img{width:76px;height:76px;flex:none;object-fit:contain}
+.bk-lad-now{flex:1;min-width:0}
+.bk-lad-now small{display:block;font:600 12px/1.5 Cairo,sans-serif;color:var(--mut,#7b8479)}
+.bk-lad-now h2{margin:0;font:700 24px/1.3 Baloo,Cairo,sans-serif;color:var(--gd,#4e6635)}
+.bk-lad-now p{margin:2px 0 0;font:600 13px/1.6 Cairo,sans-serif;color:var(--tx2,#405244)}
+.bk-lad-bar{height:10px;border-radius:99px;background:var(--line,#e5e9df);overflow:hidden;margin:8px 0 4px}
+.bk-lad-bar i{display:block;height:100%;border-radius:inherit;background:var(--g,#6c854c)}
+.bk-lad-now .bk-lad-left{font-size:12px;color:var(--mut,#7b8479)}
+.bk-lad-title{margin:16px 0 10px;font:700 16px/1.4 Baloo,Cairo,sans-serif}
+.bk-lad-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
+.bk-lad-list li{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:10px 4px;border-radius:14px;border:1.5px solid transparent}
+.bk-lad-list b{font:700 13px/1.35 Baloo,Cairo,sans-serif;color:var(--tx,#293a2d)}
+.bk-lad-list small{font:500 11px/1.4 Cairo,sans-serif;color:var(--mut,#7b8479)}
+.bk-lad-img{position:relative;display:block}
+.bk-lad-img img{width:52px;height:52px;object-fit:contain;display:block}
+.bk-lad-list li.cur{background:var(--gl,#eaf1df);border-color:var(--g,#6c854c)}
+.bk-lad-list li.cur b{color:var(--gd,#4e6635)}
+.bk-lad-list li.lock .bk-lad-img img{filter:grayscale(1);opacity:.55}
+.bk-lad-list li.lock b{color:var(--tx2,#5d6b5f)}
+.bk-lock{position:absolute;bottom:-2px;inset-inline-end:-4px;color:#8a937f;background:var(--card,#fff);border-radius:50%;padding:2px;box-sizing:content-box;box-shadow:0 0 0 1px var(--line,#e5e9df)}
+@media(max-width:640px){.bk-lad-list{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;padding-bottom:6px;margin-inline:-6px}.bk-lad-list li{flex:0 0 88px;scroll-snap-align:center}.bk-lad-head>img{width:60px;height:60px}.bk-lad-now h2{font-size:21px}}
+.bk-sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:22px 0 10px}
+.bk-sec-h h2{margin:0;display:flex;align-items:center;gap:8px}
+.bk-sec-h span{font:600 13px/1.5 Cairo,sans-serif;color:var(--mut,#7b8479)}
+.bk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+.bk-stats>div{background:var(--card,#fff);border:1.5px solid var(--line,#e5e9df);border-radius:16px;padding:12px;text-align:center}
+.bk-stats b{display:block;font:700 22px/1.3 Baloo,Cairo,sans-serif;color:var(--tx,#293a2d)}
+.bk-stats small{font:600 12px/1.5 Cairo,sans-serif;color:var(--mut,#7b8479)}
+@media(max-width:640px){.bk-stats{grid-template-columns:repeat(2,1fr)}}
+/* الإنجازات المقفلة: هادئة لكن مقروءة */
+.badge:not(.on),.ach .lock{opacity:1!important;filter:none!important;background:var(--bg2,#f4f6ee)!important}
+.badge:not(.on) .medal-w,.ach .lock>svg:first-child{filter:grayscale(1);opacity:.6}
+.badge:not(.on) b,.ach .lock b{color:var(--tx2,#405244)!important}
+.badge:not(.on) small,.ach .lock small{color:var(--mut,#6f786c)!important}
+.badge .medal-w,.ach>div{position:relative}
+.ach .lock .bk-lock{top:8px;bottom:auto;inset-inline-end:8px}
+/* هدف اليوم */
+.bk-goal h3{margin:0 0 4px}
+.bk-goal-q{margin:0 0 10px;font:700 15px/1.6 Cairo,sans-serif;color:var(--tx,#293a2d)}
+.bk-chips{display:flex;flex-wrap:wrap;gap:8px}
+.bk-chip{min-width:56px;min-height:44px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line,#e5e9df);border-bottom-width:3px;background:var(--card,#fff);color:var(--tx,#293a2d);font:700 17px/1 Baloo,Cairo,sans-serif;cursor:pointer}
+.bk-chip[aria-checked=true]{background:var(--g,#6c854c);border-color:var(--gd,#4e6635);color:#fff}
+.bk-chip:focus-visible{outline:3px solid var(--o,#dca349);outline-offset:2px}
+.bk-goal-help{margin:10px 0 12px;font:500 13px/1.8 Cairo,sans-serif;color:var(--mut,#6f786c)}
+.bk-goal-prog b{font:700 14px/1.5 Cairo,sans-serif}
+.bk-goal-prog span{margin-inline-start:8px;font:600 12px/1.5 Cairo,sans-serif;color:var(--gd,#4e6635)}
