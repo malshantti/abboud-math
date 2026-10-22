@@ -85,13 +85,13 @@ root.querySelectorAll('[data-quiz]').forEach(function(panel){
 // يد إرشاد: عند ظهور العرض تسحب بطاقة نحو المربّع وتعود، وتتوقف عند أول تفاعل
 if(demo){
  var hand=demo.querySelector('.L-hand'),touched=false,anim=[],seen=false;
- function stopHint(){anim.forEach(function(a){try{a.cancel()}catch(e){}});anim=[];if(hand){var g=hand.querySelector('.L-ghost');if(g)g.remove();hand.style.opacity=0}}
+ function stopHint(){anim.forEach(function(a){try{a.cancel()}catch(e){}});anim=[];if(hand){var g=hand.querySelector('.L-ghost');if(g)g.remove();hand.style.opacity=0;hand.hidden=true}}
  function touch(){if(touched)return;touched=true;demo.classList.add('is-touched');stopHint()}
  ['pointerdown','keydown'].forEach(function(t){demo.addEventListener(t,touch,{capture:true,passive:true})});
  function hint(){stopHint();if(touched||RM.matches||!hand||!hand.animate)return;
   var panel=demo.querySelector('.L-panel:not([hidden])');if(!panel)return;
   var tile=panel.querySelector('.L-tile:not([data-ok])')||panel.querySelector('.L-opt:not([data-ok])')||panel.querySelector('[data-piece]'),slot=panel.querySelector('[data-slot]');if(!tile)return;
-  var a=rel(tile),T=2800,it=3,o={duration:T,iterations:it,delay:700,easing:'ease-in-out'};
+  hand.hidden=false;var a=rel(tile),T=2800,it=3,o={duration:T,iterations:it,delay:700,easing:'ease-in-out'};
   if(slot){var b=rel(slot),g=tile.cloneNode(true);g.classList.add('L-ghost');g.removeAttribute('data-ok');g.style.width=a.w+'px';g.style.height=a.h+'px';g.style.left=(-a.w/2)+'px';g.style.top=(-a.h/2)+'px';hand.insertBefore(g,hand.firstChild);
    anim.push(hand.animate([{transform:'translate('+a.x+'px,'+(a.y+30)+'px)',opacity:0},{transform:'translate('+a.x+'px,'+a.y+'px)',opacity:1,offset:.12},{transform:'translate('+a.x+'px,'+a.y+'px)',opacity:1,offset:.22},{transform:'translate('+b.x+'px,'+b.y+'px)',opacity:1,offset:.55},{transform:'translate('+b.x+'px,'+b.y+'px)',opacity:1,offset:.66},{transform:'translate('+a.x+'px,'+a.y+'px)',opacity:1,offset:.9},{transform:'translate('+a.x+'px,'+(a.y+30)+'px)',opacity:0}],o));
    anim.push(g.animate([{opacity:0,transform:'scale(1)'},{opacity:0,offset:.18},{opacity:1,transform:'scale(1.08) rotate(-4deg)',offset:.24},{opacity:1,transform:'scale(1.08) rotate(-4deg)',offset:.62},{opacity:1,transform:'scale(1.08) rotate(-4deg)',offset:.86},{opacity:0,transform:'scale(1)',offset:.9},{opacity:0}],o))}
@@ -102,7 +102,7 @@ if(demo){
  window.__bustanDemoHint=hint;
  // تلميح التمرير في شريط المواد على الهاتف
  var tw=demo.querySelector('.L-tabs-wrap'),tb=demo.querySelector('.L-tabs');
- if(tw&&tb){var upd=function(){tw.classList.toggle('is-end',Math.abs(tb.scrollLeft)+tb.clientWidth>=tb.scrollWidth-6)};tb.addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);upd()}
+ if(tw&&tb){var upd=function(){var more=tw.querySelector('.L-tabs-more');if(more)more.hidden=tb.scrollWidth<=tb.clientWidth+6;tw.classList.toggle('is-end',Math.abs(tb.scrollLeft)+tb.clientWidth>=tb.scrollWidth-6)};tb.addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);upd()}
 }
 var check=document.getElementById('check-fraction'),ffb=document.getElementById('fraction-feedback');
 if(check&&ffb)check.addEventListener('click',function(){setTimeout(function(){if(ffb.dataset.state==='correct'){sfx('ok');praise();var at=rel(check);burst(at.x,at.y)}else if(ffb.dataset.state!=='idle')sfx('no')},0)});
