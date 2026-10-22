@@ -32,7 +32,7 @@ assert(courses[1].units[2].lessons.findIndex(l=>l.id==='m-3-3')<courses[1].units
 for(const [g,ids]of[[1,['m-2-ordinal','m-6-week','m-8-ten-transfer','m-9-cross-ten','m-11-lines','m-11-solids']],[2,['m2-4-lines','m2-10-minutes','m2-10-cylinder','m2-11-record']]])for(const id of ids)assert(find(g,id),'New objective has its own completion ID: '+id);
 assert.equal(find(2,'m2-10-2').tasks.length,2,'Already completed whole-hour activity gains no minute-reading requirement');
 assert.equal(find(2,'m2-10-minutes').tasks.length,4,'Minute skills have separate assessment');
-assert.equal(find(1,'m-6-2').tasks.length,2,'Existing before/after activity remains valid');
+assert(find(1,'m-6-2').tasks.length>=5,'Before/after activity keeps its ID and gains picture practice');
 for(const g of[1,2]){
  const A=art[g],filled=html=>(html.match(/fill="#(?:ecc570|a9cc87)"/g)||[]).length;
  for(const phase of[0,1,2])assert.equal(filled(A.scene({type:'ten-bridge',a:8,b:7,op:'+',phase})),15,'Completing ten conserves all fifteen counters');

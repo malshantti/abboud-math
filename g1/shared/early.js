@@ -28,16 +28,19 @@
   if(typeof document==='undefined')return;
   const C=window.G1_COURSE,P=window.PROFILES,A=window.G1_ART,app=document.getElementById('app');
   if(!C||!P||!A){app.innerHTML='<p class="g1-notice" role="alert">تعذّر تحميل النشاط. أعد فتح الصفحة.</p>';return;}
+  /* درس مدموج (mergedInto): يُخفى من القوائم، ويبقى معرّفه وإنجازه السابق محسوبًا للدرس الذي دُمج فيه. */
+  const merged={};const unmerge=list=>list.filter(lesson=>{if(!lesson.mergedInto)return true;(merged[lesson.mergedInto]=merged[lesson.mergedInto]||[]).push(lesson.id);return false;});
+  C.units.forEach(unit=>{unit.lessons=unmerge(unit.lessons);});if(C.foundations)C.foundations=unmerge(C.foundations);
   const curriculum=C.units.flatMap(unit=>unit.lessons.map(lesson=>({...lesson,unit:unit.title,term:unit.term})));
   const foundations=(C.foundations||[]).map(lesson=>({...lesson,unit:'أساسياتي'}));
-  const lessons=[...curriculum,...foundations],ids=lessons.map(lesson=>lesson.id);
+  const lessons=[...curriculum,...foundations],ids=[...lessons.map(lesson=>lesson.id),...Object.values(merged).flat()];
   const routeNames={home:'رحلتي',basics:'أساسياتي',play:'مغامراتي',lab:'أجرّب',report:'لوليّ الأمر'};
   const shortNames={home:'رحلتي',basics:'الأساس',play:'ألعب',lab:'أجرّب',report:'للأهل'};
   const routes={home:'home',basics:'seed',play:'map',lab:'lab',report:'report'};
   const icon=name=>A.icon(name),scene=value=>value?A.scene(value):'';
   const query=selector=>app.querySelector(selector);
   let state,save,student,term=1,session=null,serial=0,labCount=0,labTarget=3,traceLetter=null,labMode='count';
-  const done=id=>Object.hasOwn(state.completed,id);
+  const done=id=>Object.hasOwn(state.completed,id)||(merged[id]||[]).some(old=>Object.hasOwn(state.completed,old));
   const nextLesson=()=>{const selected=curriculum.filter(lesson=>lesson.term===term);return selected.find(lesson=>!done(lesson.id))||selected[0];};
   const totalDone=()=>curriculum.filter(lesson=>done(lesson.id)).length;
   const currentRoute=()=>Object.hasOwn(routeNames,location.hash.slice(2))?location.hash.slice(2):'home';
@@ -52,7 +55,7 @@
     const links=refs.map(ref=>{const book=C.books.find(item=>item.id===ref.book);if(!book)return '';const page=Number.isInteger(ref.page)&&ref.page>0?ref.page:null,pdfPage=Number.isInteger(ref.pdfPage)?ref.pdfPage:page&&Number.isInteger(book.pdfOffset)?page+book.pdfOffset:null;
       return '<a href="'+esc(book.url.split('#')[0]+(pdfPage?'#page='+pdfPage:''))+'" target="_blank" rel="noopener" data-book-link>'+shown(book.title)+(page?' · الصفحة المطبوعة '+ar(page):'')+'</a>';}).filter(Boolean);
     const practice=Array.isArray(lesson.guidedPractice)?lesson.guidedPractice.slice():[];
-    if(lesson.homeActivity&&typeof lesson.homeActivity.text==='string')practice.push({title:lesson.homeActivity.title||'أجرّب مع الكبير',text:lesson.homeActivity.text});
+    if(lesson.homeActivity&&typeof lesson.homeActivity.text==='string')practice.push({title:lesson.homeActivity.title||'أجرّب مع الكبير',text:lesson.homeActivity.text,say:lesson.homeActivity.say});
     return (links.length?'<p class="g1-reference">'+shown(lesson.referenceLabel||'نشاط مساند؛ المرجع:')+' '+links.join(' · ')+' <span>يفتح المصدر مع الإنترنت.</span></p>':'')+(practice.length?'<details class="g1-card g1-guided-practice"><summary>مع الكبير: أقرأ وأحكي وأكتب</summary><p>أنشطة شفهية وورقية؛ لا يصححها الموقع ولا يسجّل إتقانها.</p><ol>'+practice.map(item=>'<li><b>'+shown(item.title)+'</b><p>'+shown(item.text)+'</p></li>').join('')+'</ol></details>':'');
   }
   function home() {
@@ -100,12 +103,20 @@
   }
   const AU=window.G1_AUDIO||null,lang=C.id==='english'?undefined:'ar';
   const say=(text,opts)=>AU?AU.button(text,opts):'';
-  const voiced=(text,tag,cls)=>'<div class="g1-say-row">'+say(text,{size:'lg'})+'<'+tag+' class="'+cls+'">'+shown(text)+'</'+tag+'></div>';
+  const voiced=(text,tag,cls,sp)=>'<div class="g1-say-row">'+say(text,{size:'lg',say:sp})+'<'+tag+' class="'+cls+'">'+shown(text)+'</'+tag+'></div>';
+  const numeral=v=>Number(String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim());
+  /* مهام تفاعلية: «build» أسحب أو ألمس الأشياء إلى السلة، و«line» ألمس العدد على خط الأعداد. الإجابة تطابق تسمية أحد الاختيارات. */
+  function interactive(task){
+    if(task.kind==='line'){const min=task.min??0,max=task.max??10,ticks=[];for(let v=min;v<=max;v++)ticks.push(v);
+      return '<div class="g1-line" dir="ltr" role="group" aria-label="خط الأعداد من '+ar(min)+' إلى '+ar(max)+'">'+ticks.map(v=>'<button type="button" class="g1-tick'+(v===task.start?' g1-tick-start':'')+'" data-action="tick" data-value="'+v+'" aria-label="'+ar(v)+'"><i aria-hidden="true"></i><b>'+ar(v)+'</b></button>').join('')+'</div>';}
+    if(task.kind==='build'){const total=task.pool||10,item=icon(task.icon||'apple');
+      return '<div class="g1-build"><div class="g1-build-source" data-source aria-label="الأشياء">'+Array.from({length:total},(_,i)=>'<button type="button" class="g1-build-item" data-action="build-item" data-item="'+i+'" aria-label="ضع واحدة في السلة">'+item+'</button>').join('')+'</div><div class="g1-build-basket" data-basket aria-label="السلة">'+icon('basket')+'<div class="g1-build-in" data-in></div></div><div class="g1-build-bar"><output class="g1-counter" data-build-count aria-live="polite">'+ar(0)+'</output>'+button('أتحقق '+icon('check'),'build-check')+button(icon('back'),'build-reset','g1-secondary','aria-label="أبدأ من جديد"')+'</div></div>';}
+    return '';}
   function drawStage() {
     if(!session)return;const {lesson,adventure,index}=session,steps=adventure?[]:lesson.steps,taskIndex=index-steps.length,task=lesson.tasks[taskIndex],step=steps[index],total=steps.length+lesson.tasks.length;
-    const choiceOrder=task?order(task,session):[];
-    query('#g1-lesson-dialog').innerHTML='<header class="g1-modal-head"><div><span class="g1-kicker">'+(adventure?'مغامرة صغيرة':'نفهم ثم نجرّب')+'</span><h2 id="g1-activity-title">'+shown(lesson.title)+'</h2></div>'+'<div class="g1-head-tools">'+(AU?AU.autoToggle():'')+button(icon('close'),'close','g1-close','aria-label="إغلاق التدريب"')+'</div></header><div class="g1-progress" role="progressbar" aria-label="خطوات النشاط" aria-valuemin="0" aria-valuemax="'+total+'" aria-valuenow="'+index+'"><span class="g1-progress-fill" style="width:'+Math.round(index/total*100)+'%"></span></div><div class="g1-modal-body"><p class="g1-caption">الخطوة '+ar(index+1)+' من '+ar(total)+'</p><section class="g1-stage">'+(task?voiced(task.prompt,'h3','g1-step-text')+scene(task.scene)+'<div class="g1-choices'+(task.choices.length===3?' g1-choices-3':'')+'">'+choiceOrder.map(({choice,i})=>'<div class="g1-choice-wrap">'+button((choice.scene?scene(choice.scene):'')+'<bdi dir="'+direction(choice.label)+'">'+shown(choice.label)+'</bdi>','answer','g1-choice'+(choice.big?' g1-choice-big':''),'data-answer="'+i+'" aria-label="'+esc(choice.aria||choice.label)+'"')+say(choice.label,{className:'g1-say-choice'})+'</div>').join('')+'</div><p class="g1-feedback" role="status" data-activity-feedback></p>'+button('نكمل '+icon('arrow'),'next','g1-primary','hidden'):voiced(step.text,'p','g1-step-text')+scene(step.scene)+button('هَيّا نجرّب '+icon('arrow'),'next'))+'</section>'+(!adventure?reference(lesson):'')+'</div>';
-    if(AU)AU.autoplay(task?task.prompt:step.text,lang);const heading=query('.g1-step-text');heading.tabIndex=-1;heading.focus({preventScroll:true});query('#g1-lesson-dialog').scrollTop=0;
+    const choiceOrder=task&&!task.kind?order(task,session):[];
+    query('#g1-lesson-dialog').innerHTML='<header class="g1-modal-head"><div><span class="g1-kicker">'+(adventure?'مغامرة صغيرة':'نفهم ثم نجرّب')+'</span><h2 id="g1-activity-title">'+shown(lesson.title)+'</h2></div>'+'<div class="g1-head-tools">'+(AU?AU.autoToggle():'')+button(icon('close'),'close','g1-close','aria-label="إغلاق التدريب"')+'</div></header><div class="g1-progress" role="progressbar" aria-label="خطوات النشاط" aria-valuemin="0" aria-valuemax="'+total+'" aria-valuenow="'+index+'"><span class="g1-progress-fill" style="width:'+Math.round(index/total*100)+'%"></span></div><div class="g1-modal-body"><p class="g1-caption">الخطوة '+ar(index+1)+' من '+ar(total)+'</p><section class="g1-stage">'+(task?voiced(task.prompt,'h3','g1-step-text',task.say)+scene(task.scene)+(task.kind?interactive(task):'<div class="g1-choices'+(task.choices.length===3?' g1-choices-3':'')+'">'+choiceOrder.map(({choice,i})=>'<div class="g1-choice-wrap">'+button((choice.scene?scene(choice.scene):'')+'<bdi dir="'+direction(choice.label)+'">'+shown(choice.label)+'</bdi>'+(choice.caption?'<small class="g1-choice-caption">'+shown(choice.caption)+'</small>':''),'answer','g1-choice'+(choice.big?' g1-choice-big':''),'data-answer="'+i+'" aria-label="'+esc(choice.aria||choice.label)+'"')+say(choice.label,{className:'g1-say-choice',say:choice.say})+'</div>').join('')+'</div>')+'<p class="g1-feedback" role="status" data-activity-feedback></p>'+button('نكمل '+icon('arrow'),'next','g1-primary','hidden'):voiced(step.text,'p','g1-step-text',step.say)+scene(step.scene)+button('هَيّا نجرّب '+icon('arrow'),'next'))+'</section>'+(!adventure?reference(lesson):'')+'</div>';
+    if(AU)AU.autoplay([task?{text:task.prompt,say:task.say}:{text:step.text,say:step.say}],lang);const heading=query('.g1-step-text');heading.tabIndex=-1;heading.focus({preventScroll:true});query('#g1-lesson-dialog').scrollTop=0;
   }
   async function finish() {
     const current=session;if(!current||current.busy)return;current.busy=true;
@@ -117,10 +128,20 @@
     state=next;if(AU)AU.autoplay(AU.ENGINE.done,'ar');query('#g1-lesson-dialog').innerHTML='<div class="g1-finish"><img src="../../assets/img/av-celebrate.webp" width="170" height="170" alt="زيتون يحتفل بخطوتك"><h2 id="g1-activity-title">أحسنت، أتممت الخطوة!</h2><p>فهمنا الفكرة وجرّبناها معًا.</p>'+button('العودة إلى رحلتي '+icon('arrow'),'finish')+'</div>';query('[data-action="finish"]').focus();
   }
   function nextStage(){if(!session||session.busy)return;const steps=session.adventure?[]:session.lesson.steps;if(session.index>=steps.length&&!session.answered)return;session.index++;session.answered=false;if(session.index>=steps.length+session.lesson.tasks.length)finish();else drawStage();}
-  function answer(index){if(!session||session.answered||session.busy)return;const offset=session.adventure?0:session.lesson.steps.length,task=session.lesson.tasks[session.index-offset];if(!task||!Number.isInteger(index)||index<0||index>=task.choices.length)return;session.attempts++;const feedback=query('[data-activity-feedback]');
-    if(index!==task.answer){feedback.className='g1-feedback g1-retry';feedback.textContent='لِننظر مرة أخرى. جرّب اختيارًا آخر.';if(AU)AU.play(AU.ENGINE.retry,'ar');query('[data-answer="'+index+'"]').setAttribute('aria-pressed','false');return;}
-    session.answered=true;feedback.className='g1-feedback g1-success';feedback.textContent='أحسنت! '+ar(task.explain);if(AU){AU.play([{text:AU.ENGINE.good,lang:'ar'},{text:task.explain,lang:'ar'}]);feedback.insertAdjacentHTML('afterbegin',say(task.explain));}app.querySelectorAll('[data-answer]').forEach(choice=>{choice.disabled=true;choice.classList.toggle('g1-selected',Number(choice.dataset.answer)===index);});query('[data-action="next"]').hidden=false;query('[data-action="next"]').focus({preventScroll:true});
+  function answer(index){if(!session||session.answered||session.busy)return;const offset=session.adventure?0:session.lesson.steps.length,task=session.lesson.tasks[session.index-offset];if(!task||!Number.isInteger(index)||index<-1||index>=task.choices.length)return;session.attempts++;const feedback=query('[data-activity-feedback]');
+    if(index!==task.answer){feedback.className='g1-feedback g1-retry';feedback.textContent='لِننظر مرة أخرى. جرّب اختيارًا آخر.';if(AU)AU.play(AU.ENGINE.retry,'ar');const picked=query('[data-answer="'+index+'"]');if(picked)picked.setAttribute('aria-pressed','false');return;}
+    session.answered=true;feedback.className='g1-feedback g1-success';feedback.textContent='أحسنت! '+ar(task.explain);if(AU){AU.play([{text:AU.ENGINE.good,lang:'ar'},{text:task.explain,lang:'ar',say:task.sayExplain}]);feedback.insertAdjacentHTML('afterbegin',say(task.explain,{say:task.sayExplain}));}app.querySelectorAll('[data-answer],[data-action="tick"],[data-action^="build"]').forEach(choice=>{choice.disabled=true;if(choice.dataset.answer!==undefined)choice.classList.toggle('g1-selected',Number(choice.dataset.answer)===index);});query('[data-action="next"]').hidden=false;query('[data-action="next"]').focus({preventScroll:true});
   }
+  function currentTask(){if(!session)return null;const offset=session.adventure?0:session.lesson.steps.length;return session.lesson.tasks[session.index-offset]||null;}
+  function buildCount(){const out=query('[data-build-count]');if(out)out.textContent=ar(query('[data-in]').children.length);}
+  function moveItem(item){const basket=query('[data-in]'),source=query('[data-source]');if(!basket||!source)return;(item.parentNode===basket?source:basket).appendChild(item);buildCount();}
+  /* سحب بالإصبع: نسحب الشيء ونفلته فوق السلة؛ اللمس وحده يضعه أيضًا. */
+  let drag=null;
+  app.addEventListener('pointerdown',event=>{const item=event.target.closest('.g1-build-item');if(!item||item.disabled)return;drag={item,x:event.clientX,y:event.clientY,moved:false};});
+  app.addEventListener('pointermove',event=>{if(!drag)return;const dx=event.clientX-drag.x,dy=event.clientY-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<8)return;drag.moved=true;drag.item.classList.add('g1-dragging');drag.item.style.transform='translate('+dx+'px,'+dy+'px)';event.preventDefault();});
+  const endDrag=event=>{if(!drag)return;const {item,moved}=drag;drag=null;item.classList.remove('g1-dragging');item.style.transform='';if(!moved)return;item.dataset.dragged='1';const basket=query('[data-basket]');if(!basket)return;const r=basket.getBoundingClientRect(),inside=event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom;if(inside!==(item.parentNode===query('[data-in]')))moveItem(item);};
+  app.addEventListener('pointerup',endDrag);app.addEventListener('pointercancel',endDrag);
+  app.addEventListener('click',event=>{const item=event.target.closest('.g1-build-item');if(item&&item.dataset.dragged){delete item.dataset.dragged;event.stopImmediatePropagation();event.preventDefault();}},true);
   function counter(){query('[data-counter-scene]').innerHTML=scene({type:'count',icon:'apple',count:labCount});query('[data-counter]').textContent=ar(labCount);query('[data-action="subtract"]').disabled=labCount===0;query('[data-action="add"]').disabled=labCount===20;query('[data-lab-feedback]').textContent='';}
   function bindCanvas(){const canvas=query('.g1-canvas');if(!canvas)return;const ratio=Math.min(2,window.devicePixelRatio||1),rect=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.round(rect.width*ratio));canvas.height=Math.max(1,Math.round(rect.height*ratio));const ctx=canvas.getContext('2d');if(!ctx)return;ctx.scale(ratio,ratio);ctx.strokeStyle='#526d37';ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';let drawing=false;
     const point=event=>{const bounds=canvas.getBoundingClientRect();return [event.clientX-bounds.left,event.clientY-bounds.top];};
@@ -140,6 +161,9 @@
     else if(action==='next')nextStage();
     else if(action==='retry-save')finish();
     else if(action==='answer')answer(Number(target.dataset.answer));
+    else if(action==='tick'||action==='build-check'){const task=currentTask();if(!task)return;const value=action==='tick'?Number(target.dataset.value):query('[data-in]').children.length;if(action==='tick'){app.querySelectorAll('.g1-tick').forEach(t=>t.classList.toggle('g1-selected',t===target));}answer(task.choices.findIndex(c=>numeral(c.label)===value));}
+    else if(action==='build-item'){moveItem(target);}
+    else if(action==='build-reset'){app.querySelectorAll('[data-in] .g1-build-item').forEach(item=>query('[data-source]').appendChild(item));buildCount();}
     else if(action==='adventure'){const unit=C.units.find(u=>u.id===target.dataset.unit);if(!unit)return;const pool=unit.lessons.flatMap(l=>l.tasks);const shuffled=pool.map(task=>({task,key:Math.random()})).sort((a,b)=>a.key-b.key).slice(0,3).map(row=>row.task);if(shuffled.length)begin({title:unit.title,tasks:shuffled,steps:[]},true);}
     else if(action==='lab-mode'){labMode=target.dataset.mode;query('.j-count-lab').hidden=labMode!=='count';query('.j-shape-lab').hidden=labMode!=='shapes';app.querySelectorAll('[data-action="lab-mode"]').forEach(item=>{const selected=item.dataset.mode===labMode;item.setAttribute('aria-pressed',String(selected));item.classList.toggle('g1-selected',selected);});const shown=query(labMode==='count'?'.j-count-lab':'.j-shape-lab');if(shown){shown.classList.remove('g1-flash');void shown.offsetWidth;shown.classList.add('g1-flash');shown.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});}}
     else if(action==='add'||action==='subtract'){labCount=Math.max(0,Math.min(20,labCount+(action==='add'?1:-1)));counter();}

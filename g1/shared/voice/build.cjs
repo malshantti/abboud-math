@@ -14,7 +14,7 @@ function load(subject){const dir=path.join(G1,subject),html=fs.readFileSync(path
   return ctx.window.G1_COURSE;}
 /* يجمع: نص الخطوة، نص السؤال، الشرح، تسميات الاختيارات، وأي مصفوفة speak: ['نص' أو {text,lang}]. */
 function collect(course){const out=[];const add=(text,lang,spoken)=>{const t=AU.clean(text);if(t)out.push({text:t,lang:AU.langOf(t,lang),spoken:spoken?AU.clean(spoken):null});};
-  const walk=node=>{if(Array.isArray(node))return node.forEach(walk);if(!node||typeof node!=='object')return;
+  const walk=node=>{if(Array.isArray(node))return node.forEach(walk);if(!node||typeof node!=='object')return;if(node.mergedInto)return;
     if(typeof node.text==='string'&&!('label' in node))add(node.text,node.lang,node.say);
     if(typeof node.prompt==='string')add(node.prompt,node.lang,node.say);
     if(typeof node.explain==='string')add(node.explain,'ar',node.sayExplain);
@@ -28,11 +28,11 @@ for(const subject of subjects){const course=load(subject);if(!course)throw new E
   const sayFile=path.join(G1,subject,'voice/say.json'),say=fs.existsSync(sayFile)?JSON.parse(fs.readFileSync(sayFile,'utf8')):{};
   const index={},jobs=[],seen=new Set(),bare=[];
   const spokenOf={};
-  for(const {text,lang,spoken:sp} of collect(course)){const k=AU.key(text,lang);const spoken=AU.clean(sp||say[text]||text);if(seen.has(k)){if(spokenOf[k]!==spoken)console.warn('  different spoken text for the same display text (first kept): '+text);continue;}seen.add(k);spokenOf[k]=spoken;if(lang==='ar'&&/[\u0621-\u064a]{3}/.test(spoken)&&!HARAKAT.test(spoken))bare.push(text);
+  for(const {text,lang,spoken:sp} of collect(course)){const k=AU.key(text,lang,sp);const spoken=AU.clean(sp||say[text]||text);if(seen.has(k)){if(spokenOf[k]!==spoken)console.warn('  different spoken text for the same display text (first kept): '+text);continue;}seen.add(k);spokenOf[k]=spoken;if(lang==='ar'&&/[\u0621-\u064a]{3}/.test(spoken)&&!HARAKAT.test(spoken))bare.push(text);
     const f=AU.hash(VOICE[lang]+'|'+spoken);index[k]=f;jobs.push({file:path.join(OUT,f+'.mp3'),text:spoken,voice:VOICE[lang]});}
   const missing=jobs.filter(j=>!fs.existsSync(j.file));
   console.log(subject+': '+jobs.length+' clips, '+missing.length+' to generate, '+bare.length+' Arabic texts without harakat (add to '+subject+'/voice/say.json)');
-  if(bare.length)fs.writeFileSync(path.join(G1,subject,'voice/unvoweled.txt'),bare.join('\n')+'\n');
+  {const uv=path.join(G1,subject,'voice/unvoweled.txt');fs.mkdirSync(path.dirname(uv),{recursive:true});fs.writeFileSync(uv,bare.length?bare.join('\n')+'\n':'');}
   total.clips+=jobs.length;total.new+=missing.length;if(dry)continue;
   if(missing.length){const tmp=path.join(require('os').tmpdir(),'g1-voice-'+subject+'.json');fs.writeFileSync(tmp,JSON.stringify(missing));
     const r=cp.spawnSync('python3',[path.join(__dirname,'tts.py'),tmp],{stdio:'inherit'});if(r.status)console.error('Some clips failed; rerun to retry.');}

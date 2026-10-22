@@ -235,3 +235,189 @@
   C.units.forEach(u=>u.lessons.sort((a,b)=>(a.enrichment?1:0)-(b.enrichment?1:0)||a.page-b.page));
 
 })();
+/* مراجعة الصف الأول ٢٠٢٦: أسئلة قصيرة بصورة، ونص منطوق مشكول، ومشتتات معقولة، ومهام سحب وخط أعداد. */
+(()=>{
+'use strict';
+const C=window.G1_COURSE;if(!C)return;
+const n=v=>String(v).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const num=s=>Number(String(s).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+const W=['صِفْر','وَاحِد','اثْنَان','ثَلَاثَة','أَرْبَعَة','خَمْسَة','سِتَّة','سَبْعَة','ثَمَانِيَة','تِسْعَة','عَشَرَة','أَحَدَ عَشَرَ','اثْنَا عَشَرَ','ثَلَاثَةَ عَشَرَ','أَرْبَعَةَ عَشَرَ','خَمْسَةَ عَشَرَ','سِتَّةَ عَشَرَ','سَبْعَةَ عَشَرَ','ثَمَانِيَةَ عَشَرَ','تِسْعَةَ عَشَرَ'];
+const T=['','عَشَرَة','عِشْرُون','ثَلَاثُون','أَرْبَعُون','خَمْسُون','سِتُّون','سَبْعُون','ثَمَانُون','تِسْعُون'];
+const w=v=>v<20?W[v]:(v%10?W[v%10]+' وَ'+T[Math.floor(v/10)]:T[v/10]);
+/* صيغة النصب والجر بعد الحروف والأفعال: اثْنَيْنِ، عِشْرِين. */
+const g=v=>w(v).replace(/اثْنَانِ?$/,'اثْنَيْنِ').replace('اثْنَا عَشَرَ','اثْنَيْ عَشَرَ').replace(/ُون$/,'ِين');
+const OPS={'+':'زَائِد','−':'نَاقِص','=':'يُسَاوِي','>':'أَكْبَرُ مِنْ','<':'أَصْغَرُ مِنْ','؟':'كَمْ'};
+const spoken=s=>String(s).replace(/[٠-٩]+/g,d=>' '+w(num(d))+' ').replace(/[+−=><؟]/g,o=>' '+OPS[o]+' ').replace(/\s+([،.])/g,'$1').replace(/\s+/g,' ').trim();
+const ORD=['','الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع'];
+const ORDS=['','الْأَوَّلُ','الثَّانِي','الثَّالِثُ','الرَّابِعُ','الْخَامِسُ','السَّادِسُ','السَّابِعُ','الثَّامِنُ','التَّاسِعُ'];
+const HOUR=['','الواحدة','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة','الحادية عشرة','الثانية عشرة'];
+const HOURS=['','الْوَاحِدَةُ','الثَّانِيَةُ','الثَّالِثَةُ','الرَّابِعَةُ','الْخَامِسَةُ','السَّادِسَةُ','السَّابِعَةُ','الثَّامِنَةُ','التَّاسِعَةُ','الْعَاشِرَةُ','الْحَادِيَةَ عَشْرَةَ','الثَّانِيَةَ عَشْرَةَ'];
+const DAY=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+const DAYS=['السَّبْتُ','الْأَحَدُ','الِاثْنَيْنِ','الثُّلَاثَاءُ','الْأَرْبِعَاءُ','الْخَمِيسُ','الْجُمُعَةُ'];
+const UNITS=v=>v===1?'وَحْدَةٌ وَاحِدَةٌ':v===2?'وَحْدَتَانِ':['','','','ثَلَاثُ','أَرْبَعُ','خَمْسُ','سِتُّ','سَبْعُ','ثَمَانِي','تِسْعُ','عَشْرُ'][v]+' وَحَدَاتٍ';
+const UNITD=v=>v===1?'وحدة واحدة':v===2?'وحدتان':n(v)+' وحدات';
+const V={'>':'أَكْبَرُ مِنْ','<':'أَصْغَرُ مِنْ','=':'يُسَاوِي','نصف':'نِصْف','ربع':'رُبْع','الشكل كله':'الشَّكْلُ كُلُّهُ','مثلث':'مُثَلَّث','مربع':'مُرَبَّع','دائرة':'دَائِرَة','مستطيل':'مُسْتَطِيل','مكعب':'مُكَعَّب','كرة':'كُرَة','متوازي المستطيلات':'مُتَوَازِي الْمُسْتَطِيلَاتِ','قطعة مستقيمة':'قِطْعَةٌ مُسْتَقِيمَةٌ','خط منحنٍ':'خَطٌّ مُنْحَنٍ','تفاحة':'تُفَّاحَة','زهرة':'زَهْرَة','عقرب الساعات القصير':'عَقْرَبُ السَّاعَاتِ الْقَصِيرُ','عقرب الدقائق الطويل':'عَقْرَبُ الدَّقَائِقِ الطَّوِيلُ','٧ أيام':'سَبْعَةُ أَيَّامٍ','٥ أيام':'خَمْسَةُ أَيَّامٍ','١٠ أيام':'عَشَرَةُ أَيَّامٍ','رياضيات':'رِيَاضِيَّات','قراءة':'قِرَاءَة','رسم':'رَسْم'};
+ORD.forEach((d,i)=>{if(i)V[d]=ORDS[i];});HOUR.forEach((d,i)=>{if(i)V[d]=HOURS[i];});DAY.forEach((d,i)=>V[d]=DAYS[i]);for(let i=1;i<=10;i++)V[UNITD(i)]=UNITS(i);
+const sayOf=label=>V[label]||(/[٠-٩]/.test(label)?spoken(label):undefined);
+const L=c=>{if(c&&typeof c==='object'){const o={...c,label:String(c.label)};if(!o.say&&sayOf(o.label))o.say=sayOf(o.label);return o;}const label=String(typeof c==='number'?n(c):c),o={label},s=sayOf(label);if(s)o.say=s;return o;};
+let seed=7;const rnd=()=>{seed=(seed*1103515245+12345)%2147483648;return seed/2147483648;};
+/* مشتتان: الأول خطأ شائع في المفهوم، والثاني من بقية الأخطاء المعقولة. */
+const wrong=(right,cands,max=99,k=2)=>{const ok=[...new Set(cands)].filter(v=>Number.isInteger(v)&&v>=0&&v<=max&&v!==right);const out=ok.slice(0,1),rest=ok.slice(1);while(out.length<k&&rest.length)out.push(rest.splice(Math.floor(rnd()*rest.length),1)[0]);return out;};
+const Q=(prompt,say,scene,right,others,explain,sayExplain,extra={})=>({prompt,say,...(scene?{scene}:{}),choices:[right,...others].map(L),answer:0,explain,sayExplain:sayExplain||spoken(explain),...extra});
+const S=(text,say,scene)=>({text,say,...(scene?{scene}:{})});
+const NOUN={apple:['تفاحة','تُفَّاحَةً'],fish:['سمكة','سَمَكَةً'],ball:['كرة','كُرَةً'],flower:['زهرة','زَهْرَةً'],leaf:['ورقة','وَرَقَةً'],duck:['بطة','بَطَّةً'],car:['سيارة','سَيَّارَةً'],olive:['زيتونة','زَيْتُونَةً'],egg:['بيضة','بَيْضَةً'],bird:['عصفورًا','عُصْفُورًا'],balloon:['بالونًا','بَالُونًا'],pencil:['قلمًا','قَلَمًا'],lemon:['ليمونة','لَيْمُونَةً']};
+const sym=value=>({type:'symbol',value});
+const count=(c,icon='apple')=>({type:'count',icon,count:c});
+const op=(a,o,b,icon='ball')=>({type:'operation',left:a,right:b,operator:o==='−'?'-':o,icon});
+const near=v=>[v+1,v-1,v+2,v-2];
+const K={
+ count:(v,icon='apple')=>Q('كم '+NOUN[icon][0]+'؟','كَمْ '+NOUN[icon][1]+'؟',count(v,icon),v,wrong(v,near(v)),'أعدّ واحدًا واحدًا: '+n(v)+'.','أَعُدُّ وَاحِدًا وَاحِدًا: '+w(v)+'.'),
+ build:(v,icon='apple',pool=10)=>Q('ضع في السلة: '+n(v),'ضَعْ فِي السَّلَّةِ '+g(v)+'.',null,v,wrong(v,near(v),pool),'في السلة '+n(v)+'.','فِي السَّلَّةِ '+w(v)+'.',{kind:'build',icon,pool}),
+ add:(a,b,icon='ball')=>{const s=a+b;return Q('كم صار العدد؟',w(a)+' وَ'+w(b)+'. كَمْ صَارَ الْعَدَدُ؟',op(a,'+',b,icon),s,wrong(s,[s+1,s-1,a,b,s+2].filter(x=>x!==a||b>1)),n(a)+' + '+n(b)+' = '+n(s));},
+ sub:(a,b,icon='ball')=>{const r=a-b;return Q('كم بقي؟',w(a)+' نَاقِص '+w(b)+'. كَمْ بَقِيَ؟',op(a,'−',b,icon),r,wrong(r,[r+1,a+b<=18?a+b:r-1,r-1,b,r+2]),n(a)+' − '+n(b)+' = '+n(r));},
+ expr:(a,o,b)=>{const r=o==='+'?a+b:a-b;return Q('ما الناتج؟',spoken(n(a)+' '+o+' '+n(b))+'، مَا النَّاتِجُ؟',sym(n(a)+' '+o+' '+n(b)+' = ؟'),r,wrong(r,o==='+'?[r+1,r-1,a>b?a-b:b-a,r+10<=99&&a>9?r+10:r+2]:[r+1,a+b,r-1,b]),n(a)+' '+o+' '+n(b)+' = '+n(r));},
+ part:(total,a)=>{const b=total-a;return Q('ما الجزء الناقص؟',w(a)+' زَائِد كَمْ يُسَاوِي '+w(total)+'؟',sym(n(a)+' + ؟ = '+n(total)),b,wrong(b,[total,b+1,b-1,a]),n(a)+' + '+n(b)+' = '+n(total));},
+ bigger:(a,b,pics)=>{const hi=Math.max(a,b),lo=Math.min(a,b);const c=v=>pics?{label:n(v),scene:count(v,pics)}:v;return Q('أي العددين أكبر؟','أَيُّ الْعَدَدَيْنِ أَكْبَرُ: '+w(a)+' أَمْ '+w(b)+'؟',pics?null:sym(n(a)+' ، '+n(b)),c(hi),[c(lo)],n(hi)+' أكبر من '+n(lo)+'.',spoken(n(hi)+' > '+n(lo))+'.');},
+ smaller:(a,b,pics)=>{const hi=Math.max(a,b),lo=Math.min(a,b);const c=v=>pics?{label:n(v),scene:count(v,pics)}:v;return Q('أي العددين أصغر؟','أَيُّ الْعَدَدَيْنِ أَصْغَرُ: '+w(a)+' أَمْ '+w(b)+'؟',pics?null:sym(n(a)+' ، '+n(b)),c(lo),[c(hi)],n(lo)+' أصغر من '+n(hi)+'.',spoken(n(lo)+' < '+n(hi))+'.');},
+ sign:(a,b)=>{const s=a>b?'>':a<b?'<':'=';const big=x=>({label:x,big:true,caption:{'>':'أكبر من','<':'أصغر من','=':'يساوي'}[x],aria:{'>':'أكبر من','<':'أصغر من','=':'يساوي'}[x]});return Q('اختر الإشارة',w(a)+' وَ'+w(b)+': اخْتَرِ الْإِشَارَةَ.',sym(n(a)+' ؟ '+n(b)),big(s),['>','<','='].filter(x=>x!==s).map(big),n(a)+' '+s+' '+n(b));},
+ next:v=>Q('ما العدد التالي؟','مَا الْعَدَدُ الَّذِي بَعْدَ '+g(v)+'؟',sym(n(v)+' ، ؟'),v+1,wrong(v+1,[v-1,v+2,v>=10?v+10:v,v]),'بعد '+n(v)+' يأتي '+n(v+1)+'.','بَعْدَ '+g(v)+' يَأْتِي '+w(v+1)+'.'),
+ prev:v=>Q('ما العدد السابق؟','مَا الْعَدَدُ الَّذِي قَبْلَ '+g(v)+'؟',sym('؟ ، '+n(v)),v-1,wrong(v-1,[v+1,v-2,v]),'قبل '+n(v)+' يأتي '+n(v-1)+'.','قَبْلَ '+g(v)+' يَأْتِي '+w(v-1)+'.'),
+ between:a=>Q('ما العدد بينهما؟','مَا الْعَدَدُ بَيْنَ '+g(a)+' وَ'+g(a+2)+'؟',sym(n(a)+' ، ؟ ، '+n(a+2)),a+1,wrong(a+1,[a+3,a,a+2,a-1]),'بين '+n(a)+' و'+n(a+2)+' يأتي '+n(a+1)+'.','بَيْنَ '+g(a)+' وَ'+g(a+2)+' يَأْتِي '+w(a+1)+'.'),
+ order:(vals,up)=>{const s=[...vals].sort((x,y)=>x-y),seq=a=>a.map(n).join('، ');const right=up?s:[...s].reverse(),flip=up?[...s].reverse():s,mixed=[s[1],s[0],s[2]];return Q(up?'من الصغير إلى الكبير':'من الكبير إلى الصغير',up?'أَيُّهَا مِنَ الصَّغِيرِ إِلَى الْكَبِيرِ؟':'أَيُّهَا مِنَ الْكَبِيرِ إِلَى الصَّغِيرِ؟',sym(seq([s[1],s[2],s[0]])),seq(right),[seq(flip),seq(mixed)],(up?'نبدأ بالأصغر: ':'نبدأ بالأكبر: ')+seq(right)+'.',(up?'نَبْدَأُ بِالْأَصْغَرِ: ':'نَبْدَأُ بِالْأَكْبَرِ: ')+spoken(seq(right))+'.');},
+ ordinal:(icons,target,start=1)=>{const N={apple:['التفاحة','التُّفَّاحَةِ','التُّفَّاحَةُ'],flower:['الزهرة','الزَّهْرَةِ','الزَّهْرَةُ'],ball:['الكرة','الْكُرَةِ','الْكُرَةُ']};const r=icons.indexOf(target)+start;return Q('ما ترتيب '+N[target][0]+'؟','نَبْدَأُ مِنَ الْيَمِينِ. مَا تَرْتِيبُ '+N[target][1]+'؟',{type:'ordinal',...(start>1?{startRank:start}:{}),icons},ORD[r],wrong(r,[r+1,r-1,r+2,r-2].filter(x=>x>=1),9).map(x=>ORD[x]).filter(Boolean),N[target][0]+' في الموقع '+ORD[r]+'.',N[target][2]+' فِي الْمَوْقِعِ '+ORDS[r].replace(/ُ$/,'ِ')+'.');},
+ line:(start,jump,min=0,max=10)=>{const e=start+jump;return Q('أين أصل؟','مِنْ '+g(start)+' أَقْفِزُ '+(jump>0?'إِلَى الْأَمَامِ ':'إِلَى الْوَرَاءِ ')+g(Math.abs(jump))+'. أَيْنَ أَصِلُ؟',sym(n(start)+' '+(jump>0?'+':'−')+' '+n(Math.abs(jump))),e,wrong(e,[e+1,e-1,start,start-jump]),n(start)+' '+(jump>0?'+':'−')+' '+n(Math.abs(jump))+' = '+n(e),null,{kind:'line',min,max,start});},
+ touch:(v,min=0,max=10)=>Q('المس العدد '+n(v),'الْمِسِ الْعَدَدَ '+g(v)+'.',null,v,wrong(v,near(v)),'هذا العدد '+n(v)+'.','هَذَا الْعَدَدُ '+w(v)+'.',{kind:'line',min,max}),
+ pv:(t,o)=>{const v=t*10+o;return Q('ما العدد؟','مَا الْعَدَدُ؟',{type:'place-value',tens:t,ones:o},v,wrong(v,[o*10+t,t*10,t+o,v+10,v-10,v+1]),n(t*10)+' + '+n(o)+' = '+n(v));},
+ tens:(t,o)=>Q('كم عشرة؟','كَمْ عَشَرَةً فِي هَذَا الْعَدَدِ؟',{type:'place-value',tens:t,ones:o},t,wrong(t,[o,t+1,t-1]),'في العدد '+n(t*10+o)+' عدد العشرات '+n(t)+'.','فِي الْعَدَدِ '+g(t*10+o)+'، عَدَدُ الْعَشَرَاتِ '+w(t)+'.'),
+ tenOnes:o=>Q('ما العدد؟','عَشَرَة زَائِد '+w(o)+'، مَا الْعَدَدُ؟',sym('١٠ + '+n(o)),10+o,wrong(10+o,[o*10+1,10+o+1,o,10+o-1]),'١٠ + '+n(o)+' = '+n(10+o)),
+ ones:v=>Q('كم آحادًا؟','كَمْ آحَادًا فِي '+g(v)+'؟',sym(n(v)),v%10,wrong(v%10,[Math.floor(v/10),v%10+1,v]),'في '+n(v)+' عشرة و'+n(v%10)+' آحاد.','فِي '+g(v)+' عَشَرَةٌ وَ'+W[v%10]+' آحَادٍ.'),
+ word:v=>{const rev=(v%10)*10+Math.floor(v/10);return Q('اختر الرمز',w(v)+'. اخْتَرِ الرَّمْزَ.',sym(w(v).replace(/[\u064B-\u0652]/g,'')),v,wrong(v,[rev,v+1,v-1,v-10]),n(v)+' هو '+w(v).replace(/[\u064B-\u0652]/g,'')+'.',spoken(n(v))+'.');},
+ byTen:t=>Q('ما العدد التالي؟',spoken(n(t*10)+'، '+n(t*10+10))+'، ثُمَّ مَاذَا؟',sym(n(t*10)+' ، '+n(t*10+10)+' ، ؟'),t*10+20,wrong(t*10+20,[t*10+11,t*10+21,t*10+30]),'نعدّ بالعشرات: '+n(t*10+20)+'.','نَعُدُّ بِالْعَشَرَاتِ: '+w(t*10+20)+'.'),
+ measure:v=>Q('كم وحدة طوله؟','كَمْ وَحْدَةً طُولُ الشَّرِيطِ؟',{type:'measure',units:v},v,wrong(v,near(v),8),'طول الشريط '+UNITD(v)+'.','طُولُ الشَّرِيطِ '+UNITS(v)+'.'),
+ longer:(a,b)=>{const hi=Math.max(a,b),lo=Math.min(a,b);return Q('أيها أطول؟','أَيُّ الشَّرِيطَيْنِ أَطْوَلُ؟',null,{label:UNITD(hi),scene:{type:'measure',units:hi}},[{label:UNITD(lo),scene:{type:'measure',units:lo}}],'الشريط '+UNITD(hi)+' أطول.','الشَّرِيطُ الَّذِي طُولُهُ '+UNITS(hi)+' أَطْوَلُ.');},
+ clock:h=>{const others=wrong(h,[12,h+1,h-1,h===12?6:h+6].map(x=>x>12?x-12:x||12),12);return Q('كم الساعة؟','كَمِ السَّاعَةُ الْآنَ؟',{type:'clock',hour:h,minute:0},HOUR[h],others.map(x=>HOUR[x]),'الساعة '+HOUR[h]+'.','السَّاعَةُ '+HOURS[h]+'.');},
+ tomorrow:d=>Q('اليوم '+DAY[d]+'. وغدًا؟','الْيَوْمُ '+DAYS[d]+'. فَمَا يَوْمُ الْغَدِ؟',null,DAY[(d+1)%7],[DAY[(d+6)%7],DAY[(d+2)%7]],'بعد '+DAY[d]+' يأتي '+DAY[(d+1)%7]+'.','بَعْدَ '+DAYS[d].replace(/ُ$/,'ِ')+' يَأْتِي '+DAYS[(d+1)%7]+'.'),
+ yesterday:d=>Q('اليوم '+DAY[d]+'. وأمس؟','الْيَوْمُ '+DAYS[d]+'. فَمَا يَوْمُ أَمْسِ؟',null,DAY[(d+6)%7],[DAY[(d+1)%7],DAY[(d+5)%7]],'قبل '+DAY[d]+' يأتي '+DAY[(d+6)%7]+'.','قَبْلَ '+DAYS[d].replace(/ُ$/,'ِ')+' يَأْتِي '+DAYS[(d+6)%7]+'.'),
+ shape:v=>{const name={circle:'دائرة',square:'مربع',triangle:'مثلث',rectangle:'مستطيل'},near={square:['مستطيل','مثلث'],rectangle:['مربع','دائرة'],triangle:['مربع','دائرة'],circle:['مثلث','مربع']};return Q('ما اسم هذا الشكل؟','مَا اسْمُ هَذَا الشَّكْلِ؟',{type:'shape',value:v},name[v],near[v],'هذا '+name[v]+'.','هَذَا '+V[name[v]]+'.');},
+ solid:v=>{const name={cube:'مكعب',cuboid:'متوازي المستطيلات',sphere:'كرة'};const others=Object.values(name).filter(x=>x!==name[v]);return Q('ما اسم المجسم؟','مَا اسْمُ هَذَا الْمُجَسَّمِ؟',{type:'solid',value:v},name[v],others,'هذا '+name[v]+'.','هَذَا '+V[name[v]]+'.');},
+ fraction:p=>{const r=p===2?'نصف':'ربع';return Q('ما اسم الجزء الملوّن؟','مَا اسْمُ الْجُزْءِ الْمُلَوَّنِ؟',{type:'fraction',parts:p,selected:1},r,[p===2?'ربع':'نصف','الشكل كله'],'جزء من '+n(p)+' أجزاء متساوية: '+r+'.',(p===2?'جُزْءٌ مِنْ جُزْأَيْنِ مُتَسَاوِيَيْنِ: نِصْفٌ.':'جُزْءٌ مِنْ أَرْبَعَةِ أَجْزَاءٍ مُتَسَاوِيَةٍ: رُبْعٌ.'));},
+ lineKind:v=>Q('ما نوع الخط؟','مَا نَوْعُ هَذَا الْخَطِّ؟',{type:'line-kind',value:v},v==='straight'?'قطعة مستقيمة':'خط منحنٍ',[v==='straight'?'خط منحنٍ':'قطعة مستقيمة'],v==='straight'?'الخط لا ينحني.':'الخط ينحني.',v==='straight'?'الْخَطُّ لَا يَنْحَنِي.':'الْخَطُّ يَنْحَنِي.'),
+ pattern:(icons,nextIcon)=>{const NM={cube:'مكعب',ball:'كرة',apple:'تفاحة',flower:'زهرة'};const opts=[...new Set([nextIcon,...icons,'cube','ball','apple','flower'])].slice(0,3);return Q('ماذا يأتي بعدها؟','مَاذَا يَأْتِي بَعْدَهَا؟',{type:'items',icons},{label:NM[nextIcon],scene:{type:'items',icons:[nextIcon]}},opts.slice(1).map(x=>({label:NM[x],scene:{type:'items',icons:[x]}})),'يتكرر النمط، فيأتي: '+NM[nextIcon]+'.','يَتَكَرَّرُ النَّمَطُ، فَتَأْتِي '+V[NM[nextIcon]]+'.');},
+ column:(a,b,o='−')=>{const r=o==='+'?a+b:a-b;return Q('ما الناتج؟',spoken(n(a)+' '+o+' '+n(b))+'، مَا النَّاتِجُ؟',{type:'column-operation',a,b,op:o==='+'?'+':'-',phase:0},r,wrong(r,[r+1,o==='+'?a-b:a+b,r-1]),n(a)+' '+o+' '+n(b)+' = '+n(r));},
+ bridge:(a,b,o='+')=>{const r=o==='+'?a+b:a-b;return Q('ما الناتج؟',spoken(n(a)+' '+o+' '+n(b))+'، مَا النَّاتِجُ؟',{type:'ten-bridge',a,b,op:o==='+'?'+':'-',phase:1},r,wrong(r,[r+1,r-1,r+10<=18?r+10:r-2]),n(a)+' '+o+' '+n(b)+' = '+n(r));}
+};
+window.G1_MATH_KIT={K,S,Q,L,n,w,spoken,sym,count,op,V};
+const all=[...C.foundations,...C.units.flatMap(u=>u.lessons)],get=id=>all.find(l=>l.id===id);
+const set=(id,steps,tasks)=>{const l=get(id);if(!l)throw new Error('Missing lesson '+id);l.steps=steps;l.tasks=tasks;};
+set("m-found-count",[S("ألمس كل شيء مرة واحدة.","أَلْمِسُ كُلَّ شَيْءٍ مَرَّةً وَاحِدَةً.",count(2,"ball"))],[K.count(2,"ball"),K.count(1,"apple"),K.build(3,"apple",6),K.count(3,"duck"),K.build(1,"ball",5)]);
+/* الوحدة الأولى */
+const countLesson=(id,vals,icons)=>set(id,[S('ألمس كل شيء مرة واحدة.','أَلْمِسُ كُلَّ شَيْءٍ مَرَّةً وَاحِدَةً.',count(vals[0],icons[0])),S('آخر عدد أقوله هو الجواب.','آخِرُ عَدَدٍ أَقُولُهُ هُوَ الْجَوَابُ.',count(vals[1],icons[1]))],
+ [K.count(vals[0],icons[0]),K.count(vals[1],icons[1]),K.build(vals[2],icons[2]),K.count(vals[2],icons[3]),K.build(vals[0],icons[1]),K.count(vals[1],icons[4])]);
+countLesson('m-1-1',[2,3,1],['apple','ball','fish','flower','duck']);
+countLesson('m-1-2',[5,4,6],['fish','flower','apple','ball','leaf']);
+countLesson('m-1-3',[8,7,9],['ball','olive','apple','fish','flower']);
+set('m-review-1',[S('أعدّ، ثم أختار.','أَعُدُّ، ثُمَّ أَخْتَارُ.',count(6,'leaf'))],[K.count(6,'leaf'),K.build(7,'apple'),K.count(3,'car'),K.count(9,'flower'),K.build(4,'ball'),K.bigger(5,8,'apple')]);
+/* الوحدة الثانية */
+set('m-2-1',[S('الأكثر أشياء هو الأكبر.','الْأَكْثَرُ أَشْيَاءَ هُوَ الْأَكْبَرُ.',count(5)),S('الأقل أشياء هو الأصغر.','الْأَقَلُّ أَشْيَاءَ هُوَ الْأَصْغَرُ.',count(2))],[K.bigger(3,5,'apple'),K.smaller(6,4,'ball'),K.bigger(9,7),K.smaller(2,8),K.bigger(4,6,'fish'),K.smaller(7,5)]);
+set('m-2-signs',[S('الفتحة نحو العدد الأكبر.','الْفَتْحَةُ نَحْوَ الْعَدَدِ الْأَكْبَرِ.',sym('٥ > ٣')),S('العددان المتساويان بينهما =.','بَيْنَ الْعَدَدَيْنِ الْمُتَسَاوِيَيْنِ إِشَارَةُ يُسَاوِي.',sym('٤ = ٤'))],[K.sign(6,3),K.sign(2,7),K.sign(5,5),K.sign(9,8),K.sign(1,4),K.sign(8,8)]);
+set('m-2-3',[S('أبدأ بالأصغر، ثم الأكبر.','أَبْدَأُ بِالْأَصْغَرِ، ثُمَّ الْأَكْبَرِ.',sym('٢ ، ٤ ، ٦')),S('أو أبدأ بالأكبر.','أَوْ أَبْدَأُ بِالْأَكْبَرِ.',sym('٦ ، ٤ ، ٢'))],[K.order([2,4,6],true),K.order([3,7,5],false),K.order([1,5,9],true),K.order([8,2,4],false),K.order([3,4,6],true),K.order([9,6,7],false)]);
+set('m-2-2',[S('التالي يزيد واحدًا.','التَّالِي يَزِيدُ وَاحِدًا.',sym('٥ ، ٦')),S('السابق ينقص واحدًا.','السَّابِقُ يَنْقُصُ وَاحِدًا.',sym('٤ ، ٥'))],[K.next(5),K.prev(8),K.between(6),K.next(2),K.prev(4),K.touch(7)]);
+set('m-2-ordinal',[S('نبدأ العد من اليمين.','نَبْدَأُ الْعَدَّ مِنَ الْيَمِينِ.',{type:'ordinal',icons:['apple','ball','flower']})],[K.ordinal(['apple','ball','flower'],'flower'),K.ordinal(['ball','flower','apple'],'ball'),K.ordinal(['flower','apple','ball'],'apple'),K.ordinal(['apple','flower','ball'],'ball'),K.ordinal(['ball','apple','flower'],'apple')]);
+set('m-2-ordinal-nine',[S('بعد الثالث يأتي الرابع.','بَعْدَ الثَّالِثِ يَأْتِي الرَّابِعُ.',{type:'ordinal',startRank:4,icons:['apple','flower','ball']})],[K.ordinal(['apple','flower','ball'],'flower',4),K.ordinal(['apple','flower','ball'],'ball',7),K.ordinal(['ball','apple','flower'],'ball',4),K.ordinal(['flower','ball','apple'],'apple',7),K.ordinal(['apple','ball','flower'],'apple',4)]);
+set('m-review-2',[S('أقارن، ثم أرتّب.','أُقَارِنُ، ثُمَّ أُرَتِّبُ.',sym('٣ < ٧'))],[K.sign(7,4),K.bigger(3,9),K.order([5,2,8],true),K.next(6),K.prev(3),K.ordinal(['apple','ball','flower'],'ball')]);
+/* الوحدة الثالثة */
+set('m-3-1',[S('لا شيء هنا: صفر.','لَا شَيْءَ هُنَا: صِفْر.',count(0))],[K.count(0,'apple'),K.expr(3,'−',3),K.expr(4,'+',0),K.count(0,'fish'),K.expr(0,'+',2),K.sub(2,2)]);
+set('m-3-3',[S('العدد ٥ = ٢ + ٣.','الْعَدَدُ خَمْسَة يُسَاوِي اثْنَيْنِ زَائِد ثَلَاثَة.',op(2,'+',3,'apple'))],[K.part(5,2),K.part(6,4),K.part(4,1),K.part(5,5),K.part(3,1),K.part(6,3)]);
+set('m-3-parts-small',[S('العدد ٤ = ١ + ٣.','أَرْبَعَة تُسَاوِي وَاحِدًا زَائِد ثَلَاثَة.',op(1,'+',3,'flower'))],[K.part(3,2),K.part(4,3),K.part(5,1),K.part(4,2),K.part(5,3),K.part(3,0)]);
+set('m-3-parts-large',[S('العدد ٨ = ٥ + ٣.','ثَمَانِيَة تُسَاوِي خَمْسَة زَائِد ثَلَاثَة.',op(5,'+',3,'ball'))],[K.part(7,3),K.part(8,6),K.part(9,4),K.part(6,1),K.part(9,7),K.part(8,4)]);
+set('m-3-2',[S('أضمّ المجموعتين وأعدّ.','أَضُمُّ الْمَجْمُوعَتَيْنِ وَأَعُدُّ.',op(3,'+',2,'apple'))],[K.add(2,1,'ball'),K.add(3,2,'apple'),K.add(4,3,'fish'),K.expr(5,'+',4),K.build(6,'flower'),K.add(1,7,'duck')]);
+set('m-review-3',[S('أكمل العدد، ثم أجمع.','أُكْمِلُ الْعَدَدَ، ثُمَّ أَجْمَعُ.',sym('٧ = ٣ + ٤'))],[K.part(7,3),K.add(4,4,'apple'),K.expr(6,'+',2),K.count(0,'ball'),K.part(9,5),K.line(3,4)]);
+/* الوحدة الرابعة */
+set('m-4-1',[S('آخذ بعض الأشياء، وأعدّ الباقي.','آخُذُ بَعْضَ الْأَشْيَاءِ، وَأَعُدُّ الْبَاقِيَ.',op(5,'−',2,'apple'))],[K.sub(4,1),K.sub(5,2,'apple'),K.sub(7,3,'fish'),K.sub(9,4,'flower'),K.line(8,-3),K.sub(6,6)]);
+set('m-4-zero-column',[S('أطرح الآحاد من الآحاد.','أَطْرَحُ الْآحَادَ مِنَ الْآحَادِ.',{type:'column-operation',a:8,b:3,op:'-',phase:2})],[K.expr(5,'−',0),K.expr(4,'−',4),K.column(7,2),K.column(9,5),K.expr(8,'−',1),K.column(6,3)]);
+const inv=(a,b)=>Q(n(a)+' + '+n(b)+' = '+n(a+b)+'، إذن:',spoken(n(a)+' + '+n(b)+' = '+n(a+b))+'، فَكَمْ '+spoken(n(a+b)+' − '+n(b))+'؟',sym(n(a+b)+' − '+n(b)+' = ؟'),a,[b,a+b].filter(x=>x!==a).concat(a+1).slice(0,2),'نحذف الجزء المضاف، وهو '+n(b)+'، فيبقى '+n(a)+'.','نَحْذِفُ الْجُزْءَ الْمُضَافَ، وَهُوَ '+w(b)+'، فَيَبْقَى '+w(a)+'.');
+set('m-4-2',[S('الطرح عكس الجمع.','الطَّرْحُ عَكْسُ الْجَمْعِ.',sym('٤ + ٢ = ٦')),S('٦ − ٢ يرجعنا إلى ٤.','سِتَّة نَاقِص اثْنَان يُرْجِعُنَا إِلَى أَرْبَعَة.',sym('٦ − ٢ = ٤'))],[inv(4,2),inv(2,1),inv(5,3),inv(3,4),inv(6,2),inv(1,7)]);
+set('m-review-4',[S('أطرح، ثم أتحقق بالجمع.','أَطْرَحُ، ثُمَّ أَتَحَقَّقُ بِالْجَمْعِ.',op(6,'−',2,'ball'))],[K.sub(6,2),K.expr(9,'−',3),K.column(8,5),inv(5,2),K.line(7,-4),K.expr(3,'−',0)]);
+/* الوحدة الخامسة */
+set('m-5-1',[S('بعد ٩ يأتي ١٠.','بَعْدَ تِسْعَة يَأْتِي عَشَرَة.',count(10,'apple'))],[K.next(9),K.count(10,'flower'),K.build(10,'apple',12),K.part(10,6),K.prev(10),K.count(10,'fish')]);
+set('m-5-line',[S('إلى اليمين تكبر الأعداد.','إِلَى الْيَمِينِ تَكْبُرُ الْأَعْدَادُ.',{type:'number-line',min:0,max:10,start:4,moves:[2]})],[K.line(4,2),K.touch(8),K.line(6,3),K.line(9,-2),K.touch(13,10,20),K.line(12,5,10,20)]);
+set('m-5-ten-parts',[S('العشرة = ٧ + ٣.','عَشَرَة تُسَاوِي سَبْعَة زَائِد ثَلَاثَة.',op(7,'+',3,'apple'))],[K.part(10,7),K.part(10,4),K.part(10,9),K.part(10,5),K.part(10,2),K.build(10,'ball',12)]);
+set('m-5-2',[S('١٥ = عشرة و٥ آحاد.','خَمْسَةَ عَشَرَ: عَشَرَةٌ وَخَمْسَةُ آحَادٍ.',{type:'place-value',tens:1,ones:5})],[K.tenOnes(5),K.tenOnes(2),K.next(18),K.pv(1,7),K.build(12,'apple',14),K.tenOnes(9)]);
+set('m-5-3',[S('عشرتان = ٢٠.','عَشَرَتَانِ تُسَاوِيَانِ عِشْرِين.',{type:'place-value',tens:2,ones:0})],[K.pv(2,0),K.prev(20),K.next(19),K.touch(20,10,20),K.between(18),K.count(20,'olive')]);
+set('m-review-5',[S('عشرة وآحاد.','عَشَرَةٌ وَآحَادٌ.',{type:'place-value',tens:1,ones:7})],[K.tenOnes(7),K.part(10,8),K.line(14,3,10,20),K.next(16),K.pv(1,3),K.build(11,'flower',14)]);
+/* الوحدة السادسة */
+set('m-6-1',[S('أعدّ الوحدات المتساوية.','أَعُدُّ الْوَحَدَاتِ الْمُتَسَاوِيَةَ.',{type:'measure',units:4})],[K.measure(4),K.longer(6,4),K.measure(6),K.longer(3,5),K.measure(2),K.measure(7)]);
+const ord=(prompt,say,right,others,explain,sayExplain,scene)=>Q(prompt,say,scene||null,right,others,explain,sayExplain);
+const act=(label,say,icon)=>({label,say,scene:{type:'items',icons:[icon]}});
+set('m-6-2',[S('بعض الأعمال تأتي قبل غيرها.','بَعْضُ الْأَعْمَالِ تَأْتِي قَبْلَ غَيْرِهَا.',{type:'items',icons:['hand','apple']})],[
+ ord('ماذا أفعل قبل الأكل؟','مَاذَا أَفْعَلُ قَبْلَ الْأَكْلِ؟',act('أغسل يديّ','أَغْسِلُ يَدَيَّ','hand'),[act('أنام','أَنَامُ','bed'),act('ألعب بالكرة','أَلْعَبُ بِالْكُرَةِ','ball')],'أغسل يديّ قبل الأكل.','أَغْسِلُ يَدَيَّ قَبْلَ الْأَكْلِ.'),
+ ord('ماذا أفعل أولًا؟','مَاذَا أَفْعَلُ أَوَّلًا؟',act('أحمل حقيبتي','أَحْمِلُ حَقِيبَتِي','bag'),[act('أدخل الصف','أَدْخُلُ الصَّفَّ','school'),act('أعود إلى البيت','أَعُودُ إِلَى الْبَيْتِ','house')],'أحمل حقيبتي، ثم أذهب إلى المدرسة.','أَحْمِلُ حَقِيبَتِي، ثُمَّ أَذْهَبُ إِلَى الْمَدْرَسَةِ.'),
+ ord('ماذا بعد النوم؟','مَاذَا أَفْعَلُ بَعْدَ النَّوْمِ؟',act('أستيقظ','أَسْتَيْقِظُ','sun'),[act('أذهب إلى السرير','أَذْهَبُ إِلَى السَّرِيرِ','bed'),act('أغلق الباب','أُغْلِقُ الْبَابَ','door')],'بعد النوم أستيقظ.','بَعْدَ النَّوْمِ أَسْتَيْقِظُ.'),
+ ord('ماذا يأتي أولًا؟','مَاذَا يَأْتِي أَوَّلًا؟',act('البذرة','الْبِذْرَةُ','seed'),[act('الشجرة','الشَّجَرَةُ','tree'),act('الثمرة','الثَّمَرَةُ','apple')],'البذرة أولًا، ثم الشجرة.','الْبِذْرَةُ أَوَّلًا، ثُمَّ الشَّجَرَةُ.'),
+ ord('ماذا ألبس أولًا؟','مَاذَا أَلْبَسُ أَوَّلًا؟',act('الجوارب','الْجَوَارِبَ','socks'),[act('الحذاء','الْحِذَاءَ','shoes')],'ألبس الجوارب قبل الحذاء.','أَلْبَسُ الْجَوَارِبَ قَبْلَ الْحِذَاءِ.')]);
+set('m-6-week',[S('في الأسبوع ٧ أيام.','فِي الْأُسْبُوعِ سَبْعَةُ أَيَّامٍ.',null)],[
+ Q('كم يومًا في الأسبوع؟','كَمْ يَوْمًا فِي الْأُسْبُوعِ؟',null,'٧ أيام',['٥ أيام','١٠ أيام'],'في الأسبوع ٧ أيام.','فِي الْأُسْبُوعِ سَبْعَةُ أَيَّامٍ.'),
+ K.tomorrow(3),K.yesterday(1),K.tomorrow(5),
+ Q('ما النشاط الثاني يوم الأربعاء؟','مَا النَّشَاطُ الثَّانِي يَوْمَ الْأَرْبِعَاءِ؟',{type:'week-table'},'رياضيات',['قراءة','رسم'],'يوم الأربعاء: قراءة ثم رياضيات.','يَوْمَ الْأَرْبِعَاءِ: قِرَاءَةٌ ثُمَّ رِيَاضِيَّاتٌ.'),
+ Q('ما النشاط الأول يوم الاثنين؟','مَا النَّشَاطُ الْأَوَّلُ يَوْمَ الِاثْنَيْنِ؟',{type:'week-table'},'قراءة',['رسم','رياضيات'],'يوم الاثنين يبدأ بالقراءة.','يَوْمُ الِاثْنَيْنِ يَبْدَأُ بِالْقِرَاءَةِ.')]);
+set('m-6-whole-hours',[S('العقرب الطويل عند ١٢.','الْعَقْرَبُ الطَّوِيلُ عِنْدَ الثَّانِي عَشَرَ.',{type:'clock',hour:8,minute:0}),S('القصير يبين الساعة.','الْعَقْرَبُ الْقَصِيرُ يُبَيِّنُ السَّاعَةَ.',{type:'clock',hour:3,minute:0})],[K.clock(8),K.clock(3),
+ Q('أي عقرب يبين الساعة؟','أَيُّ عَقْرَبٍ يُبَيِّنُ السَّاعَةَ؟',{type:'clock',hour:4,minute:0},'عقرب الساعات القصير',['عقرب الدقائق الطويل'],'القصير يبين الساعة.','الْعَقْرَبُ الْقَصِيرُ يُبَيِّنُ السَّاعَةَ.'),
+ K.clock(6),K.clock(11),K.clock(1)]);
+set('m-review-6',[S('أقيس، وأقرأ الساعة.','أَقِيسُ، وَأَقْرَأُ السَّاعَةَ.',{type:'measure',units:5})],[K.measure(5),K.longer(7,3),K.tomorrow(6),K.clock(7),K.yesterday(0),
+ Q('ما النشاط الأول يوم الخميس؟','مَا النَّشَاطُ الْأَوَّلُ يَوْمَ الْخَمِيسِ؟',{type:'week-table'},'رياضيات',['رسم','قراءة'],'يوم الخميس يبدأ بالرياضيات.','يَوْمُ الْخَمِيسِ يَبْدَأُ بِالرِّيَاضِيَّاتِ.')]);
+/* الوحدة السابعة */
+set('m-7-1',[S('أقارن العشرات أولًا، ثم الآحاد.','أُقَارِنُ الْعَشَرَاتِ أَوَّلًا، ثُمَّ الْآحَادَ.',sym('١٧ > ١٤'))],[K.bigger(17,14),K.sign(12,19),K.next(19),K.prev(15),K.order([13,18,11],true),K.order([16,12,20],false)]);
+set('m-7-2',[S('١٧ = ١٠ + ٧.','سَبْعَةَ عَشَرَ تُسَاوِي عَشَرَة زَائِد سَبْعَة.',{type:'place-value',tens:1,ones:7})],[K.ones(17),K.tenOnes(2),K.ones(14),K.pv(1,9),K.tens(1,6),K.tenOnes(8)]);
+set('m-review-7',[S('أقارن الأعداد حتى ٢٠.','أُقَارِنُ الْأَعْدَادَ حَتَّى عِشْرِين.',sym('١٣ < ١٦'))],[K.bigger(13,16),K.smaller(18,11),K.sign(15,15),K.between(12),K.ones(19),K.touch(17,10,20)]);
+/* الوحدة الثامنة */
+set('m-8-1',[S('٦ + ٤ = ١٠.','سِتَّة زَائِد أَرْبَعَة يُسَاوِي عَشَرَة.',op(6,'+',4,'apple'))],[K.add(6,4),K.add(7,3,'apple'),K.part(10,8),K.add(5,5,'fish'),K.part(10,1),K.build(10,'olive',12)]);
+set('m-8-2',[S('أبدأ بالعدد الأكبر، وأعدّ.','أَبْدَأُ بِالْعَدَدِ الْأَكْبَرِ، وَأَعُدُّ.',op(10,'+',3,'ball'))],[K.add(10,3),K.add(9,5,'apple'),K.add(8,7,'flower'),K.expr(11,'+',6),K.line(12,4,10,20),K.expr(7,'+',9)]);
+set('m-8-doubles',[S('٨ + ٨ = ١٦.','ثَمَانِيَة زَائِد ثَمَانِيَة يُسَاوِي سِتَّةَ عَشَرَ.',op(8,'+',8,'apple')),S('٨ + ٩ أكثر بواحد: ١٧.','ثَمَانِيَة زَائِد تِسْعَة أَكْثَرُ بِوَاحِدٍ: سَبْعَةَ عَشَرَ.',sym('٨ + ٩ = ١٧'))],[K.expr(8,'+',8),K.expr(6,'+',6),K.expr(6,'+',7),K.expr(7,'+',7),K.expr(7,'+',8),K.expr(9,'+',9)]);
+set('m-8-ten-transfer',[S('أكمل العشرة أولًا.','أُكْمِلُ الْعَشَرَةَ أَوَّلًا.',{type:'ten-bridge',a:8,b:5,op:'+',phase:0}),S('ثم أضيف الباقي.','ثُمَّ أُضِيفُ الْبَاقِيَ.',{type:'ten-bridge',a:8,b:5,op:'+',phase:1})],[K.part(10,9),K.bridge(9,4),K.part(10,7),K.bridge(7,6),K.bridge(8,5),K.bridge(9,8)]);
+set('m-review-8',[S('أكمل العشرة، ثم أجمع.','أُكْمِلُ الْعَشَرَةَ، ثُمَّ أَجْمَعُ.',{type:'ten-bridge',a:9,b:3,op:'+',phase:1})],[K.bridge(9,3),K.expr(8,'+',8),K.add(10,6),K.part(10,6),K.expr(7,'+',6),K.line(15,3,10,20)]);
+/* الوحدة التاسعة */
+set('m-9-1',[S('من ١٠ آخذ ٣، يبقى ٧.','مِنْ عَشَرَة آخُذُ ثَلَاثَة، يَبْقَى سَبْعَة.',op(10,'−',3,'ball'))],[K.sub(10,3),K.sub(10,6,'apple'),K.expr(10,'−',8),K.line(10,-4),K.sub(10,1,'fish'),K.expr(10,'−',5)]);
+set('m-9-2',[S('أطرح الآحاد من الآحاد.','أَطْرَحُ الْآحَادَ مِنَ الْآحَادِ.',op(14,'−',3,'ball'))],[K.sub(14,3),K.sub(16,5,'apple'),K.sub(18,6,'flower'),K.expr(17,'−',4),K.line(19,-5,10,20),K.expr(15,'−',2)]);
+set('m-9-subtract-from-ten',[S('أفكك ١٤ إلى ١٠ و٤.','أُفَكِّكُ أَرْبَعَةَ عَشَرَ إِلَى عَشَرَة وَأَرْبَعَة.',{type:'ten-bridge',a:14,b:8,op:'-',method:'from-ten',phase:0}),S('أطرح من العشرة، وأجمع الباقي.','أَطْرَحُ مِنَ الْعَشَرَةِ، وَأَجْمَعُ الْبَاقِيَ.',{type:'ten-bridge',a:14,b:8,op:'-',method:'from-ten',phase:1})],[
+ Q('١٤ = ١٠ + ؟','أَرْبَعَةَ عَشَرَ تُسَاوِي عَشَرَة زَائِد كَمْ؟',sym('١٤ = ١٠ + ؟'),4,[3,5],'١٤ = ١٠ + ٤'),K.expr(10,'−',8),K.expr(2,'+',4),K.expr(14,'−',8),K.expr(15,'−',9),K.expr(13,'−',7)]);
+const check=(a,b)=>{const r=a-b;return Q('أي جملة تتحقق منها؟',spoken(n(a)+' − '+n(b)+' = '+n(r))+'. أَيُّ جُمْلَةِ جَمْعٍ تَتَحَقَّقُ مِنْهَا؟',sym(n(a)+' − '+n(b)+' = '+n(r)),n(r)+' + '+n(b)+' = '+n(a),[n(r)+' + '+n(r)+' = '+n(r+r),n(b)+' − '+n(r)+' = '+n(b-r)],'الباقي + المطروح = العدد الأول.','الْبَاقِي زَائِد الْمَطْرُوحِ يُسَاوِي الْعَدَدَ الْأَوَّلَ.');};
+set('m-9-check-with-addition',[S('أجمع الباقي والمطروح.','أَجْمَعُ الْبَاقِيَ وَالْمَطْرُوحَ.',sym('٩ + ٨ = ١٧'))],[inv(6,7),check(16,9),inv(9,8),check(15,9),inv(5,8),check(17,8)]);
+set('m-review-9',[S('أرجع إلى عشرة، ثم أطرح.','أَرْجِعُ إِلَى عَشَرَة، ثُمَّ أَطْرَحُ.',{type:'ten-bridge',a:13,b:8,op:'-',phase:1})],[K.bridge(13,8,'−'),K.sub(10,4),K.expr(16,'−',3),check(14,6),K.line(18,-6,10,20),K.expr(12,'−',9)]);
+set('m-9-cross-ten',[S('من ١٣ أطرح ٣، فأصل إلى ١٠.','مِنْ ثَلَاثَةَ عَشَرَ أَطْرَحُ ثَلَاثَة، فَأَصِلُ إِلَى عَشَرَة.',{type:'ten-bridge',a:13,b:8,op:'-',phase:1})],[
+ Q('١٣ − ؟ = ١٠','ثَلَاثَةَ عَشَرَ نَاقِص كَمْ يُسَاوِي عَشَرَة؟',sym('١٣ − ؟ = ١٠'),3,[2,13],'١٣ − ٣ = ١٠'),K.bridge(13,8,'−'),K.bridge(12,5,'−'),K.bridge(15,7,'−'),K.bridge(11,4,'−')]);
+/* الوحدة العاشرة */
+set('m-10-1',[S('العصا عشرة، والمكعب واحد.','الْعَصَا عَشَرَةٌ، وَالْمُكَعَّبُ وَاحِدٌ.',{type:'place-value',tens:2,ones:5})],[K.pv(2,5),K.tens(4,7),K.pv(3,1),K.tens(6,2),K.pv(5,8),K.tens(9,0)]);
+set('m-10-reading',[S('أقرأ العشرات، ثم الآحاد.','أَقْرَأُ الْعَشَرَاتِ، ثُمَّ الْآحَادَ.',{type:'place-value',tens:3,ones:4})],[K.pv(3,4),K.pv(4,7),K.pv(6,2),K.pv(5,5),K.pv(8,3),K.pv(9,9)]);
+set('m-10-read-words',[S('٧٣: ثلاثة وسبعون.','ثَلَاثَة وَسَبْعُون.',{type:'place-value',tens:7,ones:3})],[K.word(25),K.word(69),K.next(69),K.word(48),K.prev(80),K.word(91)]);
+set('m-10-2',[S('أعدّ بالعشرات: ١٠، ٢٠، ٣٠.','أَعُدُّ بِالْعَشَرَاتِ: عَشَرَة، عِشْرُون، ثَلَاثُون.',sym('١٠ ، ٢٠ ، ٣٠'))],[K.byTen(2),K.pv(5,0),K.byTen(5),K.tens(7,0),K.byTen(6),K.pv(4,0)]);
+set('m-review-10',[S('عشرات وآحاد.','عَشَرَاتٌ وَآحَادٌ.',{type:'place-value',tens:4,ones:7})],[K.pv(4,7),K.word(36),K.tens(8,5),K.next(59),K.byTen(3),K.bigger(64,46)]);
+/* الوحدة الحادية عشرة */
+set('m-11-lines',[S('هذا خط مستقيم.','هَذَا خَطٌّ مُسْتَقِيمٌ.',{type:'line-kind',value:'straight'}),S('وهذا خط منحنٍ.','وَهَذَا خَطٌّ مُنْحَنٍ.',{type:'line-kind',value:'curved'})],[K.lineKind('straight'),K.lineKind('curved'),K.lineKind('curved'),K.lineKind('straight'),K.lineKind('curved')]);
+set('m-11-1',[S('للمثلث ٣ أضلاع.','لِلْمُثَلَّثِ ثَلَاثَةُ أَضْلَاعٍ.',{type:'shape',value:'triangle'}),S('الدائرة بلا أضلاع.','الدَّائِرَةُ بِلَا أَضْلَاعٍ.',{type:'shape',value:'circle'})],[K.shape('triangle'),K.shape('square'),K.shape('circle'),K.shape('rectangle'),K.shape('triangle'),K.shape('circle')]);
+set('m-11-solids',[S('الكرة تتدحرج.','الْكُرَةُ تَتَدَحْرَجُ.',{type:'solid',value:'sphere'}),S('المكعب أوجهه مربعات.','الْمُكَعَّبُ أَوْجُهُهُ مُرَبَّعَاتٌ.',{type:'solid',value:'cube'})],[K.solid('cube'),K.solid('sphere'),K.solid('cuboid'),K.solid('cube'),K.solid('cuboid'),K.solid('sphere')]);
+set('m-11-patterns',[S('أجد ما يتكرر.','أَجِدُ مَا يَتَكَرَّرُ.',{type:'items',icons:['cube','ball','cube','ball']})],[K.pattern(['cube','ball','cube','ball'],'cube'),K.pattern(['ball','ball','cube','ball','ball'],'cube'),K.pattern(['apple','flower','apple','flower'],'apple'),K.pattern(['flower','flower','apple','flower','flower'],'apple'),K.pattern(['cube','ball','apple','cube','ball'],'apple')]);
+set('m-11-2',[S('جزءان متساويان: نصف.','جُزْءَانِ مُتَسَاوِيَانِ: نِصْفٌ.',{type:'fraction',parts:2,selected:1}),S('أربعة أجزاء: ربع.','أَرْبَعَةُ أَجْزَاءٍ: رُبْعٌ.',{type:'fraction',parts:4,selected:1})],[K.fraction(2),K.fraction(4),K.fraction(2),K.fraction(4),K.fraction(2)]);
+set('m-review-11',[S('أسمّي الأشكال والمجسمات.','أُسَمِّي الْأَشْكَالَ وَالْمُجَسَّمَاتِ.',{type:'solid',value:'cuboid'})],[K.solid('cuboid'),K.shape('rectangle'),K.lineKind('curved'),K.fraction(4),K.pattern(['ball','cube','ball','cube'],'ball'),K.shape('square')]);
+/* المراجعات المتدرجة: جزءان لكل وحدة، وخمسة أسئلة في كل جزء. */
+const R=(page,skill,t)=>{t.bookSkill=skill;t.bookPage=page;return t;};
+const bank={
+ 1:[R(4,'number-1',K.count(1,'flower')),R(6,'number-2',K.build(2,'apple')),R(9,'number-3',K.count(3,'fish')),R(13,'number-4',K.count(4,'leaf')),R(16,'number-5',K.build(5,'ball')),R(19,'number-6',K.count(6,'flower')),R(22,'number-7',K.count(7,'duck')),R(24,'number-8',K.build(8,'olive')),R(26,'number-9',K.count(9,'apple')),R(26,'number-9',K.bigger(9,6,'ball'))],
+ 2:[R(33,'compare-1-9',K.sign(8,6)),R(41,'ascending-1-9',K.order([3,9,6],true)),R(43,'descending-1-9',K.order([2,8,5],false)),R(45,'next-1-9',K.next(6)),R(45,'previous-1-9',K.prev(5)),R(50,'ordinal',K.ordinal(['flower','apple','ball'],'apple')),R(50,'ordinal-nine',K.ordinal(['apple','flower','ball'],'ball',7)),R(33,'compare-1-9',K.smaller(7,3)),R(34,'equal',K.sign(4,4)),R(45,'between',K.between(3))],
+ 3:[R(58,'zero',K.count(0,'apple')),R(61,'components-small',K.part(5,2)),R(64,'components-large',K.part(9,4)),R(67,'addition-9',K.expr(4,'+',3)),R(67,'addition-9',K.add(5,2,'fish')),R(68,'addition-line',K.line(2,5)),R(64,'components-large',K.part(8,3)),R(67,'addition-9',K.build(7,'flower')),R(58,'zero',K.expr(6,'+',0)),R(69,'addition-9',K.add(3,6,'apple'))],
+ 4:[R(75,'subtraction-9',K.expr(9,'−',6)),R(81,'inverse-9',inv(2,5)),R(79,'vertical-subtraction',K.column(8,5)),R(75,'subtraction-9',K.sub(7,4,'apple')),R(78,'subtract-zero',K.expr(6,'−',0)),R(76,'subtraction-line',K.line(9,-3)),R(78,'subtract-all',K.expr(5,'−',5)),R(79,'vertical-subtraction',K.column(9,2)),R(81,'inverse-9',inv(3,3)),R(75,'subtraction-9',K.sub(8,6,'fish'))],
+ 5:[R(89,'ten',K.part(10,8)),R(93,'eleven-nineteen',K.tenOnes(6)),R(97,'twenty',K.pv(2,0)),R(91,'number-line',K.line(5,3)),R(93,'eleven-nineteen',K.pv(1,4)),R(89,'ten',K.build(10,'apple',12)),R(91,'number-line',K.touch(16,10,20)),R(95,'next-20',K.next(17)),R(92,'ten-parts',K.part(10,3)),R(97,'twenty',K.prev(20))],
+ 6:[R(105,'length',K.longer(3,5)),R(107,'week',K.tomorrow(5)),R(108,'week-table',Q('ما النشاط الأول يوم الاثنين؟','مَا النَّشَاطُ الْأَوَّلُ يَوْمَ الِاثْنَيْنِ؟',{type:'week-table'},'قراءة',['رسم','رياضيات'],'يوم الاثنين يبدأ بالقراءة.','يَوْمُ الِاثْنَيْنِ يَبْدَأُ بِالْقِرَاءَةِ.')),R(109,'whole-hour',K.clock(4)),R(105,'length',K.measure(6)),R(109,'whole-hour',K.clock(9)),R(107,'week',K.yesterday(2)),R(105,'length',K.measure(3)),R(109,'whole-hour',K.clock(12)),R(107,'week',K.tomorrow(0))],
+ 7:[R(4,'next-10-20',K.next(16)),R(7,'previous-10-20',K.prev(18)),R(10,'compare-10-20',K.sign(19,13)),R(12,'ascending-10-20',K.order([14,11,17],true)),R(13,'descending-10-20',K.order([12,20,15],false)),R(18,'ones-value',K.ones(18)),R(19,'expanded',K.tenOnes(5)),R(10,'compare-10-20',K.bigger(11,15)),R(18,'tens-ones',K.pv(1,2)),R(4,'number-line-20',K.touch(14,10,20))],
+ 8:[R(28,'addition-10',K.expr(8,'+',2)),R(34,'near-doubles',K.expr(8,'+',9)),R(38,'make-ten',K.bridge(7,8)),R(32,'addition-18',K.expr(12,'+',5)),R(34,'doubles',K.expr(6,'+',6)),R(38,'make-ten',K.bridge(9,6)),R(32,'addition-18',K.add(9,9,'apple')),R(28,'addition-10',K.part(10,4)),R(32,'addition-line',K.line(11,6,10,20)),R(34,'doubles',K.expr(5,'+',5))],
+ 9:[R(48,'subtraction-10',K.expr(10,'−',8)),R(52,'subtraction-18-direct',K.expr(17,'−',4)),R(55,'subtract-from-ten',K.expr(15,'−',8)),R(58,'check-with-addition',check(15,9)),R(48,'subtraction-10',K.sub(10,7,'apple')),R(52,'subtraction-18-direct',K.sub(18,5,'fish')),R(55,'cross-ten',K.bridge(12,4,'−')),R(58,'check-with-addition',inv(8,9)),R(52,'subtraction-line',K.line(16,-4,10,20)),R(55,'subtract-from-ten',K.expr(13,'−',9))],
+ 10:[R(65,'numbers-21-29',K.word(28)),R(69,'representation-99',K.pv(4,7)),R(72,'numbers-30-99',K.next(59)),R(77,'count-tens',K.byTen(4)),R(65,'numbers-21-29',K.pv(2,3)),R(69,'tens-value',K.tens(6,8)),R(75,'number-words',K.word(54)),R(72,'compare-99',K.bigger(73,37)),R(72,'previous-99',K.prev(40)),R(77,'count-tens',K.pv(9,0))],
+ 11:[R(86,'straight-curved',K.lineKind('straight')),R(88,'plane-shapes',K.shape('rectangle')),R(93,'solids',K.solid('cube')),R(96,'half',K.fraction(2)),R(96,'quarter',K.fraction(4)),R(95,'patterns',K.pattern(['apple','ball','apple','ball'],'apple')),R(88,'plane-shapes',K.shape('circle')),R(93,'solids',K.solid('sphere')),R(86,'straight-curved',K.lineKind('curved')),R(88,'plane-shapes',K.shape('triangle'))]
+};
+for(const u of C.units){const k=Number(u.id.slice(3)),qs=bank[k];if(!qs)continue;const tmpl=u.lessons.find(l=>l.id===`m-book-review-${k}-1`);if(!tmpl)continue;
+ for(let part=1;part<=2;part++){const id=`m-book-review-${k}-${part}`;let l=u.lessons.find(x=>x.id===id);if(!l){l={...tmpl,id,title:'مراجعة متدرجة — الجزء '+n(part)};u.lessons.splice(u.lessons.indexOf(tmpl)+1,0,l);}
+  l.title='مراجعة متدرجة — الجزء '+n(part);l.steps=[S('أجيب عن أسئلة الوحدة.','أُجِيبُ عَنْ أَسْئِلَةِ الْوَحْدَةِ.',qs[0].scene||null)].map(s=>s.scene?s:{text:s.text,say:s.say,scene:sym('؟')});l.tasks=qs.slice((part-1)*5,part*5);
+  l.references=[...new Set(l.tasks.map(t=>t.bookPage))].sort((a,b)=>a-b).slice(0,3).map(page=>({book:l.book,page}));}
+}
+for(const l of C.units.flatMap(u=>u.lessons))for(const t of l.tasks)delete t.bookPage;
+C.units.forEach(u=>u.lessons.sort((a,b)=>(a.enrichment?1:0)-(b.enrichment?1:0)||a.page-b.page));
+})();
