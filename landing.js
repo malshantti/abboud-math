@@ -13,36 +13,99 @@ function celebrate(){if(!cheer)return;cheer.classList.remove('is-on');void cheer
 var audio=null;
 function play(src,btn){try{if(audio)audio.pause();audio=new Audio(src);if(btn){btn.classList.add('is-playing');audio.onended=audio.onerror=function(){btn.classList.remove('is-playing')}}var p=audio.play();if(p&&p.catch)p.catch(function(){if(btn)btn.classList.remove('is-playing')})}catch(e){}}
 root.querySelectorAll('.L-say').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.audio,b)})});
+var demo=root.querySelector('[data-demo-group]'),RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
+var AR=function(n){return String(n).replace(/\d/g,function(d){return'٠١٢٣٤٥٦٧٨٩'[d]})};
+// أصوات خفيفة تشبه نقرة الإصبع والتصفيق (لا آلات موسيقية)، تُولَّد من ضجيج قصير
+var actx=null;
+function tap(t,f,g,d){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();var c=actx,n=c.sampleRate*d|0,buf=c.createBuffer(1,n,c.sampleRate),a=buf.getChannelData(0);for(var i=0;i<n;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/n,4);var s=c.createBufferSource(),bp=c.createBiquadFilter(),v=c.createGain();s.buffer=buf;bp.type='bandpass';bp.frequency.value=f;bp.Q.value=1.2;v.gain.value=g;s.connect(bp);bp.connect(v);v.connect(c.destination);s.start(c.currentTime+t)}catch(e){}}
+function sfx(k){if(k==='ok'){tap(0,1400,.5,.09);tap(.13,1500,.55,.09);tap(.26,1300,.6,.12)}else if(k==='no')tap(0,320,.5,.12);else tap(0,2200,.25,.04)}
+function burst(x,y){if(RM.matches||!demo)return;var cols=['#ffc83d','#6f9e23','#2e9fd8','#f08a3c','#8b6cc9','#e5534b'];
+ for(var i=0;i<22;i++){var s=document.createElement('i'),a=Math.PI*2*i/22+Math.random()*.4,d=60+Math.random()*70;s.className='L-spark'+(i%3?'':' is-star');s.style.left=x+'px';s.style.top=y+'px';s.style.background=cols[i%6];s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',(Math.sin(a)*d-30)+'px');s.style.setProperty('--r',(Math.random()*540-270)+'deg');demo.appendChild(s);setTimeout(s.remove.bind(s),1100)}}
+function rel(el){var b=demo.getBoundingClientRect(),r=el.getBoundingClientRect();return{x:r.left-b.left+r.width/2,y:r.top-b.top+r.height/2,w:r.width,h:r.height}}
+var PRAISE=['أحسنت!','ممتاز!','رائع!','إجابة صحيحة!'],pi=0;
+function praise(){if(!cheer)return;var b=cheer.querySelector('.L-bubble');if(b)b.textContent=PRAISE[pi++%PRAISE.length];celebrate()}
+// أسئلة إضافية حقيقية من الدروس نفسها؛ السؤال الأول هو المكتوب في الصفحة
+function balls(a,b){var h='';for(var i=0;i<a;i++)h+='<span class="L-ball"></span>';h+='<b>+</b>';for(i=0;i<b;i++)h+='<span class="L-ball L-ball-new"></span>';return'<div class="L-balls" data-visual aria-hidden="true">'+h+'<b>=</b><span class="L-slot" data-slot>؟</span></div>'}
+function letter(c,f){return'<div class="L-letter" data-visual aria-hidden="true"><span>'+c+'</span><small>'+f+'</small></div>'}
+var MORE={
+ math:[{h:'عدد الكرات ٣. أضفت ٢. كم أصبح عددها؟',v:balls(3,2),o:[['٤'],['٦'],['٥',1]],ok:'أحسنت! عندما نضمّ ٣ و٢ نحصل على ٥.',no:'عُدّ الكرات الصفراء ثم أكمل العدّ على الكرات الزرقاء.'},
+       {h:'عدد الكرات ١. أضفت ٣. كم أصبح عددها؟',v:balls(1,3),o:[['٤',1],['٣'],['٥']],ok:'ممتاز! ١ و٣ معًا تساوي ٤.',no:'ابدأ من ١ وعُدّ ثلاث خطوات إلى الأمام.'}],
+ ar:[{m:'درس «حرف الباء»',h:'أيّ كلمة تبدأ بحرف الباء؟',v:letter('ب','ب · بـ · ـب'),o:[['زَيْتُونٌ'],['<b>بَ</b>ابٌ',1],['مَوْزٌ']],ok:'أحسنت! «بَابٌ» تبدأ بالباء وتنتهي بالباء أيضًا.',no:'انطق الكلمة ببطء، واستمع إلى أول صوت فيها.'},
+     {m:'درس «حرف الميم»',h:'أيّ كلمة تبدأ بحرف الميم؟',v:letter('م','م · مـ · ـم'),o:[['بَابٌ'],['زَيْتُونٌ'],['<b>مَ</b>وْزٌ',1]],ok:'رائع! «مَوْزٌ» تبدأ بحرف الميم.',no:'ابحث عن الكلمة التي يبدأ نطقها بصوت «مَـ».'}],
+ en:[{w:'egg',a:'assets/landing/en-egg.mp3',k:'بيضة',ok:'Great! egg تعني بيضة.',no:'ليست هذه. اضغط زر الصوت واستمع مرة أخرى.'},
+     {w:'bread',a:'assets/landing/en-bread.mp3',k:'خبز',ok:'Great! bread تعني خبز.',no:'ليست هذه. اضغط زر الصوت واستمع مرة أخرى.'}],
+ sc:[{h:'عدسة عينية تكبيرها ١٠× وعدسة شيئية تكبيرها ١٠×. ما مقدار التكبير؟',o:[['٢٠×'],['١٠٠×',1],['١٠×']],ok:'صحيح! ١٠ × ١٠ = ١٠٠، فمقدار التكبير ١٠٠×.',no:'نضرب تكبير العينية في تكبير الشيئية.'},
+     {h:'عدسة عينية تكبيرها ٥× وعدسة شيئية تكبيرها ٤٠×. ما مقدار التكبير؟',o:[['٢٠٠×',1],['٤٥×'],['٤٠×']],ok:'صحيح! ٥ × ٤٠ = ٢٠٠، فمقدار التكبير ٢٠٠×.',no:'تذكّر: التكبير الكلي = تكبير العينية × تكبير الشيئية.'}]
+};
 root.querySelectorAll('[data-quiz]').forEach(function(panel){
- var fb=panel.querySelector('.L-fb'),opts=[].slice.call(panel.querySelectorAll('.L-opt')),slot=panel.querySelector('[data-slot]'),done=false;
+ var fb=panel.querySelector('.L-fb'),box=panel.querySelector('.L-opts'),next=panel.querySelector('[data-next]'),count=panel.querySelector('[data-count]'),h3=panel.querySelector('h3'),meta=panel.querySelector('.L-q-meta span:last-child');
+ var set=MORE[panel.dataset.qset]||[],first={h:h3.innerHTML,v:(panel.querySelector('[data-visual]')||{}).outerHTML,o:box.innerHTML,ok:fb.dataset.okText,no:fb.dataset.noText,m:meta&&meta.textContent},qs=[first].concat(set),qi=0,done=false,slot;
+ var pics={};[].forEach.call(box.children,function(b){pics[b.getAttribute('aria-label')]=b.outerHTML.replace(' data-ok','')});
+ function opts(){return[].slice.call(box.querySelectorAll('.L-opt'))}
+ function render(i){var q=qs[i];qi=i;done=false;panel.classList.remove('is-solved');
+  if(q===first){h3.innerHTML=q.h;box.innerHTML=q.o}
+  else if(q.w){var say=panel.querySelector('.L-say');say.dataset.audio=q.a;say.querySelector('span').textContent=q.w;box.innerHTML=Object.keys(pics).map(function(k){var h=pics[k];return k===q.k?h.replace('class="L-opt"','class="L-opt" data-ok'):h}).join('')}
+  else{h3.innerHTML=q.h;var tile=box.classList.contains('L-tiles');box.innerHTML=q.o.map(function(o){return'<button type="button" class="L-opt'+(tile?' L-tile':'')+'"'+(o[1]?' data-ok':'')+'>'+o[0]+'</button>'}).join('')}
+  if(q.w)h3.innerHTML=first.h;
+  // في سؤال الإنجليزية الأول يحمل زرّ الصوت كلمة olive
+  if(q===first&&panel.dataset.qset==='en'){var s=panel.querySelector('.L-say');s.dataset.audio='assets/landing/en-olive.mp3';s.querySelector('span').textContent='olive'}
+  var vis=panel.querySelector('[data-visual]');if(vis&&q.v&&!q.w){vis.outerHTML=q.v}
+  if(meta&&q.m)meta.textContent=q.m;else if(meta&&first.m)meta.textContent=first.m;
+  slot=panel.querySelector('[data-slot]');
+  fb.className='L-fb';fb.textContent='';fb.dataset.okText=q.ok;fb.dataset.noText=q.no;
+  if(count)count.textContent='السؤال '+AR(i+1)+' من '+AR(qs.length);
+  if(next)next.hidden=true}
+ render(0);
  function answer(btn){
   if(done)return;var ok=btn.hasAttribute('data-ok');
-  opts.forEach(function(o){o.classList.remove('is-no')});
-  btn.classList.add(ok?'is-ok':'is-no');
-  fb.className='L-fb '+(ok?'is-ok':'is-no');fb.textContent=ok?fb.dataset.okText:fb.dataset.noText;
-  if(slot){slot.textContent=btn.textContent;slot.classList.toggle('is-filled',ok);if(!ok)setTimeout(function(){if(!done){slot.textContent='؟'}},900)}
-  if(ok){done=true;panel.classList.add('is-solved');celebrate();var say=panel.querySelector('.L-say');if(say)play(say.dataset.audio,say)}
-  else if(btn.dataset.audio)play(btn.dataset.audio);
+  opts().forEach(function(o){o.classList.remove('is-no')});
+  void btn.offsetWidth;btn.classList.add(ok?'is-ok':'is-no');
+  fb.className='L-fb';void fb.offsetWidth;fb.className='L-fb '+(ok?'is-ok':'is-no');fb.textContent=ok?fb.dataset.okText:fb.dataset.noText;
+  if(slot){slot.textContent=btn.textContent;slot.classList.toggle('is-filled',ok);slot.classList.remove('is-no');if(!ok){void slot.offsetWidth;slot.classList.add('is-no');setTimeout(function(){if(!done){slot.textContent='؟';slot.classList.remove('is-no')}},900)}}
+  if(ok){done=true;panel.classList.add('is-solved');sfx('ok');praise();var at=rel(slot||btn);burst(at.x,at.y);
+   if(next){next.firstChild.textContent=qi<qs.length-1?'السؤال التالي':'ابدأ الأسئلة من جديد';next.hidden=false}
+   var say=panel.querySelector('.L-say');if(say)setTimeout(function(){play(say.dataset.audio,say)},500)}
+  else{sfx('no');if(btn.dataset.audio)play(btn.dataset.audio)}
  }
- opts.forEach(function(btn){btn.addEventListener('click',function(){if(btn.dataset.dragged){delete btn.dataset.dragged;return}answer(btn)})});
- if(!slot)return;
+ if(next)next.addEventListener('click',function(){render((qi+1)%qs.length);var f=box.querySelector('.L-opt');if(f)f.focus({preventScroll:true})});
+ box.addEventListener('click',function(e){var btn=e.target.closest('.L-opt');if(!btn)return;if(btn.dataset.dragged){delete btn.dataset.dragged;return}answer(btn)});
  // سحب البطاقة إلى المربّع؛ الضغط وحده يعمل أيضًا
- opts.forEach(function(btn){
-  btn.addEventListener('pointerdown',function(e){
-   if(done||e.button>0)return;var sx=e.clientX,sy=e.clientY,ghost=null;
-   function move(ev){var dx=ev.clientX-sx,dy=ev.clientY-sy;
-    if(!ghost){if(Math.abs(dx)+Math.abs(dy)<8)return;ghost=btn.cloneNode(true);ghost.classList.add('is-drag');ghost.setAttribute('aria-hidden','true');var r=btn.getBoundingClientRect();ghost.style.width=r.width+'px';ghost.style.height=r.height+'px';document.body.appendChild(ghost);btn.style.opacity='.35'}
-    ghost.style.left=(ev.clientX-ghost.offsetWidth/2)+'px';ghost.style.top=(ev.clientY-ghost.offsetHeight/2)+'px';
-    var s=slot.getBoundingClientRect();slot.classList.toggle('is-over',ev.clientX>s.left-20&&ev.clientX<s.right+20&&ev.clientY>s.top-20&&ev.clientY<s.bottom+20);ev.preventDefault()}
-   function up(){removeEventListener('pointermove',move);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);
-    if(ghost){ghost.remove();btn.style.opacity='';btn.dataset.dragged='1';setTimeout(function(){delete btn.dataset.dragged},50);if(slot.classList.contains('is-over'))answer(btn)}
-    slot.classList.remove('is-over')}
-   addEventListener('pointermove',move,{passive:false});addEventListener('pointerup',up);addEventListener('pointercancel',up);
-  });
+ box.addEventListener('pointerdown',function(e){
+  var btn=e.target.closest('.L-tile');if(!btn||!slot||done||e.button>0)return;var sx=e.clientX,sy=e.clientY,ghost=null;
+  function move(ev){var dx=ev.clientX-sx,dy=ev.clientY-sy;
+   if(!ghost){if(Math.abs(dx)+Math.abs(dy)<8)return;ghost=btn.cloneNode(true);ghost.classList.add('is-drag');ghost.setAttribute('aria-hidden','true');var r=btn.getBoundingClientRect();ghost.style.width=r.width+'px';ghost.style.height=r.height+'px';document.body.appendChild(ghost);btn.style.opacity='.35';sfx('tap')}
+   ghost.style.left=(ev.clientX-ghost.offsetWidth/2)+'px';ghost.style.top=(ev.clientY-ghost.offsetHeight/2)+'px';
+   var s=slot.getBoundingClientRect();slot.classList.toggle('is-over',ev.clientX>s.left-20&&ev.clientX<s.right+20&&ev.clientY>s.top-20&&ev.clientY<s.bottom+20);ev.preventDefault()}
+  function up(){removeEventListener('pointermove',move);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);
+   if(ghost){ghost.remove();btn.style.opacity='';btn.dataset.dragged='1';setTimeout(function(){delete btn.dataset.dragged},50);if(slot.classList.contains('is-over'))answer(btn)}
+   slot.classList.remove('is-over')}
+  addEventListener('pointermove',move,{passive:false});addEventListener('pointerup',up);addEventListener('pointercancel',up);
  });
 });
+// يد إرشاد: عند ظهور العرض تسحب بطاقة نحو المربّع وتعود، وتتوقف عند أول تفاعل
+if(demo){
+ var hand=demo.querySelector('.L-hand'),touched=false,anim=[],seen=false;
+ function stopHint(){anim.forEach(function(a){try{a.cancel()}catch(e){}});anim=[];if(hand){var g=hand.querySelector('.L-ghost');if(g)g.remove();hand.style.opacity=0}}
+ function touch(){if(touched)return;touched=true;demo.classList.add('is-touched');stopHint()}
+ ['pointerdown','keydown'].forEach(function(t){demo.addEventListener(t,touch,{capture:true,passive:true})});
+ function hint(){stopHint();if(touched||RM.matches||!hand||!hand.animate)return;
+  var panel=demo.querySelector('.L-panel:not([hidden])');if(!panel)return;
+  var tile=panel.querySelector('.L-tile:not([data-ok])')||panel.querySelector('.L-opt:not([data-ok])')||panel.querySelector('[data-piece]'),slot=panel.querySelector('[data-slot]');if(!tile)return;
+  var a=rel(tile),T=2800,it=3,o={duration:T,iterations:it,delay:700,easing:'ease-in-out'};
+  if(slot){var b=rel(slot),g=tile.cloneNode(true);g.classList.add('L-ghost');g.removeAttribute('data-ok');g.style.width=a.w+'px';g.style.height=a.h+'px';g.style.left=(-a.w/2)+'px';g.style.top=(-a.h/2)+'px';hand.insertBefore(g,hand.firstChild);
+   anim.push(hand.animate([{transform:'translate('+a.x+'px,'+(a.y+30)+'px)',opacity:0},{transform:'translate('+a.x+'px,'+a.y+'px)',opacity:1,offset:.12},{transform:'translate('+a.x+'px,'+a.y+'px)',opacity:1,offset:.22},{transform:'translate('+b.x+'px,'+b.y+'px)',opacity:1,offset:.55},{transform:'translate('+b.x+'px,'+b.y+'px)',opacity:1,offset:.66},{transform:'translate('+a.x+'px,'+a.y+'px)',opacity:1,offset:.9},{transform:'translate('+a.x+'px,'+(a.y+30)+'px)',opacity:0}],o));
+   anim.push(g.animate([{opacity:0,transform:'scale(1)'},{opacity:0,offset:.18},{opacity:1,transform:'scale(1.08) rotate(-4deg)',offset:.24},{opacity:1,transform:'scale(1.08) rotate(-4deg)',offset:.62},{opacity:1,transform:'scale(1.08) rotate(-4deg)',offset:.86},{opacity:0,transform:'scale(1)',offset:.9},{opacity:0}],o))}
+  else anim.push(hand.animate([{transform:'translate('+(a.x+40)+'px,'+(a.y+50)+'px)',opacity:0},{transform:'translate('+a.x+'px,'+a.y+'px) scale(1)',opacity:1,offset:.35},{transform:'translate('+a.x+'px,'+(a.y+6)+'px) scale(.88)',opacity:1,offset:.45},{transform:'translate('+a.x+'px,'+a.y+'px) scale(1)',opacity:1,offset:.6},{transform:'translate('+(a.x+40)+'px,'+(a.y+50)+'px)',opacity:0}],o));
+  anim[0].onfinish=stopHint}
+ if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){if(!seen||!anim.length){seen=true;hint()}}else stopHint()})},{threshold:.6}).observe(demo);
+ demo.querySelectorAll('[role=tab]').forEach(function(t){t.addEventListener('click',function(){setTimeout(function(){if(!touched)hint()},60)})});
+ window.__bustanDemoHint=hint;
+ // تلميح التمرير في شريط المواد على الهاتف
+ var tw=demo.querySelector('.L-tabs-wrap'),tb=demo.querySelector('.L-tabs');
+ if(tw&&tb){var upd=function(){tw.classList.toggle('is-end',Math.abs(tb.scrollLeft)+tb.clientWidth>=tb.scrollWidth-6)};tb.addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);upd()}
+}
 var check=document.getElementById('check-fraction'),ffb=document.getElementById('fraction-feedback');
-if(check&&ffb)check.addEventListener('click',function(){setTimeout(function(){if(ffb.dataset.state==='correct')celebrate()},0)});
+if(check&&ffb)check.addEventListener('click',function(){setTimeout(function(){if(ffb.dataset.state==='correct'){sfx('ok');praise();var at=rel(check);burst(at.x,at.y)}else if(ffb.dataset.state!=='idle')sfx('no')},0)});
 })();
 // دوّار شاشات الهاتف: انتقال كل 3 ثوانٍ، حلقة سلسة بنسخ مكرّرة، يتوقف عند اللمس/التمرير ويستأنف، ويحترم تقليل الحركة.
 (function(){
