@@ -50,23 +50,37 @@ async function done(p){if(!p||(!(P.current()&&P.current().id===p.id)&&!await P.l
 // الطلاب هم أبناء حساب ولي الأمر فقط (يضيفهم مع صفوفهم من صفحة الحساب). لا يُنشأ ملف من هذه الشاشة.
 const ACCOUNT=new URL('admin-api/account',location.href).href;
 const GRADES=['','الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','الصف الخامس','الصف السادس','الصف السابع','الصف الثامن','الصف التاسع','الصف العاشر','الصف الحادي عشر','الصف الثاني عشر'];
-const signedIn=()=>{try{return !!localStorage.getItem('bustan_account')}catch(e){return false}};
-let picking=false,pickNote='';
-function accountProfiles(){const r=P.roster();if(!r||!Array.isArray(r.students))return null;return r.students.map(s=>{const p=P.find(s.local);return p?{p,grade:s.grade}:null}).filter(Boolean)}
+const account=()=>{try{return JSON.parse(localStorage.getItem('bustan_account'))}catch(e){return null}};
+const signedIn=()=>!!account();
+const LOGIN=()=>new URL('admin-api/account/login',location.href).href+'?return='+encodeURIComponent(new URL('login.html?sync=1',location.href).href);
+let picking=false,pickNote='',checked=false,checkT=0;
+// قائمة الخادم لهذا الحساب فقط: ملف محلي لا يظهر إلا إن كان مرتبطًا بطالب سجّله ولي الأمر.
+function accountProfiles(){const r=P.roster(),acc=account();if(!r||!Array.isArray(r.students)||!acc||r.email!==acc.email)return null;
+ return r.students.map(s=>{const p=P.find(s.local);return p?{p,s}:null}).filter(Boolean)}
+const manageLink=()=>`<p class="manage"><a href="${esc(ACCOUNT)}">إدارة الطلاب من صفحة الحساب</a></p>`;
 function pick(note){
  picking=true;pickNote=note||'';
- if(!signedIn()){say('سجّل الدخول بحساب ولي الأمر أولًا');show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">يلزم تسجيل الدخول بحساب ولي الأمر لعرض أبنائه.</p>
-  <div class="actions"><a class="btn" id="signin" href="${esc(new URL('admin-api/account/login',location.href).href+'?return='+encodeURIComponent(location.href.split('?')[0]))}">${svg('lock',18)} تسجيل الدخول</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}
  const a=accountProfiles();
+ // على الاتصال: ننتظر قائمة الخادم قبل العرض حتى لا تظهر ملفات قديمة لحظة واحدة.
+ if(!checked&&navigator.onLine){
+  if(!checkT)checkT=setTimeout(()=>{checked=true;if(picking)pick(pickNote)},8000);
+  say('لحظة، أجهّز أسماء الطلاب');
+  show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">نتحقق من حساب ولي الأمر المرتبط بهذا الجهاز...</p>`);return}
+ if(!signedIn()){
+  say('سجّل الدخول بحساب ولي الأمر أولًا');
+  show(`<h1>سجّل الدخول أولًا</h1><p class="sub">يظهر هنا الطلاب الذين أضافهم ولي الأمر إلى حسابه. سجّل الدخول بحساب ولي الأمر على هذا الجهاز مرة واحدة.</p>
+  <div class="actions"><a class="btn" id="signin" href="${esc(LOGIN())}">${svg('lock',18)} تسجيل الدخول</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);
+  if(navigator.onLine&&!note)location.replace(LOGIN());
+  return}
  say(note||'من سيتعلّم اليوم؟');if(pose!=='welcome')setPose('idle');
- const manage=`<a class="btn ghost" id="manage" href="${esc(ACCOUNT)}">إدارة الأبناء</a>`;
- if(!a||!a.length){show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">${a?'لم يُضف ولي الأمر أبناءه بعد. أضف كل طالب مع صفه من صفحة الحساب.':'نحمّل قائمة أبناء الحساب...'}</p><div class="actions">${manage}</div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}
- show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">اختر ملفك ثم اكتب رقمك السري.</p>
-  <div class="profiles">${a.map(({p,grade})=>`<button type="button" class="pcard" data-id="${esc(p.id)}"><img src="${P.avatarSrc(p.avatar)}" alt="" width="72" height="72"><b>${esc(p.name)}</b><small>${esc(GRADES[grade]||'لم يُحدَّد الصف')}</small></button>`).join('')}</div>
-  <div class="actions">${manage}</div>
+ if(!a||!a.length){show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">لم يُضف ولي الأمر طلابًا إلى الحساب بعد. أضف كل طالب مع صفه ورقمه السري من صفحة الحساب.</p><div class="actions"><a class="btn" href="${esc(ACCOUNT)}">إضافة الطلاب</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}
+ show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">اختر اسمك، ثم اكتب رقمك السري.</p>
+  <div class="profiles">${a.map(({p,s})=>{const subj=Array.isArray(s.subjects)?(s.subjects.length?s.subjects.join('، '):'لا مواد مفعّلة'):'';
+   return `<button type="button" class="pcard" data-id="${esc(p.id)}"><img src="${P.avatarSrc(p.avatar)}" alt="" width="72" height="72"><b>${esc(p.name)}</b><small>${esc(s.grade_name||GRADES[s.grade]||'لم يُحدَّد الصف')}</small>${subj?`<span class="subj">${esc(subj)}</span>`:''}</button>`}).join('')}</div>
+  ${manageLink()}
   ${note?`<p class="msg ok">${esc(note)}</p>`:''}`);
  view.querySelectorAll('.pcard[data-id]').forEach(b=>b.onclick=()=>{const p=P.find(b.dataset.id);p.pin?enter(p):setpin(p)})}
-addEventListener('bustan-roster',()=>{if(picking)pick(pickNote)});
+addEventListener('bustan-roster',()=>{checked=true;clearTimeout(checkT);if(picking)pick(pickNote)});
 function enter(p){
  picking=false;
  say(`أهلًا ${p.name}! اكتب رقمك السري`);setPose('idle');
@@ -81,7 +95,7 @@ function twoPins(title,sub,extra,onOk){
  picking=false;
  show(`${title}<p class="sub">${sub}</p>${extra||''}<div class="field"><span>رقم سري من ٤ أرقام</span>${pinBox('p1')}</div><div class="field"><span>أعد كتابة الرقم للتأكيد</span>${pinBox('p2')}</div><p class="msg" id="msg"></p>
   <div class="actions"><button type="button" class="btn" id="ok" disabled>${svg('lock',18)} احفظ وادخل</button>${P.list().length?`<button type="button" class="btn ghost" id="back">${svg('back',18)} رجوع</button>`:''}</div>
-  <p class="note">${svg('lock',16)}<span>الرقم السري قفل خفيف يميّز ملفات الإخوة على هذا الجهاز فقط. يُحفظ مُجزّأً في المتصفح، ولا يُرسل إلى أي مكان.</span></p>`,extra?'#nm':'#p1 input');
+  <p class="note">${svg('lock',16)}<span>الرقم السري يميّز ملفات الإخوة على هذا الجهاز. يستطيع ولي الأمر تحديده أو تغييره من صفحة الحساب.</span></p>`,extra?'#nm':'#p1 input');
  const msg=$('#msg'),ok=$('#ok');let a='',b='';
  const i1=bindPin($('#p1'),v=>{a=v;$('#p2 input').focus()}),i2=bindPin($('#p2'),v=>{b=v;check()});
  const check=()=>{a=i1.value;b=i2.value;const nm=$('#nm');const nameOk=!nm||nm.value.trim().length>=2;const good=a.length===4&&b.length===4&&a===b&&nameOk;ok.disabled=!good;
@@ -91,14 +105,14 @@ function twoPins(title,sub,extra,onOk){
  if($('#back'))$('#back').onclick=()=>pick()}
 function setpin(p){
  say(`أهلًا ${p.name}! تقدّمك محفوظ، اختر رقمًا سريًا`);setPose('idle');
- twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'تقدّمك السابق محفوظ في ملفك. اختر رقمًا سريًا لحمايته من الخلط.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');return done(P.find(p.id))})}
+ twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'لم يحدّد ولي الأمر رقمًا سريًا لك بعد. اختر أربعة أرقام تتذكّرها، وستكتبها في كل دخول.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');return done(P.find(p.id))})}
 
 // ---------- البداية ----------
 const tb=$('#theme');const paint=()=>{tb.innerHTML=svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',22)};paint();
 tb.onclick=()=>{const d=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=d;try{localStorage.setItem('abboud_theme',d)}catch(e){}paint()};
 async function start(){if(!await P.ready){pick();saveError();return}
  if(q.has('logout')||q.has('switch')){const ok=await P.logout();pick(ok&&q.has('logout')?'تم تسجيل الخروج، وتقدّمك محفوظ.':'');if(!ok)saveError()}
- else if(P.current()&&signedIn()&&P.roster()&&!P.accountStudent(P.current().id)){await P.logout();pick()}
+ else if(P.current()&&(!signedIn()||(P.roster()&&!P.accountStudent(P.current().id)))){await P.logout();pick()}// لا حساب مرتبط أو ملف لا يخصّ الحساب
  else if(P.current())location.replace(next);
  else pick();
 }start();

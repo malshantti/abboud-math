@@ -12,34 +12,37 @@
 .sec-h .count{margin-inline-start:auto}
 .sec-h svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .kids{display:grid;gap:14px;margin:18px 0 0;padding:0;list-style:none}
-/* بطاقة الطالب: شبكة مرتبة على الحاسوب، وأكوام متتالية على الجوال */
-.kid,.add{display:grid;grid-template-columns:minmax(190px,1.1fr) minmax(0,1.3fr) minmax(150px,.9fr) 216px;grid-template-areas:"head name grade act" "sync name grade act";column-gap:14px;row-gap:2px;align-items:center;border:2px solid var(--line);border-radius:18px;padding:14px 16px;background:#fffef9;box-shadow:0 3px 0 var(--line)}
-.kid form.edit{display:contents}
-.kid-h{grid-area:head;display:flex;align-items:center;gap:12px;min-width:0}
-.kid-h .nm{min-width:0}.kid-h b{display:block;font:800 19px/1.35 Baloo,Cairo,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* بطاقة الطالب: رأس (الاسم والصف والرقم السري وآخر مزامنة) ثم صف تعديل مرتب */
+.kid,.add{border:2px solid var(--line);border-radius:18px;padding:14px 16px;background:#fffef9;box-shadow:0 3px 0 var(--line)}
+.kid-h{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+.kid-h .nm{min-width:0;flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kid-h b{font:800 19px/1.35 Baloo,Cairo,sans-serif;overflow-wrap:anywhere}
 .kid-h .chip{font-size:13px;padding:1px 10px;line-height:1.7}
-.f-name{grid-area:name}.f-grade{grid-area:grade}
-.f-name label,.f-grade label{font-size:14px;color:var(--muted);margin:0 0 4px}
-.kid .f-name label,.kid .f-grade label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.kid input,.kid select{min-height:48px}
-.acts{grid-area:act;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.acts form{display:contents}.acts .btn{width:100%;min-height:48px;padding-inline:10px}
-.sync{grid-area:sync;margin:0;padding-inline-start:60px;font-size:13px;color:var(--muted)}
+.sync{margin:0;font-size:14px;color:var(--muted);white-space:nowrap}
+.fields{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.8fr) auto;gap:10px 12px;align-items:end;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.fields label{display:block;font-size:14px;font-weight:700;color:var(--muted);margin:0 0 4px}
+.fields input,.fields select{min-height:50px;height:50px;width:100%;margin:0}
+.fields input[name=pin]{letter-spacing:.3em;text-align:center}
+.fields input[name=pin]::placeholder{letter-spacing:normal;font-size:14px}
+.acts{display:flex;gap:10px}
+.acts .btn{min-height:48px;padding-inline:18px}
+.kid .del{display:flex;justify-content:flex-end;margin-top:8px}
+.kid .del .btn{min-height:44px;font-size:15px;padding:4px 14px;box-shadow:none;border-color:transparent;background:none;text-decoration:underline;text-underline-offset:3px}
 .av{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none;font:800 22px/1 Baloo,Cairo,sans-serif;color:#fff;background:var(--g);box-shadow:0 3px 0 var(--gd)}
 .kid:nth-child(4n+2) .av{background:var(--b);box-shadow:0 3px 0 var(--bd)}.kid:nth-child(4n+3) .av{background:var(--o);box-shadow:0 3px 0 #b85d14}.kid:nth-child(4n) .av{background:#8b6cc9;box-shadow:0 3px 0 #644a9c}
-.add{margin-top:18px;grid-template-areas:"head name grade act";align-items:end;border-style:dashed;border-color:#cfe3a8;background:#fbfdf6;box-shadow:none}
-.add .kid-h{align-self:center}.add .av{background:#fff;color:var(--gd);border:2px dashed #cfe3a8;box-shadow:none}
+.add{margin-top:18px;border-style:dashed;border-color:#cfe3a8;background:#fbfdf6;box-shadow:none}
+.add .av{background:#fff;color:var(--gd);border:2px dashed #cfe3a8;box-shadow:none}
 .add .av svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round}
-.add .acts{grid-template-columns:1fr}
+.pinhelp{margin:8px 0 0;font-size:14px;color:var(--muted)}
+@media (max-width:820px){
+  .fields{grid-template-columns:minmax(0,1fr)}
+  .acts{grid-column:1/-1}.acts .btn{flex:1}
+  .sync{white-space:normal;flex-basis:100%;padding-inline-start:60px}
+}
 .empty{margin:14px 0 0;padding:16px;border-radius:16px;background:var(--yl);color:#5a4000}
 .subs{display:grid;gap:10px;margin:14px 0 0;padding:0;list-style:none}
 .subs li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 16px;align-items:center;padding:12px 16px;border:2px solid var(--line);border-radius:16px}
 .subs b{font-weight:800}.subs .code{font-size:14px;color:var(--muted)}.subs .end{font-size:14px;color:var(--muted);white-space:nowrap}
-@media (max-width:820px){
-  .kid,.add{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "name" "grade" "act" "sync";row-gap:10px;padding:14px}
-  .add{grid-template-areas:"head" "name" "grade" "act"}
-  .sync{padding:8px 0 0;border-top:1px dashed var(--line)}
-}
 .verify{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;background:var(--yl);border:2px solid #f3dc95;border-radius:18px;box-shadow:0 4px 0 #f3dc95}
 .verify .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#fff;color:#9a6b00;flex:none}
 .verify svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -84,32 +87,35 @@
 
   <section class="card">
     <div class="sec-h"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><h2>الطلاب</h2>@if ($user->students->isNotEmpty())<span class="chip count">{{ $ar::num($user->students->count()) }}</span>@endif</div>
-    <p class="hint">يُحفظ تقدّم كل طالب على الخادم حين يفتح الموقع من جهاز مرتبط بحسابك، ويبقى يعمل دون إنترنت ثم يتزامن عند عودة الاتصال.</p>
+    <p class="hint">أضف كل طالب مع صفه ورقمه السري هنا. على جهاز الطالب افتح الموقع وسجّل الدخول بحسابك، فتظهر أسماء الطلاب، ويختار كل طالب اسمه ويكتب رقمه السري. يُحفظ التقدّم على الخادم، ويعمل الموقع دون إنترنت ثم يتزامن عند عودة الاتصال.</p>
     @if ($user->students->isEmpty())
-      <p class="empty">لا يوجد طلاب بعد. أضف طالبًا هنا، أو افتح الموقع على جهاز طفلك وسيُستورد ملفه وتقدّمه تلقائيًا.</p>
+      <p class="empty">لا يوجد طلاب بعد. أضف طالبك الأول من النموذج أدناه، ثم افتح الموقع على جهازه.</p>
     @else
     <ul class="kids">
     @foreach ($user->students as $s)
       <li class="kid">
-        <div class="kid-h"><span class="av" aria-hidden="true">{{ mb_substr($s->name, 0, 1) }}</span><span class="nm"><b>{{ $s->name }}</b><span class="chip grey">{{ $ar::grade($s->grade) }}</span></span></div>
-        <form method="post" action="{{ route('account.students.update', $s) }}" class="edit" id="edit{{ $s->id }}">@csrf @method('put')
+        <div class="kid-h"><span class="av" aria-hidden="true">{{ mb_substr($s->name, 0, 1) }}</span><span class="nm"><b>{{ $s->name }}</b><span class="chip grey">{{ $ar::grade($s->grade) }}</span>@if ($s->hasPin())<span class="chip">الرقم السري محدَّد</span>@else<span class="chip warn">لم يُحدَّد رقم سري</span>@endif</span>
+          <p class="sync">{{ $s->last_synced_at ? 'آخر مزامنة: '.$ar::date($s->last_synced_at) : 'لم يُزامَن بعد' }}</p></div>
+        <form method="post" action="{{ route('account.students.update', $s) }}" class="fields">@csrf @method('put')
           <div class="f-name"><label for="n{{ $s->id }}">اسم الطالب</label><input id="n{{ $s->id }}" name="name" value="{{ $s->name }}" maxlength="24" required></div>
           <div class="f-grade"><label for="g{{ $s->id }}">الصف</label><select id="g{{ $s->id }}" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected($s->grade === $g)>{{ $label }}</option>@endforeach</select></div>
+          <div class="f-pin"><label for="p{{ $s->id }}">{{ $s->hasPin() ? 'رقم سري جديد' : 'الرقم السري' }}</label><input id="p{{ $s->id }}" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="{{ $s->hasPin() ? 'اتركه فارغًا لإبقائه' : '٤ أرقام' }}"></div>
+          <div class="acts"><button class="btn small" type="submit">حفظ التعديلات</button></div>
         </form>
-        <div class="acts">
-          <button class="btn small" type="submit" form="edit{{ $s->id }}">حفظ</button>
-          <form method="post" action="{{ route('account.students.destroy', $s) }}" onsubmit="return confirm('حذف الطالب «{{ e($s->name) }}» وتقدّمه من الخادم؟')">@csrf @method('delete')<input type="hidden" name="confirm" value="1"><button class="btn danger small" type="submit">حذف</button></form>
-        </div>
-        <p class="sync">آخر مزامنة: {{ $ar::date($s->last_synced_at) }}</p>
+        <form method="post" action="{{ route('account.students.destroy', $s) }}" class="del" onsubmit="return confirm('حذف الطالب «{{ e($s->name) }}» وتقدّمه من الخادم؟')">@csrf @method('delete')<input type="hidden" name="confirm" value="1"><button class="btn danger small" type="submit">حذف الطالب</button></form>
       </li>
     @endforeach
     </ul>
     @endif
     <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
-      <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>طالب جديد</b></span></div>
-      <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required></div>
-      <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
-      <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة طالب</button></div>
+      <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>إضافة طالب</b></span></div>
+      <div class="fields">
+        <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required></div>
+        <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
+        <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="٤ أرقام"></div>
+        <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
+      </div>
+      <p class="pinhelp">الرقم السري أربعة أرقام يكتبها الطالب عند اختيار اسمه، ويميّز ملفات الإخوة على الجهاز نفسه. إن تركته فارغًا يختاره الطالب بنفسه عند أول دخول.</p>
     </form>
   </section>
 

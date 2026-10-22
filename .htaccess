@@ -29,6 +29,10 @@ Header set Cache-Control "public, max-age=2592000"
 <FilesMatch "\.(?:html|webmanifest|xml|txt)$">
 Header set Cache-Control "no-cache"
 </FilesMatch>
+# ملفات الدخول والمزامنة تتغير مع الحساب: تُتحقق من الخادم في كل زيارة (لا نسخة قديمة لثلاثين يومًا)
+<FilesMatch "^(?:login|profiles|sync)\.js$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
 <FilesMatch "^sw\.js$">
 Header set Cache-Control "no-cache, no-store, must-revalidate"
 Header set Service-Worker-Allowed "/"

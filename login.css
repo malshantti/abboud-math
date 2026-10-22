@@ -55,7 +55,12 @@ body.login{overflow-x:hidden;background:radial-gradient(120% 80% at 80% 0%,var(-
 .pcard{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--line);border-bottom-width:4px;border-radius:22px;padding:14px 8px 12px;cursor:pointer;font:inherit;color:inherit;transition:transform .08s}
 .pcard:hover{background:var(--bg2)}.pcard:active{transform:translateY(2px);border-bottom-width:2px}.pcard:focus-visible{outline:3px solid var(--b);outline-offset:2px}
 .pcard img,.avpick img{width:72px;height:72px;border-radius:50%;background:var(--gl);border:3px solid var(--card);box-shadow:0 0 0 2px var(--lip)}
-.pcard b{font-size:16px}.pcard small{font:500 14px Cairo,sans-serif;color:var(--mut)}
+.pcard b{font-size:16px}.pcard small{font:700 14px Cairo,sans-serif;color:var(--gd);background:var(--gl);border-radius:999px;padding:1px 10px}
+.pcard .subj{font:500 13px/1.6 Cairo,sans-serif;color:var(--mut);text-align:center;text-wrap:balance}
+.profiles:has(.pcard:only-child),.profiles:has(.pcard:nth-child(2):last-child){grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.manage{margin:10px 0 0;text-align:center;font-size:15px}.manage a{color:var(--gd);font-weight:700;text-underline-offset:3px;display:inline-block;padding:10px 6px;min-height:44px}
+.lg-head .brand small .tl{display:block}
+@media (max-width:700px){#bustan-account{position:static!important;display:flex!important;width:max-content;max-width:calc(100% - 28px);margin:12px auto 20px}}
 .pcard.add .plus{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;border:2px dashed var(--lip);color:var(--gd)}
 .field{display:block;margin:12px 0}.field>span{display:block;font-weight:700;margin-bottom:6px}
 .field input[type=text]{width:100%;border:1.5px solid var(--line);border-bottom-width:3px;border-radius:16px;background:var(--bg);padding:12px 14px;font-size:18px;outline:none;transition:border-color .15s}

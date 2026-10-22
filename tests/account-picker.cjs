@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.join(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const login=read('login.js'),entry=read('entry.js'),sync=read('sync.js');
 assert.doesNotMatch(login,/طالب جديد|id="add"|P\.create\(/,'no create-student card or local creation in the picker');
-assert.match(login,/إدارة الأبناء/);assert.match(login,/admin-api\/account/);
+assert.match(login,/إدارة الطلاب من صفحة الحساب/);assert.match(login,/admin-api\/account/);
 assert.match(login,/P\.roster\(\)/,'picker lists the server roster');
 assert.match(entry,/fixedG/);assert.match(entry,/>اشترك</);assert.match(entry,/إدارة الأبناء/);
 assert.doesNotMatch(sync,/api\('students',\{body/,'sync never creates students on the server');
