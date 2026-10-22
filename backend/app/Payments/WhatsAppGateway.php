@@ -18,46 +18,28 @@ class WhatsAppGateway implements PaymentGateway
         return preg_replace('/\D+/', '', Setting::get('whatsapp_number'));
     }
 
+    public const PLACEHOLDERS = ['{student}' => 'اسم الطالب', '{subjects}' => 'قائمة المواد وأسعارها', '{total}' => 'المجموع مع العملة', '{code}' => 'رمز الطلب', '{parent}' => 'اسم ولي الأمر', '{email}' => 'بريد ولي الأمر', '{site}' => 'اسم الموقع'];
+
     public function message(Subscription $s): string
     {
-        $u = $s->user;
-        $lines = [
-            'السلام عليكم، أرغب في الاشتراك في '.Setting::get('site_name').'.',
-            'اسم ولي الأمر: '.$u->name,
-            'البريد الإلكتروني: '.$u->email,
-            'الطالب: '.($s->student?->name ?? 'كل الطلاب في الحساب'),
-            'الصف والمادة: '.$s->plan_name,
-            'المدة: '.Ar::num($s->days).' يومًا',
-            'السعر: '.Ar::num($s->price).' '.$s->currency,
-            'رمز الطلب: '.$s->code,
-        ];
-
-        return implode("\n", $lines);
+        return $this->batchMessage([$s]);
     }
 
-    /** One message for several subscriptions requested together (same parent and student). */
+    /** One message for one or more subscriptions requested together, from the admin-editable template. */
     public function batchMessage(iterable $subs): string
     {
         $subs = collect($subs)->values();
-        if ($subs->count() === 1) {
-            return $this->message($subs[0]);
-        }
         $first = $subs[0];
         $u = $first->user;
-        $lines = [
-            'السلام عليكم، أرغب في الاشتراك في '.Setting::get('site_name').'.',
-            'اسم ولي الأمر: '.$u->name,
-            'البريد الإلكتروني: '.$u->email,
-            'الطالب: '.($first->student?->name ?? 'كل الطلاب في الحساب'),
-            'المواد المطلوبة ('.Ar::num($subs->count()).'):',
-        ];
-        foreach ($subs as $i => $s) {
-            $lines[] = Ar::num($i + 1).') '.$s->plan_name.' — '.Ar::num($s->price).' '.$s->currency.' لمدة '.Ar::num($s->days).' يومًا — رمز الطلب: '.$s->code;
-        }
-        $lines[] = 'المجموع: '.Ar::num($subs->sum('price')).' '.$first->currency;
-        $lines[] = 'رموز الطلبات: '.$subs->pluck('code')->join('، ');
+        $items = $subs->map(fn ($s, $i) => Ar::num($i + 1).') '.$s->plan_name.' — '.Ar::num($s->price).' '.$s->currency.' لمدة '.Ar::num($s->days).' يومًا'.($subs->count() > 1 ? ' — '.$s->code : ''))->join("\n");
+        $code = $first->batch && $subs->count() > 1 ? $first->batch.' ('.$subs->pluck('code')->join('، ').')' : $first->code;
+        $template = trim(Setting::get('whatsapp_template')) ?: Setting::DEFAULTS['whatsapp_template'];
 
-        return implode("\n", $lines);
+        return strtr(str_replace("\r\n", "\n", $template), [
+            '{student}' => $first->student?->name ?? 'كل الطلاب في الحساب', '{subjects}' => $items,
+            '{total}' => Ar::num($subs->sum('price')).' '.$first->currency, '{code}' => $code,
+            '{parent}' => (string) $u?->name, '{email}' => (string) $u?->email, '{site}' => Setting::get('site_name'),
+        ]);
     }
 
     public function batchCheckoutUrl(iterable $subs): ?string

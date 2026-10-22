@@ -49,8 +49,8 @@
 </style>
 </head>
 <body class="brand-font">
-@php($banner = \App\Models\Setting::publicData()['announcement'])
-@if ($banner)<div class="banner" role="note">{{ $banner }}</div>@endif
+@php($pub = \App\Models\Setting::publicData())
+@if ($pub['announcement'])<div class="banner" role="note" style="background:{{ $pub['announcement_color']['bg'] }};border-color:{{ $pub['announcement_color']['line'] }};color:{{ $pub['announcement_color']['ink'] }}">{{ $pub['announcement'] }}@if ($pub['announcement_link']) <a href="{{ $pub['announcement_link'] }}" style="color:inherit;font-weight:800" rel="noopener">التفاصيل</a>@endif</div>@endif
 <header class="top"><div class="top-in">
   <a class="logo" href="{{ config('app.student_site_url') ?: route('account.home') }}"><img src="{{ asset('ui/logo-horizontal.webp') }}" alt="{{ \App\Models\Setting::get('site_name') }}" width="144" height="46"></a>
   @auth

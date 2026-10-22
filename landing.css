@@ -265,3 +265,5 @@ html[data-entry=checking] #visitor-home{visibility:hidden}
 @keyframes L-voice-in{from{opacity:0;transform:translateY(12px)}}
 @keyframes L-speak{to{box-shadow:0 0 0 12px rgba(91,140,58,0)}}
 @media (prefers-reduced-motion:reduce){.L-voice{animation:none}.is-speaking::after{animation:none}}
+.L-plan[hidden],.L-foot a[hidden],.L-pill[hidden],.L-pay-note[hidden]{display:none}
+.L-pay .L-pay-note{margin:-4px auto 14px;max-width:640px;color:#4c5a43;font-size:16px;line-height:1.8;white-space:pre-line}

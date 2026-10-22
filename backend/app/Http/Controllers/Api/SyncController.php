@@ -28,15 +28,26 @@ class SyncController extends Controller
             ->header('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=30');
     }
 
-    public function site(): JsonResponse
+    /** Public site settings; staff never see maintenance (they bypass it). */
+    private function siteFor($user): array
     {
-        return response()->json(Setting::publicData())->header('Cache-Control', 'public, max-age=60');
+        $site = Setting::publicData();
+        if ($user && ! $user->isDisabled() && $user->isStaff()) {
+            $site['maintenance'] = null;
+        }
+
+        return $site;
+    }
+
+    public function site(Request $request): JsonResponse
+    {
+        return response()->json($this->siteFor($request->user()), 200, [], JSON_UNESCAPED_UNICODE)->header('Cache-Control', 'private, max-age=60');
     }
 
     public function session(Request $request): JsonResponse
     {
         $user = $request->user();
-        $base = ['site' => Setting::publicData(), 'csrf' => csrf_token(), 'urls' => [
+        $base = ['site' => $this->siteFor($user), 'csrf' => csrf_token(), 'urls' => [
             'login' => route('account.login'), 'register' => route('account.register'), 'account' => route('account.home'), 'subscribe' => route('account.subscribe'),
         ]];
         if (! $user || $user->isDisabled()) {
@@ -47,7 +58,7 @@ class SyncController extends Controller
         return response()->json($base + [
             'authenticated' => true,
             'user' => ['name' => $user->name, 'email' => $user->email],
-            'access' => ['allowed' => $access['access'], 'kind' => $access['kind'], 'ends_at' => $access['ends_at']?->toIso8601String(), 'days_left' => $access['ends_at'] ? max(1, (int) ceil(($access['ends_at']->getTimestamp() - now()->getTimestamp()) / 86400)) : null, 'subjects' => $access['subjects']],
+            'access' => ['allowed' => $access['access'], 'kind' => $access['kind'], 'ends_at' => $access['ends_at']?->toIso8601String(), 'days_left' => $access['ends_at'] ? max(1, (int) ceil(($access['ends_at']->getTimestamp() - now()->getTimestamp()) / 86400)) : null, 'subjects' => $access['subjects'], 'expiring' => Access::expiringSoon($user)],
             'students' => $user->students()->orderBy('id')->get()->map->toApi(),
         ]);
     }
@@ -60,7 +71,7 @@ class SyncController extends Controller
     public function storeStudent(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:24'], 'grade' => ['nullable', Rule::in(array_keys(Ar::GRADES))],
+            'name' => ['required', 'string', 'max:24'], 'grade' => ['nullable', Rule::in(array_keys(Setting::gradeOptions()))],
             'avatar' => ['nullable', 'string', 'max:20'], 'local_id' => ['nullable', 'string', 'max:40', 'regex:/^p\w+$/'],
         ]);
         $user = $request->user();

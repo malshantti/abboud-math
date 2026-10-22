@@ -70,7 +70,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
 <section class="L-hero" aria-labelledby="L-hero-title">
  <div class="L-wrap L-hero-grid">
   <div class="L-hero-copy">
-   <p class="L-pill"><svg width="16" height="16" aria-hidden="true"><use href="#li-book"/></svg> مطابق لكتب المنهاج الفلسطيني كاملًا</p>
+   <p class="L-pill" data-site="badge"><svg width="16" height="16" aria-hidden="true"><use href="#li-book"/></svg> <span>مطابق لكتب المنهاج الفلسطيني كاملًا</span></p>
    <h1 id="L-hero-title">طفلك يفهم الدرس<br><span class="L-mark">ويحبّ أن يتعلّمه.</span></h1>
    <p class="L-tagline">نزرع الفهم، ونحصد المعرفة — المنهاج الفلسطيني كاملًا</p>
    <p class="L-lead">دروس تفاعلية قصيرة بالصوت والصورة، مرتّبة كما في كتاب المدرسة، مع زيتون الذي يشجّع طفلك عند كل إجابة. وأنت تتابع تقدّمه من حسابك.</p>
@@ -232,12 +232,12 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
    <article class="L-plan" data-price-group="1-2"><p class="L-plan-for">الصفان الأول والثاني</p><p class="L-price"><span class="L-from" hidden>يبدأ من</span><b>١٥</b><span class="L-cur">شيكلًا</span></p><p class="L-per">لكل مادة، لمدة <span data-days>٣٠ يومًا</span></p><ul><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>الرياضيات، لغتنا الجميلة، الإنجليزية، التربية الوطنية والحياتية</li><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>أنشطة قصيرة بالصوت والصورة</li></ul></article>
    <article class="L-plan L-plan-hot" data-price-group="6-8"><p class="L-plan-for">الصفان السادس والثامن</p><p class="L-price"><span class="L-from" hidden>يبدأ من</span><b>٢٠</b><span class="L-cur">شيكلًا</span></p><p class="L-per">لكل مادة، لمدة <span data-days>٣٠ يومًا</span></p><ul><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>الرياضيات، العربية، الإنجليزية، العلوم والحياة</li><li><svg width="18" height="18" aria-hidden="true"><use href="#li-check"/></svg>صفحات الكتاب، مختبرات ومحاكاة، واختبارات</li></ul></article>
   </div>
-  <div class="L-pay" data-reveal><p><b>جرّب كل المواد مجانًا لمدة <span data-trial>٣ أيام</span></b> دون أي دفع. للاشتراك بعدها، تواصل معنا عبر واتساب ونفعّل المواد التي تختارها.</p><div class="L-row"><a class="L-btn L-btn-main" href="admin-api/account/register">إنشاء حساب مجاني</a><a class="L-btn L-btn-wa" href="https://wa.me/972592945557" rel="noopener"><svg width="22" height="22" aria-hidden="true"><use href="#li-wa"/></svg>اشترك عبر واتساب <span dir="ltr">٠٠٩٧٢٥٩٢٩٤٥٥٥٧</span></a></div></div>
+  <div class="L-pay" data-reveal><p><b>جرّب كل المواد مجانًا لمدة <span data-trial>٣ أيام</span></b> دون أي دفع. للاشتراك بعدها، تواصل معنا عبر واتساب ونفعّل المواد التي تختارها.</p><p class="L-pay-note" data-site="pay" hidden></p><div class="L-row"><a class="L-btn L-btn-main" href="admin-api/account/register">إنشاء حساب مجاني</a><a class="L-btn L-btn-wa" href="https://wa.me/972592945557" rel="noopener"><svg width="22" height="22" aria-hidden="true"><use href="#li-wa"/></svg>اشترك عبر واتساب <span dir="ltr" data-wa-num>٠٠٩٧٢٥٩٢٩٤٥٥٥٧</span></a></div></div>
  </div>
 </section>
 
 <section class="L-sec L-faq" aria-labelledby="L-faq-title">
- <div class="L-wrap L-narrow">
+ <div class="L-wrap L-narrow" data-site="faq">
   <div class="L-head" data-reveal><p class="L-kicker">أسئلة الأهل</p><h2 id="L-faq-title">قبل أن تبدأ</h2></div>
   <details><summary>هل المحتوى مطابق لكتب المدرسة؟</summary><p>نعم. الدروس منظّمة حسب وحدات كتب المنهاج الفلسطيني بجزأيها، وكل نشاط يذكر صفحته في الكتاب المطبوع. البستان مساند للكتاب والمعلّم ولا يغني عنهما.</p></details>
   <details><summary>ماذا يحدث بعد انتهاء الأيام المجانية؟</summary><p>لا يُخصم أي مبلغ تلقائيًا. إن أعجبك البستان، راسلنا عبر واتساب واختر المواد، فنفعّلها لمدة <span data-days>٣٠ يومًا</span>.</p></details>
@@ -254,7 +254,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
  </div>
 </section>
 </main>
-<footer class="L-foot"><div class="L-wrap L-foot-in"><picture><source srcset="assets/brand/logo-horizontal.webp" type="image/webp"><img src="assets/brand/logo-horizontal.png" width="146" height="48" alt="بستان التعلّم" loading="lazy"></picture><p>نزرع الفهم، ونحصد المعرفة — المنهاج الفلسطيني كاملًا</p><nav aria-label="روابط"><a href="/admin-api/account/login">دخول</a><a href="login.html">ملفات الطلاب</a><a href="https://wa.me/972592945557" rel="noopener">واتساب</a></nav></div></footer>
+<footer class="L-foot"><div class="L-wrap L-foot-in"><picture><source srcset="assets/brand/logo-horizontal.webp" type="image/webp"><img src="assets/brand/logo-horizontal.png" width="146" height="48" alt="بستان التعلّم" loading="lazy"></picture><p data-site="footer">نزرع الفهم، ونحصد المعرفة — المنهاج الفلسطيني كاملًا</p><nav aria-label="روابط"><a href="/admin-api/account/login">دخول</a><a href="login.html">ملفات الطلاب</a><a href="https://wa.me/972592945557" rel="noopener">واتساب</a><a data-site="facebook" href="#" rel="noopener" hidden>فيسبوك</a><a data-site="instagram" href="#" rel="noopener" hidden>إنستغرام</a><a data-site="email" href="#" hidden>راسلنا</a></nav></div></footer>
 <div class="L-sticky"><a class="L-btn L-btn-main" href="/admin-api/account/register">جرّب مجانًا <span data-trial>٣ أيام</span></a></div>
 </div>
 

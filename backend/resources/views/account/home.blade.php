@@ -71,8 +71,10 @@
         @case('trial')<p><span class="chip warn">فترة تجريبية</span> كل المواد متاحة حتى {{ $ar::date($access['ends_at']) }}.</p>@break
         @case('paid')<p><span class="chip">مشترك</span> المواد المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</p>@break
         @case('expired')<p><span class="chip bad">انتهت الفترة التجريبية</span> اشترك في المادة التي يحتاجها طفلك لمتابعة الدروس.</p>@break
+        @case('unverified')<p><span class="chip bad">البريد غير مفعّل</span> فعّل بريدك الإلكتروني من الرسالة التي أرسلناها إليك لتفتح الدروس.</p>@break
         @default<p><span class="chip">وصول كامل</span></p>
       @endswitch
+      @foreach ($expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
     </div>
     <div class="row">
       @if ($siteUrl)<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">افتح الموقع وزامن هذا الجهاز</a>@endif
@@ -92,7 +94,7 @@
         <div class="kid-h"><span class="av" aria-hidden="true">{{ mb_substr($s->name, 0, 1) }}</span><span class="nm"><b>{{ $s->name }}</b><span class="chip grey">{{ $ar::grade($s->grade) }}</span></span></div>
         <form method="post" action="{{ route('account.students.update', $s) }}" class="edit" id="edit{{ $s->id }}">@csrf @method('put')
           <div class="f-name"><label for="n{{ $s->id }}">اسم الطالب</label><input id="n{{ $s->id }}" name="name" value="{{ $s->name }}" maxlength="24" required></div>
-          <div class="f-grade"><label for="g{{ $s->id }}">الصف</label><select id="g{{ $s->id }}" name="grade">@foreach ($ar::GRADES as $g => $label)<option value="{{ $g }}" @selected($s->grade === $g)>{{ $label }}</option>@endforeach</select></div>
+          <div class="f-grade"><label for="g{{ $s->id }}">الصف</label><select id="g{{ $s->id }}" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected($s->grade === $g)>{{ $label }}</option>@endforeach</select></div>
         </form>
         <div class="acts">
           <button class="btn small" type="submit" form="edit{{ $s->id }}">حفظ</button>
@@ -106,7 +108,7 @@
     <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
       <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>طالب جديد</b></span></div>
       <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required></div>
-      <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($ar::GRADES as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
+      <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
       <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة طالب</button></div>
     </form>
   </section>

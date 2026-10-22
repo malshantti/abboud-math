@@ -58,9 +58,13 @@ class Ar
 
     public const GRADES = [1 => 'الصف الأول', 2 => 'الصف الثاني', 6 => 'الصف السادس', 8 => 'الصف الثامن'];
 
+    /** Every grade of the Palestinian curriculum, as words (grades with content are in GRADES). */
+    public const GRADE_WORDS = [1 => 'الصف الأول', 2 => 'الصف الثاني', 3 => 'الصف الثالث', 4 => 'الصف الرابع', 5 => 'الصف الخامس', 6 => 'الصف السادس',
+        7 => 'الصف السابع', 8 => 'الصف الثامن', 9 => 'الصف التاسع', 10 => 'الصف العاشر', 11 => 'الصف الحادي عشر', 12 => 'الصف الثاني عشر'];
+
     public static function grade(?int $g): string
     {
-        return static::GRADES[$g] ?? 'غير محدد';
+        return static::GRADE_WORDS[$g] ?? 'غير محدد';
     }
 
     /** Grade names as words for a group, e.g. [1, 2] => «الصفان الأول والثاني». */
@@ -93,7 +97,9 @@ class Ar
 
     public static function subject(string $code): string
     {
-        return isset(static::SUBJECTS[$code]) ? static::SUBJECTS[$code][1].' — '.static::grade(static::SUBJECTS[$code][0]) : $code;
+        $c = \App\Models\Setting::catalog();
+
+        return isset($c[$code]) ? $c[$code][1].' — '.static::grade($c[$code][0]) : $code;
     }
 
     /** Keys the sync API accepts (profiles.js PER list). */

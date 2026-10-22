@@ -26,6 +26,26 @@ class Subscription extends Model
         return $this->belongsTo(Student::class);
     }
 
+    /**
+     * Auto-expire (when enabled in settings): active subscriptions past their end and grace days become expired,
+     * and pending requests older than pending_expire_days are cancelled. Returns [expired, cancelled].
+     */
+    public static function sweep(bool $force = false): array
+    {
+        if (! Setting::flag('auto_expire') || (! $force && ! \Illuminate\Support\Facades\Cache::add('subscriptions_sweep', 1, 600))) {
+            return [0, 0];
+        }
+        $expired = static::where('status', 'active')->whereNotNull('ends_at')
+            ->where('ends_at', '<', now()->subDays(Setting::int('grace_days', 0, 60)))->update(['status' => 'expired', 'updated_at' => now()]);
+        $cancelled = 0;
+        if (($d = Setting::int('pending_expire_days', 0, 365)) > 0) {
+            $cancelled = static::where('status', 'pending')->where('created_at', '<', now()->subDays($d))
+                ->update(['status' => 'cancelled', 'note' => 'أُلغي تلقائيًا لانقضاء مدة الانتظار', 'updated_at' => now()]);
+        }
+
+        return [$expired, $cancelled];
+    }
+
     public function statusLabel(): string
     {
         if ($this->status === 'active' && $this->ends_at && $this->ends_at->isPast()) {
