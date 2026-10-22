@@ -37,5 +37,14 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api-sync', fn (Request $r) => Limit::perMinute(120)->by($r->user()?->id ?: $key($r)));
 
         View::share('ar', new Ar);
+
+        // Session length from the settings center (minutes); empty keeps the server default.
+        try {
+            $m = (int) \App\Models\Setting::get('session_minutes');
+            if ($m >= 15 && $m <= 525600) {
+                config(['session.lifetime' => $m]);
+            }
+        } catch (\Throwable) {
+        }
     }
 }

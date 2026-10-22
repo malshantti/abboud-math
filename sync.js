@@ -30,11 +30,14 @@ async function api(path,opt){
 }
 
 // ---- شريط الإعلان (للجميع) ----
-function banner(text){
+function banner(site){
+ const text=site&&site.announcement;
  if(!text||get(K.dismiss)===fnv(text)||document.getElementById('bustan-banner'))return;
+ const c=site.announcement_color||{},col=v=>/^#[0-9a-f]{3,8}$/i.test(v||'')?v:null;
  const b=document.createElement('div');b.id='bustan-banner';b.setAttribute('role','note');
- b.style.cssText='position:relative;z-index:9998;background:#fff4d6;border-bottom:2px solid #f0d58a;color:#5a4000;padding:10px 56px 10px 16px;text-align:center;font:700 16px/1.7 inherit;direction:rtl';
+ b.style.cssText='position:relative;z-index:9998;background:'+(col(c.bg)||'#fff4d6')+';border-bottom:2px solid '+(col(c.line)||'#f0d58a')+';color:'+(col(c.ink)||'#5a4000')+';padding:10px 56px 10px 16px;text-align:center;font:700 16px/1.7 inherit;direction:rtl';
  const t=document.createElement('span');t.textContent=text;b.append(t);
+ if(/^https?:\/\//i.test(site.announcement_link||'')){const a=document.createElement('a');a.href=site.announcement_link;a.rel='noopener';a.textContent='التفاصيل';a.style.cssText='color:inherit;font-weight:800;margin-inline-start:8px;text-decoration:underline';b.append(' ',a)}
  const x=document.createElement('button');x.type='button';x.setAttribute('aria-label','إخفاء الإعلان');x.textContent='×';
  x.style.cssText='position:absolute;inset-inline-start:8px;top:50%;transform:translateY(-50%);min-width:44px;min-height:44px;border:0;background:none;font-size:24px;color:inherit;cursor:pointer';
  x.onclick=()=>{set(K.dismiss,fnv(text));b.remove()};b.append(x);
@@ -100,6 +103,15 @@ function offlineNotice(){
  document.body?show():addEventListener('DOMContentLoaded',show);
  addEventListener('online',()=>location.reload(),{once:true});
 }
+// وضع الصيانة من لوحة الإدارة: يُعرض بدل الصفحة لغير المشرفين (الخادم لا يرسله للمشرفين).
+function maintenance(site){
+ const m=site&&site.maintenance;if(!m)return false;
+ const show=()=>{if(document.getElementById('bustan-maint'))return;reveal();const app=document.querySelector('#app');if(app)app.inert=true;
+  const d=document.createElement('div');d.id='bustan-maint';d.setAttribute('role','alertdialog');d.setAttribute('aria-modal','true');d.setAttribute('aria-labelledby','bustan-maint-t');
+  d.style.cssText='position:fixed;inset:0;z-index:10001;background:#fbf8ef;display:grid;place-items:center;padding:20px;direction:rtl';
+  d.innerHTML='<div style="max-width:480px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b;box-shadow:0 5px 0 #e2e7d9"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#6f9e23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 005 5L21 13l-8 8-3-3 8-8-1.3-1.3a4 4 0 01-5-5l2.5 2.5 2-2z"/><path d="M3 21l6-6"/></svg><h2 id="bustan-maint-t" style="margin:6px 0 8px;color:#3e5729">البستان في صيانة مؤقتة</h2><p style="margin:0;white-space:pre-line"></p></div>';
+  d.querySelector('p').textContent=m.message||'';document.body.append(d)};
+ document.body?show():addEventListener('DOMContentLoaded',show);return true}
 function remember(s){set(K.account,JSON.stringify({email:s.user.email,name:s.user.name,t:Date.now()}));set(K.on,'1')}
 async function lessonGate(){
  const had=J(K.account,null);
@@ -107,7 +119,8 @@ async function lessonGate(){
  if(!navigator.onLine){if(!had)offlineNotice();else{const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}return false}
  try{session=await api('session',{timeout:had?15000:10000})}
  catch(e){if(had){const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}else offlineNotice();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
- csrf=session.csrf||'';banner(session.site&&session.site.announcement);
+ csrf=session.csrf||'';banner(session.site);
+ if(maintenance(session.site))return false;
  if(!session.authenticated){requireLogin();return false}
  remember(session);set(K.access,JSON.stringify(session.access));reveal();gate(session.access,session.urls);trialBanner(session.access);return true;
 }
@@ -173,8 +186,8 @@ async function start(){
  if(!web)return;
  if(subject){if(!await lessonGate())return;badge();await run();setInterval(run,20000);addEventListener('online',run);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});return}
- if(!enabled()){try{const s=await (await fetch(API+'site',{credentials:'same-origin'})).json();banner(s.announcement)}catch(e){}badge();return}
- try{session=await api('session');csrf=session.csrf||'';banner(session.site&&session.site.announcement);
+ if(!enabled()){try{const s=await (await fetch(API+'site',{credentials:'same-origin'})).json();banner(s);maintenance(s)}catch(e){}badge();return}
+ try{session=await api('session');csrf=session.csrf||'';banner(session.site);if(maintenance(session.site)){badge();return}
   if(session.authenticated){remember(session);set(K.access,JSON.stringify(session.access));gate(session.access,session.urls)}else set(K.account,null)
  }catch(e){const cached=J(K.access,null);if(cached)gate(cached,{subscribe:new URL('admin-api/account/subscribe',root).href})}// دون إنترنت: آخر حالة معروفة
  badge();

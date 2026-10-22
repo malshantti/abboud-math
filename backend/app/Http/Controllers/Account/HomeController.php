@@ -25,18 +25,20 @@ class HomeController extends Controller
         $user = $request->user()->load('students');
         $subs = $user->subscriptions()->latest()->take(10)->get();
 
-        return view('account.home', ['user' => $user, 'access' => Access::state($user), 'subscriptions' => $subs, 'siteUrl' => rtrim((string) config('app.student_site_url'), '/')]);
+        return view('account.home', ['user' => $user, 'access' => Access::state($user), 'subscriptions' => $subs, 'expiring' => Access::expiringSoon($user), 'grades' => Setting::gradeOptions(), 'siteUrl' => rtrim((string) config('app.student_site_url'), '/')]);
     }
 
     private function rules(): array
     {
-        return ['name' => ['required', 'string', 'max:24'], 'grade' => ['required', Rule::in(array_keys(Ar::GRADES))]];
+        return ['name' => ['required', 'string', 'max:24'], 'grade' => ['required', Rule::in(array_keys(Setting::gradeOptions()))]];
     }
 
     public function storeStudent(Request $request): RedirectResponse
     {
         $data = $request->validate($this->rules(), self::MSG);
-        abort_if($request->user()->students()->count() >= 12, 422, 'وصلت إلى الحد الأقصى لعدد الطلاب.');
+        if ($request->user()->students()->count() >= ($max = Setting::int('max_students', 1, 50))) {
+            return back()->withErrors(['name' => 'وصلت إلى الحد الأقصى لعدد الطلاب في الحساب ('.Ar::num($max).').']);
+        }
         $s = $request->user()->students()->create(['name' => trim($data['name']), 'grade' => (int) $data['grade']]);
         ActivityLog::record('student.create', $s->name);
 
@@ -68,7 +70,7 @@ class HomeController extends Controller
         $user = $request->user()->load('students');
 
         return view('account.subscribe', [
-            'user' => $user, 'access' => Access::state($user), 'plans' => Setting::plans(), 'currency' => Setting::get('currency'),
+            'user' => $user, 'access' => Access::state($user), 'plans' => Setting::plans(true), 'currency' => Setting::get('currency'), 'instructions' => Setting::get('payment_instructions'),
             'pending' => $user->subscriptions()->where('status', 'pending')->latest()->get(),
             'hasNumber' => WhatsAppGateway::number() !== '', 'gateway' => new WhatsAppGateway,
         ]);
@@ -76,7 +78,8 @@ class HomeController extends Controller
 
     public function requestSubscription(Request $request): RedirectResponse
     {
-        $plans = Setting::plans();
+        \App\Models\Subscription::sweep();
+        $plans = Setting::plans(true);
         $data = $request->validate([
             'plan' => ['required_without:plans', 'nullable', Rule::in(array_keys($plans))],
             'plans' => ['required_without:plan', 'nullable', 'array', 'max:16'],
@@ -90,7 +93,10 @@ class HomeController extends Controller
         $user = $request->user();
         $student = ! empty($data['student_id']) ? $user->students()->findOrFail($data['student_id']) : null;
         $pending = $user->subscriptions()->where('status', 'pending')->count();
-        abort_if($pending + count($codes) > 16, 429, 'لديك طلبات كثيرة بانتظار الدفع.');
+        $max = Setting::int('max_pending', 1, 50);
+        if ($pending + count($codes) > $max) {
+            return back()->withErrors(['plan' => 'لديك طلبات بانتظار الدفع. الحد الأقصى للطلبات المفتوحة '.Ar::num($max).'؛ أتمّ الدفع أو انتظر معالجة طلباتك السابقة.']);
+        }
         $subs = [];
         $batch = count($codes) > 1 ? 'R-'.strtoupper(Str::random(6)) : null;
         foreach ($codes as $code) {

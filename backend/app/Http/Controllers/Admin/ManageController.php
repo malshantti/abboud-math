@@ -27,6 +27,7 @@ class ManageController extends Controller
 {
     public function dashboard(): View
     {
+        Subscription::sweep();
         $since = now()->subDays(7);
         $audit = \App\Support\StudentAudit::summary();
         $stats = [
@@ -188,7 +189,7 @@ class ManageController extends Controller
         if ($s = trim((string) $request->query('q'))) {
             $q->where(fn ($w) => $w->where('name', 'like', "%$s%")->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%$s%")->orWhere('name', 'like', "%$s%")));
         }
-        if (array_key_exists((int) $request->query('grade'), Ar::GRADES)) {
+        if (array_key_exists((int) $request->query('grade'), Setting::gradeOptions())) {
             $q->where('grade', (int) $request->query('grade'));
         }
         if ($request->query('owner') === 'parents') {
@@ -216,7 +217,7 @@ class ManageController extends Controller
 
     public function updateStudent(Request $request, Student $student): RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:24'], 'grade' => ['nullable', Rule::in(array_keys(Ar::GRADES))]]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:24'], 'grade' => ['nullable', Rule::in(array_keys(Setting::gradeOptions()))]]);
         $student->update(['name' => trim($data['name']), 'grade' => $data['grade'] ?: null]);
         ActivityLog::record('student.update', $student->name, 'من لوحة الإدارة');
 
@@ -235,6 +236,7 @@ class ManageController extends Controller
     // ---- Subscriptions ----
     public function subscriptions(Request $request): View
     {
+        Subscription::sweep();
         $q = Subscription::with(['user', 'student']);
         if (array_key_exists($st = (string) $request->query('status'), Subscription::STATUS)) {
             $q->where('status', $st);
@@ -281,32 +283,148 @@ class ManageController extends Controller
     // ---- Settings ----
     public function settings(): View
     {
-        return view('manage.settings', ['s' => Setting::all_(), 'plans' => Setting::plans()]);
+        return view('manage.settings', [
+            's' => Setting::all_(), 'plans' => Setting::plans(), 'faq' => Setting::faq(),
+            'subjectsList' => self::SUBJECT_CHOICES, 'colors' => Setting::ANNOUNCEMENT_COLORS,
+            'placeholders' => \App\Payments\WhatsAppGateway::PLACEHOLDERS, 'labels' => self::SETTING_LABELS,
+            'serverSession' => (int) config('session.lifetime'),
+        ]);
     }
+
+    /** Subjects of the Palestinian curriculum that can be added to a grade: slug => name. */
+    public const SUBJECT_CHOICES = [
+        'math' => 'الرياضيات', 'arabic' => 'العربية', 'english' => 'الإنجليزية', 'science' => 'العلوم', 'life' => 'التربية الحياتية',
+        'islamic' => 'التربية الإسلامية', 'christian' => 'التربية المسيحية', 'social' => 'الدراسات الاجتماعية', 'national' => 'التنشئة الوطنية والحياتية',
+        'tech' => 'التكنولوجيا', 'french' => 'اللغة الفرنسية', 'art' => 'التربية الفنية', 'music' => 'التربية الموسيقية', 'sport' => 'التربية الرياضية',
+        'physics' => 'الفيزياء', 'chemistry' => 'الكيمياء', 'biology' => 'الأحياء', 'earth' => 'علوم الأرض', 'history' => 'التاريخ', 'geography' => 'الجغرافيا',
+        'entrepreneur' => 'الريادة والابتكار',
+    ];
+
+    /** Arabic names of settings, for validation errors and the activity log. */
+    public const SETTING_LABELS = [
+        'prices' => 'الأسعار', 'catalog_extra' => 'الصفوف والمواد المضافة',
+        'trial_days' => 'مدة التجربة', 'gating_enabled' => 'قفل المواد بعد التجربة', 'grace_days' => 'أيام السماح', 'reminder_days' => 'أيام التذكير قبل الانتهاء',
+        'max_pending' => 'الحد الأقصى للطلبات المعلّقة', 'auto_expire' => 'الإنهاء التلقائي', 'pending_expire_days' => 'مدة بقاء الطلب المعلّق',
+        'whatsapp_number' => 'رقم واتساب', 'whatsapp_template' => 'نص رسالة واتساب', 'currency' => 'العملة', 'payment_instructions' => 'تعليمات الدفع',
+        'site_name' => 'اسم الموقع', 'tagline' => 'الشعار', 'hero_title' => 'عنوان الواجهة', 'hero_title_mark' => 'السطر المميّز في العنوان', 'hero_subtitle' => 'وصف الواجهة',
+        'hero_badge' => 'شارة الواجهة', 'announcement' => 'نص الإعلان', 'announcement_active' => 'إظهار الإعلان', 'announcement_color' => 'لون الإعلان',
+        'announcement_link' => 'رابط الإعلان', 'announcement_from' => 'بداية عرض الإعلان', 'announcement_to' => 'نهاية عرض الإعلان', 'faq' => 'الأسئلة الشائعة',
+        'registration_open' => 'التسجيل المفتوح', 'require_verification' => 'اشتراط تفعيل البريد', 'max_students' => 'الحد الأقصى للطلاب', 'session_minutes' => 'مدة الجلسة',
+        'voice_enabled' => 'الجولة الصوتية', 'voice_volume' => 'مستوى الصوت', 'voice_autoplay' => 'التشغيل التلقائي',
+        'facebook_url' => 'رابط فيسبوك', 'instagram_url' => 'رابط إنستغرام', 'contact_email' => 'بريد التواصل', 'footer_text' => 'نص التذييل',
+        'maintenance_on' => 'وضع الصيانة', 'maintenance_message' => 'رسالة الصيانة',
+    ];
+
+    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'require_verification', 'voice_enabled', 'voice_autoplay', 'maintenance_on'];
 
     public function updateSettings(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'site_name' => ['required', 'string', 'max:80'], 'tagline' => ['nullable', 'string', 'max:160'],
-            'announcement' => ['nullable', 'string', 'max:500'], 'trial_days' => ['required', 'integer', 'min:0', 'max:90'],
-            'whatsapp_number' => ['nullable', 'string', 'max:20', 'regex:/^\+?[0-9 ]{8,20}$/'], 'currency' => ['required', 'string', 'max:10'],
-            'prices' => ['required', 'array'], 'prices.*.price' => ['required', 'integer', 'min:0', 'max:100000'], 'prices.*.days' => ['required', 'integer', 'min:1', 'max:1000'],
-        ], ['whatsapp_number.regex' => 'اكتب رقم واتساب بالصيغة الدولية بأرقام فقط، مثل 970599000000.']);
-        $lines = [];
-        foreach (Ar::SUBJECTS as $code => $_) {
-            if (isset($data['prices'][$code])) {
-                $lines[] = $code.'|'.(int) $data['prices'][$code]['price'].'|'.(int) $data['prices'][$code]['days'];
+        $int = fn (int $min, int $max, bool $req = true) => [$req ? 'required' : 'nullable', 'integer', 'min:'.$min, 'max:'.$max];
+        $text = fn (int $max, bool $req = false) => [$req ? 'required' : 'nullable', 'string', 'max:'.$max];
+        $url = ['nullable', 'string', 'max:300', 'url:https,http'];
+        $rules = [
+            'prices' => ['required', 'array'], 'prices.*.price' => $int(1, 100000), 'prices.*.days' => $int(1, 1000),
+            'extra' => ['nullable', 'array', 'max:300'], 'extra.*' => ['string', 'regex:/^g([1-9]|1[0-2])-[a-z][a-z0-9]{1,19}$/'],
+            'trial_days' => $int(0, 90), 'grace_days' => $int(0, 60), 'reminder_days' => $int(0, 60), 'max_pending' => $int(1, 50), 'pending_expire_days' => $int(0, 365),
+            'whatsapp_number' => ['nullable', 'string', 'max:20', 'regex:/^\+?[0-9 ]{8,20}$/'], 'whatsapp_template' => $text(2000, true),
+            'currency' => $text(10, true), 'payment_instructions' => $text(1000),
+            'site_name' => $text(80, true), 'tagline' => $text(160), 'hero_title' => $text(80, true), 'hero_title_mark' => $text(80), 'hero_subtitle' => $text(400, true),
+            'hero_badge' => $text(80), 'announcement' => $text(500), 'announcement_color' => ['required', Rule::in(array_keys(Setting::ANNOUNCEMENT_COLORS))],
+            'announcement_link' => $url, 'announcement_from' => ['nullable', 'date'], 'announcement_to' => ['nullable', 'date', 'after:announcement_from'],
+            'faq' => ['nullable', 'array', 'max:20'], 'faq.*.q' => $text(200, true), 'faq.*.a' => $text(1200, true),
+            'max_students' => $int(1, 50), 'session_minutes' => $int(15, 525600, false),
+            'voice_volume' => $int(0, 100),
+            'facebook_url' => array_merge($url, ['regex:#^https?://(www\.|m\.)?(facebook\.com|fb\.com|fb\.me)/#i']), 'instagram_url' => array_merge($url, ['regex:#^https?://(www\.)?instagram\.com/#i']),
+            'contact_email' => ['nullable', 'email', 'max:255'], 'footer_text' => $text(300),
+            'maintenance_message' => $text(600, true),
+        ];
+        $attrs = self::SETTING_LABELS + [
+            'prices.*.price' => 'السعر', 'prices.*.days' => 'مدة الاشتراك', 'faq.*.q' => 'السؤال', 'faq.*.a' => 'الجواب', 'extra.*' => 'رمز المادة',
+        ];
+        $messages = [
+            'required' => 'حقل «:attribute» مطلوب.', 'integer' => 'حقل «:attribute» يقبل عددًا صحيحًا فقط.', 'string' => 'حقل «:attribute» نصّ غير صالح.',
+            'min' => ['numeric' => 'قيمة «:attribute» يجب ألّا تقل عن :min.', 'array' => 'أضف عنصرًا واحدًا على الأقل في «:attribute».'],
+            'max' => ['numeric' => 'قيمة «:attribute» يجب ألّا تزيد على :max.', 'string' => 'نص «:attribute» أطول من الحد المسموح (:max حرفًا).', 'array' => 'عدد العناصر في «:attribute» أكبر من المسموح.'],
+            'url' => 'اكتب في «:attribute» رابطًا كاملًا يبدأ بـ https://', 'email' => 'اكتب في «:attribute» بريدًا إلكترونيًا صحيحًا.',
+            'date' => 'اكتب في «:attribute» تاريخًا صحيحًا.', 'after' => 'يجب أن تكون «نهاية عرض الإعلان» بعد بدايته.', 'in' => 'اختر قيمة صحيحة في «:attribute».',
+            'whatsapp_number.regex' => 'اكتب رقم واتساب بالصيغة الدولية بأرقام فقط، مثل 970599000000.',
+            'facebook_url.regex' => 'رابط فيسبوك يجب أن يكون من facebook.com.', 'instagram_url.regex' => 'رابط إنستغرام يجب أن يكون من instagram.com.',
+            'extra.*.regex' => 'رمز مادة مضافة غير صالح.', 'array' => 'قيمة «:attribute» غير صالحة.',
+        ];
+        // Numbers may arrive in Arabic-Indic digits (the form shows them so); validate them as ASCII.
+        $ascii = fn ($x) => is_string($x) ? strtr(trim($x), ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']) : $x;
+        $merge = [];
+        foreach (['trial_days', 'grace_days', 'reminder_days', 'max_pending', 'pending_expire_days', 'max_students', 'session_minutes', 'voice_volume', 'whatsapp_number'] as $k) {
+            if ($request->has($k)) {
+                $merge[$k] = $ascii($request->input($k));
             }
         }
-        Setting::put([
-            'site_name' => trim($data['site_name']), 'tagline' => trim((string) $data['tagline']), 'announcement' => trim((string) $data['announcement']),
-            'announcement_active' => $request->boolean('announcement_active') ? '1' : '0', 'registration_open' => $request->boolean('registration_open') ? '1' : '0',
-            'gating_enabled' => $request->boolean('gating_enabled') ? '1' : '0', 'trial_days' => (int) $data['trial_days'],
-            'whatsapp_number' => preg_replace('/\D+/', '', (string) $data['whatsapp_number']), 'currency' => trim($data['currency']), 'prices' => implode("\n", $lines),
-        ]);
-        ActivityLog::record('settings.update');
+        $merge['prices'] = array_map(fn ($row) => is_array($row) ? array_map($ascii, $row) : $row, (array) $request->input('prices', []));
+        // A partial submission (API or older form) keeps the stored value of every field it leaves out.
+        $current = Setting::all_();
+        foreach (array_keys(self::SETTING_LABELS) as $k) {
+            if (! in_array($k, self::FLAGS, true) && ! in_array($k, ['prices', 'catalog_extra', 'faq'], true) && ! $request->exists($k)) {
+                $merge[$k] = $current[$k];
+            }
+        }
+        if (! $request->exists('faq') && ! $request->has('_sent')) {
+            $merge['faq'] = Setting::get('faq') === '' ? null : Setting::faq();
+        }
+        if (! $request->exists('extra') && ! $request->has('_sent')) {
+            $merge['extra'] = array_keys(Setting::extraCatalog());
+        }
+        $request->merge($merge);
+        $data = $request->validate($rules, $messages, $attrs);
 
-        return back()->with('status', 'حُفظت الإعدادات.');
+        // Catalog: built-in units plus admin-added units (extra[] = code, name from SUBJECT_CHOICES or the posted name).
+        $extraLines = [];
+        foreach (array_unique((array) ($data['extra'] ?? [])) as $code) {
+            if (isset(Ar::SUBJECTS[$code])) {
+                continue;
+            }
+            [$g, $slug] = [(int) substr(strtok($code, '-'), 1), substr($code, strpos($code, '-') + 1)];
+            $name = trim((string) $request->input('extra_name.'.$code)) ?: (Setting::extraCatalog()[$code][1] ?? self::SUBJECT_CHOICES[$slug] ?? '');
+            if ($name === '' || mb_strlen($name) > 40 || str_contains($name, '|')) {
+                return back()->withInput()->withErrors(['extra' => 'اكتب اسمًا صالحًا لكل مادة مضافة (أربعون حرفًا على الأكثر).']);
+            }
+            $extraLines[$code] = $code.'|'.$g.'|'.$name;
+        }
+        $known = array_merge(array_keys(Ar::SUBJECTS), array_keys($extraLines));
+        $lines = [];
+        foreach ($known as $code) {
+            if (isset($data['prices'][$code])) {
+                $lines[] = $code.'|'.(int) $data['prices'][$code]['price'].'|'.(int) $data['prices'][$code]['days'].'|'.(($request->has('_sent') ? $request->boolean('prices.'.$code.'.active') : (isset($data['prices'][$code]['active']) ? filter_var($data['prices'][$code]['active'], FILTER_VALIDATE_BOOL) : (Setting::plans()[$code]['active'] ?? true))) ? '1' : '0');
+            }
+        }
+        $faq = array_values(array_map(fn ($i) => ['q' => trim($i['q']), 'a' => trim($i['a'])], (array) ($data['faq'] ?? [])));
+        $values = [
+            'prices' => implode("\n", $lines), 'catalog_extra' => implode("\n", $extraLines),
+            'trial_days' => (int) $data['trial_days'], 'grace_days' => (int) $data['grace_days'], 'reminder_days' => (int) $data['reminder_days'],
+            'max_pending' => (int) $data['max_pending'], 'pending_expire_days' => (int) $data['pending_expire_days'],
+            'whatsapp_number' => preg_replace('/\D+/', '', (string) $data['whatsapp_number']), 'whatsapp_template' => str_replace("\r\n", "\n", trim($data['whatsapp_template'])),
+            'currency' => trim($data['currency']), 'payment_instructions' => str_replace("\r\n", "\n", trim((string) $data['payment_instructions'])),
+            'site_name' => trim($data['site_name']), 'tagline' => trim((string) $data['tagline']), 'hero_title' => trim($data['hero_title']),
+            'hero_title_mark' => trim((string) $data['hero_title_mark']), 'hero_subtitle' => trim($data['hero_subtitle']), 'hero_badge' => trim((string) $data['hero_badge']),
+            'announcement' => trim((string) $data['announcement']), 'announcement_color' => $data['announcement_color'], 'announcement_link' => trim((string) $data['announcement_link']),
+            'announcement_from' => (string) ($data['announcement_from'] ?? ''), 'announcement_to' => (string) ($data['announcement_to'] ?? ''),
+            'faq' => $faq ? json_encode($faq, JSON_UNESCAPED_UNICODE) : '',
+            'max_students' => (int) $data['max_students'], 'session_minutes' => $data['session_minutes'] === null ? '' : (string) (int) $data['session_minutes'],
+            'voice_volume' => (int) $data['voice_volume'],
+            'facebook_url' => trim((string) $data['facebook_url']), 'instagram_url' => trim((string) $data['instagram_url']),
+            'contact_email' => strtolower(trim((string) $data['contact_email'])), 'footer_text' => trim((string) $data['footer_text']),
+            'maintenance_message' => trim($data['maintenance_message']),
+        ];
+        foreach (self::FLAGS as $f) {
+            $values[$f] = ($request->has('_sent') || $request->exists($f) ? $request->boolean($f) : $current[$f] === '1') ? '1' : '0';
+        }
+        $changed = Setting::put($values);
+        if ($changed) {
+            ActivityLog::record('settings.update', implode('، ', array_map(fn ($k) => self::SETTING_LABELS[$k] ?? $k, $changed)), implode(', ', $changed));
+        }
+        $tab = preg_match('/^[a-z]{2,20}$/', (string) $request->input('tab')) ? $request->input('tab') : null;
+
+        return redirect()->route('manage.settings', $tab ? ['tab' => $tab] : [])
+            ->with('status', $changed ? 'حُفظت الإعدادات بنجاح ('.match (true) { count($changed) === 1 => 'تعديل واحد', count($changed) === 2 => 'تعديلان', count($changed) <= 10 => Ar::num(count($changed)).' تعديلات', default => Ar::num(count($changed)).' تعديلًا' }.').' : 'لا تغييرات جديدة للحفظ.');
     }
 
     // ---- Email ----

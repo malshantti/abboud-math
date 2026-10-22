@@ -22,3 +22,10 @@ Artisan::command('students:audit', function () {
         $this->comment('Review, then delete with: DELETE FROM students WHERE id IN ('.implode(',', $ids).');');
     }
 })->purpose('List orphan, duplicate, staff-owned and legacy students (read-only)');
+
+// Auto-expire (settings → التجربة والاشتراكات): ends subscriptions past their grace days and cancels stale pending requests.
+Artisan::command('subscriptions:expire', function () {
+    [$e, $c] = \App\Models\Subscription::sweep(true);
+    $this->info("expired: $e, cancelled pending: $c");
+})->purpose('Expire ended subscriptions and stale pending requests');
+\Illuminate\Support\Facades\Schedule::command('subscriptions:expire')->hourly();

@@ -20,7 +20,7 @@
 <div class="grid dash">
   <section class="card"><h2>@include('partials.admin-icon',['name'=>'students'])الطلاب حسب الصف</h2>
     @php($max = max(1, $byGrade->max() ?? 1))
-    @foreach ($ar::GRADES + [0 => 'غير محدد'] as $g => $label)
+    @foreach (\App\Models\Setting::gradeOptions() + [0 => 'غير محدد'] as $g => $label)
       @php($n = $byGrade[$g ?: null] ?? ($g === 0 ? ($byGrade[''] ?? 0) : 0))
       <div class="meter"><div class="meter-row"><span>{{ $label }}</span><b>{{ $ar::html($n) }}</b></div><div class="bar-track"><div class="bar" style="width:{{ max(2, $n / $max * 100) }}%"></div></div></div>
     @endforeach

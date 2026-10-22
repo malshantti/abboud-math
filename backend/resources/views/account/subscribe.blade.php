@@ -15,6 +15,7 @@
 .trialbox.on{background:var(--yl);color:#5a4000;border:2px solid #f3dc95}.trialbox.off{background:var(--red-bg);color:#8a2a24;border:2px solid #f3c9c6}.trialbox.paid{background:var(--gl);color:var(--gd);border:2px solid #dfeac4}
 .stp{display:flex;align-items:center;gap:10px;margin:22px 0 10px;font:800 19px/1.4 Baloo,Cairo,sans-serif}
 .stp i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--g);color:#fff;font-style:normal;font-size:15px;flex:none}
+.note-pay{margin:0 0 14px;padding:12px 16px;background:#f3f7ec;border:2px dashed #cfe3a8;border-radius:16px;font-weight:600;line-height:1.8;white-space:pre-line}
 .plans-f{border:0;padding:0;margin:22px 0 0;min-width:0}.plans-f legend.stp{margin-top:0}.plans-f legend{padding:0}
 .sub-page{overflow-x:clip}.sub-page>.card{min-width:0;max-width:100%}
 #subf,#subf *{box-sizing:border-box}#subf{min-width:0;max-width:100%}
@@ -76,6 +77,7 @@
     @elseif ($access['kind'] === 'paid')
       <p class="trialbox paid" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg><span>اشتراكاتك المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</span></p>
     @endif
+    @if (trim($instructions) !== '')<p class="note-pay">{{ $instructions }}</p>@endif
     @unless ($hasNumber)<p class="alert err">لم يُضبط رقم واتساب للدفع بعد. سيُسجّل طلبك وسنتواصل معك.</p>@endunless
 
     <form method="post" action="{{ route('account.subscribe.store') }}" id="subf" @if($hasNumber) target="_blank" rel="noopener" @endif>@csrf

@@ -43,7 +43,7 @@
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'students'])تعديل</h2>
   <form method="post" action="{{ route('manage.student.update', $student) }}">@csrf @method('put')
     <div class="field"><label for="name">الاسم</label><input id="name" name="name" value="{{ $student->name }}" maxlength="24" required></div>
-    <div class="field"><label for="grade">الصف</label><select id="grade" name="grade"><option value="">غير محدد</option>@foreach ($ar::GRADES as $g => $l)<option value="{{ $g }}" @selected($student->grade === $g)>{{ $l }}</option>@endforeach</select></div>
+    <div class="field"><label for="grade">الصف</label><select id="grade" name="grade"><option value="">غير محدد</option>@foreach (\App\Models\Setting::gradeOptions() as $g => $l)<option value="{{ $g }}" @selected($student->grade === $g)>{{ $l }}</option>@endforeach</select></div>
     <button class="btn small" type="submit">حفظ</button></form>
 </section>
 <section class="card danger-zone"><h2>@include('partials.admin-icon',['name'=>'alert'])حذف</h2>

@@ -25,7 +25,21 @@ class Access
     /** Subject codes (e.g. g6-math) the account has paid for and that are still running. */
     public static function paidSubjects(User $user): array
     {
-        return $user->subscriptions()->where('status', 'active')->where('ends_at', '>', now())->pluck('plan')->unique()->values()->all();
+        return $user->subscriptions()->where('status', 'active')->where('ends_at', '>', now()->subDays(Setting::int('grace_days', 0, 60)))->pluck('plan')->unique()->values()->all();
+    }
+
+    /** Active subscriptions that end within the reminder window (or are in their grace days). */
+    public static function expiringSoon(User $user): array
+    {
+        $days = Setting::int('reminder_days', 0, 60);
+        if ($days === 0 && Setting::int('grace_days', 0, 60) === 0) {
+            return [];
+        }
+
+        return $user->subscriptions()->where('status', 'active')
+            ->where('ends_at', '>', now()->subDays(Setting::int('grace_days', 0, 60)))->where('ends_at', '<=', now()->addDays($days))
+            ->orderBy('ends_at')->get()
+            ->map(fn ($s) => ['code' => $s->plan, 'name' => $s->plan_name, 'ends_at' => $s->ends_at->toIso8601String(), 'grace' => $s->ends_at->isPast()])->all();
     }
 
     /**
@@ -36,6 +50,9 @@ class Access
     {
         if ($user->isStaff() || ! Setting::flag('gating_enabled')) {
             return ['access' => true, 'kind' => $user->isStaff() ? 'staff' : 'open', 'ends_at' => null, 'subjects' => null];
+        }
+        if (Setting::flag('require_verification') && ! $user->isVerified()) {
+            return ['access' => false, 'kind' => 'unverified', 'ends_at' => null, 'subjects' => []];
         }
         if ($user->trial_ends_at && $user->trial_ends_at->isFuture()) {
             return ['access' => true, 'kind' => 'trial', 'ends_at' => $user->trial_ends_at, 'subjects' => null];

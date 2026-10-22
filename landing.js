@@ -75,13 +75,39 @@ box.addEventListener('focusin',pause);box.addEventListener('focusout',later);
 setup();
 })();
 
+// إعدادات الموقع من لوحة الإدارة (الواجهة، الأسئلة، التذييل، الجولة الصوتية). النصوص المكتوبة في الصفحة احتياط عند تعذّر الاتصال.
+(function(){
+'use strict';
+if(!document.getElementById('visitor-home'))return;
+var p=null;
+try{if(typeof fetch==='function')p=Promise.race([
+ fetch('/admin-api/api/site',{cache:'no-cache',credentials:'same-origin',headers:{Accept:'application/json'}}).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+ new Promise(function(r){setTimeout(function(){r(null)},2500)})])}catch(e){p=null}
+window.__bustanSite=p||Promise.resolve(null);
+function txt(sel,v){var el=document.querySelector(sel);if(el&&typeof v==='string'&&v.trim())el.textContent=v.trim();return el}
+function safe(u){return typeof u==='string'&&/^https?:\/\//i.test(u)?u:''}
+function fill(d){
+ if(!d)return;var h=d.hero||{};
+ var badge=document.querySelector('[data-site="badge"]');if(badge&&typeof h.badge==='string'){var t=badge.querySelector('span');if(h.badge.trim()){if(t)t.textContent=h.badge.trim();badge.hidden=false}else badge.hidden=true}
+ var h1=document.getElementById('L-hero-title');if(h1&&h.title&&h.title.trim()){h1.textContent='';h1.append(h.title.trim());if(h.mark&&h.mark.trim()){h1.append(document.createElement('br'));var m=document.createElement('span');m.className='L-mark';m.textContent=h.mark.trim();h1.append(m)}}
+ txt('.L-hero .L-tagline',d.tagline);txt('.L-hero .L-lead',h.subtitle);
+ if(Array.isArray(d.faq)&&d.faq.length){var box=document.querySelector('[data-site="faq"]');if(box){[].slice.call(box.querySelectorAll('details')).forEach(function(x){x.remove()});
+  d.faq.forEach(function(i){var de=document.createElement('details'),su=document.createElement('summary'),pa=document.createElement('p');su.textContent=i.q;pa.textContent=i.a;de.append(su,pa);box.append(de)})}}
+ var c=d.contact||{};txt('[data-site="footer"]',c.footer);
+ [['facebook',safe(c.facebook)],['instagram',safe(c.instagram)],['email',c.email&&/^[^\s@]+@[^\s@]+$/.test(c.email)?'mailto:'+c.email:'']].forEach(function(x){var a=document.querySelector('[data-site="'+x[0]+'"]');if(a){if(x[1]){a.href=x[1];a.hidden=false}else a.hidden=true}});
+ if(c.whatsapp&&/^\d{8,20}$/.test(c.whatsapp))[].forEach.call(document.querySelectorAll('a[href^="https://wa.me/"]'),function(a){a.href='https://wa.me/'+c.whatsapp;var n=a.querySelector('[data-wa-num]');if(n)n.textContent=String('00'+c.whatsapp).replace(/\d/g,function(x){return'٠١٢٣٤٥٦٧٨٩'[x]})});
+ if(d.registration_open===false)[].forEach.call(document.querySelectorAll('a[href$="account/register"]'),function(a){a.href=a.getAttribute('href').replace(/register$/,'login')});
+}
+window.__bustanSite.then(fill);window.__bustanSiteFill=fill;
+})();
+
 // جولة صوتية: زرّ «استمع» ظاهر فورًا فوق شريط «جرّب مجانًا»؛ مقطع لكل قسم عند ظهوره (مرّة واحدة، بلا تداخل)، مع ترجمة نصّية.
 // يحفظ اختيار الكتم فقط في المفتاح bustan_landing_voice ("off"/"on")؛ لا يلمس أي مفتاح آخر. الصوت يُحمَّل عند الحاجة (preload=none).
 (function(){
 'use strict';
 var root=document.getElementById('visitor-home');if(!root||typeof Audio==='undefined')return;
 var CLIPS=[["welcome","#L-top","أَهْلًا وَسَهْلًا بِكَ فِي «بُسْتَانِ التَّعَلُّم». أَنَا زَيْتُون، وَيَسُرُّنِي أَنْ أَصْحَبَكَ فِي جَوْلَةٍ قَصِيرَةٍ عَلَى هٰذِهِ الصَّفْحَةِ. هُنَا نَزْرَعُ الفَهْمَ، وَنَحْصُدُ المَعْرِفَةَ؛ دُرُوسٌ تَفَاعُلِيَّةٌ مُطَابِقَةٌ لِلْمِنْهَاجِ الفِلَسْطِينِيِّ، صُمِّمَتْ لِيَفْهَمَ طِفْلُكَ دَرْسَهُ وَيُحِبَّ أَنْ يَتَعَلَّمَهُ. تَعَالَ نَكْتَشِفْ مَعًا كَيْفَ يَصْنَعُ البُسْتَانُ فَرْقًا حَقِيقِيًّا فِي يَوْمِ طِفْلِكَ."],["hero",".L-hero","فِي البِدَايَةِ، تَرَى وَعْدَنَا لَكَ: دُرُوسٌ قَصِيرَةٌ بِالصَّوْتِ وَالصُّورَةِ، مُرَتَّبَةٌ كَمَا فِي كِتَابِ المَدْرَسَةِ، وَمُطَابِقَةٌ لِلْمِنْهَاجِ الفِلَسْطِينِيِّ كَامِلًا. مَوَادُّ دِرَاسِيَّةٌ كَثِيرَةٌ، بِلَا إِعْلَانَاتٍ، وَتَعْمَلُ حَتَّى مَعَ إِنْتَرْنِتٍ ضَعِيفٍ. وَأَنَا زَيْتُون أُشَجِّعُ طِفْلَكَ عِنْدَ كُلِّ إِجَابَةٍ، وَأَنْتَ تُتَابِعُ تَقَدُّمَهُ مِنْ حِسَابِكَ."],["demos","#L-demos","وَهُنَا لَا نَطْلُبُ مِنْكَ أَنْ تُصَدِّقَنَا، بَلْ أَنْ تُجَرِّبَ بِنَفْسِكَ. هٰذِهِ أَسْئِلَةٌ حَقِيقِيَّةٌ مِنْ دُرُوسِ البُسْتَانِ: رِيَاضِيَّاتٌ وَلُغَتُنَا الجَمِيلَةُ وَإِنْجِلِيزِيَّةٌ وَعُلُومٌ وَكُسُورٌ. اخْتَرْ مَادَّةً وَأَجِبْ، وَشَاهِدْ كَيْفَ يَتَلَقَّى طِفْلُكَ التَّشْجِيعَ وَالتَّصْحِيحَ فَوْرًا."],["screens",".L-screens","هٰذِهِ شَاشَاتٌ حَقِيقِيَّةٌ مِنْ دَاخِلِ البُسْتَانِ، لَا صُوَرٌ تَوْضِيحِيَّةٌ. هٰكَذَا تَبْدُو دُرُوسُ طِفْلِكَ عَلَى هَاتِفِكَ أَوْ جِهَازِ البَيْتِ: مِنْ لُغَتِنَا الجَمِيلَةِ وَالرِّيَاضِيَّاتِ، إِلَى مُخْتَبَرِ العُلُومِ. مَا تَرَاهُ هُنَا، هُوَ تَمَامًا مَا سَيَعِيشُهُ طِفْلُكَ."],["how","#L-how","أَرْبَعُ خُطُوَاتٍ فَقَطْ، وَتَبْدَأُ اللَّيْلَةَ: أَنْشِئْ حِسَابَ وَلِيِّ أَمْرٍ وَاحِدًا لِلْعَائِلَةِ، ثُمَّ أَضِفْ مِلَفًّا لِكُلِّ طِفْلٍ وَاخْتَرْ صَفَّهُ وَمَادَّتَهُ. يَتَعَلَّمُ طِفْلُكَ بِشَرْحٍ قَصِيرٍ وَأَسْئِلَةٍ بِتَصْحِيحٍ فَوْرِيٍّ، وَتُتَابِعُ أَنْتَ مَا أَنْجَزَهُ وَمَا يَحْتَاجُ إِلَى مُرَاجَعَةٍ، مِنْ أَيِّ جِهَازٍ."],["curriculum","#L-curriculum","كُلُّ دَرْسٍ هُنَا مُطَابِقٌ لِكُتُبِ المِنْهَاجِ الفِلَسْطِينِيِّ، بِوَحَدَاتِهَا وَتَرْتِيبِهَا وَصَفَحَاتِهَا، وَيَذْكُرُ مَرْجِعَهُ فِي الكِتَابِ. اخْتَرْ صَفَّ طِفْلِكَ لِتَرَى مَوَادَّهُ كُلَّهَا؛ فَيُرَاجِعُ طِفْلُكَ مَا أَخَذَهُ فِي الصَّفِّ تَمَامًا."],["benefits",".L-benefits","صَمَّمْنَا البُسْتَانَ لِيَطْمَئِنَّ قَلْبُكَ: تَقَدُّمُ طِفْلِكَ مَحْفُوظٌ فِي حِسَابِكَ فَلَا يَضِيعُ، وَالدُّرُوسُ المُنَزَّلَةُ تَعْمَلُ دُونَ اتِّصَالٍ. بِيئَةٌ آمِنَةٌ لَا غُرَبَاءَ فِيهَا وَلَا رَوَابِطَ خَارِجِيَّةَ، وَبِلَا إِعْلَانَاتٍ إِطْلَاقًا، مَعَ صَوْتٍ مُرَافِقٍ يَنْطِقُ كُلَّ كَلِمَةٍ. وَقْتُ الشَّاشَةِ كُلُّهُ لِلتَّعَلُّمِ."],["pricing","#L-pricing","أَسْعَارُنَا وَاضِحَةٌ: تَدْفَعُ فَقَطْ لِلْمَوَادِّ الَّتِي يَحْتَاجُهَا طِفْلُكَ، وَتَرَى سِعْرَ كُلِّ مَادَّةٍ وَمُدَّةَ اشْتِرَاكِهَا هُنَا فِي هٰذَا القِسْمِ. وَالأَيَّامُ الأُولَى مَجَّانِيَّةٌ لِكُلِّ المَوَادِّ، ثُمَّ تَشْتَرِكُ بِسُهُولَةٍ عَبْرَ وَاتْسَاب."],["faq",".L-faq","وَهُنَا أَجْوِبَةُ أَسْئِلَتِكَ قَبْلَ أَنْ تَبْدَأَ: لَا يُخْصَمُ أَيُّ مَبْلَغٍ تِلْقَائِيًّا بَعْدَ التَّجْرِبَةِ، وَيُمْكِنُكَ إِضَافَةُ أَكْثَرَ مِنْ طِفْلٍ. يَعْمَلُ البُسْتَانُ عَلَى الهَاتِفِ وَالجِهَازِ اللَّوْحِيِّ وَالحَاسُوبِ دُونَ تَثْبِيتِ تَطْبِيقٍ، وَهُوَ سَنَدٌ لِلْكِتَابِ وَالمُعَلِّمِ، لَا بَدِيلٌ عَنْهُمَا."],["final",".L-final","ازْرَعِ اليَوْمَ بِذْرَةَ فَهْمٍ، وَاحْصُدْ غَدًا ثِقَةَ طِفْلِكَ. ثَلَاثَةُ أَيَّامٍ مَجَّانِيَّةٌ لِكُلِّ المَوَادِّ، دُونَ بِطَاقَةٍ وَدُونَ الْتِزَامٍ. لَا تُؤَجِّلْ مَا يَسْتَحِقُّهُ طِفْلُكَ؛ اضْغَطِ الآنَ عَلَى «جَرِّبْ كُلَّ المَوَادِّ مَجَّانًا»، وَابْدَأْ رِحْلَتَهُ مَعَنَا فِي بُسْتَانِ التَّعَلُّم. أَنَا زَيْتُون، وَبِانْتِظَارِكُمَا!"]];
-var KEY='bustan_landing_voice',VOL=0.35,DIR='assets/landing/voice/';
+var KEY='bustan_landing_voice',VOL=0.35,AUTO=true,DIR='assets/landing/voice/';
 function pref(){try{return localStorage.getItem(KEY)}catch(e){return null}}
 function save(v){try{localStorage.setItem(KEY,v)}catch(e){}}
 var muted=pref()==='off',enabled=false,played={},queue=[],cur=null,curId=null,armed=false;
@@ -130,10 +156,14 @@ function gesture(e){if(e&&e.target&&pill.contains&&pill.contains(e.target))retur
  enable()}
 function arm(){if(armed||muted||enabled)return;armed=true;evs.forEach(function(t){addEventListener(t,gesture,{capture:true,passive:true})})}
 function off(){if(!armed)return;armed=false;evs.forEach(function(t){removeEventListener(t,gesture,true)})}
-function show(){if(!pill.hidden)return;pill.hidden=false;ui();if(muted)return;arm();
+function show(){if(!pill.hidden)return;pill.hidden=false;ui();if(muted||!AUTO)return;arm();
  // محاولة تشغيل تلقائي بصوت منخفض؛ إن منعها المتصفح يبقى الزرّ ظاهرًا وتنتظر أول تفعيل حقيقي
  if(!enabled)start('welcome',true).then(function(ok){if(ok&&!enabled){enabled=true;queueVisible();ui();off()}})}
-show();
+// إعدادات الجولة من لوחة الإدارة: تشغيل/إيقاف، مستوى الصوت، البدء التلقائي. دون اتصال تبقى القيم الافتراضية.
+Promise.resolve(window.__bustanSite||null).then(function(d){var v=d&&d.voice;
+ if(v){if(v.enabled===false){pill.remove&&pill.remove();cap.remove&&cap.remove();return}
+  if(typeof v.volume==='number')VOL=Math.max(0,Math.min(1,v.volume/100));if(v.autoplay===false)AUTO=false}
+ show()});
 window.__bustanVoice={want:want,enable:enable,state:function(){return{enabled:enabled,muted:muted,cur:curId,played:played,queue:queue.slice()}}};
 })();
 
@@ -144,7 +174,14 @@ function days(n){n=+n;if(n===1)return'يومًا واحدًا';if(n===2)return'�
 function cur(n,c){if(c&&c!=='شيكل')return c;n=+n%100;if(n>=3&&n<=10)return'شواكل';if(n>=11&&n<=99)return'شيكلًا';return'شيكل'}
 function fill(d){
  if(!d||!d.groups)return;
- d.groups.forEach(function(g){var card=document.querySelector('[data-price-group="'+g.key+'"]');if(!card)return;
+ var keys={};d.groups.forEach(function(g){keys[g.key]=1});
+ [].forEach.call(document.querySelectorAll('[data-price-group]'),function(c){c.hidden=!keys[c.getAttribute('data-price-group')]});
+ var note=document.querySelector('[data-site="pay"]');if(note&&typeof d.payment_instructions==='string'){note.textContent=d.payment_instructions;note.hidden=!d.payment_instructions.trim()}
+ d.groups.forEach(function(g){var card=document.querySelector('[data-price-group="'+g.key+'"]');
+  // صف مُسعَّر لا بطاقة له في الصفحة: بطاقة جديدة على نمط البطاقة الأولى
+  if(!card){var tpl=document.querySelector('[data-price-group]');if(!tpl||!tpl.parentNode)return;card=tpl.cloneNode(true);card.setAttribute('data-price-group',g.key);card.hidden=false;card.classList.remove('L-plan-hot');
+   var li=card.querySelector('ul li');if(li){var sv=li.querySelector('svg');li.textContent='';if(sv)li.append(sv);li.append((g.subjects||[]).join('، '))}
+   [].slice.call(card.querySelectorAll('ul li')).slice(1).forEach(function(x){x.remove()});tpl.parentNode.append(card)}
   var t=card.querySelector('.L-plan-for'),b=card.querySelector('.L-price b'),f=card.querySelector('.L-from'),u=card.querySelector('.L-cur'),dd=card.querySelector('[data-days]');
   if(t&&g.title)t.textContent=g.title;if(b)b.textContent=AR(g.min);if(f)f.hidden=!g.from;if(u)u.textContent=cur(g.min,d.currency);if(dd)dd.textContent=(g.days_vary?'من ':'')+days(g.days)});
  var dy=d.groups.length?Math.min.apply(null,d.groups.map(function(g){return g.days})):0;

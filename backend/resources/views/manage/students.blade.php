@@ -4,7 +4,7 @@
 <div class="head"><h1>الطلاب والتقدّم</h1>@can('manage-site')<a class="btn ghost small" href="{{ route('manage.export','students') }}">@include('partials.admin-icon',['name'=>'download'])تصدير CSV</a>@endcan</div>
 <form class="filters" method="get">
   <div><label for="q">بحث</label><input id="q" name="q" value="{{ request('q') }}" placeholder="اسم الطالب أو ولي الأمر أو البريد"></div>
-  <div><label for="grade">الصف</label><select id="grade" name="grade"><option value="">كل الصفوف</option>@foreach ($ar::GRADES as $g => $l)<option value="{{ $g }}" @selected((int) request('grade') === $g)>{{ $l }}</option>@endforeach</select></div>
+  <div><label for="grade">الصف</label><select id="grade" name="grade"><option value="">كل الصفوف</option>@foreach (\App\Models\Setting::gradeOptions() as $g => $l)<option value="{{ $g }}" @selected((int) request('grade') === $g)>{{ $l }}</option>@endforeach</select></div>
   <div><label for="owner">الحساب</label><select id="owner" name="owner"><option value="">الكل</option><option value="parents" @selected(request('owner')==='parents')>طلاب أولياء الأمور</option><option value="review" @selected(request('owner')==='review')>بحاجة إلى مراجعة</option></select></div>
   <div class="go"><button class="btn small" type="submit">@include('partials.admin-icon',['name'=>'search'])تصفية</button></div>
 </form>
