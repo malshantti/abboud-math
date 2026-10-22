@@ -10,7 +10,7 @@ const SU={math:'الرياضيات',arabic:'العربية',english:'الإنج�
 const label=(GR[m[1]]||'الصف '+m[1])+' · '+(SU[m[2]]||m[2]);
 const name=()=>{try{return (localStorage.getItem('bustan_student_name')||'').trim()}catch(e){return ''}};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('shell.css',me).href;document.head.append(css);
+const css=document.createElement('link');css.rel='stylesheet';const cu=new URL('shell.css',me);cu.search=me.search;css.href=cu.href;document.head.append(css);
 const brandHTML='<img class="bk-logo" src="'+root+'assets/brand/logo-mascot-sm.webp" width="44" height="58" alt=""><span class="bk-name"><b>بستان التعلّم</b><small>نزرع الفهم، ونحصد المعرفة</small></span>';
 const ico={chev:'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  user:'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M3 20c.5-3.5 3-5.5 6-5.5s5.5 2 6 5.5M16 7h5M19 4l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
