@@ -19,6 +19,10 @@ const ENGINES={
  fractionMultiply:{name:'جزء من جزء',controls:[range('a','أجزاء الكسر الأول من 4',1,4,3),range('b','أجزاء الكسر الثاني من 4',1,4,2)]},
  decimal:{name:'مئة جزء، وفكرة واحدة',controls:[range('a','الأجزاء من مئة',0,100,35)]},
  percent:{name:'نرى النسبة المئوية',controls:[range('a','النسبة من مئة',0,100,40)]},
+ powerCompare:{name:'أيّ العددين الأسّيين أكبر؟',controls:[range('a','أساس العدد الأول',2,6,3),range('b','أس العدد الأول',1,6,4),range('c','أساس العدد الثاني',2,6,2),range('d','أس العدد الثاني',1,6,6)]},
+ sqrtLine:{name:'نحصر العدد بين مربعين كاملين',controls:[range('a','العدد تحت الجذر',1,100,12)]},
+ cbrtLine:{name:'نحصر العدد بين مكعبين كاملين',controls:[range('a','العدد تحت الجذر التكعيبي',1,216,72)]},
+ unitMix:{name:'القوى والجذور مع أولويات العمليات',controls:[range('a','أساس القوة (أس 2)',2,6,3),range('b','الجذر التربيعي للعدد',1,10,7),range('c','الجذر التكعيبي للعدد',1,5,3)]},
  power:{name:'الأساس يتكرر بعدد الأس',controls:[range('a','الأساس',2,5,3),range('b','الأس',1,6,4)]},
  powers:{name:'الضرب المتكرر يصنع مربعًا',controls:[range('a','طول ضلع المربع',1,6,4)]},
  root:{name:'من المساحة إلى طول الضلع',controls:[range('a','طول ضلع المربع',1,6,4)]},
@@ -66,7 +70,7 @@ const ENGINES={
  elevation:{name:'من زاوية النظر إلى الارتفاع',controls:[range('a','زاوية الارتفاع',15,60,30,5),range('b','البعد الأفقي',3,9,6)]}
 };
 const TYPES={P01:'compare',P02:'compare',P03:'fraction',P04:'fractionAdd',P05:'decimal',P06:'decimal',P07:'factor',P08:'distribute',P09:'factor',P10:'fractionMultiply',P11:'balance',P12:'order',P13:'angle',P14:'angle',P15:'area',P16:'parallelogram',P17:'decimal',P18:'bars',P19:'bars',P20:'probability',P21:'order',P22:'compare',
- 'S1-1-1':'order','S1-1-2':'power','S1-1-3':'powers','S1-1-4':'root','S1-1-5':'cubeRoot',
+ 'S1-1-1':'order','S1-1-2':'power','S1-1-3':'powerCompare','S1-1-4':'sqrtLine','S1-1-5':'cbrtLine','S1-1-6':'unitMix',
  'S1-2-1':'angle','S1-2-2':'angle','S1-2-3':'angle','S1-2-4':'triangleArea','S1-2-5':'area','S1-2-6':'angle','S1-2-7':'parallelogram',
  'S1-3-1':'terms','S1-3-2':'terms','S1-3-3':'terms','S1-3-4':'distribute',
  'S1-4-1':'bars','S1-4-2':'stats','S1-4-3':'stats','S1-4-4':'bars',
@@ -78,7 +82,7 @@ ENGINES.fractionDivide={name:'كم جزءًا يحتوي هذا الجزء؟',co
 ENGINES.triangleArea={name:'مثلث هو نصف مستطيل',controls:ENGINES.area.controls};
 ENGINES.fractionSubtract={name:'نطرح أجزاء بالحجم نفسه',controls:ENGINES.fractionAdd.controls};
 ENGINES.difference={name:'في الحادث الأول، خارج الثاني',controls:ENGINES.union.controls};
-const VARIANTS={'P04':[['fractionAdd','جمع الكسور'],['fractionSubtract','طرح الكسور']],'P10':[['fractionMultiply','ضرب الكسور'],['fractionDivide','قسمة الكسور']],'P15':[['area','مستطيل'],['triangleArea','مثلث'],['parallelogram','متوازي أضلاع']],'S1-1-4':[['root','الجذر التربيعي'],['powers','المربع الكامل']]};
+const VARIANTS={'P04':[['fractionAdd','جمع الكسور'],['fractionSubtract','طرح الكسور']],'P10':[['fractionMultiply','ضرب الكسور'],['fractionDivide','قسمة الكسور']],'P15':[['area','مستطيل'],['triangleArea','مثلث'],['parallelogram','متوازي أضلاع']],'S1-1-4':[['sqrtLine','حصر الجذر وتقديره'],['root','من المساحة إلى الضلع']],'S1-1-5':[['cbrtLine','حصر الجذر وتقديره'],['cubeRoot','من الحجم إلى الحرف']]};
 function model(type,s){
  const a=+s.a||0,b=+s.b||0,c=+s.c||0,m={type,a,b,c,steps:[],notes:[],result:0};
  const set=(result,steps,notes)=>Object.assign(m,{result,steps,notes});
@@ -96,6 +100,11 @@ function model(type,s){
  if(['powers','root','cubeRoot'].includes(type)){const cube=type==='cubeRoot',n=cube?a*a*a:a*a;return set(n,[cube?`${a} × ${a} × ${a}`:`${a} × ${a}`,`${a}${cube?'³':'²'} = ${n}`,type==='root'?`√${n} = ${a}`:cube?`∛${n} = ${a}`:`${a}² = ${n}`],['نبدأ من طول الضلع أو الحرف.','المربع صفوف وأعمدة، والمكعب له عمق أيضًا.','الجذر يعيدنا من المساحة أو الحجم إلى الطول.']);}
  if(type==='irrational'){const r=Math.sqrt(a),lo=Math.floor(r);m.root=r;m.low=lo;m.high=Math.ceil(r);return set(r,[`√${a}`,`${lo}² ≤ ${a} ≤ ${m.high}²`,`√${a} ${Number.isInteger(r)?'=':'≈'} ${fmt(r)}`],['نبحث عن عدد مربّعه يساوي العدد المعطى.','نحصر الجذر بين جذري مربعين كاملين.','إذا لم يكن العدد مربعًا كاملًا، فالكتابة العشرية هنا تقريبية.']);}
  if(type==='radicals')return set((a+b)*Math.sqrt(2),[`${a}√2 + ${b}√2`,`${a} + ${b} = ${a+b}`,`${a}√2 + ${b}√2 = ${a+b}√2`],['كل قطعة تمثّل الطول نفسه: جذر اثنين.','الجذور متشابهة، فنعدّ القطع.','نجمع المعاملات، ويبقى الجذر كما هو.']);
+ if(type==='powerCompare'){const d=+s.d||1,va=a**b,vb=c**d,cmp=va>vb?'>':va<vb?'<':'=';Object.assign(m,{d,va,vb,cmp});const A=`${a}${SPR(b)}`,B=`${c}${SPR(d)}`,rule=a===c?'الأساسان متساويان: نقارن الأسّين.':b===d?'الأسّان متساويان: نقارن الأساسين.':'الأساسان والأسّان مختلفة: نجد قيمة كل منهما.';
+  return set(cmp,[`${A}  ؟  ${B}`,`${A} = ${va}  ،  ${B} = ${vb}`,`${A} ${cmp} ${B}`],[rule,'نكتب كل عدد بالضرب المتكرر ونحسب قيمته.',a===c&&b!==d?`الأساس نفسه، فالأكبر صاحب الأس الأكبر.`:b===d&&a!==c?`الأس نفسه، فالأكبر صاحب الأساس الأكبر.`:cmp==='='?'العددان متساويان رغم اختلاف صورتهما.':`${va} ${cmp} ${vb}، إذن ${A} ${cmp} ${B}.`]);}
+ if(type==='sqrtLine'||type==='cbrtLine'){const k=type==='sqrtLine'?2:3,sym=k===2?'√':'∛';let lo=Math.floor(Math.round(a**(1/k)*1e6)/1e6);if((lo+1)**k<=a)lo++;const exact=lo**k===a,hi=lo+1,near=exact?lo:(a-lo**k<=hi**k-a?lo:hi);Object.assign(m,{k,lo,hi,exact,near,sym});
+  const nm=k===2?'مربع':'مكعب';return set(near,[`${sym}${a}`,exact?`${a} = ${Array(k).fill(lo).join(' × ')}`:`${lo**k} < ${a} < ${hi**k}`,exact?`${sym}${a} = ${lo}`:`${sym}${a} ≈ ${near}`],[`نبحث عن عدد إذا ${k===2?'ضُرب في نفسه':'ضُرب في نفسه مرتين'} أعطى ${a}.`,exact?`${a} ${nm} كامل.`:`${a} ليس ${nm}ًا كاملًا، فنحصره بين ${lo**k} و ${hi**k}.`,exact?`الجذر هو ${lo}.`:`${a} أقرب إلى ${near**k}، فنختار ${near}.`]);}
+ if(type==='unitMix'){const p=a*a,r=b,q=c,v=p+r*q;return set(v,[`${a}² + √${b*b} × ∛${c**3}`,`${p} + ${r} × ${q}`,`${p} + ${r*q} = ${v}`],['نحسب القوى والجذور أولًا.',`${a}² = ${p} ، √${b*b} = ${r} ، ∛${c**3} = ${q}`,'ثم الضرب قبل الجمع.']);}
  if(type==='power'){const sp=n=>String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join(''),v=a**b,run=[];for(let k=1;k<=b;k++)run.push(a**k);m.run=run;return set(v,[`${a}${sp(b)}`,Array(b).fill(a).join(' × '),`${a}${sp(b)} = ${Array(b).fill(a).join(' × ')} = ${v}`],[`الأساس ${a} هو العدد المكرَّر، والأس ${b} هو عدد مرات تكراره.`,`نضرب ${a} في نفسه ${b===1?'مرة واحدة فقط':b+' مرات'}، ويكبر الناتج مع كل عامل.`,`إذن ${a} أس ${b} يساوي ${v}، وليس ${a} × ${b} = ${a*b}.`]);}
  if(type==='order')return set(a+b*c,[`${a} + ${b} × ${c}`,`${a} + ${b*c}`,`${a} + ${b} × ${c} = ${a+b*c}`],['نقرأ التعبير قبل الحساب.','الضرب قبل الجمع: نحسب حاصل الضرب أولًا.','نضيف العدد الأول بعد إتمام الضرب.']);
  if(type==='terms')return set(a+b,[`${a}س + ${b}س`,`${a+b} حدود من س`,`${a}س + ${b}س = ${a+b}س`],['المجموعتان من النوع نفسه: س.','نجمع عدد الحدود المتشابهة.','المتغيّر نفسه لا يتغيّر إلى س² عند الجمع.']);
@@ -121,12 +130,14 @@ function model(type,s){
  if(['trig','elevation'].includes(type)){const rad=a*pi/180;m.opposite=type==='trig'?b*Math.sin(rad):b*Math.tan(rad);m.adjacent=type==='trig'?b*Math.cos(rad):b;m.h=type==='trig'?b:Math.hypot(m.opposite,b);return set(m.opposite,[`الزاوية = ${a}°`,type==='trig'?`المقابل ≈ ${fmt(m.opposite)} ، المجاور ≈ ${fmt(m.adjacent)}`:`البعد الأفقي = ${b}`,type==='trig'?`جا ≈ ${fmt(Math.sin(rad))} ، جتا ≈ ${fmt(Math.cos(rad))} ، ظا ≈ ${fmt(Math.tan(rad))}`:`الارتفاع فوق مستوى النظر ≈ ${fmt(m.opposite)}`],['نحدد الضلع المقابل والمجاور بالنسبة للزاوية.','النسب تعتمد على الزاوية، لا على حجم المثلث.','زاوية الارتفاع تربط البعد الأفقي بالارتفاع فوق مستوى النظر.']);}
  throw Error('Unknown visual engine: '+type);
 }
-const text=(x,y,t,cls='')=>`<text x="${x}" y="${y}" class="${cls}" text-anchor="middle">${escape(String(t).replace(/(^|[\s(=])-(?=\d)/g,'$1−').replace(/(\d)\.(\d)/g,'$1,$2'))}</text>`;// علامة الطرح والفاصلة العشرية كما في الكتاب
+const text=(x,y,t,cls='')=>`<text x="${x}" y="${y}" class="${cls}" text-anchor="middle">${escape(LTRM(t).replace(/(^|[\s(=\u200e])-(?=\d)/g,'$1−').replace(/(\d)\.(\d)/g,'$1,$2'))}</text>`;// علامة الطرح والفاصلة العشرية كما في الكتاب
+const LTRM=t=>'\u200e'+String(t).replace(/ ([=≈<>×+−÷؟]) /g,' \u200e$1\u200e ');// علامة اتجاه تمنع انقلاب التعبير مع الأرقام العربية
+const SPR=n=>String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join('');
 const rect=(x,y,w,h,cls='lv-green')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" class="${cls}"/>`;
 function scene(m,step){
  const {type,a,b,c}=m;let out='';
- if(type==='fractionDivide'){for(let r=0;r<2;r++){const count=r?b:a;for(let i=0;i<4;i++)out+=rect(100+i*85,65+r*110,76,64,i<count?(r?'lv-gold':'lv-green'):'lv-empty');out+=text(270,55+r*110,`${count}/4`);}out+=text(270,305,step?`طول الأول ÷ طول الثاني = ${fraction(a,b)}`:'الأجزاء في الشريطين بالحجم نفسه');return `<svg viewBox="0 0 540 340" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;}
- if(type==='triangleArea'){const x=135,y=60,w=a*30,h=b*30;out+=rect(x,y,w,h,'lv-green-soft')+`<path d="M${x} ${y+h}L${x+w} ${y}V${y+h}Z" class="lv-green"/><path d="M${x} ${y+h}L${x+w} ${y}" class="lv-outline"/>`;if(step===2)out+=`<path d="M${x} ${y}h${w}L${x} ${y+h}Z" class="lv-empty"/>`;out+=text(x+w/2,y+h+30,'القاعدة '+a)+text(x-38,y+h/2,'ع '+b)+text(270,308,'نصف المساحة = '+fmt(a*b/2));return `<svg viewBox="0 0 540 340" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;}
+ if(type==='fractionDivide'){for(let r=0;r<2;r++){const count=r?b:a;for(let i=0;i<4;i++)out+=rect(100+i*85,65+r*110,76,64,i<count?(r?'lv-gold':'lv-green'):'lv-empty');out+=text(270,55+r*110,`${count}/4`);}out+=text(270,305,step?`طول الأول ÷ طول الثاني = ${fraction(a,b)}`:'الأجزاء في الشريطين بالحجم نفسه');return `<svg viewBox="0 0 540 340" direction="ltr" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;}
+ if(type==='triangleArea'){const x=135,y=60,w=a*30,h=b*30;out+=rect(x,y,w,h,'lv-green-soft')+`<path d="M${x} ${y+h}L${x+w} ${y}V${y+h}Z" class="lv-green"/><path d="M${x} ${y+h}L${x+w} ${y}" class="lv-outline"/>`;if(step===2)out+=`<path d="M${x} ${y}h${w}L${x} ${y+h}Z" class="lv-empty"/>`;out+=text(x+w/2,y+h+30,'القاعدة '+a)+text(x-38,y+h/2,'ع '+b)+text(270,308,'نصف المساحة = '+fmt(a*b/2));return `<svg viewBox="0 0 540 340" direction="ltr" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;}
  const numberline=(points,extent=12)=>{const X=n=>270+n*220/extent;let s='<line x1="40" y1="177" x2="500" y2="177" class="lv-axis"/>';for(let n=-extent;n<=extent;n+=Math.max(1,Math.ceil(extent/6)))s+=`<line x1="${X(n)}" y1="170" x2="${X(n)}" y2="184" class="lv-axis"/>`+text(X(n),211,n);points.forEach(([n,label,color],i)=>{s+=`<circle cx="${X(n)}" cy="177" r="10" class="${color}"/>`+text(X(n),130-i*28,label,color);});return{s,X};};
  if(type==='fractionSubtract'){const line=numberline([[a/6,a+'/6','lv-green'],[step?(a-b)/6:a/6,step?fraction(a-b,6):a+'/6','lv-gold']],1);out=line.s;for(let i=0;i<=12;i++)out+=`<line x1="${line.X(-1+i/6)}" y1="173" x2="${line.X(-1+i/6)}" y2="181" class="lv-axis"/>`;if(step)out+=`<path d="M${line.X(a/6)} 160Q${(line.X(a/6)+line.X((a-b)/6))/2} 55 ${line.X((a-b)/6)} 160" class="lv-travel"/>`;out+=text(270,280,'كل علامة صغيرة تمثّل سدسًا');}
  else if(['integer','absolute','compare','irrational'].includes(type)){
@@ -161,6 +172,28 @@ function scene(m,step){
    if(step===0){out+=rect(205,100,90,95,'lv-green-soft')+rect(270,80,40,45,'lv-gold-soft');out+=text(250,166,a,'lv-big')+text(290,113,b,'lv-big');out+=text(250,225,'الأساس','lv-label')+text(345,105,'الأس','lv-label');out+=text(270,290,`${a}${sp(b)}: نكرّر ${a} عاملًا ${b===1?'مرة واحدة':b+' مرات'}`,'lv-label');}
    else{const w=Math.min(78,460/b),x0=270-(b*w)/2;for(let k=0;k<b;k++){const x=x0+k*w;out+=rect(x+4,95,w-8,70,step===2&&k===b-1?'lv-gold':'lv-green-soft')+text(x+w/2,140,a,'lv-big');if(k<b-1)out+=text(x+w,140,'×');out+=text(x+w/2,195,m.run[k],'lv-label');}
     out+=text(270,235,'الناتج بعد كل عامل','lv-label');if(step===2)out+=text(270,290,`${a}${sp(b)} = ${m.result}`,'lv-big');else out+=text(270,290,`${b} ${b===1?'عامل':b<=10&&b>2?'عوامل':'عاملان'} كلّ منها ${a}`,'lv-label');}
+ }
+ else if(type==='powerCompare'){
+   const A=`${a}${SPR(b)}`,B=`${c}${SPR(m.d)}`;
+   out+=rect(60,70,170,80,'lv-green-soft')+rect(310,70,170,80,'lv-gold-soft')+text(145,122,A,'lv-big')+text(395,122,B,'lv-big')+text(270,122,step===2?m.cmp:'؟','lv-big');
+   out+=text(145,175,`الأساس ${a} ، الأس ${b}`,'lv-label')+text(395,175,`الأساس ${c} ، الأس ${m.d}`,'lv-label');
+   if(step>=1){const mx=Math.max(m.va,m.vb),wa=Math.max(6,400*m.va/mx),wb=Math.max(6,400*m.vb/mx);out+=rect(70,205,wa,26,'lv-green')+rect(70,250,wb,26,'lv-gold');out+=text(70+wa+40,224,m.va)+text(70+wb+40,269,m.vb);}
+   out+=text(270,315,step===0?(a===c?'الأساسان متساويان':b===m.d?'الأسّان متساويان':'نحسب قيمة كل عدد'):step===1?'طول كل شريط يمثّل قيمة العدد':`${A} ${m.cmp} ${B}`,'lv-label');
+ }
+ else if(type==='sqrtLine'||type==='cbrtLine'){
+   const k=m.k,lo=m.lo,hi=m.hi,L=lo**k,H=hi**k,X=x=>80+380*(x-L)/(H-L||1);
+   out+=`<line x1="60" y1="170" x2="480" y2="170" class="lv-axis"/>`;
+   for(const [v,lab] of [[L,`${lo}${k===2?'²':'³'} = ${L}`],[H,`${hi}${k===2?'²':'³'} = ${H}`]]){out+=`<line x1="${X(v)}" y1="155" x2="${X(v)}" y2="185" class="lv-axis"/>`+text(X(v),215,lab,'lv-label')}
+   out+=text(270,80,`${m.sym}${a}`,'lv-big');
+   if(step>=1){out+=`<circle cx="${X(a)}" cy="170" r="10" class="lv-gold"/>`+text(X(a),140,a);if(!m.exact){out+=text((X(L)+X(a))/2,255,a-L,'lv-label')+text((X(a)+X(H))/2,255,H-a,'lv-label')}}
+   out+=text(270,300,step===2?(m.exact?`${m.sym}${a} = ${lo}`:`${m.sym}${a} ≈ ${m.near}`):step===1?(m.exact?`${a} ${k===2?'مربع':'مكعب'} كامل`:'المسافة إلى كل طرف'):`بين أيّ ${k===2?'مربعين':'مكعبين'} كاملين يقع ${a}؟`,step===2?'lv-big':'lv-label');
+ }
+ else if(type==='unitMix'){
+   const p=a*a,cells=[[`${a}²`,p,'القوة'],[`√${b*b}`,b,'الجذر التربيعي'],[`∛${c**3}`,c,'الجذر التكعيبي']];
+   cells.forEach(([e,v,lab],i)=>{const x=40+i*165;out+=rect(x,80,130,80,step?'lv-green-soft':'lv-gold-soft')+text(x+65,130,step?v:e,'lv-big')+text(x+65,185,lab,'lv-label')});
+   out+=text(197,130,'+','lv-big')+text(362,130,'×','lv-big');
+   out+=text(270,260,step===0?`${a}² + √${b*b} × ∛${c**3}`:step===1?`${p} + ${b} × ${c}`:`${p} + ${b*c} = ${m.result}`,'lv-big');
+   out+=text(270,305,step===0?'نحسب القوى والجذور أولًا':step===1?'ثم الضرب قبل الجمع':'الناتج النهائي','lv-label');
  }
  else if(type==='order'){
    out+=rect(60,90,110,95,'lv-green-soft')+rect(200,90,280,95,step?'lv-gold':'lv-gold-soft');out+=text(115,148,a,'lv-big')+text(185,148,'+','lv-big')+text(340,148,step?`${b} × ${c} = ${b*c}`:`${b} × ${c}`,'lv-big');
@@ -212,12 +245,12 @@ function scene(m,step){
  else if(['sets','union','difference'].includes(type)){
    out+=rect(55,30,435,260,'lv-empty')+'<ellipse cx="230" cy="157" rx="112" ry="93" class="lv-green-soft"/><ellipse cx="332" cy="157" rx="112" ry="93" class="lv-gold-soft"/>'+text(170,75,'ح')+text(385,75,'ك');let counts={left:0,right:0,both:0,none:0};for(let n=1;n<=6;n++){const inA=m.A.includes(n),inB=m.B.includes(n),group=inA&&inB?'both':inA?'left':inB?'right':'none',i=counts[group]++,x={left:186,right:381,both:280,none:81}[group],y=(group==='none'?242:121)+i*36;if(type==='difference'&&step&&m.chosen.includes(n))out+=`<circle cx="${x}" cy="${y-7}" r="18" class="lv-green"/>`;out+=text(x,y,n,type==='difference'&&step&&!m.chosen.includes(n)?'lv-quiet':'lv-ink');}
  }
- return `<svg viewBox="0 0 540 340" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;
+ return `<svg viewBox="0 0 540 340" direction="ltr" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;
 }
 const INSTR_DEFAULT='حرّك الأشرطة لتغيير الأعداد، ثم اضغط الخطوات ١ و٢ و٣ بالترتيب لترى الحل.';
-const INSTR={power:'حرّك شريط الأساس وشريط الأس، وشاهد كيف يتكرر الأساس عاملًا بعدد الأس.',order:'حرّك الأشرطة لتغيير الأعداد، وشاهد كيف نحسب الضرب أولًا ثم نجمع.'};
+const INSTR={powerCompare:'حرّك أشرطة الأساسين والأسّين، وقارن العددين بالقاعدة المناسبة.',sqrtLine:'حرّك الشريط لاختيار عدد، وشاهد بين أيّ مربعين كاملين يقع وما قيمة جذره التربيعي.',cbrtLine:'حرّك الشريط لاختيار عدد، وشاهد بين أيّ مكعبين كاملين يقع وما قيمة جذره التكعيبي.',unitMix:'حرّك الأشرطة، واحسب القوة والجذرين أولًا ثم أكمل بأولويات العمليات.',power:'حرّك شريط الأساس وشريط الأس، وشاهد كيف يتكرر الأساس عاملًا بعدد الأس.',order:'حرّك الأشرطة لتغيير الأعداد، وشاهد كيف نحسب الضرب أولًا ثم نجمع.'};
 const STEPS_DEFAULT=['نقرأ المسألة','نحسب الخطوة الأولى','نصل إلى الناتج'];
-const STEPS={power:['نقرأ الأساس والأس','نكتب الضرب المتكرر','نحسب القيمة'],order:['نقرأ التمرين','نحسب الضرب أولًا','نجمع ونصل إلى الناتج']};
+const STEPS={powerCompare:['نقرأ العددين','نحسب القيمتين','نقارن'],sqrtLine:['نقرأ العدد','نحصره بين مربعين','نجد الجذر'],cbrtLine:['نقرأ العدد','نحصره بين مكعبين','نجد الجذر'],unitMix:['نقرأ التمرين','نحسب القوة والجذور','نكمل بالأولويات'],power:['نقرأ الأساس والأس','نكتب الضرب المتكرر','نحسب القيمة'],order:['نقرأ التمرين','نحسب الضرب أولًا','نجمع ونصل إلى الناتج']};
 let current=null,timer=null;
 const controlMarkup=type=>`<h3>غيّر القيم ولاحظ الفرق.</h3>${ENGINES[type].controls.map(c=>`<label class="lv-control">${c.label}<output data-lv-output="${c.name}">${fmt(c.value)}</output><input type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${c.value}" data-lv-input="${c.name}" dir="ltr"></label>`).join('')}<div class="lv-control-note">${window.ICON('hand')} أرقام هذا المثال للتجربة، ولا تغيّر تقدّمك.</div>`;
 function install(A){
@@ -239,7 +272,7 @@ function draw(){
  const root=document.querySelector('.visual-lesson');if(!root||!current)return;
  if(current.type==='fraction'){current.state.a=Math.min(current.state.a,current.state.b);const aInput=root.querySelector('[data-lv-input="a"]');aInput.max=current.state.b;aInput.value=current.state.a;}
  const m=model(current.type,current.state),step=current.step;
- root.querySelector('#lv-stage').innerHTML=scene(m,step);root.querySelector('#lv-equation').textContent=m.steps[step];root.querySelector('#lv-story').textContent=m.notes[step];
+ root.querySelector('#lv-stage').innerHTML=scene(m,step);root.querySelector('#lv-equation').textContent=LTRM(m.steps[step]);root.querySelector('#lv-story').textContent=m.notes[step];
  if(!['coordinates','system','quadratic','generalQuadratic','differenceSquares','parallelogram'].includes(current.type)){const svg=root.querySelector('#lv-stage svg');try{const box=svg.getBBox();if(box.width>0&&box.height>0)svg.setAttribute('viewBox',`${box.x-28} ${box.y-28} ${box.width+56} ${box.height+56}`);}catch(e){}}
  const moving=root.querySelector('.lv-rearrange');if(moving){const next=moving.style.transform;if(current.previousTransform&&current.previousTransform!==next&&!matchMedia('(prefers-reduced-motion: reduce)').matches)moving.animate([{transform:current.previousTransform},{transform:next}],{duration:800,easing:'cubic-bezier(.2,.7,.3,1)'});current.previousTransform=next;}
  const names=STEPS[current.type]||STEPS_DEFAULT;root.querySelector('#lv-stepnum').textContent=`الخطوة ${step+1} من 3: ${names[step]}`;root.querySelector('#lv-dots').innerHTML=[0,1,2].map(k=>`<i class="${k===step?'on':k<step?'done':''}"></i>`).join('');
