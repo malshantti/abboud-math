@@ -12,7 +12,7 @@
       <div class="field"><label class="check"><input type="checkbox" name="remember" value="1"> تذكّرني على هذا الجهاز</label></div>
       <button class="btn wide" type="submit">دخول</button>
     </form>
-    <div class="links"><p style="margin:0"><a href="{{ route('account.password.request') }}">نسيت كلمة المرور؟</a></p>
+    <div class="links"><p style="margin:0"><a href="{{ route('account.password.request') }}">نسيت كلمة السر؟</a></p>
     @if (\App\Models\Setting::flag('registration_open'))<p style="margin:0">ليس لديك حساب؟ <a href="{{ route('account.register') }}">أنشئ حسابًا مجانيًا</a></p>@endif</div>
   </section>
   @include('partials.auth-side', ['say' => 'أهلًا بعودتك إلى البستان'])

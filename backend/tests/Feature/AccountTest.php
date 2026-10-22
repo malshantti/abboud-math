@@ -5,7 +5,8 @@ namespace Tests\Feature;
 use App\Models\ActivityLog;
 use App\Models\Setting;
 use App\Models\User;
-use App\Notifications\ResetPasswordAr;
+use App\Mail\BrandMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
@@ -163,18 +164,23 @@ class AccountTest extends TestCase
 
     public function test_password_reset_by_email(): void
     {
-        Notification::fake();
+        Mail::fake();
         $u = User::factory()->create(['email' => 'p@example.test']);
         $this->post('/account/forgot-password', ['email' => 'nobody@example.test'])->assertSessionHas('status');
         $this->post('/account/forgot-password', ['email' => 'P@example.test'])->assertSessionHas('status');
-        $token = null;
-        Notification::assertSentTo($u, ResetPasswordAr::class, function ($n) use (&$token, $u) {
-            $token = $n->token;
-            $html = $n->toMail($u)->render();
-            $this->assertStringContainsString('/account/reset-password/'.$token, (string) $html);
+        Mail::assertSentCount(1);
+        $link = null;
+        Mail::assertSent(BrandMail::class, function (BrandMail $m) use (&$link) {
+            $link = $m->mail['link'];
+            $this->assertSame('reset', $m->mail['type']);
+            $this->assertStringContainsString(e($link), $m->render());
 
-            return true;
+            return $m->hasTo('p@example.test');
         });
+        $this->assertStringContainsString('signature=', $link);
+        preg_match('#/account/reset-password/([^?]+)#', $link, $mm);
+        $token = $mm[1];
+        $this->get($link)->assertOk()->assertSee('كلمة مرور جديدة')->assertDontSee('انتهت صلاحية');
         $this->get('/account/reset-password/'.$token.'?email=p@example.test')->assertOk()->assertSee('كلمة مرور جديدة');
         $this->post('/account/reset-password', ['token' => 'bad', 'email' => 'p@example.test', 'password' => 'new-pass-123', 'password_confirmation' => 'new-pass-123'])->assertSessionHasErrors('email');
         $this->post('/account/reset-password', ['token' => $token, 'email' => 'p@example.test', 'password' => 'new-pass-123', 'password_confirmation' => 'new-pass-123'])->assertRedirect('/account/login');

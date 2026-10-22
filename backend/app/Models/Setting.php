@@ -30,6 +30,16 @@ class Setting extends Model
         // One subject per line: gradeSubject|price|days  (e.g. g6-math|20|30). Unit = one subject in one grade.
         'prices' => "g1-math|15|30\ng1-arabic|15|30\ng1-english|15|30\ng1-life|15|30\ng2-math|15|30\ng2-arabic|15|30\ng2-english|15|30\ng2-life|15|30\ng6-math|20|30\ng6-arabic|20|30\ng6-english|20|30\ng6-science|20|30\ng8-math|20|30\ng8-arabic|20|30\ng8-english|20|30\ng8-science|20|30",
         'gating_enabled' => '1',
+        'mail_from_name' => 'بستان التعلّم',
+        'mail_verify_on' => '1',
+        'mail_verify_subject' => 'تفعيل حسابك في {site}',
+        'mail_verify_body' => "مرحبًا {name}،\n\nشكرًا لتسجيلك في {site}. لتأكيد بريدك الإلكتروني وتفعيل حسابك، اضغط الزر أدناه. يبقى الرابط صالحًا مدة {days} أيام.\n\nإن لم تُنشئ هذا الحساب، فتجاهل هذه الرسالة.",
+        'mail_reset_on' => '1',
+        'mail_reset_subject' => 'إعادة تعيين كلمة المرور في {site}',
+        'mail_reset_body' => "مرحبًا {name}،\n\nتلقّينا طلبًا لإعادة تعيين كلمة المرور لحسابك. اضغط الزر أدناه لاختيار كلمة مرور جديدة. ينتهي هذا الرابط بعد {minutes} دقيقة.\n\nإن لم تطلب ذلك، فتجاهل هذه الرسالة، وستبقى كلمة المرور الحالية كما هي.",
+        'mail_welcome_on' => '1',
+        'mail_welcome_subject' => 'أهلًا بك في {site}',
+        'mail_welcome_body' => "مرحبًا {name}،\n\nيسعدنا انضمامك إلى {site}. لديك فترة تجريبية مجانية مدتها {trial_days} أيام، يتصفح فيها أبناؤك جميع المواد والدروس دون أي التزام.\n\nأولًا، أضف أبناءك: من صفحة «حسابي» اكتب اسم كل طالب واختر صفه الدراسي.\n\nثانيًا، اختر المواد: افتح صفحة الاشتراك واختر المواد التي يحتاجها كل طالب، فيظهر لك رمز الطلب والمبلغ.\n\nثالثًا، ادفع عبر واتساب: أرسل رمز الطلب إلى الرقم {whatsapp}، وتُفعَّل المواد فور تأكيد الدفع.\n\nنتمنى لأبنائك رحلة تعلّم ممتعة ومثمرة.",
     ];
 
     public static function all_(): array

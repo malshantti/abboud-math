@@ -40,7 +40,13 @@
   .add{grid-template-areas:"head" "name" "grade" "act"}
   .sync{padding:8px 0 0;border-top:1px dashed var(--line)}
 }
+.verify{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;background:var(--yl);border:2px solid #f3dc95;border-radius:18px;box-shadow:0 4px 0 #f3dc95}
+.verify .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#fff;color:#9a6b00;flex:none}
+.verify svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.verify .txt{flex:1;min-width:200px}.verify b{display:block;font:800 18px/1.5 Baloo,Cairo,sans-serif;color:#5a4000}.verify p{margin:0;color:#6b5410;font-size:15px;line-height:1.7}
+.verify form{margin:0}.verify .btn{min-height:46px;font-size:16px;padding:8px 18px;background:#fff;color:#7a5200;border-color:#f0d98a;box-shadow:0 4px 0 #f0d98a}
 @media (max-width:600px){
+  .verify form,.verify .btn{width:100%}
   .card{padding:18px 16px}
   .hello{gap:12px 14px}.hello img{width:64px}.hello h1{font-size:24px}.hello .txt{min-width:0}
   .hello .row{width:100%;display:grid;grid-template-columns:1fr}.hello .row .btn{width:100%}
@@ -50,6 +56,13 @@
 </style>
 <main class="wrap grid">
   @include('partials.flash')
+  @unless ($user->isVerified())
+  <section class="verify" role="status" aria-label="تفعيل الحساب">
+    <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
+    <div class="txt"><b>فعّل حسابك بلمسة واحدة</b><p>أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر.</p></div>
+    <form method="post" action="{{ route('account.verify.resend') }}">@csrf<button class="btn" type="submit">إعادة إرسال رابط التفعيل</button></form>
+  </section>
+  @endunless
   <section class="card hello">
     <img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="96" height="126">
     <div class="txt">

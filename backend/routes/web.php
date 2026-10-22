@@ -47,9 +47,11 @@ Route::prefix('account')->group(function () {
         Route::get('reset-password/{token}', [AccountAuth::class, 'resetForm'])->name('account.password.reset');
         Route::post('reset-password', [AccountAuth::class, 'reset'])->middleware('throttle:password-email')->name('account.password.update');
     });
+    Route::get('verify/{id}/{hash}', [AccountAuth::class, 'verify'])->whereNumber('id')->middleware('throttle:20,1')->name('account.verify');
     Route::middleware('auth')->group(function () {
         Route::get('/', [AccountHome::class, 'index'])->name('account.home');
         Route::post('logout', [AccountAuth::class, 'logout'])->name('account.logout');
+        Route::post('verify/resend', [AccountAuth::class, 'resendVerification'])->middleware('throttle:verify-resend')->name('account.verify.resend');
         Route::post('students', [AccountHome::class, 'storeStudent'])->name('account.students.store');
         Route::put('students/{student}', [AccountHome::class, 'updateStudent'])->name('account.students.update');
         Route::delete('students/{student}', [AccountHome::class, 'destroyStudent'])->name('account.students.destroy');
@@ -89,6 +91,10 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::delete('users/{user}', [Manage::class, 'destroyUser'])->name('manage.user.destroy');
         Route::post('users/{user}/password', [Manage::class, 'passwordUser'])->name('manage.user.password');
         Route::post('users/{user}/trial', [Manage::class, 'trialUser'])->name('manage.user.trial');
+        Route::post('users/{user}/verify', [Manage::class, 'verifyUser'])->name('manage.user.verify');
+        Route::get('mail', [Manage::class, 'mail'])->name('manage.mail');
+        Route::put('mail', [Manage::class, 'updateMail'])->name('manage.mail.update');
+        Route::post('mail/test', [Manage::class, 'testMail'])->middleware('throttle:10,1')->name('manage.mail.test');
         Route::post('users/{user}/grant', [Manage::class, 'grantSubscription'])->name('manage.user.grant');
         Route::get('subscriptions', [Manage::class, 'subscriptions'])->name('manage.subscriptions');
         Route::post('subscriptions/{subscription}/activate', [Manage::class, 'activateSubscription'])->name('manage.subscription.activate');

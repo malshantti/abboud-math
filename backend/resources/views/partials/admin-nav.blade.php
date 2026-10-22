@@ -10,6 +10,7 @@
   <a class="nav-item" href="{{ route('manage.users') }}" @if(str_starts_with($r,'manage.user')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'users'])<span>المستخدمون</span></a>
   <a class="nav-item" href="{{ route('manage.subscriptions') }}" @if(str_starts_with($r,'manage.subscription')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'card'])<span>الاشتراكات</span></a>
   <a class="nav-item" href="{{ route('manage.settings') }}" @if($r==='manage.settings') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'tag'])<span>الأسعار والإعدادات</span></a>
+  <a class="nav-item" href="{{ route('manage.mail') }}" @if($r==='manage.mail') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'mail'])<span>البريد الإلكتروني</span></a>
   <a class="nav-item" href="{{ route('manage.activity') }}" @if($r==='manage.activity') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>سجل النشاط</span></a>
   @endcan
   <p class="nav-group">المحتوى والاختبارات</p>

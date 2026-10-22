@@ -1,4 +1,6 @@
 @php($__p = [
+  'mail' => '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/>',
+  'send' => '<path d="M21 3 10 14"/><path d="m21 3-7 18-4-7-7-4z"/>',
   'home' => '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   'students' => '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
   'users' => '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 010 7"/><path d="M18 14.8c2.4.6 4 2.4 4 5.2"/>',
