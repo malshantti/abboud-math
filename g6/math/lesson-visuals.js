@@ -19,6 +19,7 @@ const ENGINES={
  fractionMultiply:{name:'جزء من جزء',controls:[range('a','أجزاء الكسر الأول من 4',1,4,3),range('b','أجزاء الكسر الثاني من 4',1,4,2)]},
  decimal:{name:'مئة جزء، وفكرة واحدة',controls:[range('a','الأجزاء من مئة',0,100,35)]},
  percent:{name:'نرى النسبة المئوية',controls:[range('a','النسبة من مئة',0,100,40)]},
+ power:{name:'الأساس يتكرر بعدد الأس',controls:[range('a','الأساس',2,5,3),range('b','الأس',1,6,4)]},
  powers:{name:'الضرب المتكرر يصنع مربعًا',controls:[range('a','طول ضلع المربع',1,6,4)]},
  root:{name:'من المساحة إلى طول الضلع',controls:[range('a','طول ضلع المربع',1,6,4)]},
  cubeRoot:{name:'من الحجم إلى طول الحرف',controls:[range('a','طول حرف المكعب',1,5,3)]},
@@ -65,7 +66,7 @@ const ENGINES={
  elevation:{name:'من زاوية النظر إلى الارتفاع',controls:[range('a','زاوية الارتفاع',15,60,30,5),range('b','البعد الأفقي',3,9,6)]}
 };
 const TYPES={P01:'compare',P02:'compare',P03:'fraction',P04:'fractionAdd',P05:'decimal',P06:'decimal',P07:'factor',P08:'distribute',P09:'factor',P10:'fractionMultiply',P11:'balance',P12:'order',P13:'angle',P14:'angle',P15:'area',P16:'parallelogram',P17:'decimal',P18:'bars',P19:'bars',P20:'probability',P21:'order',P22:'compare',
- 'S1-1-1':'order','S1-1-2':'powers','S1-1-3':'powers','S1-1-4':'root','S1-1-5':'cubeRoot',
+ 'S1-1-1':'order','S1-1-2':'power','S1-1-3':'powers','S1-1-4':'root','S1-1-5':'cubeRoot',
  'S1-2-1':'angle','S1-2-2':'angle','S1-2-3':'angle','S1-2-4':'triangleArea','S1-2-5':'area','S1-2-6':'angle','S1-2-7':'parallelogram',
  'S1-3-1':'terms','S1-3-2':'terms','S1-3-3':'terms','S1-3-4':'distribute',
  'S1-4-1':'bars','S1-4-2':'stats','S1-4-3':'stats','S1-4-4':'bars',
@@ -95,6 +96,7 @@ function model(type,s){
  if(['powers','root','cubeRoot'].includes(type)){const cube=type==='cubeRoot',n=cube?a*a*a:a*a;return set(n,[cube?`${a} × ${a} × ${a}`:`${a} × ${a}`,`${a}${cube?'³':'²'} = ${n}`,type==='root'?`√${n} = ${a}`:cube?`∛${n} = ${a}`:`${a}² = ${n}`],['نبدأ من طول الضلع أو الحرف.','المربع صفوف وأعمدة، والمكعب له عمق أيضًا.','الجذر يعيدنا من المساحة أو الحجم إلى الطول.']);}
  if(type==='irrational'){const r=Math.sqrt(a),lo=Math.floor(r);m.root=r;m.low=lo;m.high=Math.ceil(r);return set(r,[`√${a}`,`${lo}² ≤ ${a} ≤ ${m.high}²`,`√${a} ${Number.isInteger(r)?'=':'≈'} ${fmt(r)}`],['نبحث عن عدد مربّعه يساوي العدد المعطى.','نحصر الجذر بين جذري مربعين كاملين.','إذا لم يكن العدد مربعًا كاملًا، فالكتابة العشرية هنا تقريبية.']);}
  if(type==='radicals')return set((a+b)*Math.sqrt(2),[`${a}√2 + ${b}√2`,`${a} + ${b} = ${a+b}`,`${a}√2 + ${b}√2 = ${a+b}√2`],['كل قطعة تمثّل الطول نفسه: جذر اثنين.','الجذور متشابهة، فنعدّ القطع.','نجمع المعاملات، ويبقى الجذر كما هو.']);
+ if(type==='power'){const sp=n=>String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join(''),v=a**b,run=[];for(let k=1;k<=b;k++)run.push(a**k);m.run=run;return set(v,[`${a}${sp(b)}`,Array(b).fill(a).join(' × '),`${a}${sp(b)} = ${Array(b).fill(a).join(' × ')} = ${v}`],[`الأساس ${a} هو العدد المكرَّر، والأس ${b} هو عدد مرات تكراره.`,`نضرب ${a} في نفسه ${b===1?'مرة واحدة فقط':b+' مرات'}، ويكبر الناتج مع كل عامل.`,`إذن ${a} أس ${b} يساوي ${v}، وليس ${a} × ${b} = ${a*b}.`]);}
  if(type==='order')return set(a+b*c,[`${a} + ${b} × ${c}`,`${a} + ${b*c}`,`${a} + ${b} × ${c} = ${a+b*c}`],['نقرأ التعبير قبل الحساب.','الضرب قبل الجمع: نحسب حاصل الضرب أولًا.','نضيف العدد الأول بعد إتمام الضرب.']);
  if(type==='terms')return set(a+b,[`${a}س + ${b}س`,`${a+b} حدود من س`,`${a}س + ${b}س = ${a+b}س`],['المجموعتان من النوع نفسه: س.','نجمع عدد الحدود المتشابهة.','المتغيّر نفسه لا يتغيّر إلى س² عند الجمع.']);
  if(['distribute','factor','divide'].includes(type))return set(a*b,type==='divide'?[`${a*b}س ÷ ${a}`,`${a*b} حدود في ${a} مجموعات`,`${a*b}س ÷ ${a} = ${b}س`]:type==='factor'?[`${a}س + ${a*b}`,`العامل المشترك: ${a}`,`${a}س + ${a*b} = ${a}(س + ${b})`]:[`${a}(س + ${b})`,`${a} × س  ،  ${a} × ${b}`,`${a}(س + ${b}) = ${a}س + ${a*b}`],['الشكل مقسّم إلى مجموعات متساوية.','ننظر إلى ما يتكرّر في كل مجموعة.','التوزيع والتحليل يعيدان ترتيب المقدار دون تغيير قيمته.']);
@@ -154,6 +156,12 @@ function scene(m,step){
    const blocks=step===2?1:a,units=step===2?c:step===1?a*c:m.total;
    for(let i=0;i<blocks;i++)out+=rect(111+i*23,140,19,30,'lv-green')+text(121+i*23,162,'س');if(step===0)out+=text(155,125,`+ ${b}`,'lv-gold');out+=text(385,166,units,'lv-ink');out+=text(270,308,step===0?'متساويان':step===1?`طرحنا ${b} من الطرفين`:`قسمنا الطرفين على ${a}`);
  }
+ else if(type==='power'){
+   const sp=n=>String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join('');
+   if(step===0){out+=rect(205,100,90,95,'lv-green-soft')+rect(270,80,40,45,'lv-gold-soft');out+=text(250,166,a,'lv-big')+text(290,113,b,'lv-big');out+=text(250,225,'الأساس','lv-label')+text(345,105,'الأس','lv-label');out+=text(270,290,`${a}${sp(b)}: نكرّر ${a} عاملًا ${b===1?'مرة واحدة':b+' مرات'}`,'lv-label');}
+   else{const w=Math.min(78,460/b),x0=270-(b*w)/2;for(let k=0;k<b;k++){const x=x0+k*w;out+=rect(x+4,95,w-8,70,step===2&&k===b-1?'lv-gold':'lv-green-soft')+text(x+w/2,140,a,'lv-big');if(k<b-1)out+=text(x+w,140,'×');out+=text(x+w/2,195,m.run[k],'lv-label');}
+    out+=text(270,235,'الناتج بعد كل عامل','lv-label');if(step===2)out+=text(270,290,`${a}${sp(b)} = ${m.result}`,'lv-big');else out+=text(270,290,`${b} ${b===1?'عامل':b<=10&&b>2?'عوامل':'عاملان'} كلّ منها ${a}`,'lv-label');}
+ }
  else if(type==='order'){
    out+=rect(60,90,110,95,'lv-green-soft')+rect(200,90,280,95,step?'lv-gold':'lv-gold-soft');out+=text(115,148,a,'lv-big')+text(185,148,'+','lv-big')+text(340,148,step?`${b} × ${c} = ${b*c}`:`${b} × ${c}`,'lv-big');
    out+=text(115,215,'العدد الأول','lv-label')+text(340,215,step?`حاصل الضرب ${b*c} يُحسب أولًا`:'عملية الضرب','lv-label');
@@ -207,9 +215,9 @@ function scene(m,step){
  return `<svg viewBox="0 0 540 340" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;
 }
 const INSTR_DEFAULT='حرّك الأشرطة لتغيير الأعداد، ثم اضغط الخطوات ١ و٢ و٣ بالترتيب لترى الحل.';
-const INSTR={order:'حرّك الأشرطة لتغيير الأعداد، وشاهد كيف نحسب الضرب أولًا ثم نجمع.'};
+const INSTR={power:'حرّك شريط الأساس وشريط الأس، وشاهد كيف يتكرر الأساس عاملًا بعدد الأس.',order:'حرّك الأشرطة لتغيير الأعداد، وشاهد كيف نحسب الضرب أولًا ثم نجمع.'};
 const STEPS_DEFAULT=['نقرأ المسألة','نحسب الخطوة الأولى','نصل إلى الناتج'];
-const STEPS={order:['نقرأ التمرين','نحسب الضرب أولًا','نجمع ونصل إلى الناتج']};
+const STEPS={power:['نقرأ الأساس والأس','نكتب الضرب المتكرر','نحسب القيمة'],order:['نقرأ التمرين','نحسب الضرب أولًا','نجمع ونصل إلى الناتج']};
 let current=null,timer=null;
 const controlMarkup=type=>`<h3>غيّر القيم ولاحظ الفرق.</h3>${ENGINES[type].controls.map(c=>`<label class="lv-control">${c.label}<output data-lv-output="${c.name}">${fmt(c.value)}</output><input type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${c.value}" data-lv-input="${c.name}" dir="ltr"></label>`).join('')}<div class="lv-control-note">${window.ICON('hand')} أرقام هذا المثال للتجربة، ولا تغيّر تقدّمك.</div>`;
 function install(A){
