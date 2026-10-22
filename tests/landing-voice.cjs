@@ -30,9 +30,9 @@ const flush=async()=>{for(let i=0;i<8;i++)await new Promise(setImmediate)};
  assert.deepEqual([...x.ls.keys()],[],'nothing written without a choice');
  // mute persists in own key; icons are SVG, no emoji
  const mb=x.pill.querySelector('.L-voice-mute');mb.on.click();assert.deepEqual([...x.ls.entries()],[['bustan_landing_voice','off']]);assert.match(mb.innerHTML,/<svg/);assert.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(src),'no emoji');
- // blocked autoplay: pill stays, only real activation events armed (no scroll/wheel/touchstart); play() called synchronously in the handler
+ // blocked autoplay: pill stays, first-interaction events armed (incl. scroll/wheel best-effort); play() called synchronously in the handler
  x=fx({block:true});await flush();assert.equal(x.pill.querySelector('.L-voice-play').hidden,false);
- for(const t of ['pointerup','click','touchend','keydown'])assert.ok(x.listeners[t],t);for(const t of ['scroll','wheel','touchstart','pointerdown'])assert.ok(!x.listeners[t],t);
+ for(const t of ['pointerdown','touchstart','keydown','scroll','wheel','pointerup','click','touchend'])assert.ok(x.listeners[t],t);
  x.unblock();const n0=x.audios[0].plays||0;x.listeners.click({type:'click',target:{}});assert.equal(x.audios[0].paused,false,'play() ran synchronously inside the gesture');
  await flush();assert.ok(!x.listeners.click);assert.equal(x.audios[0].src,'assets/landing/voice/welcome.mp3');
  // muted user: no autoplay, no listeners
