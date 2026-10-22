@@ -63,6 +63,18 @@ class Ar
         return static::GRADES[$g] ?? 'غير محدد';
     }
 
+    /** Grade names as words for a group, e.g. [1, 2] => «الصفان الأول والثاني». */
+    public static function gradeGroup(array $grades): string
+    {
+        $words = array_map(fn ($g) => preg_replace('/^الصف /u', '', static::grade($g)), $grades);
+        if (count($words) === 1) {
+            return 'الصف '.$words[0];
+        }
+        $last = array_pop($words);
+
+        return (count($words) === 1 ? 'الصفان ' : 'الصفوف ').implode('، ', $words).' و'.$last;
+    }
+
     /** Progress key => [grade, subject label]. Mirrors the static site's localStorage keys. */
     public const KEYS = [
         'abboud_math_v1' => [8, 'الرياضيات'], 'bustan_g8_english_v1' => [8, 'الإنجليزية'], 'bustan_g8_arabic_v1' => [8, 'العربية'], 'bustan_g8_science_v1' => [8, 'العلوم'],

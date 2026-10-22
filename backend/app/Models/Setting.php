@@ -20,7 +20,7 @@ class Setting extends Model
 
     public const DEFAULTS = [
         'site_name' => 'بستان التعلّم',
-        'tagline' => 'نزرع الفهم، ونحصد المعرفة',
+        'tagline' => 'نزرع الفهم، ونحصد المعرفة — المنهاج الفلسطيني كاملًا',
         'registration_open' => '1',
         'announcement' => '',
         'announcement_active' => '0',
@@ -94,6 +94,35 @@ class Setting extends Model
         }
 
         return $out;
+    }
+
+    /** Grade groups shown on the landing pricing cards. */
+    public const PRICE_GROUPS = [[1, 2], [6, 8]];
+
+    /** Public price summary for the static landing: one entry per grade group, min/max from the admin-set prices. */
+    public static function publicPrices(): array
+    {
+        $plans = static::plans();
+        $groups = [];
+        foreach (self::PRICE_GROUPS as $grades) {
+            $set = array_values(array_filter($plans, fn ($p) => in_array($p['grade'], $grades, true)));
+            if (! $set) {
+                continue;
+            }
+            $prices = array_column($set, 'price');
+            $days = array_column($set, 'days');
+            $groups[] = [
+                'key' => implode('-', $grades), 'grades' => $grades, 'title' => \App\Support\Ar::gradeGroup($grades),
+                'min' => min($prices), 'max' => max($prices), 'from' => min($prices) !== max($prices),
+                'days' => min($days), 'days_vary' => min($days) !== max($days),
+            ];
+        }
+
+        return [
+            'currency' => static::get('currency'), 'trial_days' => max(0, (int) static::get('trial_days')),
+            'groups' => $groups,
+            'plans' => array_map(fn ($p) => ['price' => $p['price'], 'days' => $p['days'], 'grade' => $p['grade']], $plans),
+        ];
     }
 
     public static function publicData(): array

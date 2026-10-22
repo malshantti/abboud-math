@@ -65,6 +65,7 @@ Route::get('/password-reset/{token}', fn (string $token) => redirect()->route('a
 // ---- Progress sync API for the static site (same origin: /admin-api/api/...) ----
 Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
     Route::get('site', [SyncController::class, 'site']);
+    Route::get('public/prices', [SyncController::class, 'prices']);
     Route::get('session', [SyncController::class, 'session']);
     Route::middleware('auth')->group(function () {
         Route::post('students', [SyncController::class, 'storeStudent']);
