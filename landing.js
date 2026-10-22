@@ -212,16 +212,17 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
  CLIPS.forEach(function(c){if(c[0]==='welcome')return;var el=sec(c);if(el){el.setAttribute('data-voice',c[0]);io.observe(el)}})}
 playBtn.addEventListener('click',function(){muted=false;save('on');enable()});
 muteBtn.addEventListener('click',function(){muted=!muted;save(muted?'off':'on');if(muted){queue=[];stop();off()}else enable();ui()});
-// تفعيل المستخدم الحقيقي فقط (لا تمرير ولا عجلة): أول نقرة/لمسة/مفتاح في أي مكان يبدأ الترحيب.
-var evs=['pointerup','click','touchend','keydown'];
+// أول تفاعل في أي مكان يبدأ الترحيب. التمرير والعجلة ليسا تفعيلًا حقيقيًّا في كروم فتُجرَّب دون ضمان؛ اللمس والنقر والمفاتيح مضمونة.
+var evs=['pointerdown','touchstart','keydown','scroll','wheel','pointerup','click','touchend'];
 function gesture(e){if(e&&e.target&&pill.contains&&pill.contains(e.target))return;if(muted||enabled){off();return}
  if(e&&e.type==='keydown'&&(e.key==='Escape'||e.key==='Tab'||e.altKey||e.ctrlKey||e.metaKey))return;
  enable()}
 function arm(){if(armed||muted||enabled)return;armed=true;evs.forEach(function(t){addEventListener(t,gesture,{capture:true,passive:true})})}
 function off(){if(!armed)return;armed=false;evs.forEach(function(t){removeEventListener(t,gesture,true)})}
+function onLoad(f){if(document.readyState==='complete')f();else addEventListener('load',function(){f()},{once:true})}
 function show(){if(!pill.hidden)return;pill.hidden=false;ui();if(muted||!AUTO)return;arm();
- // محاولة تشغيل تلقائي بصوت منخفض؛ إن منعها المتصفح يبقى الزرّ ظاهرًا وتنتظر أول تفعيل حقيقي
- if(!enabled)start('welcome',true).then(function(ok){if(ok&&!enabled){enabled=true;queueVisible();ui();off()}})}
+ // بعد اكتمال تحميل الصفحة: محاولة تشغيل الترحيب تلقائيًّا بصوت منخفض؛ إن منعها المتصفح تبقى المستمعات مسلّحة حتى أول تفاعل
+ onLoad(function(){if(enabled||muted||played.welcome||curId)return;start('welcome',true).then(function(ok){if(ok&&!enabled){enabled=true;queueVisible();ui();off()}else if(!ok)arm()})})}
 // إعدادات الجولة من لوחة الإدارة: تشغيل/إيقاف، مستوى الصوت، البدء التلقائي. دون اتصال تبقى القيم الافتراضية.
 Promise.resolve(window.__bustanSite||null).then(function(d){var v=d&&d.voice;
  if(v){if(v.enabled===false){pill.remove&&pill.remove();cap.remove&&cap.remove();return}
