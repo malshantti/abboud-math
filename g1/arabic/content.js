@@ -1,7 +1,8 @@
-/* أنشطة أصلية داعمة؛ الإحالات إلى صفحات الكتاب المطبوع، لا إلى ترتيب ملف PDF. */
+/* أنشطة أصلية داعمة؛ الإحالات إلى صفحات الكتاب المطبوع. النص الظاهر للطفل قصير، وكل خطوة لها صوت. */
 (()=>{
   'use strict';
   const symbol=(value,caption='')=>({type:'symbol',value,caption});
+  const items=(...icons)=>({type:'items',icons});
   const choice=label=>({label,scene:symbol(label)});
   const books=[
     {id:'p1',title:'لغتنا الجميلة - الجزء الأول',pdfOffset:4,url:'https://elearn.azureedge.net/Books/c1/ar1-p1.pdf'},
@@ -16,153 +17,168 @@
     ['ق','القاف',153],['ث','الثاء',161],['خ','الخاء',169]
   ];
   const letters2=[['ذ','الذال',5],['غ','الغين',13],['ط','الطاء',21],['ك','الكاف',29],['ض','الضاد',37],['ه','الهاء',49],['و','الواو',57],['أ','الهمزة',65],['ظ','الظاء',73],['ي','الياء',81]];
-  // أمثلة دعم أصلية؛ أشكال الاتصال لا تضيف وصلة بعد الحرف غير المتصل.
+  const spokenRaw={'ر':'الرَّاءُ','د':'الدَّالُ','ب':'الْبَاءُ','م':'الْمِيمُ','ن':'النُّونُ','س':'السِّينُ','ز':'الزَّايُ','ح':'الْحَاءُ','ل':'اللَّامُ','ت':'التَّاءُ','ج':'الْجِيمُ','ف':'الْفَاءُ','ع':'الْعَيْنُ','ش':'الشِّينُ','ص':'الصَّادُ','ق':'الْقَافُ','ث':'الثَّاءُ','خ':'الْخَاءُ','ذ':'الذَّالُ','غ':'الْغَيْنُ','ط':'الطَّاءُ','ك':'الْكَافُ','ض':'الضَّادُ','ه':'الْهَاءُ','و':'الْوَاوُ','أ':'الْهَمْزَةُ','ظ':'الظَّاءُ','ي':'الْيَاءُ'};
+  const spoken=Object.fromEntries(Object.entries(spokenRaw).map(([k,v])=>[k,v.replace(/\u064f$/,'\u0650')]));
+  // حروف متشابهة في الشكل أو الصوت؛ المشتّت دائمًا من مجموعة الحرف نفسه.
+  const lookAlike={'ب':['ت','ث'],'ت':['ث','ب'],'ث':['ت','ب'],'ج':['ح','خ'],'ح':['ج','خ'],'خ':['ح','ج'],'ر':['ز','د'],'ز':['ر','ذ'],'د':['ذ','ر'],'ذ':['د','ز'],'س':['ش','ص'],'ش':['س','ص'],'ص':['ض','س'],'ض':['ص','ش'],'ط':['ظ','ص'],'ظ':['ط','ض'],'ع':['غ','ح'],'غ':['ع','خ'],'ف':['ق','غ'],'ق':['ف','غ'],'م':['ن','ب'],'ن':['ب','ت'],'ل':['ك','ن'],'ك':['ل','ق'],'ه':['م','ة'],'و':['ر','ز'],'أ':['إ','ء'],'ي':['ب','ن']};
+  // كلمات من حروف تعلّمها الطفل حتى الدرس فقط. الجزء الأول: لا تنوين ولا شدة، والسكون بعد درس الحاء فقط.
+  // [الكلمة، الأيقونة، الجملة، مقاطع الإملاء]
   const support={
-    'ر':[['ر','ـر'],'رَمْلٌ','هَذَا رَمْلٌ.'],
-    'د':[['د','ـد'],'دَارٌ','هَذِهِ دَارٌ.'],
-    'ب':[['ب','بـ','ـبـ','ـب'],'بَابٌ','هَذَا بَابٌ.'],
-    'م':[['م','مـ','ـمـ','ـم'],'مَوْزٌ','هَذَا مَوْزٌ.'],
-    'ن':[['ن','نـ','ـنـ','ـن'],'نُورٌ','هَذَا نُورٌ.'],
-    'س':[['س','سـ','ـسـ','ـس'],'سَمَكٌ','هَذَا سَمَكٌ.'],
-    'ز':[['ز','ـز'],'زَيْتُونٌ','هَذَا زَيْتُونٌ.'],
-    'ح':[['ح','حـ','ـحـ','ـح'],'حَلِيبٌ','هَذَا حَلِيبٌ.'],
-    'ل':[['ل','لـ','ـلـ','ـل'],'لَيْمُونٌ','هَذَا لَيْمُونٌ.'],
-    'ت':[['ت','تـ','ـتـ','ـت'],'تَمْرٌ','هَذَا تَمْرٌ.'],
-    'ج':[['ج','جـ','ـجـ','ـج'],'جَمَلٌ','هَذَا جَمَلٌ.'],
-    'ف':[['ف','فـ','ـفـ','ـف'],'فِيلٌ','هَذَا فِيلٌ.'],
-    'ع':[['ع','عـ','ـعـ','ـع'],'عَيْنٌ','هَذِهِ عَيْنٌ.'],
-    'ش':[['ش','شـ','ـشـ','ـش'],'شَمْسٌ','هَذِهِ شَمْسٌ.'],
-    'ص':[['ص','صـ','ـصـ','ـص'],'صَقْرٌ','هَذَا صَقْرٌ.'],
-    'ق':[['ق','قـ','ـقـ','ـق'],'قَلَمٌ','هَذَا قَلَمٌ.'],
-    'ث':[['ث','ثـ','ـثـ','ـث'],'ثَوْبٌ','هَذَا ثَوْبٌ.'],
-    'خ':[['خ','خـ','ـخـ','ـخ'],'خُبْزٌ','هَذَا خُبْزٌ.'],
-    'ذ':[['ذ','ـذ'],'ذُرَةٌ','هَذِهِ ذُرَةٌ.'],
-    'غ':[['غ','غـ','ـغـ','ـغ'],'غُرَابٌ','هَذَا غُرَابٌ.'],
-    'ط':[['ط','طـ','ـطـ','ـط'],'طَائِرٌ','هَذَا طَائِرٌ.'],
-    'ك':[['ك','كـ','ـكـ','ـك'],'كَأْسٌ','هَذِهِ كَأْسٌ.'],
-    'ض':[['ض','ضـ','ـضـ','ـض'],'ضِرْسٌ','هَذَا ضِرْسٌ.'],
-    'ه':[['ه','هـ','ـهـ','ـه'],'هِلَالٌ','هَذَا هِلَالٌ.'],
-    'و':[['و','ـو'],'وَرْدَةٌ','هَذِهِ وَرْدَةٌ.'],
-    'أ':[['أ','إ','ء'],'أَسَدٌ','هَذَا أَسَدٌ.'],
-    'ظ':[['ظ','ظـ','ـظـ','ـظ'],'ظِلٌّ','هَذَا ظِلٌّ.'],
-    'ي':[['ي','يـ','ـيـ','ـي'],'يَدٌ','هَذِهِ يَدٌ.']
+    'ر':['رَا',null,'',['رَ','ا']],
+    'د':['دَار','house','',['دَ','ا','ر']],
+    'ب':['بَاب','door','بَاب دَار.',['بَ','ا','ب']],
+    'م':['مَامَا','mum','دَار مَامَا.',['مَ','ا','مَ','ا']],
+    'ن':['نَامَ',null,'نَامَ بَابَا.',['نَ','ا','مَ']],
+    'س':['سَامِر','boy','رَسَمَ سَامِر.',['سَ','ا','مِ','ر']],
+    'ز':['زَبِيب',null,'زَارَنَا مَازِن.',['زَ','بِي','ب']],
+    'ح':['حَمَام','bird','نَامَ حَامِد.',['حَ','مَ','ا','م']],
+    'ل':['لَيْمُون','lemon','نَزَلَ بِلَال.',['لَ','يْ','مُو','ن']],
+    'ت':['تُوت',null,'نَزَلَتْ تَالَا.',['تُو','ت']],
+    'ج':['جَمَل',null,'جَلَسَ جَمِيل.',['جَ','مَ','ل']],
+    'ف':['فِيل','elephant','فَرِحَ فَادِي.',['فِي','ل']],
+    'ع':['عَيْن','eye','عَادَ سَعِيد.',['عَ','يْ','ن']],
+    'ش':['شَمْس','sun','شَرِبَ شَادِي.',['شَ','مْ','س']],
+    'ص':['صُوص','hen','صَعِدَ صَالِح.',['صُو','ص']],
+    'ق':['قَلَم','pen','رَسَمَ قَاسِم.',['قَ','لَ','م']],
+    'ث':['ثَوْب','shirt','جَلَسَ ثَابِت.',['ثَ','وْ','ب']],
+    'خ':['خُبْز','bread','خَرَجَ خَالِد.',['خُ','بْ','ز']],
+    'ذ':['ذُرَة',null,'ذَهَبَ مُنْذِر.',['ذُ','رَ','ة']],
+    'غ':['غُرَاب','bird','غَسَلَ غَازِي يَدَهُ.',['غُ','رَا','ب']],
+    'ط':['طَمَاطِم',null,'طَبَخَ طَارِقٌ طَعَامًا.',['طَ','مَا','طِ','م']],
+    'ك':['كِتَاب','book','كَتَبَ كَرِيمٌ.',['كِ','تَا','ب']],
+    'ض':['ضِفْدَع',null,'ضَحِكَ ضِيَاءٌ.',['ضِ','فْ','دَ','ع']],
+    'ه':['هِلَال',null,'هَذِهِ هَالَةُ.',['هِ','لَا','ل']],
+    'و':['وَرْدَة','flower','وَقَفَ وَلِيدٌ.',['وَ','رْ','دَ','ة']],
+    'أ':['أَرْنَب','rabbit','أَكَلَ أَحْمَدُ.',['أَ','رْ','نَ','ب']],
+    'ظ':['ظَرْف',null,'ظَهَرَ الْقَمَرُ.',['ظَ','رْ','ف']],
+    'ي':['يَد','hand','يَلْعَبُ يَاسِرٌ.',['يَ','د']]
   };
-  const practice=(word,sentence)=>[
-    {title:'أقرأ مع الكبير',text:`أقرأ: ${word} ثُمَّ ${sentence} يساعدني الكبير في الأصوات التي لم أتعلمها بعد؛ هذه أمثلة دعم جديدة.`},
-    {title:'أكتب على ورقة',text:`أنظر إلى ${word} وأنسخها، وألاحظ موضع الحرف واتجاهه مع الكبير.`},
-    {title:'أسمع وأكتب',text:`يقرأ الكبير الكلمة ${word}، ثم يحجبها. أحاول كتابتها وأقارن بالنموذج معه. هذا تدريب شفهي وورقي لا يصححه الموقع.`}
+  const forms={'ر':['ر','ـر'],'د':['د','ـد'],'ز':['ز','ـز'],'ذ':['ذ','ـذ'],'و':['و','ـو'],'أ':['أ','إ','ء']};
+  const formsOf=l=>forms[l]||[l,l+'ـ','ـ'+l+'ـ','ـ'+l];
+  const firstLetter=t=>String(t).normalize('NFC').replace(/[\u064b-\u065f\u0670]/g,'')[0];
+  // تنويع موضع الإجابة بثبات؛ لا نعتمد على الترتيب الظاهر.
+  let turn=0;
+  const ask=(prompt,correct,wrongs,explain,extra={})=>{const list=[].concat(wrongs),at=(turn++)%(list.length+1);list.splice(at,0,correct);return {prompt,choices:list.map(v=>typeof v==='string'?choice(v):v),answer:at,explain,...extra};};
+  const listen=(say,correct,wrongs,explain,prompt='أَسْتَمِعُ، وَأَخْتَارُ.')=>ask(prompt,correct,wrongs,explain,{listen:true,say});
+  const step=(text,scene,say)=>({text,scene,say:say||text});
+  const practice=word=>[
+    {title:'أكتب',text:'أنسخ «'+word+'» على ورقة.'},
+    {title:'أسمع وأكتب',text:'يملي الكبير الكلمة، فأكتبها، ثم نقارن.'}
   ];
   function letterUnit(row,index,term){
-    const [letter,name,page]=row,book=term===1?'p1':'p2';
-    const distractor=letter==='ر'?'د':letter==='د'?'ر':letter==='ب'?'ت':letter==='ن'?'ب':letter==='س'?'ش':letter==='ح'?'ج':letter==='ج'?'ح':letter==='ص'?'ض':letter==='ض'?'ص':letter==='ط'?'ظ':letter==='ظ'?'ط':letter==='ع'?'غ':letter==='غ'?'ع':letter==='ق'?'ف':letter==='ف'?'ق':letter==='ث'?'ت':letter==='خ'?'ح':letter==='ذ'?'د':letter==='و'?'ر':letter==='ه'?'م':letter==='أ'?'ا':letter==='ي'?'ب':'ل';
-    const otherLetter=distractor===letter?'ب':distractor;
-    const unitId=`ar-${book}-${index+1}`,[forms,word,sentence]=support[letter];
-    const lessons=[{
-      id:`${unitId}-letter`,title:`أتعرف حرف ${name}`,goal:'أتعرف شكل الحرف، ثم أميزه بين حرفين.',book,page,
-      steps:[
-        {text:`هذا حرف ${name}. أسمّيه بمساعدة شخص كبير.`,scene:symbol(letter,`حرف ${name}`)},
-        {text:'أتأمل شكل الحرف. أرسمه بإصبعي في الهواء، ثم على ورقة.',scene:symbol(letter)},
-        {text:letter==='أ'?'ألاحظ الهمزة فوق الألف وتحتها، وعلى السطر. أبحث عنها مع الكبير في كلمات صفحة ٦٨.':'قد يتغير شكل الحرف عندما يتصل بما قبله أو بما بعده. ألاحظ الأشكال مع الكبير، ولا أضيف وصلة لا يقبلها الحرف.',scene:symbol(forms.join('  '))}
-      ],
+    const [letter,name,page]=row,book=term===1?'p1':'p2',unitId=`ar-${book}-${index+1}`;
+    const [like1,like2]=lookAlike[letter],[word,icon,sentence,parts]=support[letter],F=formsOf(letter),sound=letter==='أ'?'أَ':letter+'َ';
+    const lessons=[];
+    lessons.push({id:`${unitId}-letter-v2`,title:`حرف ${name}`,goal:'أعرف الحرف، وأسمع صوته.',book,page,
+      steps:[step(`هذا حرف ${name}.`,symbol(letter),`هَذَا حَرْفُ ${spoken[letter]}. ${sound}`),step('أرسمه بإصبعي.',symbol(F.join('  ')),'أَرْسُمُ الْحَرْفَ بِإِصْبَعِي.')],
       tasks:[
-        {prompt:`أين حرف ${name}؟`,choices:[choice(letter),choice(otherLetter)],answer:0,explain:`هذا هو حرف ${name}: ${letter}.`},
-        {prompt:'أختار الحرف المطابق للشكل.',scene:symbol(letter),choices:[choice(otherLetter),choice(letter)],answer:1,explain:'الشكلان متطابقان. أنتبه إلى النقاط وشكل الحرف.'}
-      ]
-    }];
-    const long=letter==='أ'?[]:[`${letter}َا`,`${letter}ُو`,`${letter}ِي`];
-    const short=letter==='أ'?['أَ','أُ','إِ']:[`${letter}َ`,`${letter}ُ`,`${letter}ِ`];
-    const syllable=long[0],other=letter==='أ'?'أَ':`${otherLetter}َا`;
-    if(letter!=='أ')lessons.push({id:`${unitId}-syllable`,title:'أقرأ مقطعًا بالألف',goal:'أربط الحرف بالألف، وأقرأ المقطع مع شخص كبير.',book,page:page+3,
-      steps:[{text:'ألاحظ الحرف مع الألف. أقرأ المقطع بمساعدة شخص كبير.',scene:symbol(syllable)},{text:'أقرأ ببطء، ثم أكتب المقطع على ورقة.',scene:symbol(syllable)}],
-      tasks:[{prompt:`أختار المقطع الذي يبدأ بحرف ${name}.`,choices:[choice(other),choice(syllable)],answer:1,explain:`المقطع ${syllable} يبدأ بحرف ${name}.`},{prompt:'أختار المقطع المطابق.',scene:symbol(syllable),choices:[choice(syllable),choice(other)],answer:0,explain:`نقرأ هذا المقطع: ${syllable}.`}]});
-    lessons.push({id:`${unitId}-phonics`,title:letter==='أ'?'أقرأ الهمزة بحركاتها':'أقارن مقاطع المدّ والحركات',goal:'أقرأ مع الكبير؛ أبدأ بالمدّ، ثم أقارن الحركات القصيرة.',book,page:page+3,referenceLabel:'تدريب دعم؛ أراجع صفحة الحرف ومقاطعه في الكتاب.',
-      phonics:{letter,forms,long,short},steps:letter==='أ'?[
-        {text:'ألاحظ الهمزة مع الفتحة والضمة والكسرة. يقرأ الكبير، ثم أحاول بعده.',scene:symbol(short.join('  '))},
-        {text:'أبحث عن الهمزة في هذه الكلمات، وأقرأ مع الكبير.',scene:symbol('أَمْجَدُ  أُمٌّ  إِسْرَاءُ  مَاءٌ')}
-      ]:[
-        ...long.map((value,i)=>({text:['ألاحظ المدّ بالألف. يقرأ الكبير المقطع، ثم أحاول بعده.','ألاحظ المدّ بالواو. أطيل الصوت بعد الضمة بمساعدة الكبير.','ألاحظ المدّ بالياء. أطيل الصوت بعد الكسرة بمساعدة الكبير.'][i],scene:symbol(value)})),
-        {text:'أقارن الآن الحركات القصيرة: الفتحة، ثم الضمة، ثم الكسرة. لا أضيف حرف مدّ.',scene:symbol(short.join('  '))}
-      ],tasks:letter==='أ'?[
-        {prompt:'أختار الهمزة التي تحت الألف.',choices:[choice('إِ'),choice('أَ')],answer:0,explain:'إِ: الهمزة تحت الألف، ومعها الكسرة.'},
-        {prompt:'أختار الهمزة على السطر.',choices:[choice('أ'),choice('ء')],answer:1,explain:'هذا شكل الهمزة على السطر: ء.'},
-        {prompt:'أختار الشكل المطابق.',scene:symbol('أُ'),choices:[choice('إِ'),choice('أُ')],answer:1,explain:'أُ: همزة مع الضمة.'}
-      ]:[
-        {prompt:'أختار المقطع المطابق للمدّ بالألف.',scene:symbol(syllable),choices:[choice(other),choice(syllable)],answer:1,explain:`نقرأ هذا المقطع مع الكبير: ${syllable}.`},
-        {prompt:'أختار المقطع المطابق للمدّ بالواو.',scene:symbol(long[1]),choices:[choice(long[1]),choice(long[2])],answer:0,explain:`المقطع المطابق: ${long[1]}.`},
-        {prompt:'أختار المقطع المطابق للمدّ بالياء.',scene:symbol(long[2]),choices:[choice(long[0]),choice(long[2])],answer:1,explain:`المقطع المطابق: ${long[2]}.`},
-        {prompt:'أختار الحرف مع الكسرة، دون حرف مدّ.',choices:[choice(short[2]),choice(long[2])],answer:0,explain:`${short[2]} حركة قصيرة، و${long[2]} مقطع ممدود.`}
+        listen(sound,letter,[like1,like2],`صوت حرف ${name}: ${sound}`,'أَسْتَمِعُ، وَأَخْتَارُ الْحَرْفَ.'),
+        ask('أختار الحرف نفسه.',letter,[like1],`الحرف نفسه: ${letter}. أنتبه إلى النقاط.`,{scene:symbol(letter),say:'أَخْتَارُ الْحَرْفَ نَفْسَهُ.'}),
+        ask('أختار الحرف في آخر الكلمة.',F.at(-1),[formsOf(like1).at(-1)],`حرف ${name} في آخر الكلمة: ${F.at(-1)}`,{say:'أَخْتَارُ الْحَرْفَ فِي آخِرِ الْكَلِمَةِ.'})
       ]});
-    const otherWord=letter==='ق'?'ثَوْبٌ':'قَلَمٌ';
-    lessons.push({id:`${unitId}-word`,title:'الحرف في كلمة وجملة',goal:'ألاحظ اتصال الحرف، وأقرأ كلمة وجملة دعم مع الكبير.',book,page:page+3,
-      referenceLabel:'أمثلة دعم أصلية؛ لا تحل محل كلمات درس الكتاب.',guidedPractice:practice(word,sentence),
-      steps:[{text:'أبحث عن حرف الدرس في الكلمة. يساعدني الكبير في بقية الحروف.',scene:symbol(word)},{text:'أقرأ جملة قصيرة مع الكبير، ثم أقول جملة من عندي.',scene:symbol(sentence)}],
-      tasks:[{prompt:`أختار الكلمة التي تبدأ بحرف ${name}؛ ثم أقرؤها مع الكبير.`,choices:[choice(word),choice(otherWord)],answer:0,explain:`تبدأ ${word} بحرف ${name}.`},{prompt:'أختار الجملة التي تحتوي الكلمة السابقة.',scene:symbol(word),choices:[{label:'هَذَا قَلَمٌ.'},{label:sentence}],answer:1,explain:`الجملة: ${sentence}`},{prompt:'أختار شكل الحرف المطابق، وألاحظ الوصلة مع الكبير.',scene:symbol(forms.at(-1)),choices:[choice(forms.at(-1)),choice(otherLetter)],answer:0,explain:`هذا شكل من أشكال حرف ${name}: ${forms.at(-1)}.`}]
-    });
-    if(letter==='ق')lessons.at(-1).tasks[1].choices[0].label='هَذَا ثَوْبٌ.';
+    const long=letter==='أ'?[]:letter==='ي'?['يَا','يُو']:letter==='و'?['وَا','وِي']:[`${letter}َا`,`${letter}ُو`,`${letter}ِي`];
+    const short=letter==='أ'?['أَ','أُ','إِ']:[`${letter}َ`,`${letter}ُ`,`${letter}ِ`];
+    const likeLong=v=>v.replace(letter,like1);
+    lessons.push({id:`${unitId}-phonics-v2`,title:letter==='أ'?'الهمزة وحركاتها':'المدود والحركات',goal:'أقرأ الحرف مع الحركات والمدود.',book,page:page+3,phonics:{letter,forms:F,long,short},
+      steps:[...(long.length?[step('أمدّ الصوت.',symbol(long.join('  ')),long.join('، '))]:[]),step('حركات قصيرة.',symbol(short.join('  ')),short.join('، '))],
+      tasks:[
+        ...long.map(v=>listen(v,v,[likeLong(v),...(long.length>1?[long.find(x=>x!==v)]:[])],'نقرأ: '+v,'أَسْتَمِعُ، وَأَخْتَارُ الْمَقْطَعَ.')),
+        listen(short[2],short[2],letter==='أ'?[short[0],short[1]]:[long[long.length-1],short[0]],short[2]+' حركة قصيرة.','أَسْتَمِعُ، وَأَخْتَارُ.'),
+        ...(letter==='أ'?[listen('ءْ','ء',['أ','إ'],'الهمزة على السطر: ء','أَسْتَمِعُ، وَأَخْتَارُ الْهَمْزَةَ عَلَى السَّطْرِ.')]:[])
+      ]});
+    if(letter!=='ر'){
+      const order=[...letters1,...letters2].map(r=>r[0]),pos=order.indexOf(letter),otherWord=order.slice(0,pos).reverse().map(l=>support[l][0]).find(w=>firstLetter(w)!==letter)||'رَا';
+      lessons.push({id:`${unitId}-word-v2`,title:'أقرأ كلمة',goal:'أقرأ كلمة فيها الحرف.',book,page:page+3,guidedPractice:practice(word),
+        steps:[step(word,icon?items(icon):symbol(word),word),...(sentence?[step(sentence,symbol(sentence),sentence)]:[])],
+        tasks:[
+          ask(`أختار كلمة تبدأ بحرف ${name}.`,word,[otherWord],`${word} تبدأ بحرف ${name}.`,{say:`أَخْتَارُ كَلِمَةً تَبْدَأُ بِحَرْفِ ${spoken[letter]}.`}),
+          listen(word,word,[otherWord],'سمعت: '+word,'أَسْتَمِعُ، وَأَخْتَارُ الْكَلِمَةَ.'),
+          ...(sentence?[listen(sentence,sentence,[sentenceOther(sentence)],'سمعت: '+sentence,'أَسْتَمِعُ، وَأَخْتَارُ الْجُمْلَةَ.')]:[])
+        ]});
+    }
+    // إملاء: أستمع ثم أختار ترتيب الحروف الصحيح.
+    const right=parts.join(' '),swapped=parts.slice().reverse().join(' '),wrongLetter=parts.map((p,i)=>i===0?p.replace(letter,like1):p).join(' ');
+    lessons.push({id:`${unitId}-dictation-v2`,title:'أستمع وأكتب',goal:'أسمع، وأرتّب الحروف.',book,page:page+3,guidedPractice:[{title:'أكتب',text:'يملي الكبير، فأكتب على ورقة.'}],
+      steps:[step('أسمع، ثم أرتّب.',symbol(right),word)],
+      tasks:[listen(word,right,[...new Set([swapped,wrongLetter])].filter(v=>v!==right),'الترتيب: '+right,'أَسْتَمِعُ، وَأَخْتَارُ التَّرْتِيبَ الصَّحِيحَ.')]});
     return {id:unitId,title:`حرف ${name}`,term,book,page,lessons};
   }
+  const lessonsWords=[];
+  const sentenceOther=s=>{const w=s.replace(/\.$/,'').split(' ');return w.length>1?w.slice().reverse().join(' ')+'.':s.replace(/\.$/,'')+'؟';};
   const prep={id:'ar-prep',title:'التهيئة',term:1,book:'p1',page:2,lessons:[{
-    id:'ar-prep-match',title:'أنظر وأطابق',goal:'ألاحظ الصورة، وأختار الصورة المطابقة.',book:'p1',page:2,
-    steps:[{text:'أنظر إلى الصورة. أقول اسمها بمساعدة شخص كبير.',scene:{type:'items',icons:['book']}},{text:'أبحث عن الصورة نفسها. أبدأ بنشاط قصير، وأستريح حين أحتاج.',scene:{type:'items',icons:['bag']}}],
+    id:'ar-prep-match',title:'أنظر وأطابق',goal:'أختار الصورة نفسها.',book:'p1',page:2,
+    steps:[step('هذا كتاب.',items('book'),'هَذَا كِتَابٌ.'),step('هذه حقيبة.',items('bag'),'هَذِهِ حَقِيبَةٌ.')],
     tasks:[{prompt:'أختار الصورة المطابقة.',scene:{type:'items',icons:['book']},choices:[{label:'كتاب',scene:{type:'items',icons:['book']}},{label:'كرة',scene:{type:'items',icons:['ball']}}],answer:0,explain:'كتاب مع كتاب: الصورتان متطابقتان.'},{prompt:'أختار الصورة المطابقة.',scene:{type:'items',icons:['bag']},choices:[{label:'قلم',scene:{type:'items',icons:['pen']}},{label:'حقيبة',scene:{type:'items',icons:['bag']}}],answer:1,explain:'هذه حقيبة، مثل الصورة التي رأيناها.'}]
   }]};
   function revision(id,term,page,letters){
     const book=term===1?'p1':'p2';
-    const task=(letter,i)=>({prompt:'أختار الحرف المطابق.',scene:symbol(letter),choices:[choice(letters[(i+1)%letters.length]),choice(letter)],answer:1,explain:`الحرف المطابق هو: ${letter}.`});
+    const task=letter=>listen(letter==='أ'?'أَ':letter+'َ',letter,[lookAlike[letter][0]],'هذا حرف '+letter,'أَسْتَمِعُ، وَأَخْتَارُ الْحَرْفَ.');
     return {id,title:'المراجعة',term,book,page,lessons:[
-      {id:`${id}-lesson`,title:'أبدأ المراجعة بحرفين',book,page,reviewTargets:letters.slice(0,2),goal:'أميز الحرفين الأولين في مجموعة المراجعة.',steps:[{text:'أسمّي هذين الحرفين مع الكبير.',scene:symbol(letters.slice(0,2).join('  '))}],tasks:letters.slice(0,2).map(task)},
-      {id:`${id}-all`,title:'أراجع كل الحروف',book,page,reviewTargets:letters,goal:'أراجع كل حرف، وأقرأ مقاطعه مع الكبير.',guidedPractice:[{title:'مراجعة شفهية وكتابية',text:'يقرأ الكبير كل حرف ومقاطع المدّ الثلاثة المناسبة له. أحاول بعده، ثم أنسخ كلمة من صفحة المراجعة وأقرأها. لا يسجّل الموقع تقييم هذه المهمة.'}],steps:[{text:'أسمّي كل هذه الحروف مع الكبير. لكل حرف سؤال؛ يمكنني الاستراحة ثم العودة.',scene:symbol(letters.join('  '))}],tasks:letters.map(task)}]};
+      {id:`${id}-all-v2`,title:'أراجع الحروف',book,page,reviewTargets:letters,goal:'أسمع الحرف، وأختاره.',steps:[step('أراجع.',symbol(letters.join('  ')),letters.map(l=>spoken[l]).join('، '))],tasks:letters.map(task)},
+      {id:`${id}-words-v2`,title:'أراجع الكلمات',book,page,goal:'أسمع الكلمة، وأختارها.',steps:[step('أقرأ.',symbol(letters.map(l=>support[l][0]).join('  ')),letters.map(l=>support[l][0]).join('، '))],
+        tasks:letters.map((l,i)=>listen(support[l][0],support[l][0],[support[letters[(i+1)%letters.length]][0]],'سمعت: '+support[l][0],'أَسْتَمِعُ، وَأَخْتَارُ الْكَلِمَةَ.'))}]};
   }
   const units=[prep];
+  for(const [l] of [...letters1,...letters2])lessonsWords.push(support[l][0]);
   const revisions1={2:36,5:61,8:90,11:122,14:150,17:179};
   letters1.forEach((row,i)=>{units.push(letterUnit(row,i,1));if(revisions1[i])units.push(revision(`ar-p1-review-${i}`,1,revisions1[i],letters1.slice(i-2,i+1).map(x=>x[0])));});
   letters2.forEach((row,i)=>{units.push(letterUnit(row,i,2));if(i===4||i===9)units.push(revision(`ar-p2-review-${i}`,2,i===4?45:90,letters2.slice(i-4,i+1).map(x=>x[0])));});
-  function storyUnit(id,title,page,steps,tasks){
-    return {id,title,term:2,book:'p2',page,lessons:[{id:`${id}-reading`,title:'أقرأ وأفهم مع الكبير',goal:'أقرأ الدرس من الكتاب مع الكبير، ثم أجرب نشاط الدعم.',book:'p2',page:page+3,
-      referenceLabel:'القراءة الأصلية في المصدر؛ المشاهد التالية نشاط دعم مختصر.',guidedPractice:[
-        {title:'أقرأ نص الكتاب',text:'نفتح صفحة القراءة المحددة في المصدر. يقرأ الكبير أولًا، ثم أقرأ معه جملة قصيرة. الرابط يحتاج إلى الإنترنت؛ يمكن استعمال الكتاب الورقي.'},
-        {title:'أحكي وأفكر',text:'أذكر الشخصيات، ثم ما حدث أولًا وبعد ذلك. أسأل: لماذا حدث ذلك؟ يساعدني الكبير في الرجوع إلى النص.'},
-        {title:'أكتب وأقارن',text:'أختار مع الكبير كلمة من القراءة وأنسخها. يحجبها ويمليها عليّ، ثم نقارن بالنموذج. لا تُصحح الكتابة آليًا.'}
-      ],steps:[{text:'هذه مشاهد دعم مختصرة، وليست نص القراءة الأصلي. نقرأ الدرس من المصدر مع الكبير، ثم نعود إلى هذه الأنشطة.',scene:{type:'items',icons:['book']}},...steps],tasks}]};
+  // نصوص قراءة قصيرة أصلية بمستوى الطفل، مشكولة كاملة، جملة في كل خطوة.
+  function storyUnit(id,title,page,sentences,tasks,cause){
+    const reading={id:`${id}-reading-v2`,title:'أقرأ وأفهم',goal:'أسمع النص جملة جملة، وأقرؤه.',book:'p2',page:page+3,
+      guidedPractice:[{title:'أحكي',text:'أحكي ما حدث أولًا، ثم بعد ذلك.'},{title:'أكتب',text:'أنسخ جملة من النص.'}],
+      passage:sentences.map(s=>s[0]),steps:sentences.map(([text,icons])=>step(text,items(...icons),text)),tasks};
+    return {id,title,term:2,book:'p2',page,lessons:[reading,{id:`${id}-cause-v2`,title:'لماذا؟',goal:'أعرف السبب.',book:'p2',page:page+3,steps:[step(sentences.at(-1)[0],items(...sentences.at(-1)[1]),sentences.at(-1)[0])],tasks:[cause]}]};
   }
+  const q=(say,correct,wrongs,explain)=>ask(say,correct,wrongs,explain,{say});
   units.push(
     storyUnit('ar-help','نساعد الكبير',93,[
-      {text:'رَأَى ثَابِتٌ وَخِتَامُ رَجُلًا كَبِيرَ السِّنِّ يَحْمِلُ سَلَّةَ خُضَارٍ.',scene:{type:'items',icons:['boy','girl','basket']}},
-      {text:'حَمَلَتْ خِتَامُ السَّلَّةَ، وَسَاعَدَ ثَابِتٌ الرَّجُلَ عَلَى السَّيْرِ.',scene:{type:'items',icons:['hand','basket']}}
+      ['رَأَى ثَابِتٌ جَدَّهُ يَحْمِلُ سَلَّةً.',['boy','basket']],
+      ['قَالَ ثَابِتٌ: أَحْمِلُهَا عَنْكَ يَا جَدِّي.',['boy','hand']],
+      ['حَمَلَ ثَابِتٌ السَّلَّةَ إِلَى الْبَيْتِ.',['basket','house']],
+      ['فَرِحَ الْجَدُّ، وَقَالَ: شُكْرًا يَا ثَابِتُ.',['house','boy']]
     ],[
-      {prompt:'ماذا حملت ختام؟',choices:[{label:'سلة خضار',scene:{type:'items',icons:['basket']}},{label:'كرة',scene:{type:'items',icons:['ball']}}],answer:0,explain:'حملت ختام سلة الخضار.'},
-      {prompt:'أي تصرف نتعلمه؟',choices:[{label:'ترك من يحتاج إلى مساعدة.'},{label:'مساعدة الكبير باحترام.'}],answer:1,explain:'نتعلم مساعدة الكبير واحترامه.'}
-    ]),
+      q('مَاذَا كَانَ الْجَدُّ يَحْمِلُ؟',{label:'سَلَّةً',scene:items('basket')},[{label:'كُرَةً',scene:items('ball')}],'كان الجد يحمل سلة.'),
+      q('مَاذَا قَالَ الْجَدُّ؟','شُكْرًا يَا ثَابِتُ.',['إِلَى اللِّقَاءِ.'],'قال الجد: شكرًا.')
+    ],q('لِمَاذَا حَمَلَ ثَابِتٌ السَّلَّةَ؟','لِيُسَاعِدَ جَدَّهُ.','لِيَلْعَبَ بِهَا.','ساعد ثابت جده.')),
     storyUnit('ar-country','وطني أجمل',101,[
-      {text:'يَسْكُنُ عُصْفُورٌ صَغِيرٌ فِي شَجَرَةِ زَيْتُونٍ.',scene:{type:'items',icons:['bird','tree']}},
-      {text:'عُرِضَ عَلَيْهِ عُشٌّ أَوْسَعُ، لَكِنَّهُ اخْتَارَ الْبَقَاءَ فِي وَطَنِهِ.',scene:{type:'items',icons:['nest','leaf']}}
+      ['فِي شَجَرَةِ الزَّيْتُونِ عُشٌّ صَغِيرٌ.',['tree','nest']],
+      ['فِي الْعُشِّ عُصْفُورٌ يُغَرِّدُ.',['nest','bird']],
+      ['قَالَ لَهُ صَدِيقُهُ: تَعَالَ إِلَى عُشٍّ كَبِيرٍ.',['bird','bird']],
+      ['قَالَ الْعُصْفُورُ: عُشِّي فِي وَطَنِي أَجْمَلُ.',['bird','tree']]
     ],[
-      {prompt:'أين كان يعيش العصفور الصغير؟',choices:[{label:'في شجرة زيتون',scene:{type:'items',icons:['tree']}},{label:'في سيارة',scene:{type:'items',icons:['car']}}],answer:0,explain:'كان عشه في شجرة زيتون.'},
-      {prompt:'ماذا اختار العصفور؟',choices:[{label:'البقاء في وطنه.'},{label:'ترك وطنه.'}],answer:0,explain:'أحب العصفور وطنه واختار البقاء فيه.'}
-    ]),
+      q('أَيْنَ الْعُشُّ؟',{label:'فِي شَجَرَةِ الزَّيْتُونِ',scene:items('tree')},[{label:'فِي السَّيَّارَةِ',scene:items('car')}],'العش في شجرة الزيتون.'),
+      q('مَنْ فِي الْعُشِّ؟',{label:'عُصْفُورٌ',scene:items('bird')},[{label:'قِطَّةٌ',scene:items('cat')}],'في العش عصفور.')
+    ],q('لِمَاذَا بَقِيَ الْعُصْفُورُ؟','لِأَنَّهُ يُحِبُّ وَطَنَهُ.','لِأَنَّ الْعُشَّ الْكَبِيرَ بَعِيدٌ.','يحب العصفور وطنه.')),
     storyUnit('ar-water','الماء',109,[
-      {text:'عَطِشَ ظَافِرٌ، وَلَمْ يَجِدْ مَاءً لِيَشْرَبَ. عَرَفَ أَنَّ تَرْكَ الصُّنْبُورِ مَفْتُوحًا يُهْدِرُ الْمَاءَ.',scene:{type:'items',icons:['tap','water']}},
-      {text:'قَرَّرَ أَنْ يُحَافِظَ عَلَى الْمَاءِ وَأَلَّا يُسْرِفَ فِيهِ.',scene:{type:'items',icons:['water','hand']}}
+      ['عَطِشَ ظَافِرٌ، فَفَتَحَ الصُّنْبُورَ.',['boy','tap']],
+      ['شَرِبَ ظَافِرٌ الْمَاءَ.',['water','boy']],
+      ['ثُمَّ أَغْلَقَ الصُّنْبُورَ جَيِّدًا.',['tap','hand']],
+      ['الْمَاءُ نِعْمَةٌ، نُحَافِظُ عَلَيْهِ.',['water']]
     ],[
-      {prompt:'ماذا احتاج ظافر ليشرب؟',choices:[{label:'الماء',scene:{type:'items',icons:['water']}},{label:'كتابًا',scene:{type:'items',icons:['book']}}],answer:0,explain:'كان ظافر يشعر بالعطش واحتاج إلى الماء.'},
-      {prompt:'كيف أحافظ على الماء؟',choices:[{label:'أترك الصنبور مفتوحًا.'},{label:'أغلق الصنبور بعد الاستعمال.'}],answer:1,explain:'أغلق الصنبور، وأستعمل حاجتي من الماء.'}
-    ]),
+      q('مَاذَا شَرِبَ ظَافِرٌ؟',{label:'الْمَاءَ',scene:items('water')},[{label:'الْحَلِيبَ',scene:items('milk')}],'شرب ظافر الماء.'),
+      q('مَاذَا فَعَلَ بَعْدَ أَنْ شَرِبَ؟','أَغْلَقَ الصُّنْبُورَ.','تَرَكَ الصُّنْبُورَ مَفْتُوحًا.','أغلق الصنبور.')
+    ],q('لِمَاذَا نُغْلِقُ الصُّنْبُورَ؟','لِنُحَافِظَ عَلَى الْمَاءِ.','لِيَسِيلَ الْمَاءُ.','نحافظ على الماء.')),
     storyUnit('ar-butterfly','الفراشة والنحلة',117,[
-      {text:'شَاهَدَتْ فَرَاشَةٌ نَحْلَةً بَيْنَ الْأَزْهَارِ، وَظَنَّتْ أَنَّهَا تُفْسِدُهَا.',scene:{type:'items',icons:['butterfly','bee','flower']}},
-      {text:'بَيَّنَتِ النَّحْلَةُ أَنَّهَا تَجْمَعُ الرَّحِيقَ لِصُنْعِ الْعَسَلِ؛ فَهِيَ لَا تُفْسِدُ الْأَزْهَارَ.',scene:{type:'items',icons:['bee','flower']}}
+      ['طَارَتْ فَرَاشَةٌ فِي الْحَدِيقَةِ.',['butterfly','flower']],
+      ['رَأَتْ نَحْلَةً عَلَى زَهْرَةٍ.',['bee','flower']],
+      ['قَالَتِ الْفَرَاشَةُ: مَاذَا تَفْعَلِينَ؟',['butterfly','bee']],
+      ['قَالَتِ النَّحْلَةُ: أَجْمَعُ الرَّحِيقَ لِأَصْنَعَ الْعَسَلَ.',['bee','flower']]
     ],[
-      {prompt:'من التقت الفراشة؟',choices:[{label:'نحلة',scene:{type:'items',icons:['bee']}},{label:'قطة',scene:{type:'items',icons:['cat']}}],answer:0,explain:'التقت الفراشة نحلة بين الأزهار.'},
-      {prompt:'أين كانت النحلة تنتقل؟',choices:[{label:'بين الأزهار',scene:{type:'items',icons:['flower','flower']}},{label:'بين السيارات',scene:{type:'items',icons:['car','car']}}],answer:0,explain:'كانت تنتقل من زهرة إلى أخرى.'}
-    ]),
+      q('مَنْ رَأَتِ الْفَرَاشَةُ؟',{label:'نَحْلَةً',scene:items('bee')},[{label:'قِطَّةً',scene:items('cat')}],'رأت الفراشة نحلة.'),
+      q('أَيْنَ كَانَتِ النَّحْلَةُ؟',{label:'عَلَى زَهْرَةٍ',scene:items('flower')},[{label:'عَلَى سَيَّارَةٍ',scene:items('car')}],'كانت على زهرة.')
+    ],q('لِمَاذَا تَجْمَعُ النَّحْلَةُ الرَّحِيقَ؟','لِتَصْنَعَ الْعَسَلَ.','لِتُفْسِدَ الْأَزْهَارَ.','تَجْمَعُ النَّحْلَةُ الرَّحِيقَ لِصُنْعِ الْعَسَلِ.')),
     storyUnit('ar-monkey','القرد الطماع',125,[
-      {text:'وَجَدَ الْقِرْدُ خَوْخَةً، ثُمَّ تَرَكَهَا لِيَأْخُذَ مَوْزَةً.',scene:{type:'items',icons:['monkey','peach','banana']}},
-      {text:'تَرَكَ طَعَامَهُ وَرَكَضَ خَلْفَ أَرْنَبٍ، فَلَمْ يُمْسِكْهُ، وَعَادَ بِلَا طَعَامٍ.',scene:{type:'items',icons:['monkey','rabbit']}}
+      ['وَجَدَ الْقِرْدُ خَوْخَةً.',['monkey','peach']],
+      ['رَأَى مَوْزَةً، فَتَرَكَ الْخَوْخَةَ.',['monkey','banana']],
+      ['رَأَى أَرْنَبًا، فَتَرَكَ الْمَوْزَةَ وَرَكَضَ.',['monkey','rabbit']],
+      ['هَرَبَ الْأَرْنَبُ، وَبَقِيَ الْقِرْدُ جَائِعًا.',['rabbit','monkey']]
     ],[
-      {prompt:'أي ثمرة وجدها القرد أولًا؟',choices:[{label:'خوخة',scene:{type:'items',icons:['peach']}},{label:'موزة',scene:{type:'items',icons:['banana']}}],answer:0,explain:'وجد خوخة أولًا، ثم استبدلها بموزة.'},
-      {prompt:'كيف عاد القرد إلى البيت؟',choices:[{label:'معه الأرنب.'},{label:'جائعًا بلا طعام.'}],answer:1,explain:'لم يمسك الأرنب، وعاد جائعًا.'}
-    ])
+      q('مَاذَا وَجَدَ الْقِرْدُ أَوَّلًا؟',{label:'خَوْخَةً',scene:items('peach')},[{label:'مَوْزَةً',scene:items('banana')}],'وجد خوخة أولًا.'),
+      q('كَيْفَ بَقِيَ الْقِرْدُ؟','جَائِعًا.','شَبْعَانَ.','بقي القرد جائعًا.')
+    ],q('لِمَاذَا بَقِيَ الْقِرْدُ جَائِعًا؟','لِأَنَّهُ تَرَكَ طَعَامَهُ.','لِأَنَّهُ أَكَلَ كَثِيرًا.','ترك طعامه، فلم يأكل.'))
   );
-  // تحقق بصري من صفحة التعرف والقراءة لكل حرف؛ الراء لا تبدأ بقالب المدود الثلاثة.
+  // مقاطع صفحة الدرس كما يعرضها الكتاب.
   const bookPhonics={
     'ر':[['رَا'],'رَامِي'], 'د':[['دَا','دُو'],'دَار'], 'ب':[['بَا','بُو','بِي'],'بَاب'],
     'م':[['مَا','مُو','مِي'],'دِيمَا'], 'ن':[['نَا','نُو','نِي','نَ'],'نَادِر'], 'س':[['سَا','سُو','سِي','سَ'],'سَامِي'],
@@ -172,39 +188,37 @@
     'ق':[['قَا','قُو','قِي'],'نُقُود'], 'ث':[['ثَا','ثُو','ثِي'],'ثَابِت'], 'خ':[['خَا','خُو','خِي'],'نَخِيل'],
     'ذ':[['ذَا','ذُو','ذِي'],'جُذُور'], 'غ':[['غَا','غُو','غِي'],'رَغِيف'], 'ط':[['طَا','طُو','طِي'],'طَارِق'],
     'ك':[['كَا','كُو','كِي'],'كَامِل'], 'ض':[['ضَا','ضُو','ضِي'],'رَضِيع'], 'ه':[['هَا','هُو','هِي'],'هَالَة'],
-    'و':[['وَا','وُو','وِي'],'وَاصِف'], 'أ':[['أَ','أُ','إِ'],'إِسْرَاء'], 'ظ':[['ظَا','ظُو','ظِي'],'ظَافِر'], 'ي':[['يَا','يُو','يِي'],'يَاسِر']
+    'و':[['وَا','وِي','وَ'],'وَاصِف'], 'أ':[['أَ','أُ','إِ'],'إِسْرَاء'], 'ظ':[['ظَا','ظُو','ظِي'],'ظَافِر'], 'ي':[['يَا','يُو','يَ'],'يَاسِر']
   };
   units.forEach(unit=>{
     const phonics=unit.lessons.find(l=>l.phonics);if(!phonics)return;
-    const letter=phonics.phonics.letter,[targets,word]=bookPhonics[letter],page=unit.page+3;
-    const activity={id:unit.id+'-book-practice',title:'أقرأ من مقاطع الدرس',book:unit.book,page,
-      goal:'أبدأ بالمقاطع التي تعرضها صفحة الحرف، ثم ألاحظ كلمة منها مع الكبير.',
-      referenceLabel:'المقاطع والكلمة راجعتها في صفحة الدرس؛ تعليمات التدريب صياغة مساندة.',bookTargets:targets,bookWord:word,
-      guidedPractice:[{title:'أقرأ وأكتب مع الكبير',text:'نفتح صفحة الحرف في الكتاب أو نسخته المحفوظة. يقرأ الكبير المقاطع، ثم أقرأ بعده وأكتب مقطعًا على ورقة. لا يصحح الموقع الصوت أو الخط.'}],
-      steps:[{text:'أقرأ المقاطع مع الكبير. نبدأ بما تعرضه صفحة الدرس قبل التوسع.',scene:symbol(targets.join('  '))},{text:'أبحث عن حرف الدرس في هذه الكلمة، وأقرأها مع الكبير.',scene:symbol(word)}],
-      tasks:[...targets.slice(0,3).map((value,i)=>({prompt:'أختار المقطع المطابق، ثم أقرؤه مع الكبير.',scene:symbol(value),choices:[choice(value),choice(letter==='ر'?'دَا':letter==='د'?'رَا':targets[(i+1)%targets.length])],answer:0,explain:'المقطع المطابق: '+value})),{prompt:'أختار الكلمة المطابقة من صفحة الدرس.',scene:symbol(word),choices:[choice(word),choice(word==='بَاب'?'دَار':'بَاب')],answer:0,explain:'أقرأ مع الكبير: '+word}]
-    };
-    unit.lessons.splice(1,0,activity);
-    for(const lesson of unit.lessons.filter(l=>l.id.endsWith('-phonics')||l.id.endsWith('-word'))){lesson.optional=true;lesson.title='إثراء: '+lesson.title;lesson.referenceLabel='إثراء إضافي بمرافقة الكبير، بعد التدريب المرجعي؛ قد يتضمن أصواتًا وكلمات تتجاوز صفحة الدرس.';}
+    const letter=phonics.phonics.letter,[targets,word]=bookPhonics[letter],page=unit.page+3,like=lookAlike[letter][0];
+    const swap=v=>{const w=v.replace(letter,like);return w!==v?w:targets.find(x=>x!==v);};
+    unit.lessons.splice(1,0,{id:unit.id+'-book-practice-v2',title:'مقاطع الدرس',book:unit.book,page,
+      goal:'أقرأ مقاطع صفحة الدرس.',bookTargets:targets,bookWord:word,
+      steps:[step('أقرأ المقاطع.',symbol(targets.join('  ')),targets.join('، ')),step('كلمة من الكتاب.',symbol(word),word)],
+      tasks:[...targets.slice(0,3).map(v=>listen(v,v,[swap(v)],'سمعت: '+v,'أَسْتَمِعُ، وَأَخْتَارُ الْمَقْطَعَ.')),ask('أختار الكلمة نفسها.',word,[word==='بَاب'?'دَار':'بَاب'],'الكلمة: '+word,{scene:symbol(word),say:'أَخْتَارُ الْكَلِمَةَ نَفْسَهَا.'})]});
+    phonics.optional=true;phonics.title='إثراء: '+phonics.title;
   });
   const languageSkills={
-    'ذ':['التاء المبسوطة والمربوطة','بَيْتٌ يَنْتَهِي بِتَاءٍ مَبْسُوطَةٍ، وَزَهْرَةٌ بِتَاءٍ مَرْبُوطَةٍ.','أي كلمة تنتهي بتاء مربوطة؟','زَهْرَة','بَيْت'],
-    'غ':['تنوين الضم','قَلَمٌ: أَرَى ضَمَّتَيْنِ فَوْقَ الْمِيمِ.','أي كلمة فيها تنوين ضم؟','قَلَمٌ','قَلَمُ'],
-    'ط':['تنوين الفتح','قَلَمًا: أُلَاحِظُ الْفَتْحَتَيْنِ وَالْأَلِفَ.','أي كلمة فيها تنوين فتح؟','قَلَمًا','قَلَمَ'],
-    'ك':['تنوين الكسر','قَلَمٍ: أَرَى كَسْرَتَيْنِ تَحْتَ الْمِيمِ.','أي كلمة فيها تنوين كسر؟','قَلَمٍ','قَلَمِ'],
-    'و':['الشدة','جَدِّي: الشَّدَّةُ فَوْقَ الدَّالِ.','أي كلمة فيها شدة؟','جَدِّي','يَدِي'],
-    'أ':['الألف الممدودة','أُلَاحِظُ الْفَرْقَ بَيْنَ أَ وَآ.','أختار الألف الممدودة.','آ','أَ'],
-    'ظ':['أل التعريف','بَابٌ، الْبَابُ: أَضَفْتُ أَلِفًا وَلَامًا.','أي كلمة بدأت بأل التعريف؟','الْبَاب','بَاب'],
-    'ي':['الياء والألف المقصورة','ي فِيهَا نُقْطَتَانِ، وَى دُونَ نُقَطٍ.','أختار الألف المقصورة.','ى','ي']
+    'ذ':['التاء المبسوطة والمربوطة','بَيْتٌ، زَهْرَةٌ','أي كلمة تنتهي بتاء مربوطة؟','زَهْرَةٌ','بَيْتٌ'],
+    'غ':['تنوين الضم','قَلَمٌ','أي كلمة فيها تنوين ضم؟','قَلَمٌ','قَلَمُ'],
+    'ط':['تنوين الفتح','قَلَمًا','أي كلمة فيها تنوين فتح؟','قَلَمًا','قَلَمَ'],
+    'ك':['تنوين الكسر','قَلَمٍ','أي كلمة فيها تنوين كسر؟','قَلَمٍ','قَلَمِ'],
+    'و':['الشدة','جَدِّي','أي كلمة فيها شدة؟','جَدِّي','يَدِي'],
+    'أ':['الألف الممدودة','آ  أَ','أختار الألف الممدودة.','آ','أَ'],
+    'ظ':['أل التعريف','بَابٌ، الْبَابُ','أي كلمة فيها أل التعريف؟','الْبَابُ','بَابٌ'],
+    'ي':['الياء والألف المقصورة','ي  ى','أختار الألف المقصورة.','ى','ي']
   };
-  units.forEach(unit=>{const p=unit.lessons.find(l=>l.phonics);if(unit.term!==2||!p||!languageSkills[p.phonics.letter])return;const [title,model,prompt,correct,wrong]=languageSkills[p.phonics.letter];unit.lessons.splice(2,0,{id:unit.id+'-book-language',title,goal:'ألاحظ المهارة الواردة بعد صفحة الحرف وأجرب مثالًا مساندًا.',book:unit.book,page:unit.page+4,referenceLabel:'مهارة راجعتها في الصفحة؛ الأمثلة الآتية صياغة مساندة.',sourceSkills:title,steps:[{text:model,scene:symbol(model)}],tasks:[{prompt,choices:[choice(correct),choice(wrong)],answer:0,explain:model}],guidedPractice:[{title:'أقرأ وأكتب مع الكبير',text:'أقرأ المثال بمساعدة الكبير، ثم أكتب كلمة مشابهة على ورقة وأقارن بالشكل. لا يصحح الموقع القراءة أو الخط.'}]});});
-  const causes={
-    'ar-butterfly':{prompt:'لِمَاذَا تَجْمَعُ النَّحْلَةُ الرَّحِيقَ؟',choices:[{label:'لِتَصْنَعَ الْعَسَلَ.'},{label:'لِتُفْسِدَ الْأَزْهَارَ.'}],answer:0,explain:'تَجْمَعُ النَّحْلَةُ الرَّحِيقَ لِصُنْعِ الْعَسَلِ.'},
-    'ar-help':{prompt:'لِمَاذَا حَمَلَتْ خِتَامُ السَّلَّةَ؟',choices:[{label:'لِتُخَفِّفَ الْحِمْلَ عَنِ الرَّجُلِ.'},{label:'لِتَلْعَبَ بِالسَّلَّةِ.'}],answer:0,explain:'سَاعَدَتْ خِتَامُ الرَّجُلَ كَبِيرَ السِّنِّ وَخَفَّفَتْ عَنْهُ الْحِمْلَ.'},
-    'ar-country':{prompt:'لِمَاذَا اخْتَارَ الْعُصْفُورُ الْبَقَاءَ؟',choices:[{label:'لِأَنَّهُ يُحِبُّ وَطَنَهُ.'},{label:'لِأَنَّ الْعُشَّ الْآخَرَ صَغِيرٌ.'}],answer:0,explain:'اخْتَارَ الْبَقَاءَ لِحُبِّهِ وَطَنَهُ، رَغْمَ الْعُشِّ الْأَوْسَعِ.'},
-    'ar-water':{prompt:'مَاذَا يَحْدُثُ إِذَا تَرَكْنَا الصُّنْبُورَ مَفْتُوحًا؟',choices:[{label:'نُحَافِظُ عَلَى الْمَاءِ.'},{label:'نَهْدِرُ الْمَاءَ.'}],answer:1,explain:'تَرْكُ الصُّنْبُورِ مَفْتُوحًا يُهْدِرُ الْمَاءَ؛ أُغْلِقُهُ بَعْدَ الِاسْتِعْمَالِ.'},
-    'ar-monkey':{prompt:'لِمَاذَا عَادَ الْقِرْدُ جَائِعًا؟',choices:[{label:'لِأَنَّهُ تَرَكَ طَعَامَهُ وَلَمْ يُمْسِكِ الْأَرْنَبَ.'},{label:'لِأَنَّهُ أَكَلَ طَعَامَهُ كُلَّهُ.'}],answer:0,explain:'تَرَكَ طَعَامَهُ وَطَارَدَ الْأَرْنَبَ، فَفَقَدَ الطَّعَامَ وَلَمْ يَظْفَرْ بِالْأَرْنَبِ.'}
-  };
-  units.forEach(unit=>{if(causes[unit.id]){const reading=unit.lessons[0];unit.lessons.push({id:unit.id+'-cause',title:'أفهم السبب والنتيجة',book:reading.book,page:reading.page,goal:'أربط الحدث بسببه بعد القراءة مع الكبير.',referenceLabel:reading.referenceLabel,steps:reading.steps.slice(1),tasks:[causes[unit.id]]});}});
-  window.G1_COURSE={id:'arabic',title:'لغتنا الجميلة',key:'bustan_g1_arabic_v1',books,traceGroups:[...letters1,...letters2].map(([letter,name])=>({label:'حرف '+name,forms:[...support[letter][0],...(letter==='أ'?['أَ','أُ','إِ']:[letter+'َ',letter+'ُ',letter+'ِ'])]})),sourceNote:'أنشطة قصيرة أصلية داعمة للحروف والمقاطع والفهم. ترتيب الدروس وإحالات الصفحات من كتاب لغتنا الجميلة بجزأيه المنشور في البوابة التعليمية الفلسطينية. ملخصات القصص صياغة تعليمية مختصرة، وليست نصوص القراءة الأصلية. لا تمثل الأنشطة تغطية كاملة للاستماع والمحادثة والقراءة والكتابة. تُقرأ التعليمات مع شخص كبير عند الحاجة.',units,foundations:[{...prep.lessons[0],id:'ar-foundation-match'}]};
+  const plainSay={'أي كلمة تنتهي بتاء مربوطة؟':'أَيُّ كَلِمَةٍ تَنْتَهِي بِتَاءٍ مَرْبُوطَةٍ؟','أي كلمة فيها تنوين ضم؟':'أَيُّ كَلِمَةٍ فِيهَا تَنْوِينُ ضَمٍّ؟','أي كلمة فيها تنوين فتح؟':'أَيُّ كَلِمَةٍ فِيهَا تَنْوِينُ فَتْحٍ؟','أي كلمة فيها تنوين كسر؟':'أَيُّ كَلِمَةٍ فِيهَا تَنْوِينُ كَسْرٍ؟','أي كلمة فيها شدة؟':'أَيُّ كَلِمَةٍ فِيهَا شَدَّةٌ؟','أختار الألف الممدودة.':'أَخْتَارُ الْأَلِفَ الْمَمْدُودَةَ.','أي كلمة فيها أل التعريف؟':'أَيُّ كَلِمَةٍ فِيهَا أَلِ التَّعْرِيفِ؟','أختار الألف المقصورة.':'أَخْتَارُ الْأَلِفَ الْمَقْصُورَةَ.'};
+  units.forEach(unit=>{const p=unit.lessons.find(l=>l.phonics);if(unit.term!==2||!p||!languageSkills[p.phonics.letter])return;const [title,model,prompt,correct,wrong]=languageSkills[p.phonics.letter];
+    unit.lessons.splice(2,0,{id:unit.id+'-book-language-v2',title,goal:'ألاحظ المثال.',book:unit.book,page:unit.page+4,sourceSkills:title,steps:[step(model,symbol(model),model.replace(/  /g,'، '))],tasks:[ask(prompt,correct,[wrong],'الإجابة: '+correct,{say:plainSay[prompt]})]});});
+  // معرّفات قديمة استُبدلت بأهداف جديدة؛ لا يُحتسب إنجازها القديم للأهداف الجديدة.
+  const retiredLessonIds=[];
+  for(const u of units)if(/^ar-p[12]-\d+$/.test(u.id))for(const s of ['letter','book-practice','syllable','phonics','word',...(u.term===2?['book-language']:[])])retiredLessonIds.push(u.id+'-'+s);
+  for(const u of units)if(u.id.includes('review'))retiredLessonIds.push(u.id+'-lesson',u.id+'-all');
+  for(const id of ['ar-help','ar-country','ar-water','ar-butterfly','ar-monkey'])retiredLessonIds.push(id+'-reading',id+'-cause');
+  retiredLessonIds.push('ar-found-dir','ar-found-madd','ar-found-sentence');
+  for(const l of units.flatMap(u=>u.lessons))l.referenceLabel='كتابي:';
+  window.G1_COURSE={id:'arabic',title:'لغتنا الجميلة',key:'bustan_g1_arabic_v1',books,retiredLessonIds,traceGroups:[...letters1,...letters2].map(([letter,name])=>({label:'حرف '+name,forms:[...formsOf(letter),...(letter==='أ'?['أَ','أُ','إِ']:[letter+'َ',letter+'ُ',letter+'ِ'])]})),sourceNote:'أنشطة أصلية قصيرة تتبع ترتيب حروف لغتنا الجميلة للصف الأول بجزأيه. نصوص القراءة قصيرة أصلية بمستوى الطفل.',units,foundations:[{...prep.lessons[0],id:'ar-foundation-match'}]};
 })();
