@@ -23,6 +23,12 @@ const ENGINES={
  sqrtLine:{name:'نحصر العدد بين مربعين كاملين',controls:[range('a','العدد تحت الجذر',1,100,12)]},
  cbrtLine:{name:'نحصر العدد بين مكعبين كاملين',controls:[range('a','العدد تحت الجذر التكعيبي',1,216,72)]},
  unitMix:{name:'القوى والجذور مع أولويات العمليات',controls:[range('a','أساس القوة (أس 2)',2,6,3),range('b','الجذر التربيعي للعدد',1,10,7),range('c','الجذر التكعيبي للعدد',1,5,3)]},
+ triKind:{name:'نرسم المثلث من زاويتين ونصنّفه',controls:[range('a','قياس الزاوية ب',20,120,70,5),range('b','قياس الزاوية جـ',20,120,60,5)]},
+ triSides:{name:'هل تصنع الأطوال الثلاثة مثلثًا؟',controls:[range('a','طول الضلع الأول (سم)',1,12,6),range('b','طول الضلع الثاني (سم)',1,12,5),range('c','طول الضلع الثالث (سم)',1,12,3)]},
+ isoAltitude:{name:'العمود في المثلث متساوي الساقين',controls:[range('a','طول القاعدة ب جـ (سم)',4,16,10,2),range('b','قياس زاوية الرأس أ',30,140,80,10)]},
+ trapezoid:{name:'القاعدتان والساقان في شبه المنحرف',controls:[range('a','طول القاعدة العليا أ د',2,8,3),range('b','طول القاعدة السفلى ب جـ',3,10,7),range('c','إزاحة القاعدة العليا',-3,3,0)]},
+ trapIso:{name:'زوايا شبه المنحرف متساوي الساقين',controls:[range('a','قياس الزاوية أ',40,85,40,5)]},
+ paraProps:{name:'خصائص متوازي الأضلاع',controls:[range('a','طول الضلع ب جـ (سم)',3,8,6),range('b','طول الضلع أ ب (سم)',2,6,4),range('c','قياس الزاوية ب',40,90,60,5)]},
  power:{name:'الأساس يتكرر بعدد الأس',controls:[range('a','الأساس',2,5,3),range('b','الأس',1,6,4)]},
  powers:{name:'الضرب المتكرر يصنع مربعًا',controls:[range('a','طول ضلع المربع',1,6,4)]},
  root:{name:'من المساحة إلى طول الضلع',controls:[range('a','طول ضلع المربع',1,6,4)]},
@@ -71,7 +77,7 @@ const ENGINES={
 };
 const TYPES={P01:'compare',P02:'compare',P03:'fraction',P04:'fractionAdd',P05:'decimal',P06:'decimal',P07:'factor',P08:'distribute',P09:'factor',P10:'fractionMultiply',P11:'balance',P12:'order',P13:'angle',P14:'angle',P15:'area',P16:'parallelogram',P17:'decimal',P18:'bars',P19:'bars',P20:'probability',P21:'order',P22:'compare',
  'S1-1-1':'order','S1-1-2':'power','S1-1-3':'powerCompare','S1-1-4':'sqrtLine','S1-1-5':'cbrtLine','S1-1-6':'unitMix',
- 'S1-2-1':'angle','S1-2-2':'angle','S1-2-3':'angle','S1-2-4':'triangleArea','S1-2-5':'area','S1-2-6':'angle','S1-2-7':'parallelogram',
+ 'S1-2-1':'triKind','S1-2-2':'triSides','S1-2-3':'isoAltitude','S1-2-4':'triangleArea','S1-2-5':'trapezoid','S1-2-6':'trapIso','S1-2-7':'paraProps','S1-2-8':'triSides',
  'S1-3-1':'terms','S1-3-2':'terms','S1-3-3':'terms','S1-3-4':'distribute',
  'S1-4-1':'bars','S1-4-2':'stats','S1-4-3':'stats','S1-4-4':'bars',
  'S2-5-1':'decimal','S2-5-2':'fraction','S2-5-3':'fraction','S2-5-4':'fraction',
@@ -80,9 +86,10 @@ const TYPES={P01:'compare',P02:'compare',P03:'fraction',P04:'fractionAdd',P05:'d
  'S2-8-1':'probability','S2-8-2':'probability','S2-8-3':'probability'};
 ENGINES.fractionDivide={name:'كم جزءًا يحتوي هذا الجزء؟',controls:[range('a','بسط الكسر الأول، مقامه 4',1,4,3),range('b','بسط الكسر الثاني، مقامه 4',1,4,2)]};
 ENGINES.triangleArea={name:'مثلث هو نصف مستطيل',controls:ENGINES.area.controls};
+ENGINES.trapRight={name:'زوايا شبه المنحرف قائم الزاوية',controls:[range('a','قياس الزاوية د',40,85,60,5)]};
 ENGINES.fractionSubtract={name:'نطرح أجزاء بالحجم نفسه',controls:ENGINES.fractionAdd.controls};
 ENGINES.difference={name:'في الحادث الأول، خارج الثاني',controls:ENGINES.union.controls};
-const VARIANTS={'P04':[['fractionAdd','جمع الكسور'],['fractionSubtract','طرح الكسور']],'P10':[['fractionMultiply','ضرب الكسور'],['fractionDivide','قسمة الكسور']],'P15':[['area','مستطيل'],['triangleArea','مثلث'],['parallelogram','متوازي أضلاع']],'S1-1-4':[['sqrtLine','حصر الجذر وتقديره'],['root','من المساحة إلى الضلع']],'S1-1-5':[['cbrtLine','حصر الجذر وتقديره'],['cubeRoot','من الحجم إلى الحرف']]};
+const VARIANTS={'P04':[['fractionAdd','جمع الكسور'],['fractionSubtract','طرح الكسور']],'P10':[['fractionMultiply','ضرب الكسور'],['fractionDivide','قسمة الكسور']],'P15':[['area','مستطيل'],['triangleArea','مثلث'],['parallelogram','متوازي أضلاع']],'S1-1-4':[['sqrtLine','حصر الجذر وتقديره'],['root','من المساحة إلى الضلع']],'S1-1-5':[['cbrtLine','حصر الجذر وتقديره'],['cubeRoot','من الحجم إلى الحرف']],'S1-2-6':[['trapIso','متساوي الساقين'],['trapRight','قائم الزاوية']],'S1-2-8':[['triSides','أضلاع المثلث'],['triangleArea','مساحة المثلث'],['trapIso','شبه المنحرف'],['paraProps','متوازي الأضلاع']]};
 function model(type,s){
  const a=+s.a||0,b=+s.b||0,c=+s.c||0,m={type,a,b,c,steps:[],notes:[],result:0};
  const set=(result,steps,notes)=>Object.assign(m,{result,steps,notes});
@@ -100,6 +107,17 @@ function model(type,s){
  if(['powers','root','cubeRoot'].includes(type)){const cube=type==='cubeRoot',n=cube?a*a*a:a*a;return set(n,[cube?`${a} × ${a} × ${a}`:`${a} × ${a}`,`${a}${cube?'³':'²'} = ${n}`,type==='root'?`√${n} = ${a}`:cube?`∛${n} = ${a}`:`${a}² = ${n}`],['نبدأ من طول الضلع أو الحرف.','المربع صفوف وأعمدة، والمكعب له عمق أيضًا.','الجذر يعيدنا من المساحة أو الحجم إلى الطول.']);}
  if(type==='irrational'){const r=Math.sqrt(a),lo=Math.floor(r);m.root=r;m.low=lo;m.high=Math.ceil(r);return set(r,[`√${a}`,`${lo}² ≤ ${a} ≤ ${m.high}²`,`√${a} ${Number.isInteger(r)?'=':'≈'} ${fmt(r)}`],['نبحث عن عدد مربّعه يساوي العدد المعطى.','نحصر الجذر بين جذري مربعين كاملين.','إذا لم يكن العدد مربعًا كاملًا، فالكتابة العشرية هنا تقريبية.']);}
  if(type==='radicals')return set((a+b)*Math.sqrt(2),[`${a}√2 + ${b}√2`,`${a} + ${b} = ${a+b}`,`${a}√2 + ${b}√2 = ${a+b}√2`],['كل قطعة تمثّل الطول نفسه: جذر اثنين.','الجذور متشابهة، فنعدّ القطع.','نجمع المعاملات، ويبقى الجذر كما هو.']);
+ if(type==='triKind'){let A=a,B=b;if(A+B>170)B=170-A;const C=180-A-B,mx=Math.max(A,B,C),kind=mx<90?'حاد الزوايا':mx===90?'قائم الزاوية':'منفرج الزاوية';Object.assign(m,{A,B,C,kind,mx});
+  return set(C,[`${A}° + ${B}° + ؟ = 180°`,`الزاوية أ = 180° − ${A+B}° = ${C}°`,`المثلث ${kind}`],['نرسم القاعدة ب جـ، ثم الزاويتين عند طرفيها بالمنقلة، فيتقاطع الشعاعان في الرأس أ.','مجموع قياسات زوايا المثلث 180°، فنطرح الزاويتين المعلومتين.',`أكبر زاوية ${mx}°، ${mx<90?'وكل الزوايا حادة':mx===90?'وهي قائمة':'وهي منفرجة'}، إذن المثلث ${kind}.`]);}
+ if(type==='triSides'){const q=[a,b,c].sort((x,y)=>x-y),sum=q[0]+q[1],ok=sum>q[2],kind=a===b&&b===c?'متساوي الأضلاع':a===b||b===c||a===c?'متساوي الساقين':'مختلف الأضلاع',sg=sum>q[2]?'>':sum===q[2]?'=':'<';Object.assign(m,{q,ok,kind,sum,sg});
+  return set(ok?1:0,[`الأطوال: ${q.join(' ، ')}`,`${q[0]} + ${q[1]} = ${sum} ${sg} ${q[2]}`,ok?`يصلح: مثلث ${kind}`:'لا يصلح لرسم مثلث'],['نرتّب الأطوال من الأصغر إلى الأكبر، ونرسم الضلع الأطول بالمسطرة.','نجمع طولي الضلعين القصيرين ونقارن المجموع بالضلع الأطول.',ok?`المجموع أكبر من الضلع الأطول، فيتقاطع القوسان ويتكوّن مثلث ${kind}.`:'المجموع ليس أكبر من الضلع الأطول، فلا يلتقي الضلعان ولا يتكوّن مثلث.']);}
+ if(type==='isoAltitude'){const half=a/2,h=half/Math.tan(b*pi/360),base=(180-b)/2;Object.assign(m,{half,h,base});
+  return set(half,[`القاعدة ب جـ = ${a} سم ، زاوية الرأس أ = ${b}°`,`ب د = د جـ = ${a} ÷ 2 = ${fmt(half)} سم`,`∠1 = ∠2 = ${b}° ÷ 2 = ${fmt(b/2)}°`],['نُنزل عمودًا من الرأس أ على القاعدة ب جـ، فيقطعها في النقطة د.','العمود النازل من رأس المثلث متساوي الساقين على القاعدة ينصّفها.',`وينصّف زاوية الرأس، فهو محور تماثل للمثلث، وكل زاوية من زاويتي القاعدة ${fmt(base)}°.`]);}
+ if(type==='trapezoid'){const par=a===b;m.par=par;return set(par?1:0,[`أ د = ${a} ، ب جـ = ${b}`,par?'الساقان متوازيان أيضًا':'الساقان أ ب و د جـ يلتقيان إذا امتدّا',par?'متوازي أضلاع، وهو حالة خاصة من شبه المنحرف':'شبه منحرف: قاعدتاه أ د و ب جـ'],['الضلعان أ د و ب جـ متوازيان: هما القاعدتان، والضلعان الآخران هما الساقان.',par?'القاعدتان متساويتان في الطول، فلا يلتقي الساقان أيضًا.':'نمدّ الساقين فيلتقيان، فهما غير متوازيين.','نمدّ القاعدتين، فلا تلتقيان مهما امتدّتا.']);}
+ if(type==='trapIso')return set(180-a,[`الزاوية أ = ${a}°`,`د = أ = ${a}°`,`ب = جـ = (360° − ${2*a}°) ÷ 2 = ${180-a}°`],['شبه منحرف متساوي الساقين: الساقان أ ب و د جـ متساويان.','زاويتا القاعدة الواحدة متساويتان في القياس.','مجموع زوايا الشكل الرباعي 360°، والزاويتان الباقيتان متساويتان.']);
+ if(type==='trapRight')return set(180-a,[`أ = ب = 90° ، د = ${a}°`,`90° + 90° + ${a}° = ${180+a}°`,`جـ = 360° − ${180+a}° = ${180-a}°`],['شبه منحرف قائم الزاوية: الساق أ ب عمودية على القاعدتين، فتصنع زاويتين قائمتين.','نجمع قياسات الزوايا الثلاث المعلومة.','الزاوية الرابعة = 360° − المجموع.']);
+ if(type==='paraProps'){const r=c*pi/180,ux=b*Math.cos(r),uy=b*Math.sin(r),d1=Math.hypot(a-ux,uy),d2=Math.hypot(a+ux,uy),shape=c===90&&a===b?'مربع':c===90?'مستطيل':a===b?'معين':'متوازي أضلاع';Object.assign(m,{d1,d2,shape});const ap=x=>(Number.isInteger(Math.round(x*10)/10)?'':'≈ ')+fmt(Math.round(x*10)/10);
+  return set(c,[`أ د = ب جـ = ${a} ، أ ب = د جـ = ${b}`,`ب = د = ${c}° ، أ = جـ = (360° − ${2*c}°) ÷ 2 = ${180-c}°`,'م منتصف القطرين أ جـ و ب د'],['كل ضلعين متقابلين متساويان في الطول.','كل زاويتين متقابلتين متساويتان في القياس.',`القطران ينصّف كل منهما الآخر في م: أ م = م جـ ${ap(d1/2)}، و ب م = م د ${ap(d2/2)}. هذا الشكل: ${shape}.`]);}
  if(type==='powerCompare'){const d=+s.d||1,va=a**b,vb=c**d,cmp=va>vb?'>':va<vb?'<':'=';Object.assign(m,{d,va,vb,cmp});const A=`${a}${SPR(b)}`,B=`${c}${SPR(d)}`,rule=a===c?'الأساسان متساويان: نقارن الأسّين.':b===d?'الأسّان متساويان: نقارن الأساسين.':'الأساسان والأسّان مختلفة: نجد قيمة كل منهما.';
   return set(cmp,[`${A}  ؟  ${B}`,`${A} = ${va}  ،  ${B} = ${vb}`,`${A} ${cmp} ${B}`],[rule,'نكتب كل عدد بالضرب المتكرر ونحسب قيمته.',a===c&&b!==d?`الأساس نفسه، فالأكبر صاحب الأس الأكبر.`:b===d&&a!==c?`الأس نفسه، فالأكبر صاحب الأساس الأكبر.`:cmp==='='?'العددان متساويان رغم اختلاف صورتهما.':`${va} ${cmp} ${vb}، إذن ${A} ${cmp} ${B}.`]);}
  if(type==='sqrtLine'||type==='cbrtLine'){const k=type==='sqrtLine'?2:3,sym=k===2?'√':'∛';let lo=Math.floor(Math.round(a**(1/k)*1e6)/1e6);if((lo+1)**k<=a)lo++;const exact=lo**k===a,hi=lo+1,near=exact?lo:(a-lo**k<=hi**k-a?lo:hi);Object.assign(m,{k,lo,hi,exact,near,sym});
@@ -172,6 +190,56 @@ function scene(m,step){
    if(step===0){out+=rect(205,100,90,95,'lv-green-soft')+rect(270,80,40,45,'lv-gold-soft');out+=text(250,166,a,'lv-big')+text(290,113,b,'lv-big');out+=text(250,225,'الأساس','lv-label')+text(345,105,'الأس','lv-label');out+=text(270,290,`${a}${sp(b)}: نكرّر ${a} عاملًا ${b===1?'مرة واحدة':b+' مرات'}`,'lv-label');}
    else{const w=Math.min(78,460/b),x0=270-(b*w)/2;for(let k=0;k<b;k++){const x=x0+k*w;out+=rect(x+4,95,w-8,70,step===2&&k===b-1?'lv-gold':'lv-green-soft')+text(x+w/2,140,a,'lv-big');if(k<b-1)out+=text(x+w,140,'×');out+=text(x+w/2,195,m.run[k],'lv-label');}
     out+=text(270,235,'الناتج بعد كل عامل','lv-label');if(step===2)out+=text(270,290,`${a}${sp(b)} = ${m.result}`,'lv-big');else out+=text(270,290,`${b} ${b===1?'عامل':b<=10&&b>2?'عوامل':'عاملان'} كلّ منها ${a}`,'lv-label');}
+ }
+ else if(type==='triKind'){
+   const R=x=>x*pi/180,{A,B,C}=m,sn=Math.sin(R(A+B)),h0=Math.sin(R(A))*Math.sin(R(B))/sn;let L=300;if(L*h0>210)L=210/h0;const x0=270-L/2,y0=260,ax=x0+L*Math.sin(R(B))*Math.cos(R(A))/sn,ay=y0-L*h0,gx=(x0+x0+L+ax)/3,gy=(y0+y0+ay)/3,at=(x,y,f=.32)=>[x+(gx-x)*f,y+(gy-y)*f+6];
+   out+=`<polygon points="${x0},${y0} ${x0+L},${y0} ${ax},${ay}" class="${step===2?'lv-green':'lv-green-soft'}"/>`+`<path d="M${x0} ${y0}H${x0+L}" class="lv-outline"/>`;
+   out+=text(x0-16,y0+26,'ب')+text(x0+L+16,y0+26,'جـ')+text(ax,ay-14,'أ');
+   const [p1,q1]=at(x0,y0),[p2,q2]=at(x0+L,y0),[p3,q3]=at(ax,ay,.38);out+=text(p1,q1,A+'°','lv-label')+text(p2,q2,B+'°','lv-label')+text(p3,q3,step?C+'°':'؟','lv-label');
+   out+=text(270,y0+58,step===2?'مثلث '+m.kind:step===1?`${A}° + ${B}° + ${C}° = 180°`:'القاعدة ب جـ والزاويتان عند طرفيها','lv-label');
+ }
+ else if(type==='triSides'){
+   const [s0,s1,s2]=m.q,k=Math.min(34,330/s2),x0=270-s2*k/2,x1=270+s2*k/2,y0=250;const arc=(cx,r,t0,t1)=>`<path d="M${cx+r*Math.cos(t0)} ${y0-r*Math.sin(t0)}A${r} ${r} 0 0 0 ${cx+r*Math.cos(t1)} ${y0-r*Math.sin(t1)}" class="lv-outline lv-dashed"/>`;out+=`<path d="M${x0} ${y0}H${x1}" class="lv-travel"/>`+text(270,y0+30,s2,'lv-label');
+   if(m.ok){const px=(s2*s2+s1*s1-s0*s0)/(2*s2),py=Math.sqrt(Math.max(0,s1*s1-px*px)),ax=x0+px*k,ay=y0-py*k;
+     if(step>=1){const t1=Math.atan2(y0-ay,ax-x0),t2=Math.atan2(y0-ay,ax-x1);out+=arc(x0,s1*k,t1-.3,t1+.3)+arc(x1,s0*k,t2-.3,t2+.3)}
+     if(step===2)out+=`<polygon points="${x0},${y0} ${x1},${y0} ${ax},${ay}" class="lv-green-soft"/>`;
+     out+=`<path d="M${x0} ${y0}L${ax} ${ay}L${x1} ${y0}" class="lv-outline${step===2?'':' lv-dashed'}"/>`+text((x0+ax)/2-18,(y0+ay)/2,s1,'lv-label')+text((x1+ax)/2+18,(y0+ay)/2,s0,'lv-label');}
+   else{out+=`<path d="M${x0} ${y0-14}h${s1*k}" class="lv-travel lv-gold-line"/><path d="M${x1} ${y0-34}h${-s0*k}" class="lv-travel lv-gold-line"/>`+text(x0+s1*k/2,y0-24,s1,'lv-label')+text(x1-s0*k/2,y0-46,s0,'lv-label');
+     if(step>=1)out+=arc(x0,s1*k,0,pi/2)+arc(x1,s0*k,pi/2,pi)+text(270,y0-Math.max(s0,s1)*k-24,'القوسان لا يتقاطعان','lv-label');}
+   out+=text(270,y0+64,step===2?(m.ok?'مثلث '+m.kind:'لا يتكوّن مثلث'):step===1?`${s0} + ${s1} = ${m.sum} ${m.sg} ${s2}`:'نرسم الضلع الأطول أولًا','lv-label');
+ }
+ else if(type==='isoAltitude'){
+   const k=Math.min(340/a,210/m.h),hw=a*k/2,y0=255,ay=y0-m.h*k;out+=`<polygon points="${270-hw},${y0} ${270+hw},${y0} 270,${ay}" class="lv-green-soft"/>`;
+   out+=`<path d="M270 ${ay}V${y0}" class="lv-travel lv-gold-line"/><path d="M270 ${y0-14}h14v14" class="lv-outline"/>`+text(270,ay-14,'أ')+text(270-hw-14,y0+24,'ب')+text(270+hw+16,y0+24,'جـ')+text(270,y0+26,'د');
+   if(step>=1)out+=text(270-hw/2,y0+26,fmt(m.half),'lv-label')+text(270+hw/2,y0+26,fmt(m.half),'lv-label');
+   if(step===2)out+=text(252,ay+46,'∠1','lv-label')+text(290,ay+46,'∠2','lv-label')+text(270,y0+62,`∠1 = ∠2 = ${fmt(b/2)}°`,'lv-label');else out+=text(270,y0+62,step?'العمود ينصّف القاعدة':`زاوية الرأس ${b}°`,'lv-label');
+ }
+ else if(type==='trapezoid'){
+   const k=40,yb=250,yt=130,bl=270-b*k/2,br=270+b*k/2,tl=270-a*k/2+c*k,tr=tl+a*k;out+=`<polygon points="${bl},${yb} ${br},${yb} ${tr},${yt} ${tl},${yt}" class="lv-green-soft"/>`;
+   if(step===2)out+=`<path d="M${Math.min(bl,tl)-70} ${yt}H${Math.max(br,tr)+70}M${Math.min(bl,tl)-70} ${yb}H${Math.max(br,tr)+70}" class="lv-outline lv-dashed"/>`;
+   if(step>=1&&!m.par){const den=(bl-tl)-(br-tr),s=den?(bl-br)/den:0,iy=yb+(yt-yb)*s,jx=bl+(tl-bl)*s;if(Math.abs(iy-190)<260)out+=`<path d="M${bl} ${yb}L${jx} ${iy}L${br} ${yb}" class="lv-outline lv-dashed"/><circle cx="${jx}" cy="${iy}" r="6" class="lv-gold"/>`;}
+   out+=`<path d="M${tl} ${yt}H${tr}M${bl} ${yb}H${br}" class="lv-travel"/><path d="M${tl} ${yt}L${bl} ${yb}M${tr} ${yt}L${br} ${yb}" class="lv-travel lv-gold-line"/>`;
+   out+=text(tl-16,yt-8,'أ')+text(tr+16,yt-8,'د')+text(bl-16,yb+24,'ب')+text(br+16,yb+24,'جـ')+text((tl+tr)/2,yt-12,'قاعدة','lv-label')+text(270,yb+28,'قاعدة','lv-label')+text((tl+bl)/2-34,(yt+yb)/2,'ساق','lv-label')+text((tr+br)/2+34,(yt+yb)/2,'ساق','lv-label');
+   out+=text(270,yb+64,step===2?'القاعدتان لا تلتقيان مهما امتدّتا':step===1?(m.par?'الساقان متوازيان أيضًا':'الساقان يلتقيان إذا امتدّا'):'القاعدتان بالأخضر، والساقان بالذهبي','lv-label');
+ }
+ else if(type==='trapIso'||type==='trapRight'){
+   const k=40,yb=250,h=2.6*k,R=x=>x*pi/180;let P;const iso=type==='trapIso';
+   if(iso){const sh=h/Math.tan(R(a)),W=9*k;P=[[270-W/2,yb],[270-W/2+sh,yb-h],[270+W/2-sh,yb-h],[270+W/2,yb]]}else{const sh=h/Math.tan(R(a)),W=7*k;P=[[270-W/2,yb],[270-W/2,yb-h],[270+W/2-sh,yb-h],[270+W/2,yb]]}
+   const names=['أ','ب','جـ','د'],ang=iso?[a,180-a,180-a,a]:[90,90,180-a,a],show=iso?[[0],[0,3],[0,1,2,3]][step]:[[0,1,3],[0,1,3],[0,1,2,3]][step];
+   out+=`<polygon points="${P.map(p=>p.join(',')).join(' ')}" class="lv-green-soft"/>`;const gx=270,gy=yb-h/2;
+   P.forEach(([x,y],i)=>{out+=text(x+(x<gx?-16:16),y+(y>gy?24:-10),names[i]);const lx=x+(gx-x)*.22,ly=y+(gy-y)*.5+6;out+=text(lx,ly,show.includes(i)?ang[i]+'°':'؟','lv-label');});
+   if(!iso)out+=`<path d="M${P[0][0]} ${yb-14}h14v14M${P[1][0]} ${yb-h+14}h14v-14" class="lv-outline"/>`;
+   out+=text(270,yb+56,step===2?'المجموع = 360°':step===1?(iso?'زاويتا القاعدة الواحدة متساويتان':'نجمع الزوايا المعلومة'):(iso?'الساقان متساويان':'الساق أ ب عمودية على القاعدتين'),'lv-label');
+ }
+ else if(type==='paraProps'){
+   const k=Math.min(44,330/(a+b*Math.cos(c*pi/180))),r=c*pi/180,ux=b*k*Math.cos(r),uy=b*k*Math.sin(r),x0=270-(a*k+ux)/2,y0=250,B=[x0,y0],C=[x0+a*k,y0],A=[x0+ux,y0-uy],Dd=[x0+a*k+ux,y0-uy],M=[(A[0]+C[0])/2,(A[1]+C[1])/2];
+   out+=`<polygon points="${[A,B,C,Dd].map(p=>p.join(',')).join(' ')}" class="lv-green-soft"/>`;
+   out+=`<path d="M${B[0]} ${B[1]}L${C[0]} ${C[1]}M${A[0]} ${A[1]}L${Dd[0]} ${Dd[1]}" class="lv-travel"/><path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}M${Dd[0]} ${Dd[1]}L${C[0]} ${C[1]}" class="lv-travel lv-gold-line"/>`;
+   out+=text(A[0]-14,A[1]-10,'أ')+text(B[0]-16,B[1]+24,'ب')+text(C[0]+16,C[1]+24,'جـ')+text(Dd[0]+16,Dd[1]-10,'د');
+   out+=text((B[0]+C[0])/2,y0+26,a,'lv-label')+text((A[0]+Dd[0])/2,A[1]-12,a,'lv-label')+text((A[0]+B[0])/2-20,(A[1]+B[1])/2,b,'lv-label')+text((Dd[0]+C[0])/2+20,(Dd[1]+C[1])/2,b,'lv-label');
+   if(step>=1){const inA=(P,f=.28)=>[P[0]+(M[0]-P[0])*f,P[1]+(M[1]-P[1])*f+6];[[B,c],[Dd,c],[A,180-c],[C,180-c]].forEach(([P,v])=>{const [x,y]=inA(P);out+=text(x,y,v+'°','lv-label')})}
+   if(step===2)out+=`<path d="M${A[0]} ${A[1]}L${C[0]} ${C[1]}M${B[0]} ${B[1]}L${Dd[0]} ${Dd[1]}" class="lv-outline lv-dashed"/><circle cx="${M[0]}" cy="${M[1]}" r="6" class="lv-gold"/>`+text(M[0],M[1]-14,'م');
+   out+=text(270,y0+62,step===2?'هذا الشكل: '+m.shape:step===1?'الزوايا المتقابلة متساوية':'الأضلاع المتقابلة متساوية','lv-label');
  }
  else if(type==='powerCompare'){
    const A=`${a}${SPR(b)}`,B=`${c}${SPR(m.d)}`;
@@ -248,9 +316,9 @@ function scene(m,step){
  return `<svg viewBox="0 0 540 340" direction="ltr" role="img" aria-label="${escape(ENGINES[type].name)}">${out}</svg>`;
 }
 const INSTR_DEFAULT='حرّك الأشرطة لتغيير الأعداد، ثم اضغط الخطوات ١ و٢ و٣ بالترتيب لترى الحل.';
-const INSTR={powerCompare:'حرّك أشرطة الأساسين والأسّين، وقارن العددين بالقاعدة المناسبة.',sqrtLine:'حرّك الشريط لاختيار عدد، وشاهد بين أيّ مربعين كاملين يقع وما قيمة جذره التربيعي.',cbrtLine:'حرّك الشريط لاختيار عدد، وشاهد بين أيّ مكعبين كاملين يقع وما قيمة جذره التكعيبي.',unitMix:'حرّك الأشرطة، واحسب القوة والجذرين أولًا ثم أكمل بأولويات العمليات.',power:'حرّك شريط الأساس وشريط الأس، وشاهد كيف يتكرر الأساس عاملًا بعدد الأس.',order:'حرّك الأشرطة لتغيير الأعداد، وشاهد كيف نحسب الضرب أولًا ثم نجمع.'};
+const INSTR={triKind:'حرّك شريطي الزاويتين ب و جـ، ثم اضغط «التالي» لنجد الزاوية الثالثة ونصنّف المثلث حسب زواياه.',triSides:'اختر أطوال الأضلاع الثلاثة بالأشرطة، ثم اضغط «التالي» لنعرف هل تصنع مثلثًا، وما نوعه حسب أضلاعه.',isoAltitude:'غيّر طول القاعدة وقياس زاوية الرأس، ثم اضغط «التالي» لترى كيف ينصّف العمود القاعدة وزاوية الرأس.',triangleArea:'غيّر طول القاعدة والارتفاع، ثم اضغط «التالي» لترى أن المثلث نصف مستطيل.',trapezoid:'غيّر طولي القاعدتين وإزاحة القاعدة العليا، ثم اضغط «التالي» لنمدّ الساقين ثم القاعدتين.',trapIso:'حرّك شريط الزاوية أ، ثم اضغط «التالي» لنجد بقية زوايا شبه المنحرف.',trapRight:'حرّك شريط الزاوية د، ثم اضغط «التالي» لنجد الزاوية الرابعة.',paraProps:'غيّر طولي الضلعين وقياس الزاوية ب، ثم اضغط «التالي» لترى خصائص متوازي الأضلاع واسم الشكل.',powerCompare:'حرّك أشرطة الأساسين والأسّين، وقارن العددين بالقاعدة المناسبة.',sqrtLine:'حرّك الشريط لاختيار عدد، وشاهد بين أيّ مربعين كاملين يقع وما قيمة جذره التربيعي.',cbrtLine:'حرّك الشريط لاختيار عدد، وشاهد بين أيّ مكعبين كاملين يقع وما قيمة جذره التكعيبي.',unitMix:'حرّك الأشرطة، واحسب القوة والجذرين أولًا ثم أكمل بأولويات العمليات.',power:'حرّك شريط الأساس وشريط الأس، وشاهد كيف يتكرر الأساس عاملًا بعدد الأس.',order:'حرّك الأشرطة لتغيير الأعداد، وشاهد كيف نحسب الضرب أولًا ثم نجمع.'};
 const STEPS_DEFAULT=['نقرأ المسألة','نحسب الخطوة الأولى','نصل إلى الناتج'];
-const STEPS={powerCompare:['نقرأ العددين','نحسب القيمتين','نقارن'],sqrtLine:['نقرأ العدد','نحصره بين مربعين','نجد الجذر'],cbrtLine:['نقرأ العدد','نحصره بين مكعبين','نجد الجذر'],unitMix:['نقرأ التمرين','نحسب القوة والجذور','نكمل بالأولويات'],power:['نقرأ الأساس والأس','نكتب الضرب المتكرر','نحسب القيمة'],order:['نقرأ التمرين','نحسب الضرب أولًا','نجمع ونصل إلى الناتج']};
+const STEPS={triKind:['نرسم القاعدة والزاويتين','نجد الزاوية الثالثة','نصنّف المثلث'],triSides:['نرسم الضلع الأطول','نجمع الضلعين القصيرين','نحكم ونصنّف'],isoAltitude:['نرسم العمود','ينصّف القاعدة','ينصّف زاوية الرأس'],triangleArea:['نرسم المستطيل','نحسب مساحة المستطيل','نأخذ النصف'],trapezoid:['نسمّي الأضلاع','نمدّ الساقين','نمدّ القاعدتين'],trapIso:['نقرأ المعطى','زاويتا القاعدة','نكمل إلى مجموع الزوايا'],trapRight:['نقرأ المعطى','نجمع المعلوم','نجد الزاوية الرابعة'],paraProps:['الأضلاع المتقابلة','الزوايا المتقابلة','القطران'],powerCompare:['نقرأ العددين','نحسب القيمتين','نقارن'],sqrtLine:['نقرأ العدد','نحصره بين مربعين','نجد الجذر'],cbrtLine:['نقرأ العدد','نحصره بين مكعبين','نجد الجذر'],unitMix:['نقرأ التمرين','نحسب القوة والجذور','نكمل بالأولويات'],power:['نقرأ الأساس والأس','نكتب الضرب المتكرر','نحسب القيمة'],order:['نقرأ التمرين','نحسب الضرب أولًا','نجمع ونصل إلى الناتج']};
 let current=null,timer=null;
 const controlMarkup=type=>`<h3>غيّر القيم ولاحظ الفرق.</h3>${ENGINES[type].controls.map(c=>`<label class="lv-control">${c.label}<output data-lv-output="${c.name}">${fmt(c.value)}</output><input type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${c.value}" data-lv-input="${c.name}" dir="ltr"></label>`).join('')}<div class="lv-control-note">${window.ICON('hand')} أرقام هذا المثال للتجربة، ولا تغيّر تقدّمك.</div>`;
 function install(A){
