@@ -201,7 +201,7 @@ html[data-entry=checking] #visitor-home{visibility:hidden}
 .L-foot{padding:26px 0 100px;border-top:2px solid var(--line);background:#fff;font-size:14px;color:var(--ink2)}
 .L-foot-in{display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
 .L-foot img{height:44px;width:auto}
-.L-foot nav{display:flex;gap:16px}
+.L-foot nav{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
 .L-sticky{position:fixed;inset-inline:12px;bottom:12px;z-index:60;transform:translateY(140%);transition:transform .3s}
 .L-sticky.is-on{transform:none}.L-sticky .L-btn{width:100%}
 /* ظهور عند التمرير (يضيف welcome.js الصنفين) */

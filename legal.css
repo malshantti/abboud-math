@@ -1,0 +1,11 @@
+.legal{margin:0;background:#fbfaf5;color:#2b3220;font-family:"Cairo",Baloo,system-ui,sans-serif;line-height:1.9}
+.lg-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;background:#fff;border-bottom:2px solid #e6e8d8;position:sticky;top:0}
+.lg-bar img{height:42px;width:auto;display:block}
+.lg-bar nav,.lg-foot{display:flex;gap:16px;flex-wrap:wrap}
+.legal a{color:#647b43;font-weight:700}
+.lg-main{max-width:760px;margin:0 auto;padding:24px 18px 40px}
+.lg-main h1{font-family:Baloo,"Cairo",sans-serif;color:#4d6132;font-size:2rem;margin:.2em 0}
+.lg-main h2{font-family:Baloo,"Cairo",sans-serif;color:#4d6132;font-size:1.3rem;margin:1.4em 0 .3em}
+.lg-date{color:#6b705c;font-size:.9rem}
+.lg-main ul{padding-inline-start:1.3em}
+.lg-foot{justify-content:center;padding:20px;border-top:2px solid #e6e8d8;background:#fff;font-size:14px}
