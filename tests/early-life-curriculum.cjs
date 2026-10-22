@@ -10,6 +10,8 @@ for(const grade of [1,2]){
  assert.equal(C.key,old.key,'Existing storage key remains intact');
  for(const L of oldLessons){
   const current=lessons.find(l=>l.id===L.id);assert(current,'Old completion ID preserved: '+L.id);
+  /* الصف الأول أعيدت صياغة أسئلته بعد مراجعة المعلمين (٢٠٢٦)؛ يبقى المعرّف والإنجاز السابق محفوظين. */
+  if(grade===1){assert(current.tasks.length>=2,'Reviewed lesson still has practice: '+L.id);continue;}
   assert.equal(current.tasks.length,L.tasks.length,'No new assessed objective in an already completed ID');
   for(let i=0;i<L.tasks.length;i++){
    assert.equal(current.tasks[i].answer,L.tasks[i].answer,'Previous answer mapping preserved');

@@ -36,3 +36,14 @@ add('m-found-shapes','m-u6','أتعرّف الأشكال','أميّز المثل
  ['الدائرة حدّها منحنٍ، وليس لها أضلاع ولا رؤوس.',shape('circle')]
 ],[t('ما اسم الشكل؟',shape('triangle'),['مثلث','دائرة'],0,'له ثلاثة أضلاع، فهو مثلث.'),t('كم ضلعًا للمربع؟',shape('square'),['٣','٤','٥'],1,'للمربع أربعة أضلاع متساوية.'),t('أي شكل ليس له رؤوس؟',null,['الدائرة','المثلث','المربع'],0,'حدّ الدائرة منحنٍ، فليس لها رؤوس.')]);
 })();
+/* مراجعة ٢٠٢٦: أسئلة أساسياتي قصيرة بصورة ونص منطوق مشكول. */
+(()=>{
+'use strict';
+const C=window.G1_COURSE,M=window.G1_MATH_KIT;if(!C||!M)return;const {K,S,sym,count,op}=M;
+const set=(id,steps,tasks)=>{const l=C.foundations.find(x=>x.id===id);if(l){l.steps=steps;l.tasks=tasks;}};
+set('m-found-compare',[S('أعدّ كل مجموعة وحدها.','أَعُدُّ كُلَّ مَجْمُوعَةٍ وَحْدَهَا.',count(3)),S('الفتحة نحو الأكبر: ٥ > ٣.','الْفَتْحَةُ نَحْوَ الْأَكْبَرِ: خَمْسَة أَكْبَرُ مِنْ ثَلَاثَة.',sym('٥ > ٣'))],[K.bigger(3,5,'apple'),K.smaller(4,2,'ball'),K.sign(5,3),K.sign(2,6),K.sign(4,4)]);
+set('m-found-add',[S('أضمّ المجموعتين وأعدّ.','أَضُمُّ الْمَجْمُوعَتَيْنِ وَأَعُدُّ.',op(2,'+',3,'apple'))],[K.add(2,3,'apple'),K.add(1,4,'ball'),K.build(5,'flower',8),K.expr(3,'+',3),K.line(2,3)]);
+set('m-found-sub',[S('آخذ بعضها، وأعدّ الباقي.','آخُذُ بَعْضَهَا، وَأَعُدُّ الْبَاقِيَ.',op(5,'−',2,'apple'))],[K.sub(5,2,'apple'),K.sub(4,1,'ball'),K.expr(6,'−',3),K.line(7,-2),K.sub(3,3,'fish')]);
+set('m-found-ten',[S('العشرة: ١٠ أشياء معًا.','الْعَشَرَةُ: عَشَرَةُ أَشْيَاءَ مَعًا.',count(10)),S('١٢ = عشرة واثنان.','اثْنَا عَشَرَ: عَشَرَةٌ وَاثْنَانِ.',{type:'place-value',tens:1,ones:2})],[K.count(10,'apple'),K.build(10,'ball',12),K.tenOnes(2),K.pv(1,5),K.part(10,6)]);
+set('m-found-shapes',[S('أنظر إلى الأضلاع والزوايا.','أَنْظُرُ إِلَى الْأَضْلَاعِ وَالزَّوَايَا.',{type:'shape',value:'triangle'})],[K.shape('triangle'),K.shape('circle'),K.shape('square'),K.shape('rectangle'),K.solid('sphere')]);
+})();
