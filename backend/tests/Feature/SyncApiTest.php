@@ -15,7 +15,7 @@ class SyncApiTest extends TestCase
     public function test_session_for_guest_returns_public_settings_only(): void
     {
         Setting::put(['announcement' => 'إعلان مهم', 'announcement_active' => '1']);
-        $this->getJson('/api/session')->assertOk()->assertJson(['authenticated' => false, 'site' => ['announcement' => 'إعلان مهم', 'tagline' => 'نزرع الفهم، ونحصد المعرفة']])->assertJsonMissingPath('students');
+        $this->getJson('/api/session')->assertOk()->assertJson(['authenticated' => false, 'site' => ['announcement' => 'إعلان مهم', 'tagline' => 'نزرع الفهم، ونحصد المعرفة — المنهاج الفلسطيني كاملًا']])->assertJsonMissingPath('students');
         $this->getJson('/api/site')->assertOk()->assertJsonPath('site_name', 'بستان التعلّم');
         $this->postJson('/api/students', ['name' => 'x'])->assertUnauthorized();
     }

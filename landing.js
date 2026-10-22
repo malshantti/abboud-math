@@ -125,3 +125,22 @@ function afterLoad(){setTimeout(show,450)}
 if(document.readyState==='complete')afterLoad();else{addEventListener('load',afterLoad,{once:true});setTimeout(show,2200)}
 window.__bustanVoice={want:want,enable:enable,state:function(){return{enabled:enabled,muted:muted,cur:curId,played:played,queue:queue.slice()}}};
 })();
+
+// الأسعار ومدة الاشتراك والتجربة من لوحة الإدارة؛ النصوص المكتوبة في الصفحة احتياط عند تعذّر الاتصال.
+(function(){
+var AR=function(n){return String(n).replace(/\d/g,function(d){return'٠١٢٣٤٥٦٧٨٩'[d]})};
+function days(n){n=+n;if(n===1)return'يومًا واحدًا';if(n===2)return'يومين';if(n>=3&&n<=10)return AR(n)+' أيام';return AR(n)+' يومًا'}
+function cur(n,c){if(c&&c!=='شيكل')return c;n=+n%100;if(n>=3&&n<=10)return'شواكل';if(n>=11&&n<=99)return'شيكلًا';return'شيكل'}
+function fill(d){
+ if(!d||!d.groups)return;
+ d.groups.forEach(function(g){var card=document.querySelector('[data-price-group="'+g.key+'"]');if(!card)return;
+  var t=card.querySelector('.L-plan-for'),b=card.querySelector('.L-price b'),f=card.querySelector('.L-from'),u=card.querySelector('.L-cur'),dd=card.querySelector('[data-days]');
+  if(t&&g.title)t.textContent=g.title;if(b)b.textContent=AR(g.min);if(f)f.hidden=!g.from;if(u)u.textContent=cur(g.min,d.currency);if(dd)dd.textContent=(g.days_vary?'من ':'')+days(g.days)});
+ var dy=d.groups.length?Math.min.apply(null,d.groups.map(function(g){return g.days})):0;
+ if(dy)document.querySelectorAll('[data-days]').forEach(function(el){if(!el.closest('[data-price-group]'))el.textContent=days(dy)});
+ if(typeof d.trial_days==='number'){var on=d.trial_days>0;
+  document.querySelectorAll('[data-trial]').forEach(function(el){if(on)el.textContent=days(d.trial_days)});}
+}
+try{fetch('/admin-api/api/public/prices',{cache:'no-cache',credentials:'omit',headers:{Accept:'application/json'}}).then(function(r){return r.ok?r.json():null}).then(fill).catch(function(){})}catch(e){}
+window.__bustanPrices=fill;
+})();

@@ -21,6 +21,13 @@ class SyncController extends Controller
 {
     private const MAX_VALUE = 1_000_000;
 
+    /** Public price summary for the landing; short public cache so admin changes appear within a minute. */
+    public function prices(): JsonResponse
+    {
+        return response()->json(Setting::publicPrices(), 200, [], JSON_UNESCAPED_UNICODE)
+            ->header('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=30');
+    }
+
     public function site(): JsonResponse
     {
         return response()->json(Setting::publicData())->header('Cache-Control', 'public, max-age=60');
