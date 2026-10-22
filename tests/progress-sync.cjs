@@ -25,8 +25,10 @@ const tick=()=>new Promise(r=>setTimeout(r,30));
 (async()=>{
  // Device with an existing local student (legacy abboud key) and no sync: nothing is sent.
  const map=new Map([['abboud_math_v1',JSON.stringify({name:'عبّود',points:77})]]);const srv=server();
- let c=page(map,srv,'/login.html');await c.PROFILES.ready;await tick();
- assert.deepEqual(srv.calls,['GET site'],'not opted in: only the public banner request');
+ let c=page(map,srv,'/');await c.PROFILES.ready;await tick();
+ assert.deepEqual(srv.calls,['GET site'],'homepage, not opted in: only the public banner request');
+ { const m2=new Map(),s2=server();s2.auth=false;const c2=page(m2,s2,'/login.html');await c2.PROFILES.ready;await tick();
+   assert.deepEqual(s2.calls,['GET session'],'the student picker always checks the linked account');assert.equal(m2.get('bustan_sync'),'1'); }
  const before=JSON.stringify([...map].filter(([k])=>!k.startsWith('bustan_sync')&&k!=='bustan_account'));
  // Opt in and log in. The parent has added this child on the account page (linked by local_id p1, grade 8): progress imported.
  srv.students.push({id:1,name:'عبّود',grade:8,avatar:'idle',local_id:'p1'});srv.progress[1]={};srv.next=2;

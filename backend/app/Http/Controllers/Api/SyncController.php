@@ -59,7 +59,8 @@ class SyncController extends Controller
             'authenticated' => true,
             'user' => ['name' => $user->name, 'email' => $user->email],
             'access' => ['allowed' => $access['access'], 'kind' => $access['kind'], 'ends_at' => $access['ends_at']?->toIso8601String(), 'days_left' => $access['ends_at'] ? max(1, (int) ceil(($access['ends_at']->getTimestamp() - now()->getTimestamp()) / 86400)) : null, 'subjects' => $access['subjects'], 'expiring' => Access::expiringSoon($user)],
-            'students' => $user->students()->orderBy('id')->get()->map->toApi(),
+            // The only students a device may show: the ones the parent registered on the account page.
+            'students' => $user->students()->orderBy('id')->get()->map(fn (Student $s) => $s->toApi($access))->values(),
         ]);
     }
 

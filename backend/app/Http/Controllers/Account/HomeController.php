@@ -18,11 +18,11 @@ use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    private const MSG = ['name.required' => 'أدخل اسم الطالب.', 'name.max' => 'اسم الطالب أطول من ٢٤ محرفًا.', 'grade.required' => 'اختر الصف.', 'grade.in' => 'اختر صفًا من القائمة.'];
+    private const MSG = ['name.required' => 'أدخل اسم الطالب.', 'name.max' => 'اسم الطالب أطول من ٢٤ محرفًا.', 'grade.required' => 'اختر الصف.', 'grade.in' => 'اختر صفًا من القائمة.', 'pin.digits' => 'الرقم السري أربعة أرقام.'];
 
     public function index(Request $request): View
     {
-        $user = $request->user()->load('students');
+        $user = $request->user()->load(['students' => fn ($q) => $q->orderBy('id')]);
         $subs = $user->subscriptions()->latest()->take(10)->get();
 
         return view('account.home', ['user' => $user, 'access' => Access::state($user), 'subscriptions' => $subs, 'expiring' => Access::expiringSoon($user), 'grades' => Setting::gradeOptions(), 'siteUrl' => rtrim((string) config('app.student_site_url'), '/')]);
@@ -30,16 +30,27 @@ class HomeController extends Controller
 
     private function rules(): array
     {
-        return ['name' => ['required', 'string', 'max:24'], 'grade' => ['required', Rule::in(array_keys(Setting::gradeOptions()))]];
+        return ['name' => ['required', 'string', 'max:24'], 'grade' => ['required', Rule::in(array_keys(Setting::gradeOptions()))], 'pin' => ['nullable', 'digits:4']];
+    }
+
+    /** Arabic-Indic digits are accepted and normalised. */
+    private function pin(Request $request): ?string
+    {
+        $pin = strtr((string) $request->input('pin', ''), ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']);
+
+        return preg_match('/^\d{4}$/', $pin) ? $pin : null;
     }
 
     public function storeStudent(Request $request): RedirectResponse
     {
+        $request->merge(['pin' => $this->pin($request) ?? ($request->filled('pin') ? 'x' : null)]);
         $data = $request->validate($this->rules(), self::MSG);
         if ($request->user()->students()->count() >= ($max = Setting::int('max_students', 1, 50))) {
             return back()->withErrors(['name' => 'وصلت إلى الحد الأقصى لعدد الطلاب في الحساب ('.Ar::num($max).').']);
         }
-        $s = $request->user()->students()->create(['name' => trim($data['name']), 'grade' => (int) $data['grade']]);
+        $s = $request->user()->students()->make(['name' => trim($data['name']), 'grade' => (int) $data['grade']]);
+        $s->setPin($this->pin($request));
+        $s->save();
         ActivityLog::record('student.create', $s->name);
 
         return back()->with('status', 'أُضيف الطالب «'.$s->name.'».');
@@ -48,8 +59,11 @@ class HomeController extends Controller
     public function updateStudent(Request $request, Student $student): RedirectResponse
     {
         abort_unless($student->user_id === $request->user()->id, 404);
+        $request->merge(['pin' => $this->pin($request) ?? ($request->filled('pin') ? 'x' : null)]);
         $data = $request->validate($this->rules(), self::MSG);
-        $student->update(['name' => trim($data['name']), 'grade' => (int) $data['grade']]);
+        $student->fill(['name' => trim($data['name']), 'grade' => (int) $data['grade']]);
+        $student->setPin($this->pin($request));
+        $student->save();
         ActivityLog::record('student.update', $student->name);
 
         return back()->with('status', 'حُفظت بيانات الطالب.');

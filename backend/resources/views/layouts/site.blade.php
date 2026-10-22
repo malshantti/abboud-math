@@ -10,9 +10,12 @@
 @include('partials.brand-css')
 <style>
 .top{background:rgba(251,249,240,.94);border-bottom:2px solid var(--line)}
-.top-in{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;max-width:1120px;margin:0 auto;padding:10px 20px;min-height:68px}
+.top-in{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;max-width:1120px;margin:0 auto;padding:10px max(20px,env(safe-area-inset-left)) 10px max(20px,env(safe-area-inset-right));min-height:68px}
+.top-in>form{margin:0;min-width:0;flex:0 1 auto}
+.top nav .btn{white-space:nowrap;flex:none}
 .logo{display:flex}.logo img{height:46px;width:auto;display:block}
-.top nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.top nav{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.top nav a{white-space:nowrap}
 .top nav a{padding:8px 14px;border-radius:12px;text-decoration:none;color:var(--ink2)}.top nav a:hover{background:var(--gl);color:var(--gd)}
 .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 56px}
 .banner{background:var(--yl);border-bottom:2px solid #f3dc95;color:#5a4000;text-align:center;padding:10px 16px;font-weight:700}
@@ -45,6 +48,9 @@
   .side{padding:22px 18px;gap:14px}
   .side-mascot{width:84px}.bubble{font-size:17px}
   .logo img{height:38px}.top-in{min-height:58px;padding:8px 14px}
+}
+@media (max-width:420px){
+  .logo img{height:32px}.top nav{gap:2px}.top nav a{padding:8px 8px}.top nav .btn.small{padding:6px 10px;font-size:15px}
 }
 </style>
 </head>

@@ -23,8 +23,8 @@
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/baloo-arabic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/img/z-welcome-body.webp" as="image">
-<link rel="stylesheet" href="entry.css">
-<link rel="stylesheet" href="login.css">
+<link rel="stylesheet" href="entry.css?v=29">
+<link rel="stylesheet" href="login.css?v=29">
 <link rel="manifest" href="manifest.webmanifest">
 </head>
 <body class="login">
@@ -57,15 +57,15 @@
   </section>
   <section class="panel" id="panel" aria-live="polite">
     <header class="lg-head">
-      <span class="brand"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z" fill="currentColor"/><path d="M5 19c4-4 7-7 10-11" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span>بستان التعلّم<small>نزرع الفهم، ونحصد المعرفة — المنهاج الفلسطيني كاملًا</small></span></span>
+      <span class="brand"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z" fill="currentColor"/><path d="M5 19c4-4 7-7 10-11" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span>بستان التعلّم<small><span class="tl">نزرع الفهم، ونحصد المعرفة</span> <span class="tl">المنهاج الفلسطيني كاملًا</span></small></span></span>
       <button class="iconbtn" id="theme" type="button" aria-label="تبديل الوضع الليلي"></button>
     </header>
     <div id="view"></div>
   </section>
 </main>
 <noscript><p class="foot">يحتاج الدخول إلى تفعيل JavaScript.</p></noscript>
-<script src="profiles.js"></script>
-<script src="login.js"></script>
+<script src="profiles.js?v=29"></script>
+<script src="login.js?v=29"></script>
 <script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
 </body>
 </html>

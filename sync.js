@@ -15,7 +15,8 @@ const web=/^https?:$/.test(location.protocol);
 const subjectMatch=location.pathname.match(/\/(g\d+)\/([a-z]+)\//),subject=subjectMatch?subjectMatch[1]+'-'+subjectMatch[2]:null;
 const entryPage=!subject;// السحب من الخادم يجري في صفحات الدخول فقط، قبل أن يقرأ موقع المادة حالته.
 const fnv=s=>{if(s==null)return'∅';let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619)>>>0;return s.length+':'+h.toString(36)};
-if(web&&new URLSearchParams(location.search).get('sync')==='1')set(K.on,'1');
+// الحساب إلزامي: صفحة اختيار الطالب تتحقق دائمًا من الحساب المرتبط بهذا الجهاز وتعرض أبناءه فقط.
+if(web&&(new URLSearchParams(location.search).get('sync')==='1'||/\/login\.html$/.test(location.pathname)))set(K.on,'1');
 const enabled=()=>get(K.on)==='1';
 let csrf='',session=null,busy=null;
 
@@ -142,27 +143,33 @@ async function sync(){
   const s=session.students.find(x=>x.local_id===p.id);if(!s)continue;
   st.map[p.id]=s.id;st.base[p.id]={};
   const items={},now=Date.now();Object.entries(data).forEach(([k,v])=>{if(typeof v==='string')items[k]={value:v,updated:now}});
-  const res=await api('students/'+s.id+'/import',{method:'POST',body:{items}});
+  let res;try{res=await api('students/'+s.id+'/import',{method:'POST',body:{items}})}catch(e){if(e.message==='auth')throw e;continue}// يُعاد في الجولة التالية
   Object.keys(items).forEach(k=>{if(res.items[k]&&res.items[k].value===items[k].value)st.base[p.id][k]=fnv(items[k].value)});
   save();
  }
- // ٢) طلاب أضافهم ولي الأمر على الخادم أو من جهاز آخر: ينشأ لهم ملف على هذا الجهاز (في صفحات الدخول فقط).
- const mapped=new Set(Object.values(st.map));
- if(entryPage)for(const s of servers.values()){
-  if(mapped.has(s.id))continue;
-  const r=await api('students/'+s.id+'/progress');
-  let id=s.local_id&&/^p\w+$/.test(s.local_id)&&!P.find(s.local_id)?s.local_id:'ps'+s.id;
-  const data={};Object.entries(r.items||{}).forEach(([k,v])=>{if(typeof v.value==='string')data[k]=v.value});
-  if(!data.bustan_grade&&s.grade)data.bustan_grade=String(s.grade);
-  await P.restore({app:'bustan-backup-v1',profiles:[{id,name:s.name,avatar:s.avatar}],data:{[id]:data}});
-  st.map[id]=s.id;st.base[id]={};Object.entries(data).forEach(([k,v])=>st.base[id][k]=fnv(v));save();
- }
- // ٢ب) قائمة أبناء الحساب، وإزالة الملفات المحلية التي لا تخصّه، وتثبيت صف كل طالب كما حدّده ولي الأمر.
+ // ٢) قائمة الطلاب على هذا الجهاز تُستبدل بقائمة الخادم (لا دمج): كل طالب سجّله ولي الأمر يصير له ملف هنا،
+ //    وتُحذف الملفات المحلية التي لا ترتبط بطالب من الحساب (من حساب آخر أو من النسخة القديمة)، ولا يُحفظ تقدّمها إلا إن كانت مرتبطة بطالب.
  for(const [lid,sid] of Object.entries(st.map))if(!servers.has(sid)){delete st.map[lid];delete st.base[lid]}
- const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null}});
- set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster}));save();
- if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id))await P.remove(p.id);
-  for(const r of roster){const p=P.find(r.local);if(p&&r.grade&&P.dataOf(r.local,'bustan_grade')!==r.grade)await P.restore({app:'bustan-backup-v1',profiles:[p],data:{[r.local]:{bustan_grade:String(r.grade)}}})}}
+ if(entryPage){
+  const bySid=new Map(Object.entries(st.map).map(([l,s])=>[s,l]));
+  for(const s of servers.values()){
+   let id=bySid.get(s.id);const have=id&&P.find(id);
+   const data={};
+   if(!have){
+    try{const r=await api('students/'+s.id+'/progress');Object.entries(r.items||{}).forEach(([k,v])=>{if(typeof v.value==='string')data[k]=v.value})}catch(e){if(e.message==='auth')throw e}// يُنشأ الملف حتى لو تعذّر سحب التقدّم؛ يُسحب في الجولة التالية
+    id=s.local_id&&/^p\w+$/.test(s.local_id)&&!P.find(s.local_id)?s.local_id:'ps'+s.id;
+   }
+   if(s.grade)data.bustan_grade=String(s.grade);
+   const cur=P.find(id)||{},pin=s.pin&&s.pin.hash?{pin:s.pin.hash,salt:s.pin.salt}:{pin:cur.pin||null,salt:cur.salt||null};// الرقم السري الذي حدّده ولي الأمر هو المرجع
+   if(!have||cur.name!==s.name||cur.pin!==pin.pin||(s.grade&&String(P.dataOf(id,'bustan_grade'))!==data.bustan_grade))
+    await P.restore({app:'bustan-backup-v1',profiles:[{id,name:s.name,avatar:s.avatar||cur.avatar,created:cur.created,...pin}],data:{[id]:data}});
+   if(!have){st.map[id]=s.id;st.base[id]={};Object.entries(data).forEach(([k,v])=>st.base[id][k]=fnv(v))}
+   save();
+  }
+ }
+ const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null,grade_name:s.grade_name||null,subjects:Array.isArray(s.subjects)?s.subjects.map(x=>x.name):null}});
+ set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster,t:Date.now()}));save();
+ if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id))await P.remove(p.id)}
  try{if(typeof CustomEvent==='function')dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}
  // ٣) رفع ما تغيّر محليًا، وسحب ما تغيّر على الخادم (السحب في صفحات الدخول فقط).
  backup=P.backup();
@@ -188,7 +195,8 @@ async function start(){
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});return}
  if(!enabled()){try{const s=await (await fetch(API+'site',{credentials:'same-origin'})).json();banner(s);maintenance(s)}catch(e){}badge();return}
  try{session=await api('session');csrf=session.csrf||'';banner(session.site);if(maintenance(session.site)){badge();return}
-  if(session.authenticated){remember(session);set(K.access,JSON.stringify(session.access));gate(session.access,session.urls)}else set(K.account,null)
+  if(session.authenticated){remember(session);set(K.access,JSON.stringify(session.access));gate(session.access,session.urls)}
+  else{set(K.account,null);set(K.roster,null);set(K.access,null);try{dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}}// لا حساب مرتبط: صفحة الدخول تحوّل إلى تسجيل الدخول
  }catch(e){const cached=J(K.access,null);if(cached)gate(cached,{subscribe:new URL('admin-api/account/subscribe',root).href})}// دون إنترنت: آخر حالة معروفة
  badge();
  if(!session||!session.authenticated)return;
