@@ -18,7 +18,7 @@ for(const g of ['g6','g8']){const dir=path.join(root,g,'math');
  // player behaviour with fake DOM
  const marks=new Map(),audios=[];let generated=0,listeners={};
  const el=k=>{if(!marks.has(k))marks.set(k,{k,classList:{s:new Set(),add(c){this.s.add(c)},remove(c){this.s.delete(c)},toggle(c,on){on?this.s.add(c):this.s.delete(c)},contains(c){return this.s.has(c)}},scrollIntoView(){}});return marks.get(k)};
- const btn={dataset:{id:'S1-1-1'},attrs:{},setAttribute(k,v){this.attrs[k]=v},classList:{toggle(){}},innerHTML:'',closest(){return btn}};const stEl={textContent:''};
+ const btn={dataset:{id:'S1-1-1'},attrs:{},setAttribute(k,v){this.attrs[k]=v},classList:{toggle(){}},innerHTML:'',closest(s){return s==='#narr'?btn:null}};const stEl={textContent:''};
  class Audio{constructor(){audios.push(this);this.paused=true}play(){this.paused=false;return Promise.resolve()}pause(){this.paused=true}}
  const doc={addEventListener:(t,f)=>listeners['d'+t]=f,getElementById:i=>i==='narr'?btn:i==='narr-st'?stEl:null,querySelector:s=>el(s.match(/"(.+)"/)[1]),querySelectorAll:()=>[...marks.values()].filter(e=>e.classList.contains('narr-on')).map(e=>({classList:{remove:c=>e.classList.remove(c)}}))};
  const ctx={document:doc,Audio,addEventListener:(t,f)=>listeners[t]=f,MATH_NARR:{base:'narration/',L:{'S1-1-1':['goal','idea','r0']}},speechSynthesis:{speak(){generated++}},SpeechSynthesisUtterance:function(){generated++}};ctx.window=ctx;
