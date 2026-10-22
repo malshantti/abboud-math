@@ -9,12 +9,12 @@ class Ar
         return strtr((string) $value, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩', ',' => '٬', '.' => '٫']);
     }
 
-    public static function date($date, bool $time = true): string
+    public static function date($date, bool $time = true, ?string $tz = null): string
     {
         if (! $date) {
             return '—';
         }
-        $d = \Illuminate\Support\Carbon::parse($date)->timezone(config('app.display_timezone', 'Asia/Gaza'));
+        $d = \Illuminate\Support\Carbon::parse($date)->timezone($tz ?: config('app.display_timezone', 'Asia/Gaza'));
         $out = $d->format('d/m/Y');
         if ($time) {
             $out .= ' — '.$d->format('h:i').' '.($d->format('A') === 'AM' ? 'ص' : 'م');
@@ -40,9 +40,9 @@ class Ar
     }
 
     /** date() as HTML: readable zeros, and date/time isolated so the order survives RTL ("٢٢/١٠/٢٠٢٦ — ١٢:٥٧ ص"). */
-    public static function when($date, bool $time = true): \Illuminate\Support\HtmlString
+    public static function when($date, bool $time = true, ?string $tz = null): \Illuminate\Support\HtmlString
     {
-        $text = static::date($date, $time);
+        $text = static::date($date, $time, $tz);
         if ($text === '—') {
             return new \Illuminate\Support\HtmlString('—');
         }

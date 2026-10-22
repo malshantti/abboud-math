@@ -46,6 +46,11 @@ class User extends Authenticatable
         return $this->isAdminRole() || $this->role === 'teacher';
     }
 
+    public function isVerified(): bool
+    {
+        return $this->email_verified_at !== null;
+    }
+
     public function isDisabled(): bool
     {
         return $this->disabled_at !== null;
@@ -59,7 +64,7 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new \App\Notifications\ResetPasswordAr($token));
+        \App\Support\MailCenter::send('reset', $this, \App\Support\MailCenter::resetUrl($this, $token));
     }
 
     /**

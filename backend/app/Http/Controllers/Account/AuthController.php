@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\Access;
+use App\Support\MailCenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -98,6 +99,14 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         ActivityLog::record('register', $user->email, null, $user);
+        // Activation link first; the welcome email follows once the address is confirmed.
+        // If activation emails are switched off, the account counts as verified and is welcomed now.
+        if (MailCenter::enabled('verify')) {
+            MailCenter::send('verify', $user, MailCenter::verifyUrl($user));
+        } else {
+            $user->forceFill(['email_verified_at' => now()])->save();
+            MailCenter::send('welcome', $user, MailCenter::welcomeLink());
+        }
         \App\Support\Landing::scrubIntended($request);
 
         return redirect()->intended(route('account.home', absolute: false))->with('status', 'أهلًا بك! أُنشئ حسابك. أضف الآن طلابك.');
@@ -168,7 +177,38 @@ class AuthController extends Controller
 
     public function resetForm(Request $request, string $token): View
     {
-        return view('account.reset', ['token' => $token, 'email' => (string) $request->query('email', '')]);
+        // Links in our emails are signed and expire with the token (60 minutes).
+        $expired = $request->has('signature') && ! $request->hasValidSignature();
+
+        return view('account.reset', ['token' => $token, 'email' => (string) $request->query('email', ''), 'expired' => $expired]);
+    }
+
+    /** Activation link from the email. Works without being logged in (another device is fine). */
+    public function verify(Request $request, int $id, string $hash): RedirectResponse
+    {
+        $user = User::find($id);
+        $to = Auth::check() ? route('account.home') : route('account.login');
+        if (! $request->hasValidSignature() || ! $user || ! hash_equals(sha1($user->email), $hash)) {
+            return redirect($to)->withErrors(['email' => 'رابط التفعيل غير صالح أو انتهت صلاحيته. اطلب رابطًا جديدًا من صفحة حسابك.']);
+        }
+        if (! $user->isVerified()) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+            ActivityLog::record('email.verify', $user->email, null, $user);
+            MailCenter::send('welcome', $user, MailCenter::welcomeLink());
+        }
+
+        return redirect($to)->with('status', 'تم تفعيل حسابك وتأكيد بريدك الإلكتروني. شكرًا لك.');
+    }
+
+    public function resendVerification(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        if ($user->isVerified()) {
+            return back()->with('status', 'حسابك مفعّل من قبل.');
+        }
+        $log = MailCenter::send('verify', $user, MailCenter::verifyUrl($user));
+
+        return back()->with('status', $log->status === 'sent' ? 'أرسلنا رابط تفعيل جديدًا إلى بريدك. تفقّد صندوق الوارد والرسائل غير المرغوب فيها.' : 'تعذّر إرسال الرسالة الآن. حاول لاحقًا.');
     }
 
     public function reset(Request $request): RedirectResponse

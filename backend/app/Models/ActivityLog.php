@@ -18,6 +18,7 @@ class ActivityLog extends Model
         'user.enable' => 'تفعيل مستخدم', 'user.delete' => 'حذف مستخدم', 'user.password' => 'تعيين كلمة مرور', 'user.trial' => 'تعديل الفترة التجريبية',
         'settings.update' => 'تعديل الإعدادات', 'export' => 'تصدير بيانات', 'subscription.request' => 'طلب اشتراك',
         'subscription.activate' => 'تفعيل اشتراك', 'subscription.cancel' => 'إلغاء اشتراك',
+        'email.verify' => 'تفعيل البريد', 'user.verify' => 'تفعيل بريد يدويًا', 'mail.settings' => 'تعديل إعدادات البريد', 'mail.test' => 'رسالة تجريبية',
     ];
 
     public function user(): BelongsTo

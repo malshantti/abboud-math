@@ -10,6 +10,8 @@ use App\Models\Student;
 use App\Models\StudentProgress;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Models\MailLog;
+use App\Support\MailCenter;
 use App\Support\Access;
 use App\Support\Ar;
 use Illuminate\Http\RedirectResponse;
@@ -71,6 +73,8 @@ class ManageController extends Controller
             $q->whereNotNull('disabled_at');
         } elseif ($request->query('status') === 'active') {
             $q->whereNull('disabled_at');
+        } elseif ($request->query('status') === 'unverified') {
+            $q->whereNull('email_verified_at');
         }
 
         return view('manage.users', ['users' => $q->latest('id')->paginate(25)->withQueryString()]);
@@ -303,6 +307,61 @@ class ManageController extends Controller
         ActivityLog::record('settings.update');
 
         return back()->with('status', 'حُفظت الإعدادات.');
+    }
+
+    // ---- Email ----
+    public function mail(Request $request): View
+    {
+        $q = MailLog::query();
+        if (array_key_exists($t = (string) $request->query('type'), MailCenter::TYPES)) {
+            $q->where('type', $t);
+        }
+        if (array_key_exists($st = (string) $request->query('status'), MailLog::STATUS)) {
+            $q->where('status', $st);
+        }
+
+        return view('manage.mail', ['s' => Setting::all_(), 'logs' => $q->latest('id')->paginate(30)->withQueryString(), 'from' => (string) config('mail.from.address'), 'mailer' => (string) config('mail.default')]);
+    }
+
+    public function updateMail(Request $request): RedirectResponse
+    {
+        $rules = ['mail_from_name' => ['required', 'string', 'max:80']];
+        foreach (array_keys(MailCenter::TYPES) as $t) {
+            $rules['mail_'.$t.'_subject'] = ['required', 'string', 'max:200'];
+            $rules['mail_'.$t.'_body'] = ['required', 'string', 'max:5000'];
+        }
+        $data = $request->validate($rules, ['required' => 'هذا الحقل مطلوب.', 'max' => 'النص أطول من الحد المسموح.']);
+        foreach (array_keys(MailCenter::TYPES) as $t) {
+            $data['mail_'.$t.'_on'] = $request->boolean('mail_'.$t.'_on') ? '1' : '0';
+        }
+        Setting::put(array_map(fn ($v) => is_string($v) ? trim($v) : $v, $data));
+        ActivityLog::record('mail.settings');
+
+        return back()->with('status', 'حُفظت إعدادات البريد.');
+    }
+
+    public function testMail(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['type' => ['required', 'in:'.implode(',', array_keys(MailCenter::TYPES))], 'to' => ['required', 'email', 'max:255']], ['to.required' => 'أدخل بريد الاستلام.', 'to.email' => 'أدخل بريدًا إلكترونيًا صالحًا.']);
+        $link = match ($data['type']) {
+            'verify' => MailCenter::verifyUrl($request->user()),
+            'reset' => route('account.password.request'),
+            default => MailCenter::welcomeLink(),
+        };
+        $log = MailCenter::send($data['type'], $request->user(), $link, true, $data['to']);
+        ActivityLog::record('mail.test', $data['to'], MailCenter::TYPES[$data['type']]);
+
+        return back()->with($log->status === 'sent' ? 'status' : 'mail_error', $log->status === 'sent' ? 'أُرسلت رسالة تجريبية إلى '.$data['to'].'.' : 'فشل الإرسال: '.$log->error);
+    }
+
+    public function verifyUser(User $user): RedirectResponse
+    {
+        if (! $user->isVerified()) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+            ActivityLog::record('user.verify', $user->email);
+        }
+
+        return back()->with('status', 'عُلّم البريد مفعّلًا.');
     }
 
     // ---- Activity + export ----

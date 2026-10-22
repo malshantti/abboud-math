@@ -17,6 +17,10 @@
     <p>@if($user->disabled_at)<span class="chip bad">معطّل منذ {{ $ar::when($user->disabled_at) }}</span>@else<span class="chip">فعّال</span>@endif</p>
     <button class="btn {{ $user->disabled_at ? '' : 'ghost' }} small" type="submit">{{ $user->disabled_at ? 'تفعيل الحساب' : 'تعطيل الحساب' }}</button>
   </form>
+  <div style="margin-top:16px;padding-top:14px;border-top:2px dashed var(--line)">
+    <p style="margin:0 0 8px"><b>تفعيل البريد:</b> @if($user->email_verified_at)<span class="chip">مفعّل</span> <small class="hint">{{ $ar::when($user->email_verified_at, true, 'Asia/Hebron') }}</small>@else<span class="chip warn">غير مفعّل</span>@endif</p>
+    @unless($user->email_verified_at)<form method="post" action="{{ route('manage.user.verify', $user) }}" onsubmit="return confirm('تعليم بريد هذا المستخدم مفعّلًا؟')">@csrf<button class="btn small" type="submit">@include('partials.admin-icon',['name'=>'check'])تعليم البريد مفعّلًا</button></form>@endunless
+  </div>
   <form method="post" action="{{ route('manage.user.password', $user) }}" style="margin-top:16px">@csrf<input type="hidden" name="mode" value="link"><button class="btn ghost small" type="submit">إرسال رابط إعادة التعيين بالبريد</button></form>
   <form method="post" action="{{ route('manage.user.password', $user) }}" class="row" style="margin-top:12px">@csrf
     <div style="flex:1"><label for="pw">كلمة مرور جديدة يدويًا</label><input id="pw" name="password" type="text" dir="ltr" minlength="8" maxlength="72" autocomplete="off"></div><button class="btn small" type="submit" style="align-self:end">تعيين</button>
