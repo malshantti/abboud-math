@@ -81,3 +81,50 @@
 .bk-goal-help{margin:10px 0 12px;font:500 13px/1.8 Cairo,sans-serif;color:var(--mut,#6f786c)}
 .bk-goal-prog b{font:700 14px/1.5 Cairo,sans-serif}
 .bk-goal-prog span{margin-inline-start:8px;font:600 12px/1.5 Cairo,sans-serif;color:var(--gd,#4e6635)}
+/* ===== الصفوف الدنيا (الأول والثاني): الهوية نفسها بواجهة أبسط ===== */
+.g1-page{--accent:#647b43!important;--accent-dark:#4e6635;--light:#eef3e4!important;--edge:#e1e7d7!important;--shadow:#4e6635!important;--ink:#293a2d;--muted:#5f6b5c;background:#f8f9f5;font-family:Baloo,G1Baloo,Cairo,G1Cairo,sans-serif}
+.g1-page .g1-kicker{color:#647b43}
+.g1-page .g1-hero,.g1-page .j-basics-hero{background:#eef3e4;border-color:#dfe8cf;border-bottom-color:#cdd9b8}
+.j-sidebar{border-inline-end:1.5px solid #e5e9df}
+.j-sidebar .g1-nav a{color:#5f6b5c;font-weight:700}
+.j-sidebar .g1-nav a:hover{background:#f3f6ec}
+.j-sidebar .g1-nav a[aria-current="page"]{background:#eaf1df;border-color:#cfdcbb;color:#4e6635}
+.g1-topbar{min-height:72px}
+.bk-crumb{display:flex;align-items:center;gap:8px;min-height:44px;text-decoration:none;font:700 20px/1.3 Baloo,Cairo,sans-serif;color:var(--ink,#293a2d)}
+.bk-crumb-home{color:#647b43}
+.bk-crumb-sep{color:#a9b3a3;font-weight:500}
+.bk-logo-sm{display:none;width:30px;height:40px;object-fit:contain}
+.bk-theme,.bk-me{display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid #e1e7d7;background:#fff;color:#5f6b5c;cursor:pointer;padding:0;text-decoration:none}
+.bk-theme:hover{background:#eaf1df}
+.bk-theme:focus-visible,.bk-me:focus-visible{outline:3px solid #dca349;outline-offset:2px}
+.bk-me{display:none;background:#efe8d9;color:#8a7447;border-color:#e6dcc6;font:700 20px/1 Baloo,Cairo,sans-serif}
+@media(max-width:740px){
+ .j-sidebar .bk-brand,.j-sidebar .bk-student{display:none!important}
+ .j-sidebar{padding:0!important}
+ .bk-logo-sm{display:block}
+ .bk-crumb-sep,.bk-crumb-page{display:none}
+ .bk-me{display:grid}
+ .g1-topbar{min-height:62px;padding:8px 14px!important;align-items:center!important;flex-wrap:nowrap!important}
+ .g1-topbar .g1-actions{width:auto!important;justify-content:flex-end!important;gap:10px!important}
+ .g1-nav a[aria-current="page"]{background:#eaf1df!important;border-color:#cfdcbb!important;color:#4e6635!important}
+}
+/* الوضع الليلي للصفوف الدنيا */
+[data-theme=dark] .g1-page{--ink:#eef3e8;--muted:#b3bfae;--paper:#1c2620;--light:#24331f!important;--edge:#34432f!important;--accent:#a9c77f!important;--shadow:#0d140f!important;background:#141c17;color:var(--ink)}
+[data-theme=dark] .g1-page .j-sidebar,[data-theme=dark] .g1-page .g1-topbar,[data-theme=dark] .g1-page .g1-nav{background:#1a231d!important;border-color:#2c3a2a!important}
+[data-theme=dark] .g1-page .g1-card,[data-theme=dark] .g1-page .g1-unit,[data-theme=dark] .g1-page .g1-lesson,[data-theme=dark] .g1-page .g1-lab,[data-theme=dark] .g1-page .g1-modal,[data-theme=dark] .g1-page .g1-scene,[data-theme=dark] .g1-page .g1-choice,[data-theme=dark] .g1-page .g1-close,[data-theme=dark] .g1-page .g1-tabs button,[data-theme=dark] .g1-page .g1-secondary,[data-theme=dark] .g1-page .g1-progress,[data-theme=dark] .g1-page .g1-canvas,[data-theme=dark] .g1-page .g1-empty,[data-theme=dark] .g1-page .g1-goal,[data-theme=dark] .g1-page .g1-art-item{background:#1c2620!important;border-color:#34432f!important;color:var(--ink)}
+[data-theme=dark] .g1-page .g1-hero,[data-theme=dark] .g1-page .j-basics-hero,[data-theme=dark] .g1-page .g1-unit-head{background:#22301f!important;border-color:#34432f!important}
+[data-theme=dark] .g1-page .g1-primary{color:#142010!important}
+[data-theme=dark] .g1-page .g1-nav a{color:#b3bfae}
+[data-theme=dark] .g1-page .g1-nav a[aria-current="page"]{background:#24331f!important;border-color:#3f5333!important;color:#cfe3ad!important}
+[data-theme=dark] .bk-crumb-home,[data-theme=dark] .g1-page .g1-kicker{color:#b9d58f}
+[data-theme=dark] .bk-theme{background:#1c2620;border-color:#34432f;color:#dfe8d6}
+[data-theme=dark] .j-sidebar .bk-card,[data-theme=dark] .j-sidebar .bk-menu{background:#1c2620;border-color:#34432f;color:#eef3e8}
+[data-theme=dark] .j-sidebar .bk-menu a{color:#eef3e8!important}
+[data-theme=dark] .j-sidebar .bk-who small{color:#b3bfae}
+.g1-page .g1-primary{background:#647b43;border-color:#647b43;border-bottom-color:#4e6635;color:#fff}
+.g1-page .g1-primary:hover{background:#5a7040}
+[data-theme=dark] .g1-page .g1-primary{background:#8fae63;border-color:#8fae63;border-bottom-color:#5f7d3d;color:#142010!important}
+[data-theme=dark] .g1-page .g1-summary,[data-theme=dark] .g1-page .g1-path,[data-theme=dark] .g1-page .j-unit-number,[data-theme=dark] .g1-page .g1-node,[data-theme=dark] .g1-page .j-unit-meter{background:#1f2a22!important;border-color:#34432f!important;color:var(--ink)}
+[data-theme=dark] .g1-page .g1-hero::before,[data-theme=dark] .g1-page .j-basics-hero::before{background:#2a3a25!important;border-color:#22301f!important}
+[data-theme=dark] .g1-page .g1-tabs .g1-selected,[data-theme=dark] .g1-page .g1-tabs [aria-selected=true]{color:#cfe3ad!important}
+[data-theme=dark] .g1-page .g1-modal::backdrop{background:#000b}
