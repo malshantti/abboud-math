@@ -14,3 +14,8 @@ body[data-route=lesson] .page{max-width:1140px}.visual-lesson-heading{padding:11
 .bkfig{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
 .bkfig .bk{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}.bkfig .bk img{display:block;width:100%;height:auto;max-height:300px;object-fit:contain;background:#fff}
 .bkfig figcaption{font-size:12px;color:#57534e;padding:4px 10px;background:#faf8f2}[data-theme=dark] .bkfig figcaption{background:#2a2a24;color:#d6d3c4}
+/* مسار الدرس الموجَّه: الهدف، ثم الشرح، ثم التجربة، ثم الخطوة التالية */
+.lesson-goal{border-inline-start:5px solid var(--g);padding:16px 20px;margin-bottom:48px}.lesson-goal h2{display:flex;align-items:center;gap:8px;font-size:20px;margin:0 0 6px;color:var(--gd)}.lesson-goal p{margin:0;font-size:18px;line-height:1.8}
+.lv-instruction{margin:6px 0 0;font-size:16px;color:var(--tx);background:var(--gl,var(--bg2));border-radius:10px;padding:8px 12px}
+.lesson-actions{margin:18px 0 10px}.lesson-actions h2{font-size:19px;margin:0 0 4px}.lesson-actions .btn.ghost small{font-weight:600;opacity:.8;margin-inline-start:6px}
+.lesson-links{margin:14px 0 24px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);font-size:15px;color:var(--mut)}.lesson-links summary{cursor:pointer;font-weight:700}.lesson-links p{margin:10px 0 4px}
