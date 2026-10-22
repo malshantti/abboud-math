@@ -31,3 +31,19 @@ add('ar-found-sentence-v2','ar-p1-5','حرف وكلمة وجملة','أفرّق 
  ['هذه جملة.',sym('نَامَ بَابَا.')]
 ],[t('أيّها حرف؟',null,['بَاب','ب'],1,'«ب» حرف واحد.'),t('أيّها كلمة؟',null,['دَار','د'],0,'«دَار» كلمة.'),t('أيّها جملة؟',null,['نَامَ بَابَا.','بَابَا'],0,'«نَامَ بَابَا» جملة.')]);
 })();
+/* ضبط مفاتيح الصوت: نص العرض هو مفتاح التسجيل، فلا يتكرر نص واحد بنطقين مختلفين. */
+(()=>{const C=window.G1_COURSE;if(!C)return;const EN=C.id==='english',AR=/[\u0621-\u064a]/;
+ const tag=n=>{let s='';do{s+=n&1?'\u200c':'\u200b';n>>=1;}while(n);return s;};
+ const all=[...C.units.flatMap(u=>u.lessons),...(C.foundations||[])];
+ const seen=new Map();let k=0;
+ const fix=(node,field)=>{const d=node[field];if(!node.say||typeof d!=='string')return;
+  if(EN&&node.lang==='en'&&AR.test(d)){
+   if(field==='text'&&d.includes(' — ')){const [e,...a]=d.split(' — ');if(!AR.test(e)){node.text=e.trim();if(node.scene)node.scene={...node.scene,caption:a.join(' — ').trim()};else node.scene={type:'symbol',value:e.trim(),caption:a.join(' — ').trim()};}}
+   else if(field==='prompt'&&node.listen)node.prompt='Listen and choose.';
+   else{delete node.say;delete node.lang;return;}
+  }
+  const cur=node[field],prev=seen.get(cur);
+  if(prev!==undefined&&prev!==node.say){node[field]=cur+tag(++k);}else seen.set(cur,node.say);
+ };
+ for(const l of all){(l.steps||[]).forEach(s=>fix(s,'text'));(l.tasks||[]).forEach(t=>fix(t,'prompt'));}
+})();
