@@ -33,7 +33,7 @@ class SetupRouteTest extends TestCase
         $body = ['token' => $this->token, 'name' => 'A', 'email' => 'A@Example.com', 'password' => 'long-password-123', 'password_confirmation' => 'long-password-123'];
         $this->post('/setup/admin', $body)->assertCreated();
         $this->assertTrue(User::where('email', 'a@example.com')->first()->is_admin);
-        $this->post('/setup/admin', ['email' => 'b@example.com'] + $body)->assertStatus(409);
+        $this->post('/setup/admin', ['email' => 'b@example.com'] + $body)->assertNotFound();
     }
 
     public function test_install_migrates_seeds_and_creates_default_admin(): void
@@ -45,6 +45,6 @@ class SetupRouteTest extends TestCase
         $this->assertTrue($u->is_admin);
         $this->assertSame('972592945557', \App\Models\Setting::get('whatsapp_number'));
         $this->assertDatabaseHas('site_settings', ['key' => 'trial_days', 'value' => '3']);
-        $this->post('/setup/install', ['token' => $this->token])->assertOk();
+        $this->post('/setup/install', ['token' => $this->token])->assertNotFound();
     }
 }

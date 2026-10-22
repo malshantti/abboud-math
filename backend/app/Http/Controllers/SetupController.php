@@ -22,6 +22,12 @@ class SetupController extends Controller
         abort_unless(hash_equals($token, (string) $request->input('token', $request->header('X-Setup-Token', ''))), 404);
     }
 
+    /** Install/admin endpoints vanish (404) once an admin exists. */
+    private function closedWhenInstalled(): void
+    {
+        abort_if(Schema::hasTable('users') && User::query()->where('is_admin', true)->exists(), 404);
+    }
+
     public function migrate(Request $request)
     {
         $this->guard($request);
@@ -37,6 +43,7 @@ class SetupController extends Controller
     public function install(Request $request)
     {
         $this->guard($request);
+        $this->closedWhenInstalled();
         $log = $this->ensureWritable();
         Artisan::call('migrate', ['--force' => true]);
         $log .= Artisan::output();
@@ -69,6 +76,7 @@ class SetupController extends Controller
     public function admin(Request $request)
     {
         $this->guard($request);
+        $this->closedWhenInstalled();
 
         return $this->createAdmin($request);
     }
