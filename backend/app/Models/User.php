@@ -36,6 +36,19 @@ class User extends Authenticatable
         return $query->where('role', 'parent')->where(fn ($q) => $q->where('is_admin', false)->orWhereNull('is_admin'));
     }
 
+    /** Readable device name from the user agent, for the admin user page. */
+    public function deviceLabel(): ?string
+    {
+        $ua = (string) $this->active_device_ua;
+        if ($ua === '') {
+            return null;
+        }
+        $os = match (true) { str_contains($ua, 'iPhone') => 'آيفون', str_contains($ua, 'iPad') => 'آيباد', str_contains($ua, 'Android') => 'أندرويد', str_contains($ua, 'Windows') => 'ويندوز', str_contains($ua, 'Mac OS') => 'ماك', str_contains($ua, 'CrOS') => 'كروم بوك', str_contains($ua, 'Linux') => 'لينكس', default => 'جهاز' };
+        $br = match (true) { str_contains($ua, 'Edg/') => 'Edge', str_contains($ua, 'SamsungBrowser') => 'Samsung Internet', str_contains($ua, 'Firefox') => 'Firefox', str_contains($ua, 'Chrome') => 'Chrome', str_contains($ua, 'Safari') => 'Safari', default => '' };
+
+        return trim($os.($br ? ' — '.$br : ''));
+    }
+
     public function isAdminRole(): bool
     {
         return $this->is_admin === true || $this->role === 'admin';
@@ -85,7 +98,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
+        'remember_token', 'active_device_token',
     ];
 
     /**
@@ -99,7 +112,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'is_admin' => 'boolean',
             'disabled_at' => 'datetime',
-            'last_login_at' => 'datetime',
+            'last_login_at' => 'datetime', 'active_device_seen_at' => 'datetime',
             'trial_ends_at' => 'datetime',
             'password' => 'hashed',
         ];

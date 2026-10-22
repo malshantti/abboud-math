@@ -53,6 +53,7 @@ class Setting extends Model
         'faq' => '',
         // Accounts and security
         'require_verification' => '0',
+        'single_device' => '1',
         'max_students' => '12',
         'session_minutes' => '',
         // Landing voice tour

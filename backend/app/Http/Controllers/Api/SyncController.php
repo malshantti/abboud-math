@@ -51,7 +51,7 @@ class SyncController extends Controller
             'login' => route('account.login'), 'register' => route('account.register'), 'account' => route('account.home'), 'subscribe' => route('account.subscribe'),
         ]];
         if (! $user || $user->isDisabled()) {
-            return response()->json($base + ['authenticated' => false]);
+            return response()->json($base + ['authenticated' => false] + (($request->attributes->get('device_revoked') || (! $user && \App\Support\Devices::revokedGuest($request))) ? ['revoked' => true, 'message' => \App\Support\Devices::MESSAGE] : []));
         }
         $access = Access::state($user);
 

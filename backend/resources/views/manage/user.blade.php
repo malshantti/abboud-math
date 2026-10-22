@@ -26,6 +26,18 @@
     <div style="flex:1"><label for="pw">كلمة مرور جديدة يدويًا</label><input id="pw" name="password" type="text" dir="ltr" minlength="8" maxlength="72" autocomplete="off"></div><button class="btn small" type="submit" style="align-self:end">تعيين</button>
   </form>
 </section>
+<section class="card"><h2>@include('partials.admin-icon',['name'=>'shield'])الجهاز الحالي</h2>
+  @if($user->deviceLabel())
+  <dl class="device" style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:0 0 14px">
+    <dt style="color:var(--muted)">الجهاز</dt><dd style="margin:0;font-weight:700">{{ $user->deviceLabel() }}</dd>
+    <dt style="color:var(--muted)">آخر ظهور</dt><dd style="margin:0">@if($user->active_device_seen_at)<time datetime="{{ $user->active_device_seen_at->toIso8601String() }}">{{ $ar::when($user->active_device_seen_at) }}</time>@else لم يظهر بعد @endif</dd>
+    <dt style="color:var(--muted)">المتصفح</dt><dd style="margin:0;font-size:13px;color:var(--muted);overflow-wrap:anywhere" dir="ltr">{{ $user->active_device_ua }}</dd>
+  </dl>
+  @else<p class="hint">لم يسجّل هذا الحساب الدخول من أي جهاز بعد.</p>@endif
+  <p class="hint" style="margin:0 0 12px">{{ \App\Models\Setting::flag('single_device') ? 'جهاز واحد لكل حساب مفعّل: آخر جهاز يسجّل الدخول هو الوحيد المفتوح.' : 'جهاز واحد لكل حساب متوقف حاليًا من الإعدادات.' }}@if($user->isAdminRole()) حسابات المشرفين مستثناة.@endif</p>
+  <form method="post" action="{{ route('manage.user.devices', $user) }}" onsubmit="return confirm('تسجيل خروج هذا الحساب من كل الأجهزة؟')">@csrf<button class="btn ghost small" type="submit">تسجيل الخروج من كل الأجهزة</button></form>
+</section>
+
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'card'])الوصول والاشتراكات</h2>
   <p>الحالة: <b>{{ ['staff'=>'فريق الموقع','open'=>'مفتوح للجميع','trial'=>'فترة تجريبية','paid'=>'مشترك','expired'=>'منتهٍ'][$access['kind']] }}</b>
   @if($user->trial_ends_at) — نهاية التجربة: {{ $ar::when($user->trial_ends_at) }}@endif</p>

@@ -20,6 +20,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
         $request->session()->regenerate();
+        \App\Support\Devices::claim($request, $request->user());
 
         return redirect()->intended(route('manage.dashboard', absolute: false));
     }
@@ -27,6 +28,7 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         Auth::logout();
+        \App\Support\Devices::forget();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

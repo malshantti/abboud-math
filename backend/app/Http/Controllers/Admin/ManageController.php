@@ -109,6 +109,14 @@ class ManageController extends Controller
         return back()->with('status', 'حُفظت بيانات الحساب.');
     }
 
+    public function revokeDevices(User $user): RedirectResponse
+    {
+        \App\Support\Devices::revokeAll($user);
+        ActivityLog::record('user.devices.revoke', $user->email);
+
+        return back()->with('status', 'سُجّل خروج هذا الحساب من كل الأجهزة.');
+    }
+
     public function toggleUser(Request $request, User $user): RedirectResponse
     {
         abort_if($user->is($request->user()), 422, 'لا يمكنك تعطيل حسابك.');
@@ -309,13 +317,13 @@ class ManageController extends Controller
         'site_name' => 'اسم الموقع', 'tagline' => 'الشعار', 'hero_title' => 'عنوان الواجهة', 'hero_title_mark' => 'السطر المميّز في العنوان', 'hero_subtitle' => 'وصف الواجهة',
         'hero_badge' => 'شارة الواجهة', 'announcement' => 'نص الإعلان', 'announcement_active' => 'إظهار الإعلان', 'announcement_color' => 'لون الإعلان',
         'announcement_link' => 'رابط الإعلان', 'announcement_from' => 'بداية عرض الإعلان', 'announcement_to' => 'نهاية عرض الإعلان', 'faq' => 'الأسئلة الشائعة',
-        'registration_open' => 'التسجيل المفتوح', 'require_verification' => 'اشتراط تفعيل البريد', 'max_students' => 'الحد الأقصى للطلاب', 'session_minutes' => 'مدة الجلسة',
+        'registration_open' => 'التسجيل المفتوح', 'require_verification' => 'اشتراط تفعيل البريد', 'single_device' => 'جهاز واحد لكل حساب', 'max_students' => 'الحد الأقصى للطلاب', 'session_minutes' => 'مدة الجلسة',
         'voice_enabled' => 'الجولة الصوتية', 'voice_volume' => 'مستوى الصوت', 'voice_autoplay' => 'التشغيل التلقائي',
         'facebook_url' => 'رابط فيسبوك', 'instagram_url' => 'رابط إنستغرام', 'contact_email' => 'بريد التواصل', 'footer_text' => 'نص التذييل',
         'maintenance_on' => 'وضع الصيانة', 'maintenance_message' => 'رسالة الصيانة',
     ];
 
-    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'require_verification', 'voice_enabled', 'voice_autoplay', 'maintenance_on'];
+    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'require_verification', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on'];
 
     public function updateSettings(Request $request): RedirectResponse
     {
