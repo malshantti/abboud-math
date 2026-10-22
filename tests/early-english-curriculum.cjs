@@ -56,3 +56,10 @@ for(const grade of [1,2]){
  if(changed)assert.notEqual(sw.match(/const V='([^']+)'/)[1],oldSw.match(/const V='([^']+)'/)[1],'Changed dependency receives changed cache version');
 }
 console.log('Early English curriculum: preserved IDs, quantity answers ('+checked+'), review coverage, visual evidence, safe local offline scenes.');
+;(()=>{const a=require('assert'),fs=require('fs'),vm=require('vm');const x={window:{}};vm.runInNewContext(fs.readFileSync(__dirname+'/../g1/english/content.js','utf8'),x);const C=x.window.G1_COURSE;const L=C.units.flatMap(u=>u.lessons);
+const T=L.flatMap(l=>l.tasks);a.ok(T.filter(t=>t.choices.length>=3).length/T.length>0.9,'most tasks offer 3 choices');
+const pos=new Set(T.map(t=>t.answer));a.ok(pos.size>=3,'answer position varies');
+for(const l of L)for(const s of l.steps)a.ok(s.say,'every step has audio text: '+l.id);
+a.ok(L.some(l=>/-listen$/.test(l.id))&&L.some(l=>/-chant$/.test(l.id))&&L.some(l=>/-say$/.test(l.id)),'listen/say/chant lessons');
+const src=fs.readFileSync(__dirname+'/../g1/english/content.js','utf8');a.ok(!src.includes('الكمين'),'الكمَّيْن fixed');
+console.log('English 9.8 checks passed:',L.length,'lessons');})();
