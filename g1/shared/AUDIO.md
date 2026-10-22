@@ -17,7 +17,11 @@ node g1/shared/voice/build.cjs --dry arabic     # counts only
 Commit the new `g1/shared/audio/*.mp3` and `g1/<subject>/audio-index.js`. Delete orphan clips only if no subject index references them (`node tests/g1-audio.cjs` checks references).
 
 ## What gets voiced automatically (engine `early.js`)
-Collected from `G1_COURSE` (units + foundations): `step.text`, `task.prompt`, `task.explain`, every `choice.label` (or `choice.say` if a choice shows a picture/number but should speak another text), plus fixed engine phrases (`G1_AUDIO.ENGINE`). Language is detected (Arabic letters → `ar`, Latin only → `en`); force with `lang:'en'|'ar'` on a step/task/choice or `{text,lang}`.
+Collected from `G1_COURSE` (units + foundations): `step.text`, `task.prompt`, `task.explain`, every `choice.label`, plus fixed engine phrases (`G1_AUDIO.ENGINE`).
+
+**Spoken (voweled) text inline** — the button/lookup key is always the *display* text; what is recorded is, in order: inline field → `voice/say.json` → display text.
+- `step.say` (for `step.text`), `task.say` (for `task.prompt`), `task.sayExplain` (for `task.explain`), `choice.say` (for `choice.label`, e.g. label `٥` → say `خَمْسَة`), `{text, say, lang}` inside `speak` arrays.
+- One display string = one recording per subject; if two places give different `say` for the same display text the builder warns and keeps the first. Language is detected (Arabic letters → `ar`, Latin only → `en`); force with `lang:'en'|'ar'` on a step/task/choice or `{text,lang}`.
 The engine renders a big speaker button beside the prompt/step text and on every choice, **autoplays** the prompt/step when it opens, plays “أَحْسَنْتَ” + explanation on success, and shows a stop toggle (`الصَّوْتُ يَعْمَلُ / مُتَوَقِّفٌ`) remembered in `localStorage['g1_audio_auto']`.
 
 ## Letters, syllables, words in your own scenes
