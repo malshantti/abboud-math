@@ -9,17 +9,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('active_device_token', 64)->nullable();
-            $table->string('active_device_ua', 255)->nullable();
-            $table->timestamp('active_device_seen_at')->nullable();
-        });
+        // Idempotent: a partial earlier run may already have added some columns.
+        foreach (['active_device_token' => fn (Blueprint $t) => $t->string('active_device_token', 64)->nullable(),
+            'active_device_ua' => fn (Blueprint $t) => $t->string('active_device_ua', 255)->nullable(),
+            'active_device_seen_at' => fn (Blueprint $t) => $t->timestamp('active_device_seen_at')->nullable()] as $col => $add) {
+            if (! Schema::hasColumn('users', $col)) {
+                Schema::table('users', $add);
+            }
+        }
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['active_device_token', 'active_device_ua', 'active_device_seen_at']);
+            $table->dropColumn(array_values(array_filter(['active_device_token', 'active_device_ua', 'active_device_seen_at'], fn ($c) => Schema::hasColumn('users', $c))));
         });
     }
 };
