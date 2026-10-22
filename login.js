@@ -70,7 +70,8 @@ function pick(note){
   say('سجّل الدخول بحساب ولي الأمر أولًا');
   show(`<h1>سجّل الدخول أولًا</h1><p class="sub">يظهر هنا الطلاب الذين أضافهم ولي الأمر إلى حسابه. سجّل الدخول بحساب ولي الأمر على هذا الجهاز مرة واحدة.</p>
   <div class="actions"><a class="btn" id="signin" href="${esc(LOGIN())}">${svg('lock',18)} تسجيل الدخول</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);
-  if(navigator.onLine&&!note)location.replace(LOGIN());
+  let kicked=false;try{kicked=localStorage.getItem('bustan_kicked')==='1'}catch(e){}
+  if(navigator.onLine&&!note&&!kicked)location.replace(LOGIN());// جهاز أُغلقت جلسته: تبقى رسالة sync.js ظاهرة
   return}
  say(note||'من سيتعلّم اليوم؟');if(pose!=='welcome')setPose('idle');
  if(!a||!a.length){show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">لم يُضف ولي الأمر طلابًا إلى الحساب بعد. أضف كل طالب مع صفه ورقمه السري من صفحة الحساب.</p><div class="actions"><a class="btn" href="${esc(ACCOUNT)}">إضافة الطلاب</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}

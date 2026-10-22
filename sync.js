@@ -25,7 +25,7 @@ async function api(path,opt){
  let ctl=null,timer=0;if(opt.timeout&&typeof AbortController==='function'){ctl=new AbortController();timer=setTimeout(()=>ctl.abort(),opt.timeout)}
  if(opt.body!==undefined){headers['Content-Type']='application/json';headers['X-CSRF-TOKEN']=csrf}
  const r=await fetch(API+path,{method:opt.method||(opt.body===undefined?'GET':'POST'),credentials:'same-origin',cache:'no-store',headers,body:opt.body===undefined?undefined:JSON.stringify(opt.body),keepalive:!!opt.keepalive,signal:ctl?ctl.signal:undefined}).finally(()=>timer&&clearTimeout(timer));
- if(r.status===401||r.status===419){session=null;throw Error('auth')}
+ if(r.status===401||r.status===419){session=null;let j=null;try{j=await r.json()}catch(e){}if(j&&j.revoked)kicked(j.message);throw Error('auth')}
  if(!r.ok)throw Error('http '+r.status);
  return r.json();
 }
@@ -93,6 +93,26 @@ function trialBanner(access){
 // صفحة مادة دون حساب مسجَّل: تحويل إلى دخول/تسجيل ولي الأمر ثم العودة إلى الصفحة نفسها.
 // من سجّل الدخول من قبل على هذا الجهاز (bustan_account) يتابع دون إنترنت أو مع اتصال ضعيف؛ لا نُقفل إلا حين يؤكد الخادم أن الجلسة انتهت.
 const loginUrl=()=>new URL('admin-api/account/login',root).href+'?return='+encodeURIComponent(location.href);
+// ---- جهاز واحد لكل حساب: آخر دخول يغلق الجلسة على الجهاز السابق ----
+const KICK='bustan_kicked',KICK_MSG='تم تسجيل الدخول إلى هذا الحساب من جهاز آخر، لذلك أُغلقت الجلسة هنا.';
+function kicked(msg){
+ set(K.account,null);set(K.access,null);set(K.roster,null);set(KICK,'1');// التقدّم المحلي يبقى محفوظًا؛ يُفتح بعد الدخول من جديد
+ const show=()=>{reveal();const app=document.querySelector('#app,#main');if(app)app.inert=true;if(document.getElementById('bustan-kicked'))return;
+  const d=document.createElement('div');d.id='bustan-kicked';d.setAttribute('role','alertdialog');d.setAttribute('aria-modal','true');d.setAttribute('aria-labelledby','bustan-kicked-t');d.setAttribute('aria-describedby','bustan-kicked-p');
+  d.style.cssText='position:fixed;inset:0;z-index:10003;background:#fbf8efee;display:grid;place-items:center;padding:20px;direction:rtl;font-family:Cairo,Tahoma,sans-serif';
+  d.innerHTML='<div style="width:100%;max-width:440px;background:#fff;border:2px solid #e2e7d9;border-radius:24px;box-shadow:0 5px 0 #e2e7d9;padding:28px 22px;text-align:center;color:#29392b"><span style="display:inline-grid;place-items:center;width:64px;height:64px;border-radius:20px;background:#eaf1df;color:#4e6635;margin-bottom:10px"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M11 18.5h2"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg></span><h2 id="bustan-kicked-t" style="margin:0 0 8px;font:800 23px/1.45 Baloo,Cairo,sans-serif;color:#3e5729">أُغلقت الجلسة على هذا الجهاز</h2><p id="bustan-kicked-p" style="margin:0 0 20px;font-size:17px;line-height:1.9"></p><a style="display:flex;align-items:center;justify-content:center;min-height:52px;padding:10px 24px;border-radius:16px;background:#6c854c;color:#fff;font:800 18px/1.4 Baloo,Cairo,sans-serif;text-decoration:none;box-shadow:0 4px 0 #4e6635">تسجيل الدخول مرة أخرى</a><p style="margin:14px 0 0;font-size:14px;color:#7b8479;line-height:1.8">تقدّم الطلاب محفوظ. يبقى الحساب مفتوحًا على جهاز واحد في الوقت نفسه.</p></div>';
+  d.querySelector('#bustan-kicked-p').textContent=msg||KICK_MSG;
+  d.querySelector('a').href=entryPage?new URL('admin-api/account/login',root).href+'?return='+encodeURIComponent(new URL('login.html?sync=1',root).href):loginUrl();
+  document.body.append(d);d.querySelector('a').focus()};
+ document.body?show():addEventListener('DOMContentLoaded',show);
+ try{dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}
+}
+// فحص دوري (كل دقيقة والصفحة مفتوحة، وعند العودة إليها): الجهاز الذي أُغلقت جلسته يُقفل عند أول اتصال.
+let watching=false;
+function watch(){if(watching)return;watching=true;
+ const check=()=>{if(!navigator.onLine||document.visibilityState==='hidden'||document.getElementById('bustan-kicked'))return;
+  api('session',{timeout:15000}).then(s=>{if(s.authenticated)return;if(s.revoked)kicked(s.message);else if(subject)requireLogin()}).catch(()=>{})};
+ setInterval(check,60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check()});addEventListener('online',check)}
 function reveal(){try{delete document.documentElement.dataset.gate}catch(e){}}
 function requireLogin(){set(K.account,null);set(K.access,null);set(K.roster,null);location.replace(loginUrl())}
 function offlineNotice(){
@@ -113,7 +133,7 @@ function maintenance(site){
   d.innerHTML='<div style="max-width:480px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b;box-shadow:0 5px 0 #e2e7d9"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#6f9e23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 005 5L21 13l-8 8-3-3 8-8-1.3-1.3a4 4 0 01-5-5l2.5 2.5 2-2z"/><path d="M3 21l6-6"/></svg><h2 id="bustan-maint-t" style="margin:6px 0 8px;color:#3e5729">البستان في صيانة مؤقتة</h2><p style="margin:0;white-space:pre-line"></p></div>';
   d.querySelector('p').textContent=m.message||'';document.body.append(d)};
  document.body?show():addEventListener('DOMContentLoaded',show);return true}
-function remember(s){set(K.account,JSON.stringify({email:s.user.email,name:s.user.name,t:Date.now()}));set(K.on,'1')}
+function remember(s){set(KICK,null);set(K.account,JSON.stringify({email:s.user.email,name:s.user.name,t:Date.now()}));set(K.on,'1')}
 async function lessonGate(){
  const had=J(K.account,null);
  if(had)reveal();// جهاز سبق تسجيل الدخول عليه: الدرس يفتح فورًا ونتحقق في الخلفية
@@ -122,8 +142,8 @@ async function lessonGate(){
  catch(e){if(had){const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}else offlineNotice();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
  csrf=session.csrf||'';banner(session.site);
  if(maintenance(session.site))return false;
- if(!session.authenticated){requireLogin();return false}
- remember(session);set(K.access,JSON.stringify(session.access));reveal();gate(session.access,session.urls);trialBanner(session.access);return true;
+ if(!session.authenticated){if(session.revoked||get(KICK))kicked(session.message);else requireLogin();return false}
+ remember(session);set(K.access,JSON.stringify(session.access));reveal();gate(session.access,session.urls);trialBanner(session.access);watch();return true;
 }
 
 // ---- المزامنة ----
@@ -195,7 +215,8 @@ async function start(){
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});return}
  if(!enabled()){try{const s=await (await fetch(API+'site',{credentials:'same-origin'})).json();banner(s);maintenance(s)}catch(e){}badge();return}
  try{session=await api('session');csrf=session.csrf||'';banner(session.site);if(maintenance(session.site)){badge();return}
-  if(session.authenticated){remember(session);set(K.access,JSON.stringify(session.access));gate(session.access,session.urls)}
+  if(session.authenticated){remember(session);set(K.access,JSON.stringify(session.access));gate(session.access,session.urls);watch()}
+  else if(session.revoked||get(KICK)){kicked(session.message);badge();return}
   else{set(K.account,null);set(K.roster,null);set(K.access,null);try{dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}}// لا حساب مرتبط: صفحة الدخول تحوّل إلى تسجيل الدخول
  }catch(e){const cached=J(K.access,null);if(cached)gate(cached,{subscribe:new URL('admin-api/account/subscribe',root).href})}// دون إنترنت: آخر حالة معروفة
  badge();

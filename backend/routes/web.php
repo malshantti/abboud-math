@@ -88,6 +88,7 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::post('subscriptions/bulk', [Manage::class, 'bulkSubscriptions'])->name('manage.subscriptions.bulk');
         Route::get('users/{user}', [Manage::class, 'editUser'])->name('manage.user');
         Route::put('users/{user}', [Manage::class, 'updateUser'])->name('manage.user.update');
+        Route::post('users/{user}/devices/revoke', [Manage::class, 'revokeDevices'])->name('manage.user.devices');
         Route::post('users/{user}/toggle', [Manage::class, 'toggleUser'])->name('manage.user.toggle');
         Route::delete('users/{user}', [Manage::class, 'destroyUser'])->name('manage.user.destroy');
         Route::post('users/{user}/password', [Manage::class, 'passwordUser'])->name('manage.user.password');

@@ -98,6 +98,7 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+        \App\Support\Devices::claim($request, $user);
         ActivityLog::record('register', $user->email, null, $user);
         // Activation link first; the welcome email follows once the address is confirmed.
         // If activation emails are switched off, the account counts as verified and is welcomed now.
@@ -141,6 +142,7 @@ class AuthController extends Controller
         RateLimiter::clear($key);
         $request->session()->regenerate();
         $user->forceFill(['last_login_at' => now()])->save();
+        \App\Support\Devices::claim($request, $user);
         ActivityLog::record('login', $user->email);
         \App\Support\Landing::scrubIntended($request);
 
@@ -151,6 +153,7 @@ class AuthController extends Controller
     {
         ActivityLog::record('logout');
         Auth::logout();
+        \App\Support\Devices::forget();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
