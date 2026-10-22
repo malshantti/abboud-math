@@ -7,7 +7,7 @@ const science=C.subject==='science';
 const side=A.$('.tabs .side');
 const utilityLinks=[...side.querySelectorAll('a')].map(a=>a.outerHTML).join('');
 side.className='side-brand';
-side.innerHTML='<a href="#/home"><span class="brand-symbol">'+ic('leaf')+'</span><span>زيتون<small>نزرع الفهم، ونحصد المعرفة</small></span></a><div class="class-label">'+esc(C.title)+'<span>المنهاج الفلسطيني</span></div><div class="subject-utilities">'+utilityLinks+'</div>';
+side.innerHTML='<a href="#/home"><span class="brand-symbol"><img src="../../assets/brand/logo-mascot-sm.webp" width="44" height="58" alt=""></span><span>بستان التعلّم<small>نزرع الفهم، ونحصد المعرفة</small></span></a><div class="class-label">'+esc(C.title)+'<span>المنهاج الفلسطيني</span></div><div class="subject-utilities">'+utilityLinks+'</div>';
 const caption=document.createElement('span');caption.className='nav-caption';caption.textContent='بستانك الصغير';side.after(caption);
 const sections=[['read','القِراءَة','book'],['poem','النَّصُّ الشِّعْرِيّ','feather'],['grammar','القَواعِد','puzzle'],['balagha','البَلاغَة','star'],['imla','الإِمْلاء','pen'],['khatt','الخَطّ','quill'],['taabir','التَّعْبير','pen']];
 const title=u=>science?u.t:(u.sec.read||Object.values(u.sec)[0]).t;
