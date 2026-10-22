@@ -93,6 +93,9 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
  <div class="L-wrap">
   <div class="L-head" data-reveal><p class="L-kicker">جرّب كما يجرّب طفلك</p><h2 id="L-demos-title">خمس دقائق من درس حقيقي</h2><p>هذه أسئلة من دروس البستان نفسها. اختر مادة وأجب، وشاهد كيف يتلقّى طفلك التشجيع والتصحيح فورًا.</p></div>
   <div class="L-demo-box" data-demo-group data-reveal>
+   <p class="L-try"><span class="L-live" aria-hidden="true"></span><svg class="L-try-ic" viewBox="0 0 48 56" width="20" height="24" aria-hidden="true"><use href="#li-hand"/></svg>جرّب بنفسك — هذا سؤال حقيقي</p>
+   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="li-hand" viewBox="0 0 48 56"><g stroke="#3f561a" stroke-width="5" stroke-linejoin="round" fill="#3f561a"><rect x="17" y="2" width="10" height="30" rx="5"/><rect x="26" y="19" width="9" height="16" rx="4.5"/><rect x="34" y="22" width="8" height="15" rx="4"/><rect x="5" y="27" width="10" height="17" rx="5" transform="rotate(-28 10 35)"/><rect x="10" y="26" width="33" height="27" rx="12"/></g><g fill="#fff"><rect x="17" y="2" width="10" height="30" rx="5"/><rect x="26" y="19" width="9" height="16" rx="4.5"/><rect x="34" y="22" width="8" height="15" rx="4"/><rect x="5" y="27" width="10" height="17" rx="5" transform="rotate(-28 10 35)"/><rect x="10" y="26" width="33" height="27" rx="12"/></g><path d="M22 8v6" stroke="#e8e6d6" stroke-width="2" stroke-linecap="round"/></symbol></defs></svg>
+   <div class="L-tabs-wrap">
    <div class="L-tabs" role="tablist" aria-label="عينات من المواد">
     <button type="button" role="tab" id="L-tab-math" aria-controls="L-p-math" aria-selected="true" tabindex="0"><i class="t-g">١</i>رياضيات</button>
     <button type="button" role="tab" id="L-tab-ar" aria-controls="L-p-ar" aria-selected="false" tabindex="-1"><i class="t-o">١</i>لغتنا الجميلة</button>
@@ -100,43 +103,52 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
     <button type="button" role="tab" id="L-tab-sc" aria-controls="L-p-sc" aria-selected="false" tabindex="-1"><i class="t-p">٨</i>العلوم</button>
     <button type="button" role="tab" id="L-tab-fr" aria-controls="L-p-fr" aria-selected="false" tabindex="-1"><i class="t-y">٦</i>الكسور</button>
    </div>
+   <span class="L-tabs-more" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+   </div>
    <p class="L-sr" data-demo-status aria-live="polite"></p>
 
-   <div class="L-panel" role="tabpanel" id="L-p-math" aria-labelledby="L-tab-math" data-quiz>
-    <div class="L-q-meta"><span>الصف الأول · الرياضيات</span><span>درس «نجمع مجموعتين» · الكتاب ص ٦٧</span></div>
+   <div class="L-panel" role="tabpanel" id="L-p-math" aria-labelledby="L-tab-math" data-quiz data-qset="math">
+    <div class="L-q-meta"><span class="L-count" data-count>السؤال ١ من ٣</span><span>الصف الأول · الرياضيات</span><span>درس «نجمع مجموعتين» · الكتاب ص ٦٧</span></div>
     <h3>عدد الكرات ٢. أضفت ١. كم أصبح عددها؟</h3>
-    <div class="L-balls" aria-hidden="true"><span class="L-ball"></span><span class="L-ball"></span><b>+</b><span class="L-ball L-ball-new"></span><b>=</b><span class="L-slot" data-slot>؟</span></div>
-    <p class="L-hint-sm">اسحب الرقم الصحيح إلى المربّع، أو اضغط عليه.</p>
+    <div data-visual class="L-balls" aria-hidden="true"><span class="L-ball"></span><span class="L-ball"></span><b>+</b><span class="L-ball L-ball-new"></span><b>=</b><span class="L-slot" data-slot>؟</span></div>
+    <p class="L-cta-line"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v14m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>اسحب الرقم الصحيح إلى المربّع، أو اضغط عليه</b></p>
     <div class="L-opts L-tiles" role="group" aria-label="الخيارات"><button type="button" class="L-opt L-tile" data-v="4">٤</button><button type="button" class="L-opt L-tile" data-v="3" data-ok>٣</button><button type="button" class="L-opt L-tile" data-v="2">٢</button></div>
     <p class="L-fb" role="status" aria-live="polite" data-ok-text="أحسنت! عندما نضمّ ٢ و١ نحصل على ٣." data-no-text="لننظر مرة أخرى: عُدّ الكرات كلها واحدة واحدة."></p>
+    <button type="button" class="L-btn L-btn-main L-btn-sm L-next" data-next hidden>السؤال التالي<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
    </div>
 
-   <div class="L-panel" role="tabpanel" id="L-p-ar" aria-labelledby="L-tab-ar" data-quiz hidden>
-    <div class="L-q-meta"><span>الصف الأول · لغتنا الجميلة</span><span>درس «حرف الزاي» · الجزء الأول</span></div>
+   <div class="L-panel" role="tabpanel" id="L-p-ar" aria-labelledby="L-tab-ar" data-quiz data-qset="ar" hidden>
+    <div class="L-q-meta"><span class="L-count" data-count>السؤال ١ من ٣</span><span>الصف الأول · لغتنا الجميلة</span><span>درس «حرف الزاي» · الجزء الأول</span></div>
     <h3>أيّ كلمة تبدأ بحرف الزاي؟</h3>
-    <div class="L-letter" aria-hidden="true"><span>ز</span><small>ز · زـ · ـز</small></div>
+    <div data-visual class="L-letter" aria-hidden="true"><span>ز</span><small>ز · زـ · ـز</small></div>
+    <p class="L-cta-line"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v14m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>اضغط على الإجابة الصحيحة</b></p>
     <div class="L-opts L-words" role="group" aria-label="الكلمات"><button type="button" class="L-opt" data-ok><b>زَ</b>يْتُونٌ</button><button type="button" class="L-opt">مَوْزٌ</button><button type="button" class="L-opt">بَابٌ</button></div>
     <p class="L-fb" role="status" aria-live="polite" data-ok-text="ممتاز! «زَيْتُونٌ» تبدأ بالزاي، مثل اسم صديقنا زيتون." data-no-text="انتبه إلى أول حرف في الكلمة. في «مَوْزٌ» تأتي الزاي في آخرها."></p>
+    <button type="button" class="L-btn L-btn-main L-btn-sm L-next" data-next hidden>السؤال التالي<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
    </div>
 
-   <div class="L-panel" role="tabpanel" id="L-p-en" aria-labelledby="L-tab-en" data-quiz hidden>
-    <div class="L-q-meta"><span>الصف الأول · الإنجليزية</span><span>Unit 2 · Let’s eat!</span></div>
+   <div class="L-panel" role="tabpanel" id="L-p-en" aria-labelledby="L-tab-en" data-quiz data-qset="en" hidden>
+    <div class="L-q-meta"><span class="L-count" data-count>السؤال ١ من ٣</span><span>الصف الأول · الإنجليزية</span><span>Unit 2 · Let’s eat!</span></div>
     <h3>استمع، ثم اختر صورة الكلمة</h3>
-    <button type="button" class="L-say" data-audio="assets/landing/en-olive.mp3"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg><span lang="en" dir="ltr">olive</span></button>
+    <button type="button" data-visual class="L-say" data-audio="assets/landing/en-olive.mp3"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg><span lang="en" dir="ltr">olive</span></button>
+    <p class="L-cta-line"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v14m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>اضغط على الإجابة الصحيحة</b></p>
     <div class="L-opts L-pics" role="group" aria-label="الصور">
      <button type="button" class="L-opt" aria-label="بيضة" data-audio="assets/landing/en-egg.mp3"><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><ellipse cx="32" cy="36" rx="17" ry="21" fill="#fff6e4" stroke="#c99d55" stroke-width="3"/><ellipse cx="25" cy="28" rx="4" ry="7" fill="#fff" opacity=".9"/></svg></button>
      <button type="button" class="L-opt" aria-label="حبّة زيتون" data-ok><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><path d="M33 14c3-6 9-8 15-7-2 6-8 9-15 7Z" fill="#7fae3c"/><path d="M32 16v6" stroke="#5b4a25" stroke-width="3" stroke-linecap="round"/><ellipse cx="32" cy="39" rx="15" ry="19" fill="#6f8f2b" stroke="#3f561a" stroke-width="3"/><ellipse cx="26" cy="32" rx="4" ry="6" fill="#b9d46d" opacity=".8"/></svg></button>
      <button type="button" class="L-opt" aria-label="خبز" data-audio="assets/landing/en-bread.mp3"><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><path d="M10 30c0-9 10-14 22-14s22 5 22 14c0 4-3 5-5 5v13H15V35c-2 0-5-1-5-5Z" fill="#f2c27a" stroke="#b07a35" stroke-width="3" stroke-linejoin="round"/><path d="M22 26l4 4m6-6 4 4m6-4 3 3" stroke="#b07a35" stroke-width="2.5" stroke-linecap="round"/></svg></button>
     </div>
     <p class="L-fb" role="status" aria-live="polite" data-ok-text="Great! olive تعني حبّة زيتون. في الدرس يسمع طفلك كل كلمة وجملة." data-no-text="ليست هذه. اضغط زر الصوت واستمع مرة أخرى."></p>
+    <button type="button" class="L-btn L-btn-main L-btn-sm L-next" data-next hidden>السؤال التالي<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
    </div>
 
-   <div class="L-panel" role="tabpanel" id="L-p-sc" aria-labelledby="L-tab-sc" data-quiz hidden>
-    <div class="L-q-meta"><span>الصف الثامن · العلوم والحياة</span><span>درس «المجاهر» · الكتاب ص ٤</span></div>
+   <div class="L-panel" role="tabpanel" id="L-p-sc" aria-labelledby="L-tab-sc" data-quiz data-qset="sc" hidden>
+    <div class="L-q-meta"><span class="L-count" data-count>السؤال ١ من ٣</span><span>الصف الثامن · العلوم والحياة</span><span>درس «المجاهر» · الكتاب ص ٤</span></div>
     <h3>عدسة عينية تكبيرها ١٠× وعدسة شيئية تكبيرها ٤٠×. ما مقدار التكبير؟</h3>
-    <div class="L-scope" aria-hidden="true"><svg viewBox="0 0 220 120" width="220" height="120"><g fill="none" stroke="#5e4b8b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M40 110h60M70 110V92M54 92h32M62 92l10-50M58 30l22 6-4 14-22-6z"/><path d="M60 26l6-14"/></g><circle class="L-lens" cx="165" cy="60" r="44" fill="#f3eefb" stroke="#5e4b8b" stroke-width="4"/><g class="L-cells"><circle cx="150" cy="50" r="9" fill="#a8d08d"/><circle cx="172" cy="46" r="8" fill="#a8d08d"/><circle cx="160" cy="72" r="10" fill="#a8d08d"/><circle cx="182" cy="68" r="7" fill="#a8d08d"/><circle cx="150" cy="50" r="2.5" fill="#4f7a34"/><circle cx="172" cy="46" r="2.5" fill="#4f7a34"/><circle cx="160" cy="72" r="2.5" fill="#4f7a34"/><circle cx="182" cy="68" r="2" fill="#4f7a34"/></g></svg></div>
+    <div data-visual class="L-scope" aria-hidden="true"><svg viewBox="0 0 220 120" width="220" height="120"><g fill="none" stroke="#5e4b8b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M40 110h60M70 110V92M54 92h32M62 92l10-50M58 30l22 6-4 14-22-6z"/><path d="M60 26l6-14"/></g><circle class="L-lens" cx="165" cy="60" r="44" fill="#f3eefb" stroke="#5e4b8b" stroke-width="4"/><g class="L-cells"><circle cx="150" cy="50" r="9" fill="#a8d08d"/><circle cx="172" cy="46" r="8" fill="#a8d08d"/><circle cx="160" cy="72" r="10" fill="#a8d08d"/><circle cx="182" cy="68" r="7" fill="#a8d08d"/><circle cx="150" cy="50" r="2.5" fill="#4f7a34"/><circle cx="172" cy="46" r="2.5" fill="#4f7a34"/><circle cx="160" cy="72" r="2.5" fill="#4f7a34"/><circle cx="182" cy="68" r="2" fill="#4f7a34"/></g></svg></div>
+    <p class="L-cta-line"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v14m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>اضغط على الإجابة الصحيحة</b></p>
     <div class="L-opts L-words" role="group" aria-label="الخيارات"><button type="button" class="L-opt">٥٠×</button><button type="button" class="L-opt" data-ok>٤٠٠×</button><button type="button" class="L-opt">٤٠×</button></div>
     <p class="L-fb" role="status" aria-live="polite" data-ok-text="صحيح! مقدار التكبير = تكبير العينية × تكبير الشيئية = ١٠ × ٤٠ = ٤٠٠." data-no-text="تذكّر القاعدة من الكتاب: نضرب التكبيرين، لا نجمعهما."></p>
+    <button type="button" class="L-btn L-btn-main L-btn-sm L-next" data-next hidden>السؤال التالي<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
    </div>
 
    <div class="L-panel" role="tabpanel" id="L-p-fr" aria-labelledby="L-tab-fr" hidden>
@@ -148,7 +160,8 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
     <div class="L-row"><button class="L-btn L-btn-main L-btn-sm" id="check-fraction" type="button">تحقّق</button><button type="button" class="L-btn L-btn-ghost L-btn-sm" id="reset-fraction">ابدأ من جديد</button></div>
     <p class="L-fb L-fb-frac" id="fraction-feedback" role="status" aria-live="polite" data-state="idle">اختر أجزاء متساوية، ثم تحقّق من فكرتك.</p>
    </div>
-   <div class="L-cheer" aria-hidden="true"><img src="assets/brand/logo-mascot-sm.webp" width="160" height="211" alt="" loading="lazy" decoding="async"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+   <div class="L-hand" aria-hidden="true"><svg viewBox="0 0 48 56" width="44" height="52"><use href="#li-hand"/></svg></div>
+   <div class="L-cheer" aria-hidden="true"><b class="L-bubble">أحسنت!</b><img src="assets/brand/logo-mascot-sm.webp" width="160" height="211" alt="" loading="lazy" decoding="async"><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
  </div>
 </section>
