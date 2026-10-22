@@ -95,3 +95,13 @@ html:has(body.login),body.login{overflow-x:clip}.lg{overflow-x:clip}
 .foot{font-size:15px}
 .tag{font-size:13px}
 .note span{font-size:15px}
+
+.forgot-row{text-align:center;margin:4px 0 0}
+.forgot{background:none;border:0;padding:8px 10px;min-height:44px;font:700 15px Cairo,sans-serif;color:var(--gd);text-decoration:underline;text-underline-offset:4px;cursor:pointer;border-radius:10px}
+[data-theme=dark] .forgot{color:var(--g)}
+.forgot:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+.forgot-panel{margin:8px 0 2px;padding:14px 16px;border-radius:16px;background:var(--gl);border:1.5px solid var(--lip);text-align:right}
+.forgot-panel[hidden]{display:none}
+.forgot-panel h2{margin:0 0 6px;font:800 17px Baloo,Cairo,sans-serif;color:var(--tx)}
+.forgot-panel p{margin:0 0 12px;font:500 15px/1.8 Cairo,sans-serif;color:var(--tx2)}
+.forgot-acts{display:flex;gap:8px;flex-wrap:wrap}.forgot-acts .btn{flex:1 1 auto;white-space:normal}
