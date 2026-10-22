@@ -16,7 +16,7 @@ let seed=20261022,checks=0;
 const math=Object.create(Math);math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 for(const grade of ['g6','g8']){
  const ctx=vm.createContext({Math:math,console,document:{addEventListener(){}}});ctx.window=ctx;
- for(const f of ['content.js','content5.js','gen.js','gen5.js'])vm.runInContext(read(grade+'/math/'+f),ctx,{filename:grade+'/'+f});
+ for(const f of ['data.js','content.js','content5.js','gen.js','gen5.js','review.js'])vm.runInContext(read(grade+'/math/'+f),ctx,{filename:grade+'/'+f});
  const ids=new Set(Object.keys(ctx.GEN));(read(grade+'/math/data.js').match(/S\d-\d+-\d+/g)||[]).forEach(i=>ids.add(i));
  for(const id of ids)for(let i=0;i<SAMPLES;i++){
   const item=ctx.genFor(id,i);
