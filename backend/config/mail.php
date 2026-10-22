@@ -47,6 +47,9 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            // Set MAIL_VERIFY_PEER=false when the SMTP host's certificate does not
+            // match MAIL_HOST (e.g. cPanel localhost with the server hostname cert).
+            'verify_peer' => env('MAIL_VERIFY_PEER', true),
         ],
 
         'ses' => [
