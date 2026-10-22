@@ -7,6 +7,7 @@ ErrorDocument 404 /404.html
 RewriteEngine On
 RewriteCond %{HTTPS} !=on
 RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteCond %{HTTP:CF-Visitor} !https
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
@@ -22,6 +23,7 @@ AddCharset utf-8 .html .js .css .json .webmanifest .xml .txt .svg
 
 <IfModule mod_headers.c>
 Header always set X-Content-Type-Options "nosniff"
+Header always set Strict-Transport-Security "max-age=31536000"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 <FilesMatch "\.(?:css|js|png|jpe?g|webp|svg|woff2|mp3|ico)$">
 Header set Cache-Control "public, max-age=2592000"
