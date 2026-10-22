@@ -87,11 +87,15 @@ function enter(p){
  say(`أهلًا ${p.name}! اكتب رقمك السري`);setPose('idle');
  show(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1><p class="sub" style="margin:0">اكتب رقمك السري المكوّن من ٤ أرقام</p></div></div>
   ${pinBox('pinIn')}<p class="msg" id="msg"></p>
+  <p class="forgot-row"><button type="button" class="forgot" id="forgot" aria-expanded="false" aria-controls="forgotPanel">نسيت الرقم السري؟</button></p>
+  <div class="forgot-panel" id="forgotPanel" role="region" aria-labelledby="forgotT" hidden><h2 id="forgotT">لا تقلق، يمكن استعادة الدخول بسهولة</h2><p>اطلب من ولي أمرك أن يفتح <b>صفحة الحساب</b>، ثم يغيّر رقمك السري أو يزيله. قد يُطلب منه إدخال كلمة مرور الحساب للتأكيد.</p><div class="forgot-acts"><a class="btn sm" id="forgotGo" href="${esc(ACCOUNT)}">الانتقال إلى صفحة الحساب</a><button type="button" class="btn sm ghost" id="forgotX">إغلاق</button></div></div>
   <div class="actions"><button type="button" class="btn ghost" id="back">${svg('back',18)} ملف آخر</button></div>`,'#pinIn input');
  const wrap=$('#pinIn'),msg=$('#msg');
  const inp=bindPin(wrap,async v=>{const lock=P.lockedFor(p.id);if(lock){msg.className='msg err';msg.textContent=`محاولات كثيرة. انتظر ${AR(Math.ceil(lock/1000))} ثانية.`;inp.value='';return}
   if(await P.check(p.id,v)){inp.blur();done(p)}else{const n=P.fail(p.id);wrap.classList.add('bad');inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'));msg.className='msg err';msg.textContent=n>=5?'محاولات كثيرة. انتظر ٣٠ ثانية ثم حاول.':'الرقم غير صحيح، حاول مرة أخرى.';inp.blur();oops('لا بأس، جرّب مرة أخرى!');if(!RM){wrap.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:380})}}});
- $('#back').onclick=()=>pick()}
+ $('#back').onclick=()=>pick();
+ const fb=$('#forgot'),fp=$('#forgotPanel'),tg=o=>{fp.hidden=!o;fb.setAttribute('aria-expanded',o);if(o){say('اطلب المساعدة من ولي أمرك');fp.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'})}else fb.focus()};
+ fb.onclick=()=>tg(fp.hidden);$('#forgotX').onclick=()=>tg(false)}
 function twoPins(title,sub,extra,onOk){
  picking=false;
  show(`${title}<p class="sub">${sub}</p>${extra||''}<div class="field"><span>رقم سري من ٤ أرقام</span>${pinBox('p1')}</div><div class="field"><span>أعد كتابة الرقم للتأكيد</span>${pinBox('p2')}</div><p class="msg" id="msg"></p>
