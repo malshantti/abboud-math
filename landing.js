@@ -28,14 +28,14 @@ function praise(){if(!cheer)return;var b=cheer.querySelector('.L-bubble');if(b)b
 function balls(a,b){var h='';for(var i=0;i<a;i++)h+='<span class="L-ball"></span>';h+='<b>+</b>';for(i=0;i<b;i++)h+='<span class="L-ball L-ball-new"></span>';return'<div class="L-balls" data-visual aria-hidden="true">'+h+'<b>=</b><span class="L-slot" data-slot>؟</span></div>'}
 function letter(c,f){return'<div class="L-letter" data-visual aria-hidden="true"><span>'+c+'</span><small>'+f+'</small></div>'}
 var MORE={
- math:[{h:'عدد الكرات ٣. أضفت ٢. كم أصبح عددها؟',v:balls(3,2),o:[['٤'],['٦'],['٥',1]],ok:'أحسنت! عندما نضمّ ٢ إلى ٣ نحصل على ٥.',no:'عُدّ الكرات الصفراء ثم أكمل العدّ على الكرات الزرقاء.'},
-       {h:'عدد الكرات ١. أضفت ٣. كم أصبح عددها؟',v:balls(1,3),o:[['٤',1],['٣'],['٥']],ok:'ممتاز! عندما نضمّ ٣ إلى ١ نحصل على ٤.',no:'ابدأ من ١ وعُدّ ثلاث خطوات إلى الأمام.'}],
- ar:[{m:'درس «حرف الباء»',h:'أيّ كلمة تبدأ بحرف الباء؟',v:letter('ب','ب · بـ · ـب'),o:[['زَيْتُونٌ'],['<b>بَ</b>ابٌ',1],['مَوْزٌ']],ok:'أحسنت! «بَابٌ» تبدأ بالباء وتنتهي بالباء أيضًا.',no:'انطق الكلمة ببطء، واستمع إلى أول صوت فيها.'},
-     {m:'درس «حرف الميم»',h:'أيّ كلمة تبدأ بحرف الميم؟',v:letter('م','م · مـ · ـم'),o:[['بَابٌ'],['زَيْتُونٌ'],['<b>مَ</b>وْزٌ',1]],ok:'رائع! «مَوْزٌ» تبدأ بحرف الميم.',no:'ابحث عن الكلمة التي يبدأ نطقها بصوت «مَـ».'}],
+ math:[{h:'عدد الكرات ٣. أضفت ٢. كم أصبح عددها؟',a:'assets/landing/demo-math-2.mp3',v:balls(3,2),o:[['٤'],['٦'],['٥',1]],ok:'أحسنت! عندما نضمّ ٢ إلى ٣ نحصل على ٥.',no:'عُدّ الكرات الصفراء ثم أكمل العدّ على الكرات الزرقاء.'},
+       {h:'عدد الكرات ١. أضفت ٣. كم أصبح عددها؟',a:'assets/landing/demo-math-3.mp3',v:balls(1,3),o:[['٤',1],['٣'],['٥']],ok:'ممتاز! عندما نضمّ ٣ إلى ١ نحصل على ٤.',no:'ابدأ من ١ وعُدّ ثلاث خطوات إلى الأمام.'}],
+ ar:[{m:'درس «حرف الباء»',h:'أيّ كلمة تبدأ بحرف الباء؟',a:'assets/landing/demo-ar-2.mp3',v:letter('ب','ب · بـ · ـب'),o:[['زَيْتُونٌ'],['<b>بَ</b>ابٌ',1],['مَوْزٌ']],ok:'أحسنت! «بَابٌ» تبدأ بالباء وتنتهي بالباء أيضًا.',no:'انطق الكلمة ببطء، واستمع إلى أول صوت فيها.'},
+     {m:'درس «حرف الميم»',h:'أيّ كلمة تبدأ بحرف الميم؟',a:'assets/landing/demo-ar-3.mp3',v:letter('م','م · مـ · ـم'),o:[['بَابٌ'],['زَيْتُونٌ'],['<b>مَ</b>وْزٌ',1]],ok:'رائع! «مَوْزٌ» تبدأ بحرف الميم.',no:'ابحث عن الكلمة التي يبدأ نطقها بصوت «مَـ».'}],
  en:[{w:'egg',a:'assets/landing/en-egg.mp3',k:'بيضة',ok:'أحسنت! كلمة egg تعني «بيضة».',no:'ليست هذه. اضغط زر الصوت واستمع مرة أخرى.'},
      {w:'bread',a:'assets/landing/en-bread.mp3',k:'خبز',ok:'أحسنت! كلمة bread تعني «خبز».',no:'ليست هذه. اضغط زر الصوت واستمع مرة أخرى.'}],
- sc:[{h:'عدسة عينية تكبيرها ١٠× وعدسة شيئية تكبيرها ١٠×. ما مقدار التكبير؟',o:[['٢٠×'],['١٠٠×',1],['١٠×']],ok:'صحيح! نضرب ١٠ في ١٠ فيكون الناتج ١٠٠، أي أن مقدار التكبير ١٠٠ مرة.',no:'نضرب تكبير العينية في تكبير الشيئية.'},
-     {h:'عدسة عينية تكبيرها ٥× وعدسة شيئية تكبيرها ٤٠×. ما مقدار التكبير؟',o:[['٢٠٠×',1],['٤٥×'],['٤٠×']],ok:'صحيح! نضرب ٥ في ٤٠ فيكون الناتج ٢٠٠، أي أن مقدار التكبير ٢٠٠ مرة.',no:'تذكّر: التكبير الكلي هو حاصل ضرب تكبير العينية في تكبير الشيئية.'}]
+ sc:[{h:'عدسة عينية تكبيرها ١٠× وعدسة شيئية تكبيرها ١٠×. ما مقدار التكبير؟',a:'assets/landing/demo-sc-2.mp3',o:[['٢٠×'],['١٠٠×',1],['١٠×']],ok:'صحيح! نضرب ١٠ في ١٠ فيكون الناتج ١٠٠، أي أن مقدار التكبير ١٠٠ مرة.',no:'نضرب تكبير العينية في تكبير الشيئية.'},
+     {h:'عدسة عينية تكبيرها ٥× وعدسة شيئية تكبيرها ٤٠×. ما مقدار التكبير؟',a:'assets/landing/demo-sc-3.mp3',o:[['٢٠٠×',1],['٤٥×'],['٤٠×']],ok:'صحيح! نضرب ٥ في ٤٠ فيكون الناتج ٢٠٠، أي أن مقدار التكبير ٢٠٠ مرة.',no:'تذكّر: التكبير الكلي هو حاصل ضرب تكبير العينية في تكبير الشيئية.'}]
 };
 root.querySelectorAll('[data-quiz]').forEach(function(panel){
  var fb=panel.querySelector('.L-fb'),box=panel.querySelector('.L-opts'),next=panel.querySelector('[data-next]'),count=panel.querySelector('[data-count]'),h3=panel.querySelector('h3'),meta=panel.querySelector('.L-q-meta span:last-child');
@@ -49,12 +49,14 @@ root.querySelectorAll('[data-quiz]').forEach(function(panel){
   if(q.w)h3.innerHTML=first.h;
   // في سؤال الإنجليزية الأول يحمل زرّ الصوت كلمة olive
   if(q===first&&panel.dataset.qset==='en'){var s=panel.querySelector('.L-say');s.dataset.audio='assets/landing/en-olive.mp3';s.querySelector('span').textContent='olive'}
+  else if(!q.w){var s2=panel.querySelector('.L-say');if(s2){if(q.a)s2.dataset.audio=q.a;else if(q===first&&panel.dataset.qset==='math')s2.dataset.audio='assets/landing/demo-math-1.mp3';else if(q===first&&panel.dataset.qset==='ar')s2.dataset.audio='assets/landing/demo-ar-1.mp3';else if(q===first&&panel.dataset.qset==='sc')s2.dataset.audio='assets/landing/demo-sc-1.mp3'}}
   var vis=panel.querySelector('[data-visual]');if(vis&&q.v&&!q.w){vis.outerHTML=q.v}
   if(meta&&q.m)meta.textContent=q.m;else if(meta&&first.m)meta.textContent=first.m;
   slot=panel.querySelector('[data-slot]');
   fb.className='L-fb';fb.textContent='';fb.dataset.okText=q.ok;fb.dataset.noText=q.no;
   if(count)count.textContent='السؤال '+AR(i+1)+' من '+AR(qs.length);
-  if(next)next.hidden=true}
+  if(next)next.hidden=true;
+  var sayBtn=panel.querySelector('.L-say');if(sayBtn&&sayBtn.dataset.audio&&panel.dataset.qset!=='en')setTimeout(function(){play(sayBtn.dataset.audio,sayBtn)},400)}
  render(0);
  function answer(btn){
   if(done)return;var ok=btn.hasAttribute('data-ok');
