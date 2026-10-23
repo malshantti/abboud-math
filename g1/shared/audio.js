@@ -11,7 +11,7 @@
   /* بلا نص منطوق: المفتاح نص العرض. مع نص منطوق مضمَّن (say): يُضاف إليه، فيأخذ كل موضع تسجيله. */
   const key=(text,lang,say)=>{const t=clean(text),s=clean(say);return hash(langOf(t,lang)+'|'+t+(s?'|'+s:''));};
   /* نصوص المحرّك الثابتة؛ يجمعها سكربت البناء مع نصوص المادة. */
-  const ENGINE={retry:'لِنَنْظُرْ مَرَّةً أُخْرَى. جَرِّبِ اخْتِيَارًا آخَرَ.',good:'أَحْسَنْتَ!',done:'أَحْسَنْتَ، أَتْمَمْتَ الْخُطْوَةَ!'};
+  const ENGINE={retry:'لِنَنْظُرْ مَرَّةً أُخْرَى. جَرِّبِ اخْتِيَارًا آخَرَ.',good:'أَحْسَنْتَ!',done:'أَحْسَنْتَ، أَتْمَمْتَ الْخُطْوَةَ!',labCount:'كَوِّنْ مَجْمُوعَةً مِنَ التُّفَّاحَاتِ.',labShapes:'أَتَعَرَّفُ الْأَشْكَالَ.',labTrace:'أَرْسُمُ الْحَرْفَ بِإِصْبَعِي.',labSenses:'أَكْتَشِفُ حَوَاسِّي.'};
   const api={hash,key,clean,langOf,ENGINE};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(!root||typeof document==='undefined'){if(root)root.G1_AUDIO=api;return;}

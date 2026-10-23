@@ -97,9 +97,35 @@
     check:'<path d="m12 32 13 13 27-28"/>',
     plus:'<path d="M32 12v40M12 32h40"/>',
     minus:'<path d="M12 32h40"/>',
+
+    insect:'<ellipse fill="#a8c978" cx="32" cy="34" rx="14" ry="18"/><circle fill="#c5e08f" cx="32" cy="18" r="9"/><path d="M24 14 16 6m16 8 8-8M18 34h-9m28 0h9M22 44l-7 10m20-10 7 10M28 18h1m6 0h1"/>',
+    kitten:'<path fill="#e9c699" d="m14 28-2-16 14 9h12l14-9-2 16c12 26-48 32-36 0Z"/><path d="M24 31h1m14 0h1m-13 7 6 4 6-4m-6 4v4"/><circle fill="#f6d17e" stroke="none" cx="26" cy="34" r="2"/><circle fill="#f6d17e" stroke="none" cx="38" cy="34" r="2"/>',
+    lion:'<circle fill="#e8b86d" cx="32" cy="34" r="16"/><path fill="#d4924a" d="M32 10c-18 2-24 18-18 28 4-14 14-18 18-18s14 4 18 18c6-10 0-26-18-28Z"/><path d="M25 32h1m12 0h1m-11 8c3 3 8 3 11 0M20 48l-6 8m30-8 6 8"/>',
+    zebra:'<path fill="#f5f0e4" d="M12 36c0-18 12-26 22-26s18 10 18 24c8 2 12 10 8 16H16c-6-2-4-10-4-14Z"/><path d="M20 22c2 8 2 16 0 24m8-28c2 10 2 20 0 28m8-26c2 9 2 18 0 26m8-24c1 8 1 16 0 22M48 28l10-4m-8 10 10 2M24 50v8m16-8v8"/><circle fill="#263e38" stroke="none" cx="48" cy="24" r="2"/>',
+    fox:'<path fill="#e59a5c" d="M10 40 6 14l18 12h16L58 14l-4 26c8 20-44 24-44 0Z"/><path fill="#fff4e4" d="M24 36c0-8 16-8 16 0v8c0 10-16 10-16 0Z"/><path d="M26 34h1m10 0h1m-9 8 4 3 4-3"/>',
+    queen:'<path fill="#f2d676" d="m12 22 8-14 6 10 6-12 6 12 6-10 8 14v6H12Z"/><path fill="#e7afbd" d="M18 28h28v26H18Z"/><circle fill="#f2d676" cx="32" cy="40" r="4"/><path d="M22 54h20"/>',
+    umbrella:'<path fill="#d7977c" d="M8 30c0-18 12-24 24-24s24 6 24 24H8Z"/><path fill="#f7df9e" d="M8 30c4-3 8 2 12 0s8-3 12 0 8 3 12 0 8-3 12 0v2H8Z"/><path d="M32 30v26m0 0c6 1 8-6 3-8"/>',
+    van:'<path fill="#9abfb5" d="M6 28h36l14 10v14H6Z"/><path fill="#d4e4e7" d="M28 30h12l8 8H28Z"/><circle fill="#5b6b68" cx="18" cy="52" r="6"/><circle fill="#5b6b68" cx="46" cy="52" r="6"/><path d="M6 40h44M14 22h10v6H14Z"/>',
+    yoyo:'<circle fill="#dcaac1" cx="24" cy="32" r="16"/><circle fill="#a2c9dc" cx="40" cy="32" r="16"/><path d="M32 8v8M24 32h16"/><circle fill="#f7df9e" cx="24" cy="32" r="4"/><circle fill="#f7df9e" cx="40" cy="32" r="4"/>',
+    box:'<path fill="#f1cf85" d="M8 22h48v34H8Z"/><path fill="#fff4d4" d="m8 22 10-12h28l10 12"/><path d="M18 22v34m28-34v34M8 36h48"/>',
+    board:'<path fill="#5f8f6a" d="M6 10h52v40H6Z"/><path fill="#dfbd91" d="M4 50h56v6H4Z"/><path d="M14 20h36M14 30h28M14 40h32" stroke="#e8f0e4" stroke-width="3"/>',
+    teacher:'<path fill="#a4c3df" d="M12 58c0-16 40-16 40 0"/><path fill="#e9bd99" d="M20 20h24v16c0 18-24 18-24 0Z"/><path fill="#6c5744" d="M18 24C12 4 48 2 46 24l-7-8c-5 7-14 2-21 8Z"/><path d="M26 30h1m10 0h1m-10 8c3 3 7 3 10 0"/><path fill="#f2d676" d="M28 48h8v4h-8Z"/>',
+    me:'<path fill="#a4c3df" d="M14 58c0-15 36-15 36 0"/><path fill="#e9bd99" d="M20 20h24v15c0 18-24 18-24 0Z"/><path fill="#6c5744" d="M19 24C13 5 47 3 45 24l-7-8c-5 7-13 2-19 8Z"/><path d="M26 30h1m10 0h1m-10 8c3 3 7 3 10 0"/><rect fill="#8fb8d2" x="22" y="4" width="20" height="10" rx="3"/><path d="M26 9h12" stroke="#fff" stroke-width="2"/>',
+    tea:'<path fill="#fff8e8" d="M14 22h30l-4 30H18Z"/><path fill="#b5cf88" d="M18 28h22l-2 18H20Z"/><path d="M44 28c10 0 12 12 2 14M20 18c4-8 16-8 20 0"/>',
+    coffee:'<path fill="#efe0c4" d="M12 20h32l-4 32H16Z"/><path fill="#8b5e3c" d="M16 26h24l-2 20H18Z"/><path d="M44 26c10 2 12 14 2 16M22 14h16"/>',
+    nut:'<ellipse fill="#c9a06e" cx="32" cy="34" rx="18" ry="20"/><path d="M32 14v40M18 28c8 4 20 4 28 0M18 40c8 4 20 4 28 0"/>',
+    melon:'<ellipse fill="#7fad5c" cx="32" cy="34" rx="24" ry="20"/><path d="M32 14c-4 12-4 28 0 40M20 20c6 10 6 24 0 34m24-34c-6 10-6 24 0 34"/><ellipse fill="#f3d67c" cx="32" cy="34" rx="8" ry="6"/>',
+    date:'<ellipse fill="#8b5a3c" cx="32" cy="36" rx="12" ry="18"/><path fill="#a4c978" d="M28 14c2-8 10-10 16-6-2 6-8 8-16 6Z"/><path d="M32 16v6M26 32h12M26 42h12"/>',
+    grape:'<circle fill="#8b6cc9" cx="24" cy="28" r="8"/><circle fill="#8b6cc9" cx="36" cy="26" r="8"/><circle fill="#8b6cc9" cx="30" cy="38" r="8"/><circle fill="#a88fd4" cx="20" cy="40" r="7"/><circle fill="#a88fd4" cx="40" cy="38" r="7"/><path fill="#a4c978" d="M30 10c4-2 10 2 8 8-6 0-10-2-8-8Z"/><path d="M32 12v8"/>',
+    fig:'<path fill="#7a5f8f" d="M32 12c-18 8-22 36-8 44 4 2 12 2 16 0 14-8 10-36-8-44Z"/><path fill="#a4c978" d="M28 10c0-6 8-8 12-4-2 5-6 6-12 4Z"/><path d="M32 18v10"/>',
+    skirt:'<path fill="#e7afbd" d="M22 10h20l12 44H10Z"/><path d="M18 28h28M22 10c2 6 18 6 20 0"/>',
+    skates:'<path fill="#a5c2d8" d="M14 18h28l4 18H18Z"/><path fill="#5f716b" d="M12 40h40v6H12Z"/><path d="M18 46v8m10-8v8m10-8v8m10-8v8M22 24h16"/>',
+    white:'<circle fill="#fff8e8" cx="32" cy="32" r="22"/><path d="M32 14v36M14 32h36"/>',
+    black:'<circle fill="#3a3a3a" cx="32" cy="32" r="22"/><path d="M32 14v36M14 32h36" stroke="#d0d0d0"/>',
     cube:'<path fill="#e8d399" d="m32 5 25 14-25 15L7 19Z"/><path fill="#b9d1b0" d="m7 19 25 15v27L7 46Z"/><path fill="#98baba" d="m32 34 25-15v27L32 61Z"/>'
   };
   const labels = {apple:'تفاحة',ball:'كرة',fish:'سمكة',flower:'زهرة',book:'كتاب',leaf:'ورقة شجر',eye:'عين',ear:'أذن',nose:'أنف',hand:'يد',tongue:'لسان',house:'منزل',school:'مدرسة',flag:'علم فلسطين',boy:'ولد',girl:'بنت',sun:'شمس',water:'ماء',tree:'شجرة',car:'سيارة',bag:'حقيبة',cat:'قطة',dog:'كلب',door:'باب',chair:'كرسي',pen:'قلم',orange:'برتقالة',bread:'خبز',cheese:'جبن',egg:'بيضة',olive:'زيتون',milk:'حليب',cup:'كوب',head:'رأس',face:'وجه',mouth:'فم',leg:'ساق',finger:'إصبع',mum:'أم',dad:'أب',baby:'طفل رضيع',bus:'حافلة',train:'قطار',bike:'دراجة',plane:'طائرة',boat:'قارب',shirt:'قميص',trousers:'سروال',shoes:'حذاء',socks:'جوارب',dress:'فستان',bed:'سرير',table:'طاولة',window:'نافذة',rock:'صخرة',rabbit:'أرنب',hen:'دجاجة',duck:'بطة',butterfly:'فراشة',cow:'بقرة',horse:'حصان',elephant:'فيل',zoo:'حديقة حيوانات',home:'الرئيسية',seed:'نبتة',map:'خريطة',lab:'مختبر',report:'تقرير',back:'عودة',arrow:'سهم',close:'إغلاق',check:'علامة صحة',plus:'إضافة',minus:'إنقاص'};
+  Object.assign(labels,{insect:'حشرة',kitten:'هرة صغيرة',lion:'أسد',zebra:'حمار وحشي',fox:'ثعلب',queen:'ملكة',umbrella:'مظلة',van:'شاحنة صغيرة',yoyo:'لعبة يويو',box:'صندوق',board:'لوح',teacher:'معلم',me:'أنا',tea:'شاي',coffee:'قهوة',nut:'مكسرات',melon:'بطيخ',date:'تمرة',grape:'عنب',fig:'تين',skirt:'تنورة',skates:'حذاء تزلج',white:'أبيض',black:'أسود'});
   Object.assign(labels,{goat:'ماعز',pencil:'قلم رصاص',desk:'مكتب',applejuice:'عصير تفاح',orangejuice:'عصير برتقال',doll:'دمية',kite:'طائرة ورقية',balloon:'بالون',shorts:'سروال قصير',jeans:'سروال جينز',taxi:'سيارة أجرة',lemon:'ليمون',bird:'عصفور',nest:'عش',bee:'نحلة',monkey:'قرد',banana:'موزة',peach:'خوخة',basket:'سلة',tap:'صنبور ماء'});
   labels.cube='مكعب';
   const iconLabel = name => typeof name === 'string' && Object.hasOwn(labels,name) ? labels[name] : 'رسم توضيحي';

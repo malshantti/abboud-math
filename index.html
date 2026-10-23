@@ -31,7 +31,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
 <link rel="preload" href="assets/fonts/baloo-arabic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/brand/logo-mascot.webp" as="image" type="image/webp">
 <link rel="stylesheet" href="entry.css">
-<link rel="stylesheet" href="landing.css?v=29">
+<link rel="stylesheet" href="landing.css?v=31">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 </head>
@@ -110,6 +110,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
    <div class="L-panel" role="tabpanel" id="L-p-math" aria-labelledby="L-tab-math" data-quiz data-qset="math">
     <div class="L-q-meta"><span class="L-count" data-count>السؤال ١ من ٣</span><span>الصف الأول · الرياضيات</span><span>درس «نجمع مجموعتين» · الكتاب ص ٦٧</span></div>
     <h3>عدد الكرات ٢. أضفت ١. كم أصبح عددها؟</h3>
+    <button type="button" class="L-say" data-audio="assets/landing/demo-math-1.mp3" aria-label="استمع إلى السؤال"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg><span>استمع</span></button>
     <div data-visual class="L-balls" aria-hidden="true"><span class="L-ball"></span><span class="L-ball"></span><b>+</b><span class="L-ball L-ball-new"></span><b>=</b><span class="L-slot" data-slot>؟</span></div>
     <p class="L-cta-line"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v14m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>اسحب الرقم الصحيح إلى المربّع، أو اضغط عليه</b></p>
     <div class="L-opts L-tiles" role="group" aria-label="الخيارات"><button type="button" class="L-opt L-tile" data-v="4">٤</button><button type="button" class="L-opt L-tile" data-v="3" data-ok>٣</button><button type="button" class="L-opt L-tile" data-v="2">٢</button></div>
@@ -120,6 +121,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
    <div class="L-panel" role="tabpanel" id="L-p-ar" aria-labelledby="L-tab-ar" data-quiz data-qset="ar" hidden>
     <div class="L-q-meta"><span class="L-count" data-count>السؤال ١ من ٣</span><span>الصف الأول · لغتنا الجميلة</span><span>درس «حرف الزاي» · الجزء الأول</span></div>
     <h3>أيّ كلمة تبدأ بحرف الزاي؟</h3>
+    <button type="button" class="L-say" data-audio="assets/landing/demo-ar-1.mp3" aria-label="استمع إلى السؤال"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg><span>استمع</span></button>
     <div data-visual class="L-letter" aria-hidden="true"><span>ز</span><small>ز · زـ · ـز</small></div>
     <p class="L-cta-line"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v14m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>اضغط على الإجابة الصحيحة</b></p>
     <div class="L-opts L-words" role="group" aria-label="الكلمات"><button type="button" class="L-opt" data-ok><b>زَ</b>يْتُونٌ</button><button type="button" class="L-opt">مَوْزٌ</button><button type="button" class="L-opt">بَابٌ</button></div>
@@ -144,6 +146,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
    <div class="L-panel" role="tabpanel" id="L-p-sc" aria-labelledby="L-tab-sc" data-quiz data-qset="sc" hidden>
     <div class="L-q-meta"><span class="L-count" data-count>السؤال ١ من ٣</span><span>الصف الثامن · العلوم والحياة</span><span>درس «المجاهر» · الكتاب ص ٤</span></div>
     <h3>عدسة عينية تكبيرها ١٠× وعدسة شيئية تكبيرها ٤٠×. ما مقدار التكبير؟</h3>
+    <button type="button" class="L-say" data-audio="assets/landing/demo-sc-1.mp3" aria-label="استمع إلى السؤال"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg><span>استمع</span></button>
     <div data-visual class="L-scope" aria-hidden="true"><svg viewBox="0 0 220 120" width="220" height="120"><g fill="none" stroke="#5e4b8b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M40 110h60M70 110V92M54 92h32M62 92l10-50M58 30l22 6-4 14-22-6z"/><path d="M60 26l6-14"/></g><circle class="L-lens" cx="165" cy="60" r="44" fill="#f3eefb" stroke="#5e4b8b" stroke-width="4"/><g class="L-cells"><circle cx="150" cy="50" r="9" fill="#a8d08d"/><circle cx="172" cy="46" r="8" fill="#a8d08d"/><circle cx="160" cy="72" r="10" fill="#a8d08d"/><circle cx="182" cy="68" r="7" fill="#a8d08d"/><circle cx="150" cy="50" r="2.5" fill="#4f7a34"/><circle cx="172" cy="46" r="2.5" fill="#4f7a34"/><circle cx="160" cy="72" r="2.5" fill="#4f7a34"/><circle cx="182" cy="68" r="2" fill="#4f7a34"/></g></svg></div>
     <p class="L-cta-line"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v14m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>اضغط على الإجابة الصحيحة</b></p>
     <div class="L-opts L-words" role="group" aria-label="الخيارات"><button type="button" class="L-opt">٥٠×</button><button type="button" class="L-opt" data-ok>٤٠٠×</button><button type="button" class="L-opt">٤٠×</button></div>
@@ -154,6 +157,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
    <div class="L-panel" role="tabpanel" id="L-p-fr" aria-labelledby="L-tab-fr" hidden>
     <div class="L-q-meta"><span>الصف السادس · الرياضيات</span><span>وحدة الكسور</span></div>
     <h3 id="fraction-demo">هل تستطيع تلوين النصف؟</h3>
+    <button type="button" class="L-say" data-audio="assets/landing/demo-fr-1.mp3" aria-label="استمع إلى السؤال"><svg width="26" height="26" aria-hidden="true"><use href="#li-sound"/></svg><span>استمع</span></button>
     <p class="L-hint-sm">المستطيل مقسّم إلى أربعة أجزاء متساوية. لوّن ما يساوي النصف، ثم تحقّق.</p>
     <div class="L-pieces" role="group" aria-label="أجزاء المستطيل الأربعة المتساوية"><button type="button" data-piece="1" aria-pressed="false" aria-label="تلوين الجزء الأول"></button><button type="button" data-piece="2" aria-pressed="false" aria-label="تلوين الجزء الثاني"></button><button type="button" data-piece="3" aria-pressed="false" aria-label="تلوين الجزء الثالث"></button><button type="button" data-piece="4" aria-pressed="false" aria-label="تلوين الجزء الرابع"></button></div>
     <p class="L-hint-sm">الأجزاء الملوّنة: <strong id="piece-count">٠</strong> من ٤</p>
@@ -298,7 +302,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
   <p class="foot">المنهاج الفلسطيني · دروس متجدّدة باستمرار</p>
 </div>
 <script src="welcome.js"></script>
-<script src="landing.js?v=28" defer></script>
+<script src="landing.js?v=31" defer></script>
 <script src="sync.js?v=20261022shell1" defer></script>
 <script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
 </body>

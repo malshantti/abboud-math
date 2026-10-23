@@ -6,7 +6,7 @@
   const sceneFor=entry=>entry[2]&&typeof entry[2]==='object'?{...entry[2],caption:entry[1]}:entry[2]?picture(entry[2],entry[1]):sym(entry[0],entry[1]);
   const imageOnly=entry=>{const scene=sceneFor(entry);delete scene.caption;return scene;};
   const option=entry=>({label:entry[1],scene:imageOnly(entry),say:entry[0],lang:'en'});
-  const ICONS=new Set('apple orange ball fish flower book leaf eye ear nose hand house school flag boy girl sun water tree car bag cat dog door chair pen bird nest bee monkey banana peach basket tap doll kite balloon shorts jeans taxi lemon goat pencil desk applejuice orangejuice bread cheese egg olive milk cup head face mouth leg finger mum dad baby bus train bike plane boat shirt trousers shoes socks dress bed table window rock rabbit hen duck butterfly cow horse elephant zoo home'.split(' '));
+  const ICONS=new Set('apple orange ball fish flower book leaf eye ear nose hand house school flag boy girl sun water tree car bag cat dog door chair pen bird nest bee monkey banana peach basket tap doll kite balloon shorts jeans taxi lemon goat pencil desk applejuice orangejuice bread cheese egg olive milk cup head face mouth leg finger mum dad baby bus train bike plane boat shirt trousers shoes socks dress bed table window rock rabbit hen duck butterfly cow horse elephant zoo home insect kitten lion zebra fox queen umbrella van yoyo box board teacher me tea coffee nut melon date grape fig skirt skates white black'.split(' '));
   const look=word=>{const key=String(word).toLowerCase().replace(/[^a-z]/g,'');return ICONS.has(key)?picture(key):sym(word);};
   // Rotate the correct position; the shared engine may shuffle again.
   let turn=0;
@@ -117,18 +117,18 @@
   addNumbers(2,[1,2,3],'egg');
   addNumbers(3,[4,5,6],'cat');
   addNumbers(4,[7,8,9,10],'hand');
-  addWords(2,[['nut','حبة مكسرات'],['melon','بطيخ'],['date','تمرة']]);
-  addWords(3,[['insect','حشرة'],['kitten','هرة صغيرة'],['lion','أسد'],['zebra','حمار وحشي']]);
+  addWords(2,[['nut','حبة مكسرات','nut'],['melon','بطيخ','melon'],['date','تمرة','date']]);
+  addWords(3,[['insect','حشرة','insect'],['kitten','هرة صغيرة','kitten'],['lion','أسد','lion'],['zebra','حمار وحشي','zebra']]);
   addWords(4,[['finger','إصبع','finger'],['face','وجه','face'],['mouth','فم','mouth']]);
-  addWords(6,[['board','لوح الكتابة'],['teacher','معلم أو معلمة']]);
-  addWords(7,[['baby','طفل رضيع','baby'],['me','أنا']]);
-  addWords(8,[['tea','شاي'],['coffee','قهوة']]);
-  addWords(10,[['yo-yo','لعبة اليويو'],['skates','حذاء تزلج']]);
-  addWords(11,[['van','شاحنة صغيرة']]);
-  addWords(12,[['white','أبيض'],['black','أسود'],['umbrella','مظلة']]);
-  addWords(13,[['shorts','سروال قصير','shorts'],['skirt','تنورة']]);
-  addWords(15,[['chair','كرسي','chair'],['box','صندوق']]);
-  addWords(16,[['grape','حبة عنب'],['banana','موزة','banana'],['fig','تينة']]);
+  addWords(6,[['board','لوح الكتابة','board'],['teacher','معلم أو معلمة','teacher']]);
+  addWords(7,[['baby','طفل رضيع','baby'],['me','أنا','me']]);
+  addWords(8,[['tea','شاي','tea'],['coffee','قهوة','coffee']]);
+  addWords(10,[['yo-yo','لعبة اليويو','yoyo'],['skates','حذاء تزلج','skates']]);
+  addWords(11,[['van','شاحنة صغيرة','van']]);
+  addWords(12,[['white','أبيض','white'],['black','أسود','black'],['umbrella','مظلة','umbrella']]);
+  addWords(13,[['shorts','سروال قصير','shorts'],['skirt','تنورة','skirt']]);
+  addWords(15,[['chair','كرسي','chair'],['box','صندوق','box']]);
+  addWords(16,[['grape','حبة عنب','grape'],['banana','موزة','banana'],['fig','تينة','fig']]);
   addDialogue(1,'say-name','أسأل عن الاسم',[
     'What’s your name? تعني: ما اسمك؟',
     {text:'My name’s Mira. تعني: اسمي ميرا. أختار اسمي عند الحديث عن نفسي.',scene:{type:'items',icons:['girl']}}
