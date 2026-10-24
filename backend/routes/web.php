@@ -42,6 +42,8 @@ Route::prefix('account')->group(function () {
         Route::post('register', [AccountAuth::class, 'register'])->middleware('throttle:register')->name('account.register.store');
         Route::get('login', [AccountAuth::class, 'loginForm'])->name('account.login');
         Route::post('login', [AccountAuth::class, 'login'])->middleware('throttle:account-login')->name('account.login.store');
+        Route::get('google', [App\Http\Controllers\Account\GoogleAuthController::class, 'redirect'])->middleware('throttle:20,1')->name('account.google');
+        Route::get('google/callback', [App\Http\Controllers\Account\GoogleAuthController::class, 'callback'])->middleware('throttle:20,1')->name('account.google.callback');
         Route::get('forgot-password', [AccountAuth::class, 'forgotForm'])->name('account.password.request');
         Route::post('forgot-password', [AccountAuth::class, 'sendResetLink'])->middleware('throttle:password-email')->name('account.password.email');
         Route::get('reset-password/{token}', [AccountAuth::class, 'resetForm'])->name('account.password.reset');
