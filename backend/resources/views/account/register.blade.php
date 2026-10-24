@@ -7,6 +7,7 @@
     @if ($open)
     <p class="lead">يبدأ حسابك بفترة تجريبية مجانية مدتها {{ $ar::num(\App\Models\Setting::get('trial_days')) }} أيام بكل المواد.</p>
     @include('partials.flash')
+    @include('partials.google-button')
     <form method="post" action="{{ route('account.register.store') }}">@csrf
       <div class="field"><label for="name">الاسم</label><input id="name" name="name" value="{{ old('name') }}" required maxlength="80" autocomplete="name"></div>
       <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" name="email" type="email" dir="ltr" value="{{ old('email') }}" required maxlength="255" autocomplete="email"></div>

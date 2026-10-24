@@ -65,6 +65,16 @@ class AuthController extends Controller
         $request->session()->put('url.intended', $url);
     }
 
+    /** One free trial per email (normalized), even if the account is deleted and re-created. Call inside a transaction. */
+    public static function claimTrial(User $user): void
+    {
+        $hash = Access::normalizedEmailHash($user->email);
+        if (! DB::table('trial_claims')->where('email_hash', $hash)->exists()) {
+            $user->trial_ends_at = now()->addDays(max(0, (int) Setting::get('trial_days')));
+            DB::table('trial_claims')->insert(['email_hash' => $hash, 'created_at' => now()]);
+        }
+    }
+
     public function registerForm(Request $request): View
     {
         self::rememberReturn($request);
@@ -84,12 +94,7 @@ class AuthController extends Controller
         $user = DB::transaction(function () use ($data) {
             $user = new User(['name' => trim($data['name']), 'email' => $data['email'], 'password' => $data['password']]);
             $user->setRole('parent');
-            // One free trial per email (normalized), even if the account is deleted and re-created.
-            $hash = Access::normalizedEmailHash($data['email']);
-            if (! DB::table('trial_claims')->where('email_hash', $hash)->exists()) {
-                $user->trial_ends_at = now()->addDays(max(0, (int) Setting::get('trial_days')));
-                DB::table('trial_claims')->insert(['email_hash' => $hash, 'created_at' => now()]);
-            }
+            self::claimTrial($user);
             $user->last_login_at = now();
             $user->save();
 

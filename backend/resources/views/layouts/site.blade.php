@@ -25,6 +25,11 @@
 .auth h1{margin:0 0 6px;font-size:32px}
 .auth .lead{color:var(--muted);margin:0 0 6px}
 .auth .btn.wide{margin-top:8px}
+.auth .gbtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:52px;padding:10px 18px;border:2px solid var(--line);border-radius:999px;background:#fff;color:#1f1f1f;font:inherit;font-weight:700;font-size:17px;text-decoration:none;box-shadow:0 2px 0 rgba(0,0,0,.06);transition:background .15s,border-color .15s}
+.auth .gbtn:hover,.auth .gbtn:focus-visible{background:#f7f8fa;border-color:#c7cbd1}
+.auth .gbtn svg{flex:none}
+.auth .or{display:flex;align-items:center;gap:12px;margin:18px 0 6px;color:var(--ink2);font-weight:700}
+.auth .or::before,.auth .or::after{content:"";flex:1;border-top:2px dashed var(--line)}
 .auth .links{margin:22px 0 0;padding-top:18px;border-top:2px dashed var(--line);font-size:16px}
 .check{display:flex!important;align-items:center;gap:10px;font-weight:600!important;cursor:pointer}
 .side{position:relative;overflow:hidden;background:linear-gradient(160deg,#f3f8e6 0%,var(--gl) 55%,#e4efcb 100%);border:2px solid #dfeac4;border-radius:28px;padding:32px clamp(22px,3vw,40px);display:flex;flex-direction:column;justify-content:center;gap:20px}
