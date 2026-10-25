@@ -45,6 +45,8 @@ class WorkspaceController extends Controller
             $query->whereRaw("title LIKE ? ESCAPE '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $input['search']).'%']);
         }
 
+        $query->addSelect(['published_version' => \App\Models\ContentPublication::select('version')->whereColumn('document_id', 'authoring_documents.id')->where('active', true)->limit(1)]);
+
         return response()->json($query->orderByDesc('updated_at')->orderByDesc('id')->paginate(12));
     }
 
@@ -106,6 +108,8 @@ class WorkspaceController extends Controller
             } else {
                 $record->save();
                 $record->delete();
+                \App\Models\ContentPublication::where('document_id', $record->id)->update(['active' => false]);
+                \Illuminate\Support\Facades\Cache::forget(PublishController::CACHE);
             }
             $this->activity($request, $record, $restore ? 'restored' : 'trashed');
         });
