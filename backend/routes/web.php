@@ -57,10 +57,16 @@ Route::prefix('account')->group(function () {
         Route::post('students', [AccountHome::class, 'storeStudent'])->name('account.students.store');
         Route::put('students/{student}', [AccountHome::class, 'updateStudent'])->name('account.students.update');
         Route::delete('students/{student}', [AccountHome::class, 'destroyStudent'])->name('account.students.destroy');
+        Route::get('students/{student}/report', [App\Http\Controllers\ReportController::class, 'parent'])->name('account.report');
+        Route::post('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'share'])->middleware('throttle:10,1')->name('account.report.share');
+        Route::delete('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'unshare'])->name('account.report.unshare');
         Route::get('subscribe', [AccountHome::class, 'subscribe'])->name('account.subscribe');
         Route::post('subscribe', [AccountHome::class, 'requestSubscription'])->middleware('throttle:10,1')->name('account.subscribe.store');
     });
 });
+// Read-only progress report share link (unguessable 40-char token, revocable by the parent).
+Route::get('/report/{token}', [App\Http\Controllers\ReportController::class, 'shared'])->middleware('throttle:30,1')->name('report.shared');
+
 // Named so Laravel's password broker can build links.
 Route::get('/password-reset/{token}', fn (string $token) => redirect()->route('account.password.reset', ['token' => $token] + request()->query()))->name('password.reset');
 
@@ -82,6 +88,7 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
     Route::get('/', [Manage::class, 'dashboard'])->name('manage.dashboard');
     Route::get('students', [Manage::class, 'students'])->name('manage.students');
     Route::get('students/{student}', [Manage::class, 'student'])->name('manage.student');
+    Route::get('students/{student}/report', [App\Http\Controllers\ReportController::class, 'staff'])->name('manage.student.report');
     Route::middleware('can:manage-site')->group(function () {
         Route::put('students/{student}', [Manage::class, 'updateStudent'])->name('manage.student.update');
         Route::delete('students/{student}', [Manage::class, 'destroyStudent'])->name('manage.student.destroy');

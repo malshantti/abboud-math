@@ -10,7 +10,7 @@ class Student extends Model
 {
     protected $fillable = ['name', 'grade', 'avatar', 'local_id'];
 
-    protected $hidden = ['pin_salt', 'pin_hash'];
+    protected $hidden = ['pin_salt', 'pin_hash', 'report_token'];
 
     /** Same lightweight format the site uses (profiles.js hash()): sha256 of «bustan:salt:pin». */
     public function setPin(?string $pin): void
