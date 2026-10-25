@@ -32,6 +32,10 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin'])->group(function
     Route::put('api/documents/{document}', [WorkspaceController::class, 'update'])->whereNumber('document');
     Route::delete('api/documents/{document}', [WorkspaceController::class, 'trash'])->whereNumber('document');
     Route::post('api/documents/{document}/restore', [WorkspaceController::class, 'restore'])->whereNumber('document');
+    Route::get('api/documents/{document}/publications', [App\Http\Controllers\Admin\PublishController::class, 'index'])->whereNumber('document');
+    Route::post('api/documents/{document}/publish', [App\Http\Controllers\Admin\PublishController::class, 'publish'])->whereNumber('document');
+    Route::post('api/documents/{document}/unpublish', [App\Http\Controllers\Admin\PublishController::class, 'unpublish'])->whereNumber('document');
+    Route::post('api/publications/{publication}/activate', [App\Http\Controllers\Admin\PublishController::class, 'activate'])->whereNumber('publication');
 });
 
 // ---- Parents and students (public accounts) ----
@@ -74,6 +78,7 @@ Route::get('/password-reset/{token}', fn (string $token) => redirect()->route('a
 Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
     Route::get('site', [SyncController::class, 'site']);
     Route::get('public/prices', [SyncController::class, 'prices']);
+    Route::get('public/content', [App\Http\Controllers\Admin\PublishController::class, 'public']);
     Route::get('session', [SyncController::class, 'session']);
     Route::middleware('auth')->group(function () {
         Route::post('students', [SyncController::class, 'storeStudent']);
