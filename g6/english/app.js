@@ -142,7 +142,7 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor
 function answer(ok,given,btn){const s=SES,q=s.qs[s.i];if(q.done)return;q.done=1;AU.sfx(ok?'ok':'bad');
  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(q.opts[+b.dataset.i]===q.ans)b.classList.add('ok')});if(btn&&!ok)btn.classList.add('bad');document.querySelectorAll('#chk,.tile-en,.oline').forEach(b=>b.disabled=true);
  if(ok)s.ok++;s.res.push({ok,sk:q.skill});addSkill(q.skill,ok);if(q.type==='listen'||q.type==='order'||q.type==='build')addSkill('listening_all',ok);
- if(s.mode!=='place'){if(ok){S.xp+=s.quiz?10:5;const w=S.wrong.findIndex(x=>x.u===q.u&&x.s===q.skill);if(s.mode==='review'&&w>=0)S.wrong.splice(w,1)}else if(!S.wrong.some(x=>x.u===q.u&&x.s===q.skill)){S.wrong.push({u:q.u,s:q.skill,k:q.k,t:Date.now()});if(S.wrong.length>40)S.wrong.shift()}
+ if(s.mode!=='place'){if(ok){S.xp+=(window.BK_XP?window.BK_XP(s.quiz?10:5):(s.quiz?10:5));const w=S.wrong.findIndex(x=>x.u===q.u&&x.s===q.skill);if(s.mode==='review'&&w>=0)S.wrong.splice(w,1)}else if(!S.wrong.some(x=>x.u===q.u&&x.s===q.skill)){S.wrong.push({u:q.u,s:q.skill,k:q.k,t:Date.now()});if(S.wrong.length>40)S.wrong.shift()}
   const uu=U(s.id);if(!s.quiz&&s.mode!=='review'){uu.prac.n++;if(ok)uu.prac.ok++}}
  save();hdr();
  if(!ok){s.wr=(s.wr||0)+1;if(s.wr===1||s.wr%3===0)setTimeout(()=>AU.zay(q.audio&&s.wr===1?18:4),300)}
@@ -152,7 +152,7 @@ function answer(ok,given,btn){const s=SES,q=s.qs[s.i];if(q.done)return;q.done=1;
 function finish(){const s=SES,p=pct(s.ok,s.qs.length);
  if(s._done){const cb=s._done;s._done=null;cb(p,s);return}
  if(s.mode==='place')return placeDone();
- const uu=U(s.id);if(s.quiz){uu.quiz.n++;uu.quiz.last=p;uu.quiz.best=Math.max(uu.quiz.best==null?0:uu.quiz.best,p);S.xp+=p>=80?30:0}else if(s.mode!=='place'&&s.mode!=='review'){uu.modes=uu.modes||{};uu.modes[s.mode]=Math.max(uu.modes[s.mode]||0,p)}
+ const uu=U(s.id);if(s.quiz){uu.quiz.n++;uu.quiz.last=p;uu.quiz.best=Math.max(uu.quiz.best==null?0:uu.quiz.best,p);S.xp+=(window.BK_XP?window.BK_XP(p>=80?30:0):(p>=80?30:0))}else if(s.mode!=='place'&&s.mode!=='review'){uu.modes=uu.modes||{};uu.modes[s.mode]=Math.max(uu.modes[s.mode]||0,p)}
  S.log.push({d:today(),u:s.id,m:s.quiz?'quiz':s.mode,ok:s.ok,n:s.qs.length});if(S.log.length>300)S.log.splice(0,S.log.length-300);save();hdr();
  const pass=p>=80;setTimeout(()=>AU.zay(s.quiz?(pass?16:17):9),500);if(pass&&window.FX&&FX.confetti)try{FX.confetti()}catch(e){}
  page('النتيجة',`<div class="card done-en"><img src="img/zaytoun-${pass?'celebrate':'encourage'}.webp" alt="" width="120" height="140"><h1>${p}%</h1><p>${s.ok} من ${s.qs.length} إجابات صحيحة.</p><p>${s.quiz?(pass?'أتقنت هذه الوحدة. أحسنت.':'الإتقان يحتاج إلى 80%. راجع الدرس ثم حاول مرة أخرى.'):(pass?'عمل ممتاز.':'كل محاولة تقرّبك. تدرّب مرة أخرى.')}</p>

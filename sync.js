@@ -31,7 +31,25 @@ async function api(path,opt){
 }
 
 // ---- شريط الإعلان (للجميع) ----
+// قواعد التعلّم من لوحة الإدارة («المواد والتحفيز»): مواد مخفية، وإظهار الشارات، ومضاعف النقاط. تُحفظ محليًا لتعمل دون اتصال.
+function applyRules(r){
+ if(!r||typeof r!=='object')return;window.BUSTAN_RULES=r;
+ const html=document.documentElement;html.classList.toggle('bk-no-badges',r.badges===false);
+ if(r.badges===false&&!document.getElementById('bk-rules-css')){const st=document.createElement('style');st.id='bk-rules-css';st.textContent='.bk-no-badges .badges,.bk-no-badges .ach,.bk-no-badges .bk-sec-h:has(+.ach),.bk-no-badges .bk-sec-h:has(+.badges),.bk-no-badges .ach-sec,.bk-no-badges [data-bk-badges]{display:none!important}';(document.head||html).append(st)}
+ const m=location.pathname.match(/\/g(\d{1,2})\/([a-z][a-z0-9]{1,19})\//);
+ if(m&&Array.isArray(r.hidden)&&r.hidden.includes('g'+m[1]+'-'+m[2])){const show=()=>{if(document.getElementById('bustan-hidden'))return;reveal();const app=document.querySelector('#app');if(app)app.inert=true;
+  const d=document.createElement('div');d.id='bustan-hidden';d.setAttribute('role','alertdialog');d.setAttribute('aria-modal','true');
+  d.style.cssText='position:fixed;inset:0;z-index:10001;background:#fbf8ef;display:grid;place-items:center;padding:20px;direction:rtl';
+  d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b;box-shadow:0 5px 0 #e2e7d9"><h2 style="margin:0 0 6px;font-size:22px">هذه المادة غير متاحة حاليًا</h2><p style="margin:0 0 14px">أخفتها إدارة البستان مؤقتًا، وتقدّمك فيها محفوظ. اختر مادة أخرى من صفحة الدخول.</p><a href="'+new URL('./',root).href+'" style="display:inline-block;background:#6f9e23;color:#fff;border-radius:14px;padding:10px 22px;font-weight:800;text-decoration:none">العودة إلى المواد</a></div>';
+  document.body.append(d)};document.body?show():addEventListener('DOMContentLoaded',show)}
+ try{dispatchEvent(new CustomEvent('bustan-rules',{detail:r}))}catch(e){}
+}
+function rules(site){const r=site&&site.rules;if(!r||typeof r!=='object')return;const t=JSON.stringify(r);if(t!==get('bustan_rules'))set('bustan_rules',t);applyRules(r)}
+// تُطبَّق النقاط عبر BK_XP في كل محرّك مادة: n × المضاعف (٠ يوقف النقاط الجديدة).
+window.BK_XP=n=>{const r=window.BUSTAN_RULES,k=r&&typeof r.points==='number'&&r.points>=0&&r.points<=5?r.points:1;return Math.round((+n||0)*k)};
+try{applyRules(JSON.parse(get('bustan_rules')||'null'))}catch(e){}
 function banner(site){
+ rules(site);
  const text=site&&site.announcement;
  if(!text||get(K.dismiss)===fnv(text)||document.getElementById('bustan-banner'))return;
  const c=site.announcement_color||{},col=v=>/^#[0-9a-f]{3,8}$/i.test(v||'')?v:null;

@@ -321,9 +321,10 @@ class ManageController extends Controller
         'voice_enabled' => 'الجولة الصوتية', 'voice_volume' => 'مستوى الصوت', 'voice_autoplay' => 'التشغيل التلقائي',
         'facebook_url' => 'رابط فيسبوك', 'instagram_url' => 'رابط إنستغرام', 'contact_email' => 'بريد التواصل', 'footer_text' => 'نص التذييل',
         'maintenance_on' => 'وضع الصيانة', 'maintenance_message' => 'رسالة الصيانة',
+        'subjects_hidden' => 'المواد المخفية', 'badges_enabled' => 'إظهار الشارات', 'points_multiplier' => 'مضاعف النقاط',
     ];
 
-    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'require_verification', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on'];
+    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'require_verification', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on', 'badges_enabled'];
 
     public function updateSettings(Request $request): RedirectResponse
     {
@@ -345,6 +346,8 @@ class ManageController extends Controller
             'facebook_url' => array_merge($url, ['regex:#^https?://(www\.|m\.)?(facebook\.com|fb\.com|fb\.me)/#i']), 'instagram_url' => array_merge($url, ['regex:#^https?://(www\.)?instagram\.com/#i']),
             'contact_email' => ['nullable', 'email', 'max:255'], 'footer_text' => $text(300),
             'maintenance_message' => $text(600, true),
+            'hidden' => ['nullable', 'array', 'max:300'], 'hidden.*' => ['string', 'regex:/^g([1-9]|1[0-2])-[a-z][a-z0-9]{1,19}$/'],
+            'points_multiplier' => ['required', Rule::in(Setting::POINT_STEPS)],
         ];
         $attrs = self::SETTING_LABELS + [
             'prices.*.price' => 'السعر', 'prices.*.days' => 'مدة الاشتراك', 'faq.*.q' => 'السؤال', 'faq.*.a' => 'الجواب', 'extra.*' => 'رمز المادة',
@@ -357,7 +360,7 @@ class ManageController extends Controller
             'date' => 'اكتب في «:attribute» تاريخًا صحيحًا.', 'after' => 'يجب أن تكون «نهاية عرض الإعلان» بعد بدايته.', 'in' => 'اختر قيمة صحيحة في «:attribute».',
             'whatsapp_number.regex' => 'اكتب رقم واتساب بالصيغة الدولية بأرقام فقط، مثل 970599000000.',
             'facebook_url.regex' => 'رابط فيسبوك يجب أن يكون من facebook.com.', 'instagram_url.regex' => 'رابط إنستغرام يجب أن يكون من instagram.com.',
-            'extra.*.regex' => 'رمز مادة مضافة غير صالح.', 'array' => 'قيمة «:attribute» غير صالحة.',
+            'extra.*.regex' => 'رمز مادة مضافة غير صالح.', 'hidden.*.regex' => 'رمز مادة مخفية غير صالح.', 'array' => 'قيمة «:attribute» غير صالحة.',
         ];
         // Numbers may arrive in Arabic-Indic digits (the form shows them so); validate them as ASCII.
         $ascii = fn ($x) => is_string($x) ? strtr(trim($x), ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']) : $x;
@@ -371,12 +374,15 @@ class ManageController extends Controller
         // A partial submission (API or older form) keeps the stored value of every field it leaves out.
         $current = Setting::all_();
         foreach (array_keys(self::SETTING_LABELS) as $k) {
-            if (! in_array($k, self::FLAGS, true) && ! in_array($k, ['prices', 'catalog_extra', 'faq'], true) && ! $request->exists($k)) {
+            if (! in_array($k, self::FLAGS, true) && ! in_array($k, ['prices', 'catalog_extra', 'faq', 'subjects_hidden'], true) && ! $request->exists($k)) {
                 $merge[$k] = $current[$k];
             }
         }
         if (! $request->exists('faq') && ! $request->has('_sent')) {
             $merge['faq'] = Setting::get('faq') === '' ? null : Setting::faq();
+        }
+        if (! $request->exists('hidden') && ! $request->has('_sent')) {
+            $merge['hidden'] = Setting::hiddenSubjects();
         }
         if (! $request->exists('extra') && ! $request->has('_sent')) {
             $merge['extra'] = array_keys(Setting::extraCatalog());
@@ -421,6 +427,8 @@ class ManageController extends Controller
             'facebook_url' => trim((string) $data['facebook_url']), 'instagram_url' => trim((string) $data['instagram_url']),
             'contact_email' => strtolower(trim((string) $data['contact_email'])), 'footer_text' => trim((string) $data['footer_text']),
             'maintenance_message' => trim($data['maintenance_message']),
+            'subjects_hidden' => implode("\n", array_values(array_intersect(array_keys(Setting::catalog()), (array) ($data['hidden'] ?? [])))),
+            'points_multiplier' => (string) $data['points_multiplier'],
         ];
         foreach (self::FLAGS as $f) {
             $values[$f] = ($request->has('_sent') || $request->exists($f) ? $request->boolean($f) : $current[$f] === '1') ? '1' : '0';

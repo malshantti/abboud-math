@@ -38,6 +38,10 @@ class Setting extends Model
         'pending_expire_days' => '14',
         // Extra grade+subject units beyond the built-in catalog, one per line: code|grade|subject (e.g. g3-math|3|الرياضيات).
         'catalog_extra' => '',
+        // Learning rules read by every subject page: hidden grade+subject codes (one per line), badges on/off, points multiplier.
+        'subjects_hidden' => '',
+        'badges_enabled' => '1',
+        'points_multiplier' => '1',
         // Payment
         'whatsapp_template' => "السلام عليكم، أرغب في الاشتراك في {site}.\nاسم ولي الأمر: {parent}\nالبريد الإلكتروني: {email}\nالطالب: {student}\nالمواد المطلوبة:\n{subjects}\nالمجموع: {total}\nرمز الطلب: {code}",
         'payment_instructions' => 'اختر المواد ثم اضغط «أرسل الطلب عبر واتساب». بعد تأكيد الدفع نفعّل المواد فورًا، ويصلك إشعار في حسابك.',
@@ -321,7 +325,27 @@ class Setting extends Model
             'contact' => ['facebook' => static::get('facebook_url'), 'instagram' => static::get('instagram_url'), 'email' => static::get('contact_email'),
                 'whatsapp' => preg_replace('/\D+/', '', static::get('whatsapp_number')), 'footer' => static::get('footer_text')],
             'trial_days' => static::int('trial_days', 0, 365),
+            'rules' => static::learningRules(),
             'maintenance' => static::flag('maintenance_on') ? ['message' => static::get('maintenance_message')] : null,
         ];
+    }
+
+    /** Allowed points multipliers (stored as text). */
+    public const POINT_STEPS = ['0', '0.5', '1', '1.5', '2', '3'];
+
+    /** @return list<string> grade+subject codes hidden from students. */
+    public static function hiddenSubjects(): array
+    {
+        $cat = static::catalog();
+
+        return array_values(array_filter(array_unique(array_map('trim', preg_split('/\R/', static::get('subjects_hidden'), -1, PREG_SPLIT_NO_EMPTY))), fn ($c) => isset($cat[$c])));
+    }
+
+    /** Rules the static subject pages apply (sync.js): hidden subjects, badges switch and points multiplier. */
+    public static function learningRules(): array
+    {
+        $m = static::get('points_multiplier');
+
+        return ['hidden' => static::hiddenSubjects(), 'badges' => static::flag('badges_enabled'), 'points' => in_array($m, self::POINT_STEPS, true) ? (float) $m : 1.0];
     }
 }

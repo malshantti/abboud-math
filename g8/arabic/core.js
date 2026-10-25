@@ -28,7 +28,7 @@ let S;try{S=Object.assign(blank(),JSON.parse(storedProgress()||'{}'))}catch(e){S
 const writeProgress=window.PROFILES&&PROFILES.writer?PROFILES.writer(K):v=>{try{localStorage.setItem(K,v);return true}catch(e){return false}};
 const save=()=>writeProgress(JSON.stringify(S));
 if(S.hday!==today()){S.hearts=5;S.hday=today();save()}
-function addXP(n){S.xp+=n;const t=today();S.days[t]=(S.days[t]||0)+n;
+function addXP(n){n=window.BK_XP?window.BK_XP(n):n;S.xp+=n;const t=today();S.days[t]=(S.days[t]||0)+n;
  if(S.last!==t){const y=new Date(Date.now()-864e5);const ys=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();S.streak=S.last===ys?S.streak+1:1;S.last=t}save();hdr()}
 const LV=['بذرة','برعم','شتلة','غصن','شجيرة','شجرة','زيتونة','بستان'];
 const lvl=()=>{let l=1,need=100,x=S.xp;while(x>=need&&l<99){x-=need;l++;need=Math.round(need*1.25)}return{l,x,need}};

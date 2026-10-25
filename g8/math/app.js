@@ -42,7 +42,7 @@ const chip=(id,txt)=>{const st=status(id);return`<a class="chip st-${st}" href="
 const XPL=200,level=()=>1+Math.floor(S.points/XPL);
 function dailyN(){if(S.daily.date!==today())S.daily={date:today(),n:0};return S.daily.n}
 const PTSH=[],LOADH=[];
-function addPts(n,el){const before=level();S.points+=n;if(cur)sk(cur).lastAt=Date.now();PTSH.forEach(f=>{try{f(n)}catch(e){}});const d=today();
+function addPts(n,el){n=window.BK_XP?window.BK_XP(n):n;const before=level();S.points+=n;if(cur)sk(cur).lastAt=Date.now();PTSH.forEach(f=>{try{f(n)}catch(e){}});const d=today();
  if(S.lastDay!==d){const y=new Date(Date.now()-864e5).toISOString().slice(0,10);S.streak=S.lastDay===y?S.streak+1:1;S.lastDay=d}
  FX.pop('+'+n+' XP',el);setTimeout(()=>FX.bump('hpts'),300);
  if(level()>before){const L=FX.lvInfo(level());setTimeout(()=>{FX.mega();FX.modal(`${FX.rankImg(level(),140,'badge-big')}<h2>مستوى جديد: ${level()}</h2><p>أصبحت الآن <b>«${L.name}»</b><br>استمر يا ${esc(S.name)}، أنت تتقدم بسرعة!</p>`)},600)}}
