@@ -103,7 +103,7 @@ class Ar
     }
 
     /** Keys the sync API accepts (profiles.js PER list). */
-    public const SYNC_KEYS = ['abboud_math_v1', 'bustan_g8_english_v1', 'bustan_g6_math_v1', 'bustan_g6_english_v1', 'bustan_g6_arabic_v1', 'bustan_g6_science_v1', 'bustan_g8_arabic_v1', 'bustan_g8_science_v1', 'en_rate', 'en_sfx', 'en_zay', 'abboud_coach_cfg', 'bustan_last', 'bustan_grade', 'bustan_student_name', 'bustan_g1_math_v1', 'bustan_g1_arabic_v1', 'bustan_g1_english_v1', 'bustan_g1_life_v1', 'bustan_g2_math_v1', 'bustan_g2_arabic_v1', 'bustan_g2_english_v1', 'bustan_g2_life_v1'];
+    public const SYNC_KEYS = ['abboud_math_v1', 'bustan_g8_english_v1', 'bustan_g6_math_v1', 'bustan_g6_english_v1', 'bustan_g6_arabic_v1', 'bustan_g6_science_v1', 'bustan_g8_arabic_v1', 'bustan_g8_science_v1', 'en_rate', 'en_sfx', 'en_zay', 'abboud_coach_cfg', 'bustan_last', 'bustan_grade', 'bustan_student_name', 'bustan_g1_math_v1', 'bustan_g1_arabic_v1', 'bustan_g1_english_v1', 'bustan_g1_life_v1', 'bustan_g2_math_v1', 'bustan_g2_arabic_v1', 'bustan_g2_english_v1', 'bustan_g2_life_v1', 'bustan_report_v1'];
 
     /** Lessons per math course: prerequisites + non-review lessons (the ALLSK list in g6/math and g8/math app.js; checked by tests/admin-dashboard.cjs). */
     public const LESSON_TOTALS = ['bustan_g6_math_v1' => 59, 'abboud_math_v1' => 59];

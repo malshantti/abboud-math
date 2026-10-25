@@ -5,7 +5,7 @@
 (function(){
 'use strict';
 const LS=window.localStorage;
-const PER=['abboud_math_v1','bustan_g8_english_v1','bustan_g6_math_v1','bustan_g6_english_v1','bustan_g6_arabic_v1','bustan_g6_science_v1','bustan_g8_arabic_v1','bustan_g8_science_v1','en_rate','en_sfx','en_zay','abboud_coach_cfg','bustan_last','bustan_grade','bustan_student_name','bustan_g1_math_v1','bustan_g1_arabic_v1','bustan_g1_english_v1','bustan_g1_life_v1','bustan_g2_math_v1','bustan_g2_arabic_v1','bustan_g2_english_v1','bustan_g2_life_v1'];// مفاتيح خاصة بكل طالب؛ تُحفظ مفاتيح الصف الأول أيضًا عند جمع طلبي الصفين.
+const PER=['abboud_math_v1','bustan_g8_english_v1','bustan_g6_math_v1','bustan_g6_english_v1','bustan_g6_arabic_v1','bustan_g6_science_v1','bustan_g8_arabic_v1','bustan_g8_science_v1','en_rate','en_sfx','en_zay','abboud_coach_cfg','bustan_last','bustan_grade','bustan_student_name','bustan_g1_math_v1','bustan_g1_arabic_v1','bustan_g1_english_v1','bustan_g1_life_v1','bustan_g2_math_v1','bustan_g2_arabic_v1','bustan_g2_english_v1','bustan_g2_life_v1','bustan_report_v1'];// مفاتيح خاصة بكل طالب؛ تُحفظ مفاتيح الصف الأول أيضًا عند جمع طلبي الصفين.
 const K={list:'bustan_profiles',session:'bustan_session',owner:'bustan_owner',fails:'bustan_pin_fails',transition:'bustan_transition',restore:'bustan_restore'};
 const slot=(id,k)=>`bustan_p_${id}__${k}`;
 const get=k=>{try{return LS.getItem(k)}catch(e){return null}};
@@ -15,7 +15,7 @@ const J=(k,d)=>{try{const v=JSON.parse(get(k));return v==null?d:v}catch(e){retur
 const list=()=>{const r=J(K.restore,null);if(r&&Object.hasOwn(r,K.list)){try{return JSON.parse(r[K.list])||[]}catch(e){return[]}}return J(K.list,[])};
 const saveList=a=>set(K.list,JSON.stringify(a));
 const AVATARS=['idle','encourage','think','celebrate','read'];
-const PROGRESS=[...PER.slice(0,8),'bustan_g1_math_v1','bustan_g1_arabic_v1','bustan_g1_english_v1','bustan_g1_life_v1','bustan_g2_math_v1','bustan_g2_arabic_v1','bustan_g2_english_v1','bustan_g2_life_v1'],storeKey=id=>slot(id,'store_v1');
+const PROGRESS=[...PER.slice(0,8),'bustan_g1_math_v1','bustan_g1_arabic_v1','bustan_g1_english_v1','bustan_g1_life_v1','bustan_g2_math_v1','bustan_g2_arabic_v1','bustan_g2_english_v1','bustan_g2_life_v1','bustan_report_v1'],storeKey=id=>slot(id,'store_v1');
 const canonical=id=>!!id&&get(storeKey(id))==='1';
 let queue=Promise.resolve();const drafts=new Map();
 // Web Locks يسلّسل الحفظ والتبديل والاستعادة بين تبويبات الأصل نفسه، ويعمل دون شبكة.
@@ -164,3 +164,5 @@ P.ready=locked(()=>recoverRestore()&&recover()&&migrate()).then(ok=>{if(ok&&pend
 try{if(typeof document!=='undefined'&&document.documentElement&&/^https?:$/.test(location.protocol)&&/\/g\d+\/[a-z]+\//.test(location.pathname)&&!localStorage.getItem('bustan_account')){document.documentElement.dataset.gate='checking';const st=document.createElement('style');st.textContent='html[data-gate=checking] body{visibility:hidden}';document.head.append(st)}}catch(e){}
 try{if(typeof document!=='undefined'&&document.currentScript&&document.head){const s=document.createElement('script');const me=new URL(document.currentScript.src),u=new URL('sync.js',me);u.search=me.search;s.src=u.href;s.defer=true;document.head.append(s)}}catch(e){}
 try{if(typeof document!=='undefined'&&document.currentScript&&document.head&&/\/g\d+\/[a-z]+\//.test(location.pathname)){const s=document.createElement('script');const me=new URL(document.currentScript.src),u=new URL('shell.js',me);u.search=me.search;s.src=u.href;s.defer=true;document.head.append(s)}}catch(e){}
+// سجلّ تقرير ولي الأمر (report-log.js): وقت الدراسة والإجابات الخاطئة، في صفحات المواد فقط.
+try{if(typeof document!=='undefined'&&document.currentScript&&document.head&&/\/g\d+\/[a-z]+\//.test(location.pathname)){const s=document.createElement('script');const me=new URL(document.currentScript.src),u=new URL('report-log.js',me);u.search=me.search;s.src=u.href;s.defer=true;document.head.append(s)}}catch(e){}
