@@ -51,12 +51,13 @@ addEventListener('pagehide',flush);
 // الإجابات: الزر الذي ضغطه الطالب ثم أخذ الصنف ok (صحيح) أو bad (خطأ) خلال ثانيتين.
 let pressed=null,pressedAt=0;const seen=new WeakSet();
 addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button,[role=button]');if(b){pressed=b;pressedAt=Date.now()}},true);
-function record(b,ok){
- if(seen.has(b))return;seen.add(b);
- const l=lesson(),q=question(b),a=label(b),now=Date.now();
+// o (اختياري): {l: الدرس, q: السؤال, c: الإجابة الصحيحة} لمحرّكات تمرّر بياناتها مباشرة (مثل محرّك الصفين ١ و٢).
+function record(b,ok,o){
+ o=o||{};if(seen.has(b))return;seen.add(b);
+ const l=o.l?clip(o.l,60):lesson(),q=o.q?clip(o.q):question(b),a=label(b),now=Date.now();
  const d=day();edit(s=>{s.n++;if(ok)s.ok++;const dn=s.dn||(s.dn={}),y=dn[d]||(dn[d]=[0,0]);y[0]++;if(ok)y[1]++;const x=s.lessons[l]||(s.lessons[l]={ms:0,n:0,ok:0});x.n++;if(ok)x.ok++;x.last=now;
-  if(!ok)s.wrong.push({l,q,a,t:now})});
- if(!ok)setTimeout(()=>{// الإجابة الصحيحة إن أظهرها التطبيق بعد الخطأ
+  if(!ok){const w={l,q,a,t:now};if(o.c)w.c=clip(o.c,80);s.wrong.push(w)}});
+ if(!ok&&!o.c)setTimeout(()=>{// الإجابة الصحيحة إن أظهرها التطبيق بعد الخطأ
   const box=b.parentElement,good=box&&[...box.querySelectorAll('.ok')].find(x=>x!==b);if(!good)return;
   edit(s=>{const w=s.wrong[s.wrong.length-1];if(w&&w.t===now)w.c=label(good)})},600);
 }
