@@ -13,7 +13,7 @@ class ProgressReportTest extends TestCase
     private function studentWithProgress(User $u)
     {
         $s = $u->students()->create(['name' => 'عبّود', 'grade' => 8]);
-        $log = ['v' => 1, 'subj' => ['g8-math' => ['ms' => 3_720_000, 'n' => 10, 'ok' => 7, 'days' => ['2026-10-25' => 3_720_000],
+        $log = ['v' => 1, 'subj' => ['g8-math' => ['ms' => 3_720_000, 'n' => 10, 'ok' => 7, 'days' => [now('Asia/Gaza')->format('Y-m-d') => 3_720_000], 'dn' => [now('Asia/Gaza')->subDay()->format('Y-m-d') => [4, 2], now('Asia/Gaza')->format('Y-m-d') => [6, 5]],
             'lessons' => ['القوى والجذور' => ['ms' => 3_720_000, 'n' => 10, 'ok' => 7, 'last' => 1_761_400_000_000]],
             'wrong' => [['l' => 'القوى والجذور', 'q' => 'ما قيمة ٢ أس ٣؟', 'a' => '٦', 'c' => '٨', 't' => 1_761_400_000_000]]]]];
         $s->progress()->create(['key' => 'abboud_math_v1', 'value' => '{"skills":{"a":{"status":"mastered"},"b":{"status":"learning"}},"quizzes":[{"score":80,"date":"2026-10-25"}]}', 'client_updated_at' => 1_761_400_000_000]);
@@ -35,7 +35,8 @@ class ProgressReportTest extends TestCase
         $u = User::factory()->create();
         $s = $this->studentWithProgress($u);
         $this->actingAs($u)->get("/account/students/{$s->id}/report")->assertOk()
-            ->assertSee('تقرير تقدّم عبّود')->assertSee('ما قيمة ٢ أس ٣؟')->assertSee('القوى والجذور')->assertSee('١ س ٢ د')->assertSee('(٧ من', false)
+            ->assertSee('تقرير تقدّم عبّود')->assertSee('ما قيمة ٢ أس ٣؟')->assertSee('القوى والجذور')->assertSee('١ س ٢ د')->assertSee('نسبة الإجابات الصحيحة: ٧٠٪', false)
+            ->assertSee('وقت الدراسة يوميًا')->assertSee('نسبة الصواب مع الوقت')->assertSee('<polyline', false)->assertSee('أقوى مادة لديك: الرياضيات')->assertSee('التفاصيل')
             ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
         $this->get('/account')->assertSee("/account/students/{$s->id}/report", false);
     }

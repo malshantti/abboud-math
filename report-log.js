@@ -15,6 +15,7 @@ function edit(fn){try{const d=load(),s=d.subj[subj]||(d.subj[subj]={ms:0,n:0,ok:
 function trim(s){
  const ks=Object.keys(s.days);if(ks.length>60)ks.sort().slice(0,ks.length-60).forEach(k=>delete s.days[k]);
  const ls=Object.entries(s.lessons);if(ls.length>60)ls.sort((a,b)=>(a[1].last||0)-(b[1].last||0)).slice(0,ls.length-60).forEach(([k])=>delete s.lessons[k]);
+ if(s.dn){const ds=Object.keys(s.dn);if(ds.length>60)ds.sort().slice(0,ds.length-60).forEach(k=>delete s.dn[k])}
  if(s.wrong.length>40)s.wrong=s.wrong.slice(-40);
 }
 // اسم الدرس الظاهر الآن: أول عنوان مرئي داخل التطبيق.
@@ -53,7 +54,7 @@ addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closes
 function record(b,ok){
  if(seen.has(b))return;seen.add(b);
  const l=lesson(),q=question(b),a=label(b),now=Date.now();
- edit(s=>{s.n++;if(ok)s.ok++;const x=s.lessons[l]||(s.lessons[l]={ms:0,n:0,ok:0});x.n++;if(ok)x.ok++;x.last=now;
+ const d=day();edit(s=>{s.n++;if(ok)s.ok++;const dn=s.dn||(s.dn={}),y=dn[d]||(dn[d]=[0,0]);y[0]++;if(ok)y[1]++;const x=s.lessons[l]||(s.lessons[l]={ms:0,n:0,ok:0});x.n++;if(ok)x.ok++;x.last=now;
   if(!ok)s.wrong.push({l,q,a,t:now})});
  if(!ok)setTimeout(()=>{// الإجابة الصحيحة إن أظهرها التطبيق بعد الخطأ
   const box=b.parentElement,good=box&&[...box.querySelectorAll('.ok')].find(x=>x!==b);if(!good)return;

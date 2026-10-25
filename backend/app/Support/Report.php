@@ -55,14 +55,14 @@ class Report
             'done' => array_sum(array_map(fn ($s) => (int) ($s['progress']['done'] ?? 0), $subjects)),
             'days' => array_slice($days, 0, 14, true),
             'tracked' => (bool) $logSubj,
-        ];
+        ] + ['series' => self::series($subjects)];
     }
 
     private static function fromLog(?array $l): array
     {
         $int = fn ($v) => is_numeric($v) ? max(0, (int) $v) : 0;
         $str = fn ($v, $n) => is_string($v) ? mb_substr(trim($v), 0, $n) : '';
-        $out = ['ms' => 0, 'answered' => 0, 'correct' => 0, 'pct' => null, 'lessons' => [], 'wrong' => [], 'days' => []];
+        $out = ['ms' => 0, 'answered' => 0, 'correct' => 0, 'pct' => null, 'lessons' => [], 'wrong' => [], 'days' => [], 'dn' => []];
         if (! $l) {
             return $out;
         }
@@ -90,6 +90,67 @@ class Report
             if (is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
                 $out['days'][$d] = $int($ms);
             }
+        }
+
+        foreach ((array) ($l['dn'] ?? []) as $d => $v) {
+            if (is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) && is_array($v)) {
+                $n = $int($v[0] ?? 0);
+                $out['dn'][$d] = [$n, min($n, $int($v[1] ?? 0))];
+            }
+        }
+
+        return $out;
+    }
+
+    /** Colour and icon per subject (matches the site palette). */
+    public static function look(string $code): array
+    {
+        $s = explode('-', $code, 2)[1] ?? '';
+
+        return match ($s) {
+            'math' => ['#2e9fd8', 'math'], 'arabic' => ['#6f9e23', 'book'], 'english' => ['#8a5cd6', 'globe'],
+            'science' => ['#f08a3c', 'flask'], 'life' => ['#e0a200', 'leaf'], default => ['#6f9e23', 'book'],
+        };
+    }
+
+    /** Last $n calendar days (oldest first) with minutes and % correct across subjects. */
+    public static function series(array $subjects, int $n = 14): array
+    {
+        $out = [];
+        $today = now(config('app.display_timezone', 'Asia/Gaza'))->startOfDay();
+        for ($i = $n - 1; $i >= 0; $i--) {
+            $d = $today->copy()->subDays($i)->format('Y-m-d');
+            $ms = 0; $a = 0; $ok = 0;
+            foreach ($subjects as $s) {
+                $ms += $s['days'][$d] ?? 0;
+                $a += $s['dn'][$d][0] ?? 0;
+                $ok += $s['dn'][$d][1] ?? 0;
+            }
+            $out[] = ['date' => $d, 'min' => (int) round($ms / 60000), 'pct' => $a ? (int) round(100 * $ok / $a) : null];
+        }
+
+        return $out;
+    }
+
+    /** Short encouraging note from the data. */
+    public static function note(string $name, array $r): string
+    {
+        $scored = array_values(array_filter($r['subjects'], fn ($s) => $s['answered'] >= 5));
+        if (! $scored) {
+            return $r['total_ms'] > 0 ? "بداية جميلة يا {$name}! واصل الدراسة لنرى نقاط قوتك." : "لنبدأ رحلة التعلّم يا {$name}! أول درس ينتظرك.";
+        }
+        usort($scored, fn ($a, $b) => $b['pct'] <=> $a['pct']);
+        $best = $scored[0];
+        $out = 'أحسنت يا '.$name.'! أقوى مادة لديك: '.$best['name'].' ('.Ar::num($best['pct']).'٪ صواب).';
+        $weak = end($scored);
+        if (count($scored) > 1 && $weak['pct'] < 70 && $best['pct'] - $weak['pct'] >= 10) {
+            $out .= ' تحتاج '.$weak['name'].' إلى قليل من التمرين الإضافي.';
+        } elseif ($best['pct'] < 60) {
+            $out .= ' مراجعة الأخطاء أدناه ستساعدك كثيرًا.';
+        }
+        $active = count(array_filter($r['series'] ?? [], fn ($d) => $d['min'] > 0));
+        if ($active >= 3) {
+            $out .= ' درستَ '.Ar::num($active).($active <= 10 ? ' أيام' : ' يومًا').' في الأسبوعين الأخيرين، استمر!';
         }
 
         return $out;

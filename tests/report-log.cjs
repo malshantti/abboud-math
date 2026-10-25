@@ -30,6 +30,7 @@ setTimeout(() => {
       assert.equal(s.n, 2); assert.equal(s.ok, 1); checks += 2;
       assert.deepEqual([s.wrong[0].q, s.wrong[0].a, s.wrong[0].c, s.wrong[0].l], ['ما قيمة ٢ أس ٣؟', '٦', '٨', 'القوى والجذور']); checks++;
       assert.equal(s.lessons['القوى والجذور'].n, 2); checks++;
+      assert.deepEqual(Object.values(s.dn)[0], [2, 1]); checks++;
       console.log('report-log: ' + checks + ' checks passed');
       w.close();
     }, 50);
