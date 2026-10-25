@@ -9,12 +9,13 @@
     'accounts' => ['الحسابات والأمان', 'shield', 'التسجيل والتفعيل والجلسات'],
     'voice' => ['الجولة الصوتية', 'volume', 'صوت زيتون في الصفحة الرئيسية'],
     'contact' => ['التواصل والتذييل', 'globe', 'روابط التواصل ونص التذييل'],
+    'learning' => ['المواد والتحفيز', 'star', 'إخفاء المواد والشارات والنقاط'],
     'maintenance' => ['وضع الصيانة', 'wrench', 'إيقاف موقع الطلاب مؤقتًا'],
   ];
   $fieldTab = ['prices'=>'prices','extra'=>'prices','trial_days'=>'trial','gating_enabled'=>'trial','grace_days'=>'trial','reminder_days'=>'trial','max_pending'=>'trial','pending_expire_days'=>'trial','auto_expire'=>'trial',
     'whatsapp_number'=>'payment','whatsapp_template'=>'payment','currency'=>'payment','payment_instructions'=>'payment',
     'site_name'=>'identity','tagline'=>'identity','hero'=>'identity','announcement'=>'identity','faq'=>'identity',
-    'max_students'=>'accounts','session_minutes'=>'accounts','voice_volume'=>'voice','facebook_url'=>'contact','instagram_url'=>'contact','contact_email'=>'contact','footer_text'=>'contact','maintenance_message'=>'maintenance'];
+    'max_students'=>'accounts','session_minutes'=>'accounts','voice_volume'=>'voice','facebook_url'=>'contact','instagram_url'=>'contact','contact_email'=>'contact','footer_text'=>'contact','maintenance_message'=>'maintenance','hidden'=>'learning','points_multiplier'=>'learning'];
   $tab = array_key_exists(request('tab'), $tabs) ? request('tab') : 'prices';
   $errTabs = [];
   foreach ($errors->keys() as $k) { foreach ($fieldTab as $pre => $t) { if (str_starts_with($k, $pre)) { $errTabs[$t] = true; break; } } }
@@ -333,6 +334,35 @@
   </div>
 </section>
 
+{{-- ===== Learning rules ===== --}}
+@php($unitsByGrade = collect(\App\Models\Setting::catalog())->groupBy(fn ($u) => $u[0], true)->sortKeys())
+@php($ptsOpts = ['0' => 'إيقاف النقاط الجديدة', '0.5' => 'نصف النقاط', '1' => 'عادية (الافتراضي)', '1.5' => 'مرة ونصف', '2' => 'مضاعفة', '3' => 'ثلاثة أضعاف'])
+@php($hiddenNow = old('_sent') ? (array) old('hidden', []) : \App\Models\Setting::hiddenSubjects())
+@php($ptsNow = (string) old('points_multiplier', $s['points_multiplier'] ?? '1'))
+<section class="panel" id="p-learning" role="tabpanel" aria-labelledby="t-learning" @if($tab!=='learning') hidden @endif>
+  <header><span class="pi">@include('partials.admin-icon',['name'=>'star'])</span><div><h2>المواد والتحفيز</h2><p>ما يراه الطلاب في صفحات الدروس: المواد الظاهرة لكل صف، والشارات، وقيمة النقاط.</p></div></header>
+  <div class="stack">
+  <div class="card"><h3>المواد الظاهرة للطلاب</h3>
+    <p class="hint">أزل العلامة عن مادة لإخفائها من قائمة المواد، وتظهر لمن يفتح رابطها رسالة «غير متاحة حاليًا». لا يُحذف تقدّم الطلاب، ويعود كما كان عند إظهارها.</p>
+    @foreach ($unitsByGrade as $g => $units)
+      <fieldset class="field" style="border:0;padding:0;margin:10px 0"><legend><b>{{ $ar::grade($g) }}</b></legend>
+      @foreach ($units as $code => $u)
+        <label class="sw"><span><b>{{ $u[1] }}</b><small dir="ltr">{{ $code }}</small></span><span class="tg"><input type="checkbox" data-show="{{ $code }}" @checked(! in_array($code, $hiddenNow, true))><i></i></span></label>
+        <input type="checkbox" name="hidden[]" value="{{ $code }}" data-hide="{{ $code }}" hidden @checked(in_array($code, $hiddenNow, true))>
+      @endforeach
+      </fieldset>
+    @endforeach
+  </div>
+  <div class="card"><h3>الشارات والنقاط</h3>
+    <label class="sw"><span><b>إظهار الشارات والإنجازات</b><small>عند الإيقاف تختفي لوحة الشارات من صفحات المواد، ويبقى ما جمعه الطالب محفوظًا.</small></span><span class="tg"><input type="checkbox" name="badges_enabled" value="1" @checked($on('badges_enabled'))><i></i></span></label>
+    <div class="field"><label for="points_multiplier">قيمة النقاط</label>
+      <select id="points_multiplier" name="points_multiplier" class="@error('points_multiplier') is-bad @enderror">
+        @foreach ($ptsOpts as $k => $lbl)<option value="{{ $k }}" @selected($ptsNow === $k)>{{ $lbl }}</option>@endforeach
+      </select><p class="hint">تُطبَّق على النقاط التي يكسبها الطالب من الآن فصاعدًا في مواد الصفين السادس والثامن، ولا تغيّر النقاط السابقة.</p>{!! $err('points_multiplier') !!}</div>
+  </div>
+  </div>
+</section>
+
 {{-- ===== 8) Maintenance ===== --}}
 <section class="panel" id="p-maintenance" role="tabpanel" aria-labelledby="t-maintenance" @if($tab!=='maintenance') hidden @endif>
   <header><span class="pi">@include('partials.admin-icon',['name'=>'wrench'])</span><div><h2>وضع الصيانة</h2><p>يوقف الدروس والحسابات للزوار وأولياء الأمور مؤقتًا. المشرفون والمعلّمون يتجاوزونه، وتبقى صفحة الدخول متاحة.</p></div></header>
@@ -355,6 +385,7 @@
 <template id="t-trash">@include('partials.admin-icon',['name'=>'trash'])</template>
 
 <script>
+document.querySelectorAll('[data-show]').forEach(function(c){c.addEventListener('change',function(){var h=document.querySelector('[data-hide="'+c.dataset.show+'"]');if(h){h.checked=!c.checked;h.dispatchEvent(new Event('change',{bubbles:true}))}})});
 (function(){
 var f=document.getElementById('sf'),AR='٠١٢٣٤٥٦٧٨٩',GW=@json($ar::GRADE_WORDS),SUBJ=@json($subjectsList),CUR=@json($s['currency']);
 var ar=function(x){return String(x).replace(/[0-9]/g,function(d){return AR[d]})},en=function(x){return String(x).replace(/[٠-٩]/g,function(d){return AR.indexOf(d)}).replace(/[۰-۹]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)})};

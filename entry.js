@@ -22,8 +22,10 @@ const ICON={
 };
 const svg=(k,s=28)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON[k]}</svg>`;
 const entry=(g,s)=>C.entries.find(e=>e.grade===g&&e.subject===s);
-const active=(g,s)=>{const e=entry(g,s);return e&&e.status==='active'?e:null};
-const gradeActive=g=>C.entries.some(e=>e.grade===g&&e.status==='active');
+// المواد التي أخفاها المشرف (من إعدادات «المواد والتحفيز»؛ يحفظها sync.js في bustan_rules)
+const hid=(g,s)=>{try{const r=window.BUSTAN_RULES||JSON.parse(get('bustan_rules')||'null');return !!(r&&Array.isArray(r.hidden)&&r.hidden.includes('g'+g+'-'+s))}catch(e){return false}};
+const active=(g,s)=>{const e=entry(g,s);return e&&e.status==='active'&&!hid(g,s)?e:null};
+const gradeActive=g=>C.entries.some(e=>e.grade===g&&e.status==='active'&&!hid(g,e.subject));
 const gname=g=>(C.grades.find(x=>x.id===g)||{}).name||'';
 const sname=s=>(C.subjects.find(x=>x.id===s)||{}).name||'';
 // الطالب الحالي (من صفحة الدخول)
@@ -54,7 +56,7 @@ function renderSubjects(){
  if(!selG){$('#s2h').classList.add('off');$('#s2p').textContent=acct?'لم يحدّد ولي الأمر صفك بعد؛ يحدّده من صفحة الحساب.':'اختر الصف أولًا';box.innerHTML=acct?`<a class="btn" href="${ACCOUNT}">إدارة الأبناء</a>`:'';return}
  $('#s2h').classList.remove('off');$('#s2t').textContent='اختر المادة — '+gname(selG);
  const any=gradeActive(selG);$('#s2p').textContent=any?'المواد المتاحة عليها زر «ابدأ»':'مواد هذا الصف قيد التحضير';
- box.innerHTML=C.subjects.filter(s=>(!s.grades||s.grades.includes(selG))&&(!C.gradeSubjects?.[selG]||C.gradeSubjects[selG].includes(s.id))).map(s=>{const e=active(selG,s.id);
+ box.innerHTML=C.subjects.filter(s=>!hid(selG,s.id)&&(!s.grades||s.grades.includes(selG))&&(!C.gradeSubjects?.[selG]||C.gradeSubjects[selG].includes(s.id))).map(s=>{const e=active(selG,s.id);
   const lk=e&&ent(selG,s.id)!=='ok';
   if(lk)return `<div class="tile subject locked"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${svg('lock',16)} انتهت الفترة التجريبية أو المادة غير مشمولة باشتراكك.</span></span><a class="btn sm" href="${SUBSCRIBE}">اشترك</a></div>`;
   return e?`<button type="button" class="tile subject" data-s="${s.id}"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${esc(e.desc||'')}</span></span><span class="tag on">ابدأ</span></button>`
@@ -78,6 +80,7 @@ const g0=+(get('bustan_grade')||0);if(q.has('change')||g0)selG=C.grades.some(g=>
 if(acct)selG=fixedG;
 if(!selG&&!acct){try{const l=JSON.parse(get('bustan_last')||'null');if(l)selG=l.grade}catch(e){}}
 renderGrades();renderSubjects();renderResume();
+addEventListener('bustan-rules',()=>{renderGrades();renderSubjects();renderResume()});
 if(q.has('change'))setTimeout(()=>$('#s1h').scrollIntoView({block:'start'}),50);
 // الوضع الليلي (المفتاح نفسه المستخدم داخل المادة)
 const tb=$('#theme');const paint=()=>{const d=document.documentElement.dataset.theme==='dark';tb.innerHTML=svg(d?'sun':'moon',22)};paint();
