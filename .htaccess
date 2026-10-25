@@ -25,8 +25,18 @@ AddCharset utf-8 .html .js .css .json .webmanifest .xml .txt .svg
 Header always set X-Content-Type-Options "nosniff"
 Header always set Strict-Transport-Security "max-age=31536000"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
-<FilesMatch "\.(?:css|js|png|jpe?g|webp|svg|woff2|mp3|ico)$">
+# حماية عامة لا تمسّ عمل الصفحات: منع التضمين في مواقع أخرى، وإيقاف الأذونات غير المستخدمة (الميكروفون مسموح للموقع نفسه لتدريب النطق).
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+Header always set Permissions-Policy "camera=(), geolocation=(), payment=(), usb=(), microphone=(self)"
+Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
+Header always set X-Permitted-Cross-Domain-Policies "none"
+# الصور والخطوط والصوت لا تتغيّر أسماؤها عادةً: ثلاثون يومًا. أما JS/CSS فساعة واحدة حتى لا تبقى نسخة قديمة طويلًا في Cloudflare إن نُسي رقم الإصدار.
+<FilesMatch "\.(?:png|jpe?g|webp|svg|woff2|mp3|ico)$">
 Header set Cache-Control "public, max-age=2592000"
+</FilesMatch>
+<FilesMatch "\.(?:css|js)$">
+Header set Cache-Control "public, max-age=3600"
 </FilesMatch>
 <FilesMatch "\.(?:html|webmanifest|xml|txt)$">
 Header set Cache-Control "no-cache"
@@ -44,3 +54,10 @@ Header set Service-Worker-Allowed "/"
 <IfModule mod_deflate.c>
 AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml application/xml text/plain
 </IfModule>
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php82” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit

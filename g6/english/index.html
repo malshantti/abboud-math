@@ -73,7 +73,6 @@
 <script src="audio-manifest.js?v=20261026rul2"></script>
 <script src="audio-extra.js?v=20261026rul2"></script>
 <script src="audio-ar.js?v=20261026rul2"></script>
-<script src="pron.js?v=20261026rul2"></script>
 <script src="bookimg.js?v=20261026rul2"></script>
 <script src="data.js?v=20261026rul2"></script>
 <script src="audio.js?v=20261026rul2"></script>
@@ -85,5 +84,6 @@
 <script src="en-tasks.js?v=20261026rul2"></script>
 <script src="sections.js?v=20261026rul2"></script>
 <script src="app.js?v=20261026rul2"></script>
+<script>/* دليل النطق (نحو ٧٠ ك.ب) يُحمَّل بعد ظهور الصفحة؛ ثم تُعاد رسم الوحدة أو الكلمة المفتوحة لتظهر الكتابة الصوتية */addEventListener('load',function(){var s=document.createElement('script');s.src='pron.js?v=20261026rul2';s.onload=function(){var r=document.body.dataset.route;if(r==='u'||r==='w')dispatchEvent(new HashChangeEvent('hashchange'))};document.body.appendChild(s)});</script>
 </body>
 </html>
