@@ -461,17 +461,26 @@ class ManageController extends Controller
     {
         $rules = ['mail_from_name' => ['required', 'string', 'max:80']];
         foreach (array_keys(MailCenter::TYPES) as $t) {
-            $rules['mail_'.$t.'_subject'] = ['required', 'string', 'max:200'];
-            $rules['mail_'.$t.'_body'] = ['required', 'string', 'max:5000'];
+            $rules['mail_'.$t.'_subject'] = ['nullable', 'string', 'max:200'];
+            $rules['mail_'.$t.'_body'] = ['nullable', 'string', 'max:5000'];
         }
         $data = $request->validate($rules, ['required' => 'هذا الحقل مطلوب.', 'max' => 'النص أطول من الحد المسموح.']);
         foreach (array_keys(MailCenter::TYPES) as $t) {
             $data['mail_'.$t.'_on'] = $request->boolean('mail_'.$t.'_on') ? '1' : '0';
         }
-        Setting::put(array_map(fn ($v) => is_string($v) ? trim($v) : $v, $data));
+        Setting::put(array_map(fn ($v) => is_string($v) ? trim($v) : (string) $v, $data));
         ActivityLog::record('mail.settings');
 
         return back()->with('status', 'حُفظت إعدادات البريد.');
+    }
+
+    /** Live preview of one template (unsaved text) rendered in the real branded layout. */
+    public function previewMail(Request $request): \Illuminate\Http\Response
+    {
+        $data = $request->validate(['type' => ['required', 'in:'.implode(',', array_keys(MailCenter::TYPES))], 'subject' => ['nullable', 'string', 'max:200'], 'body' => ['nullable', 'string', 'max:5000']]);
+        $m = MailCenter::render($data['type'], (string) $request->user()->name, '#', ['subject' => (string) ($data['subject'] ?? ''), 'body' => (string) ($data['body'] ?? '')]);
+
+        return response(view('mail.brand', ['m' => $m])->render())->header('Content-Type', 'text/html; charset=utf-8')->header('X-Frame-Options', 'SAMEORIGIN');
     }
 
     public function testMail(Request $request): RedirectResponse

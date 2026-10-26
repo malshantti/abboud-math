@@ -28,15 +28,17 @@
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'users'])المرسِل</h2>
   <div class="field"><label for="mail_from_name">اسم المرسِل</label><input id="mail_from_name" name="mail_from_name" value="{{ old('mail_from_name', $s['mail_from_name']) }}" required maxlength="80"><p class="hint">يظهر في صندوق الوارد بدل العنوان.</p></div>
   <dl class="transport"><div><dt>عنوان الإرسال:</dt><dd dir="ltr">{{ $from }}</dd></div><div><dt>طريقة الإرسال:</dt><dd dir="ltr">{{ $mailer }}</dd></div></dl>
-  <div class="ph" aria-label="المتغيرات المتاحة">@foreach (\App\Support\MailCenter::PLACEHOLDERS as $k => $v)<code>{{ $k }}</code><span>{{ $v }}</span>@endforeach</div>
-  <p class="hint">اترك سطرًا فارغًا بين الفقرات. يُضاف الزر والرابط تلقائيًا أسفل النص.</p>
+  <div class="ph" aria-label="المتغيرات المتاحة">@foreach (\App\Support\MailCenter::PLACEHOLDERS as $k => $v)<code>{{ $k }}</code>@php($ar = array_search($k, \App\Support\MailCenter::AR_PLACEHOLDERS, true))@if($ar)<code>{{ $ar }}</code>@endif<span>{{ $v }}</span>@endforeach</div>
+  <p class="hint">يمكن كتابة المتغير بالعربية أو بالإنجليزية. اترك سطرًا فارغًا بين الفقرات. يُضاف الزر والرابط تلقائيًا أسفل النص. إن تُرك العنوان أو النص فارغًا يُستخدم النص الأصلي.</p>
 </section>
 @foreach (\App\Support\MailCenter::TYPES as $t => $label)
 <section class="card tpl">
   <div class="top-row"><h2>@include('partials.admin-icon',['name'=>$t==='reset'?'lock':($t==='verify'?'check':'star')]){{ $label }}</h2>
   <label class="switch"><input type="checkbox" name="mail_{{ $t }}_on" value="1" @checked($s['mail_'.$t.'_on']==='1') aria-label="تشغيل {{ $label }}"> <span>مفعّلة</span></label></div>
-  <div class="field"><label for="mail_{{ $t }}_subject">العنوان</label><input id="mail_{{ $t }}_subject" name="mail_{{ $t }}_subject" value="{{ old('mail_'.$t.'_subject', $s['mail_'.$t.'_subject']) }}" required maxlength="200"></div>
-  <div class="field"><label for="mail_{{ $t }}_body">نص الرسالة</label><textarea id="mail_{{ $t }}_body" name="mail_{{ $t }}_body" required maxlength="5000">{{ old('mail_'.$t.'_body', $s['mail_'.$t.'_body']) }}</textarea></div>
+  <div class="field"><label for="mail_{{ $t }}_subject">العنوان</label><input id="mail_{{ $t }}_subject" name="mail_{{ $t }}_subject" value="{{ old('mail_'.$t.'_subject', $s['mail_'.$t.'_subject']) }}" maxlength="200"></div>
+  <div class="field"><label for="mail_{{ $t }}_body">نص الرسالة</label><textarea id="mail_{{ $t }}_body" name="mail_{{ $t }}_body" maxlength="5000" data-default="{{ \App\Models\Setting::DEFAULTS['mail_'.$t.'_body'] }}">{{ old('mail_'.$t.'_body', $s['mail_'.$t.'_body']) }}</textarea></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="btn ghost small" type="button" data-preview="{{ $t }}">@include('partials.admin-icon',['name'=>'search'])معاينة</button><button class="btn ghost small" type="button" data-reset="{{ $t }}" data-subject="{{ \App\Models\Setting::DEFAULTS['mail_'.$t.'_subject'] }}">استعادة النص الأصلي</button></div>
+  <iframe class="mail-preview" id="pv-{{ $t }}" title="معاينة {{ $label }}" hidden style="width:100%;height:520px;border:2px solid var(--line,#e2e7d0);border-radius:14px;background:#f4f1e4"></iframe>
   @if($t==='verify')<p class="hint">عند إيقافها، يُعدّ الحساب الجديد مفعّلًا وتصله رسالة الترحيب فورًا.</p>@elseif($t==='reset')<p class="hint">عند إيقافها، لا تُرسل روابط الاستعادة (يبقى التعيين اليدوي من صفحة المستخدم).</p>@else<p class="hint">تُرسل بعد تفعيل البريد.</p>@endif
 </section>
 @endforeach
@@ -70,4 +72,13 @@
 </tbody></table></div>
 @include('partials.pager', ['p' => $logs])
 </section>
+<script>
+(function(){var url=@json(route('manage.mail.preview')),tok=@json(csrf_token());
+function pv(t){var f=document.getElementById('pv-'+t),b=new FormData();b.append('_token',tok);b.append('type',t);b.append('subject',document.getElementById('mail_'+t+'_subject').value);b.append('body',document.getElementById('mail_'+t+'_body').value);
+fetch(url,{method:'POST',body:b,credentials:'same-origin',headers:{'Accept':'text/html'}}).then(function(r){return r.text()}).then(function(h){f.hidden=false;f.srcdoc=h;});}
+var timers={};document.querySelectorAll('[data-preview]').forEach(function(btn){var t=btn.dataset.preview;btn.addEventListener('click',function(){pv(t)});
+['mail_'+t+'_subject','mail_'+t+'_body'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){if(document.getElementById('pv-'+t).hidden)return;clearTimeout(timers[t]);timers[t]=setTimeout(function(){pv(t)},500);});});});
+document.querySelectorAll('[data-reset]').forEach(function(btn){btn.addEventListener('click',function(){var t=btn.dataset.reset,ta=document.getElementById('mail_'+t+'_body');if(!confirm('استعادة النص الأصلي لهذه الرسالة؟ لن يُحفظ حتى تضغط «حفظ».'))return;ta.value=ta.dataset.default;document.getElementById('mail_'+t+'_subject').value=btn.dataset.subject;if(!document.getElementById('pv-'+t).hidden)pv(t);});});
+})();
+</script>
 @endsection

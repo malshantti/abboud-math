@@ -72,6 +72,9 @@ class Setting extends Model
         // Maintenance (student site; staff bypass)
         'maintenance_on' => '0',
         'maintenance_message' => 'نجري الآن تحسينات على البستان، وسنعود خلال وقت قصير. شكرًا لصبركم.',
+        // SEO per static page (JSON {path:{title,description}}) and the shipped originals (managed by App\Support\Seo).
+        'seo_pages' => '',
+        'seo_originals' => '',
         'mail_from_name' => 'بستان التعلّم',
         'mail_verify_on' => '1',
         'mail_verify_subject' => 'تفعيل حسابك في {site}',
