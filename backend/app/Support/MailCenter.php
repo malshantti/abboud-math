@@ -18,6 +18,9 @@ class MailCenter
 
     public const PLACEHOLDERS = ['{name}' => 'اسم ولي الأمر', '{site}' => 'اسم الموقع', '{trial_days}' => 'أيام التجربة', '{whatsapp}' => 'رقم واتساب', '{minutes}' => 'صلاحية رابط الاستعادة بالدقائق', '{days}' => 'صلاحية رابط التفعيل بالأيام'];
 
+    /** Arabic aliases the admin may type instead of the Latin placeholders. */
+    public const AR_PLACEHOLDERS = ['{اسم_ولي_الأمر}' => '{name}', '{الاسم}' => '{name}', '{اسم_الموقع}' => '{site}', '{أيام_التجربة}' => '{trial_days}', '{واتساب}' => '{whatsapp}', '{الدقائق}' => '{minutes}', '{الأيام}' => '{days}'];
+
     public const VERIFY_DAYS = 3;
 
     public const DEFAULT_WHATSAPP = '972592945557';
@@ -55,7 +58,7 @@ class MailCenter
     }
 
     /** @return array{subject:string,paragraphs:list<string>,button:string,link:string,type:string,whatsapp:?string,site_url:string,logo:string,site:string} */
-    public static function render(string $type, string $name, string $link): array
+    public static function render(string $type, string $name, string $link, array $overrides = []): array
     {
         $wa = self::whatsapp();
         $vars = [
@@ -66,12 +69,24 @@ class MailCenter
             '{minutes}' => Ar::num((int) config('auth.passwords.users.expire', 60)),
             '{days}' => Ar::num(self::VERIFY_DAYS),
         ];
+        foreach (self::AR_PLACEHOLDERS as $ar => $en) {
+            $vars[$ar] = $vars[$en];
+        }
         $fill = fn (string $s) => strtr($s, $vars);
-        $body = str_replace("\r\n", "\n", $fill(Setting::get('mail_'.$type.'_body')));
+        $bodyTpl = $overrides['body'] ?? Setting::get('mail_'.$type.'_body');
+        $subjectTpl = $overrides['subject'] ?? Setting::get('mail_'.$type.'_subject');
+        // Fallback: an empty template means "use the built-in text".
+        if (trim((string) $bodyTpl) === '') {
+            $bodyTpl = Setting::DEFAULTS['mail_'.$type.'_body'];
+        }
+        if (trim((string) $subjectTpl) === '') {
+            $subjectTpl = Setting::DEFAULTS['mail_'.$type.'_subject'];
+        }
+        $body = str_replace("\r\n", "\n", $fill((string) $bodyTpl));
         $paragraphs = array_values(array_filter(array_map('trim', preg_split("/\n\s*\n/", $body)), fn ($p) => $p !== ''));
 
         return [
-            'type' => $type, 'subject' => trim($fill(Setting::get('mail_'.$type.'_subject'))) ?: self::TYPES[$type],
+            'type' => $type, 'subject' => trim($fill((string) $subjectTpl)) ?: self::TYPES[$type],
             'paragraphs' => $paragraphs, 'button' => self::BUTTONS[$type], 'link' => $link,
             'whatsapp' => $type === 'welcome' ? 'https://wa.me/'.$wa : null, 'whatsapp_label' => Ar::num('00'.$wa),
             'site_url' => self::siteUrl(), 'logo' => self::logoUrl(), 'site' => Setting::get('site_name'),

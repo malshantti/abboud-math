@@ -3,6 +3,7 @@
 return [
 
     'student_site_url' => env('STUDENT_SITE_URL', ''),
+    'static_root' => env('STATIC_ROOT', ''),
 
     // Folder holding admin/, assets/ and catalog.js. Empty = backend/frontend if present, else the repo root.
     'frontend_path' => env('ADMIN_FRONTEND_PATH', ''),

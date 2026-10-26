@@ -110,6 +110,10 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::post('users/{user}/verify', [Manage::class, 'verifyUser'])->name('manage.user.verify');
         Route::get('mail', [Manage::class, 'mail'])->name('manage.mail');
         Route::put('mail', [Manage::class, 'updateMail'])->name('manage.mail.update');
+        Route::post('mail/preview', [Manage::class, 'previewMail'])->name('manage.mail.preview');
+        Route::get('seo', [App\Http\Controllers\Admin\SeoController::class, 'index'])->name('manage.seo');
+        Route::put('seo', [App\Http\Controllers\Admin\SeoController::class, 'update'])->name('manage.seo.update');
+        Route::post('seo/apply', [App\Http\Controllers\Admin\SeoController::class, 'apply'])->name('manage.seo.apply');
         Route::post('mail/test', [Manage::class, 'testMail'])->middleware('throttle:10,1')->name('manage.mail.test');
         Route::post('users/{user}/grant', [Manage::class, 'grantSubscription'])->name('manage.user.grant');
         Route::get('subscriptions', [Manage::class, 'subscriptions'])->name('manage.subscriptions');
