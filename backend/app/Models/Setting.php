@@ -75,6 +75,8 @@ class Setting extends Model
         // SEO per static page (JSON {path:{title,description}}) and the shipped originals (managed by App\Support\Seo).
         'seo_pages' => '',
         'seo_originals' => '',
+        // Media library replacements (JSON {original:replacement}, managed by App\Support\MediaLibrary).
+        'media_map' => '',
         'mail_from_name' => 'بستان التعلّم',
         'mail_verify_on' => '1',
         'mail_verify_subject' => 'تفعيل حسابك في {site}',
@@ -329,6 +331,7 @@ class Setting extends Model
                 'whatsapp' => preg_replace('/\D+/', '', static::get('whatsapp_number')), 'footer' => static::get('footer_text')],
             'trial_days' => static::int('trial_days', 0, 365),
             'rules' => static::learningRules(),
+            'media' => (object) \App\Support\MediaLibrary::map(),
             'maintenance' => static::flag('maintenance_on') ? ['message' => static::get('maintenance_message')] : null,
         ];
     }

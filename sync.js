@@ -48,8 +48,24 @@ function rules(site){const r=site&&site.rules;if(!r||typeof r!=='object')return;
 // تُطبَّق النقاط عبر BK_XP في كل محرّك مادة: n × المضاعف (٠ يوقف النقاط الجديدة).
 window.BK_XP=n=>{const r=window.BUSTAN_RULES,k=r&&typeof r.points==='number'&&r.points>=0&&r.points<=5?r.points:1;return Math.round((+n||0)*k)};
 try{applyRules(JSON.parse(get('bustan_rules')||'null'))}catch(e){}
+// مكتبة الوسائط: صور وأصوات استبدلتها الإدارة. الخريطة {الأصل: البديل} نسبيًا لجذر الموقع، وتُحفظ محليًا.
+let MEDIA=null;const mediaFix=u=>{if(!MEDIA||!u||typeof u!=='string'||u.startsWith('data:')||u.startsWith('blob:'))return u;
+ try{const a=new URL(u,location.href);if(a.origin!==root.origin||!a.pathname.startsWith(root.pathname))return u;const k=decodeURIComponent(a.pathname.slice(root.pathname.length));const v=MEDIA[k];return v?new URL(v,root).href:u}catch(e){return u}};
+function mediaHooks(){if(window.__bkMedia)return;window.__bkMedia=1;
+ const wrap=(P,prop)=>{const d=P&&Object.getOwnPropertyDescriptor(P,prop);if(!d||!d.set)return;Object.defineProperty(P,prop,{configurable:true,enumerable:d.enumerable,get:d.get,set(v){d.set.call(this,mediaFix(v))}})};
+ wrap(window.HTMLImageElement&&HTMLImageElement.prototype,'src');wrap(window.HTMLMediaElement&&HTMLMediaElement.prototype,'src');wrap(window.HTMLSourceElement&&HTMLSourceElement.prototype,'src');
+ const sa=Element.prototype.setAttribute;Element.prototype.setAttribute=function(n,v){return sa.call(this,n,(n==='src'||n==='href'&&this.tagName==='image')&&/^(IMG|AUDIO|SOURCE|VIDEO|image)$/.test(this.tagName)?mediaFix(v):v)};
+ if(window.Audio){const A=window.Audio;const W=function(u){return arguments.length?new A(mediaFix(u)):new A()};W.prototype=A.prototype;try{Object.setPrototypeOf(W,A)}catch(e){}window.Audio=W}
+ if(window.fetch){const f=window.fetch;window.fetch=function(i,o){return f.call(this,typeof i==='string'?mediaFix(i):i,o)}}
+ const fix=n=>{if(n.nodeType!==1)return;const l=n.matches&&n.matches('img[src],audio[src],source[src],video[src]')?[n]:[];if(n.querySelectorAll)l.push(...n.querySelectorAll('img[src],audio[src],source[src],video[src]'));
+  for(const e of l){const s=e.getAttribute('src'),t=mediaFix(s);if(t!==s){e.src=t;if(e.tagName==='SOURCE'&&e.parentNode&&e.parentNode.load)e.parentNode.load()}}};
+ const go=()=>{fix(document.documentElement);new MutationObserver(ms=>{for(const m of ms){if(m.type==='attributes')fix(m.target);else m.addedNodes.forEach(fix)}}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['src']})};
+ document.documentElement?go():addEventListener('DOMContentLoaded',go)}
+function applyMedia(m){if(!m||typeof m!=='object'||Array.isArray(m)||!Object.keys(m).length){MEDIA=null;return}MEDIA=m;mediaHooks()}
+function media(site){if(!site||!('media' in site))return;const m=site.media&&typeof site.media==='object'?site.media:{};const t=JSON.stringify(m);if(t!==(get('bustan_media')||'{}'))set('bustan_media',Object.keys(m).length?t:null);applyMedia(m)}
+try{applyMedia(JSON.parse(get('bustan_media')||'null'))}catch(e){}
 function banner(site){
- rules(site);
+ rules(site);media(site);
  const text=site&&site.announcement;
  if(!text||get(K.dismiss)===fnv(text)||document.getElementById('bustan-banner'))return;
  const c=site.announcement_color||{},col=v=>/^#[0-9a-f]{3,8}$/i.test(v||'')?v:null;

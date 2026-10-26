@@ -127,6 +127,13 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::get('seo', [App\Http\Controllers\Admin\SeoController::class, 'index'])->name('manage.seo');
         Route::put('seo', [App\Http\Controllers\Admin\SeoController::class, 'update'])->name('manage.seo.update');
         Route::post('seo/apply', [App\Http\Controllers\Admin\SeoController::class, 'apply'])->name('manage.seo.apply');
+        Route::get('media', [App\Http\Controllers\Admin\MediaController::class, 'index'])->name('manage.media');
+        Route::get('media/list', [App\Http\Controllers\Admin\MediaController::class, 'list'])->name('manage.media.list');
+        Route::get('media/usage', [App\Http\Controllers\Admin\MediaController::class, 'usage'])->name('manage.media.usage');
+        Route::post('media', [App\Http\Controllers\Admin\MediaController::class, 'upload'])->name('manage.media.upload');
+        Route::post('media/replace', [App\Http\Controllers\Admin\MediaController::class, 'replace'])->name('manage.media.replace');
+        Route::post('media/restore', [App\Http\Controllers\Admin\MediaController::class, 'restore'])->name('manage.media.restore');
+        Route::post('media/refresh', [App\Http\Controllers\Admin\MediaController::class, 'refresh'])->name('manage.media.refresh');
         Route::post('mail/test', [Manage::class, 'testMail'])->middleware('throttle:10,1')->name('manage.mail.test');
         Route::post('users/{user}/grant', [Manage::class, 'grantSubscription'])->name('manage.user.grant');
         Route::get('subscriptions', [Manage::class, 'subscriptions'])->name('manage.subscriptions');

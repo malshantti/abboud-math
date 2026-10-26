@@ -27,8 +27,8 @@
         .button.secondary,.button.ghost{box-shadow:0 4px 0 var(--line)}
         .topbar{border-bottom:2px solid var(--line)}
     </style>
-    <script>window.ADMIN_CONFIG={{ Illuminate\Support\Js::from(['name'=>auth()->user()->name,'siteUrl'=>config('app.student_site_url'),'api'=>url('/admin/api')]) }};</script>
-    @foreach (['catalog.js','math-editor.js','quiz-builder.js','content-preview.js','content-builder.js','dashboard.js'] as $asset)
+    <script>window.ADMIN_CONFIG={{ Illuminate\Support\Js::from(['name'=>auth()->user()->name,'siteUrl'=>config('app.student_site_url'),'api'=>url('/admin/api'),'media'=>\Illuminate\Support\Facades\Gate::allows('manage-site')?route('manage.media.list'):null]) }};</script>
+    @foreach (['catalog.js','math-editor.js','quiz-builder.js','content-preview.js','content-builder.js','dashboard.js','media-picker.js'] as $asset)
         <script src="{{ route('admin.assets',compact('asset')) }}" defer></script>
     @endforeach
 </head>

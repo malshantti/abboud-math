@@ -14,7 +14,7 @@ class WorkspaceAssetController extends Controller
         foreach (['admin.css', 'math-editor.css', 'quiz-builder.css', 'content-builder.css', 'math-editor.js', 'content-preview.js'] as $file) {
             $files[$file] = $root.'/admin/'.$file;
         }
-        foreach (['quiz-builder.js', 'content-builder.js', 'dashboard.js', 'dashboard.css'] as $file) {
+        foreach (['quiz-builder.js', 'content-builder.js', 'dashboard.js', 'dashboard.css', 'media-picker.js'] as $file) {
             $files[$file] = resource_path('js/admin/'.$file);
         }
         foreach (['cairo-arabic.woff2', 'cairo-latin.woff2', 'baloo-arabic.woff2', 'baloo-latin.woff2'] as $file) {
