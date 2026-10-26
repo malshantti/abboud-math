@@ -57,6 +57,9 @@ class Setting extends Model
         'faq' => '',
         // Accounts and security
         'require_verification' => '0',
+        // Web Push daily reminder (late afternoon, Asia/Gaza)
+        'push_enabled' => '1',
+        'push_hour' => '17',
         'single_device' => '1',
         'max_students' => '12',
         'session_minutes' => '',

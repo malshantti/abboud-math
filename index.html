@@ -12,7 +12,11 @@ try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')|
 try{if(!/[?&]welcome/.test(location.search)&&localStorage.getItem('bustan_account')){var a0=JSON.parse(localStorage.getItem('bustan_session')||'null');if(!a0||a0.pending||localStorage.getItem('bustan_owner')!==a0.id)location.replace('login.html')}}catch(e){}
 try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getItem('bustan_session')||'null');if(s0&&!s0.pending&&localStorage.getItem('bustan_owner')===s0.id)document.documentElement.dataset.entry='checking'}}catch(e){}
 </script>
-<meta name="theme-color" content="#6f9e23">
+<meta name="theme-color" content="#647b43">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="بستان">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="بستان التعلّم: دروس تفاعلية بالصوت مطابقة لكتب المنهاج الفلسطيني كاملًا. تابع تقدّم طفلك، وجرّب كل المواد مجانًا.">
 <title>بستان التعلّم — دروس تفاعلية للمنهاج الفلسطيني</title>
 <link rel="canonical" href="https://bustankids.com/">
@@ -304,6 +308,7 @@ try{if(!/[?&]welcome/.test(location.search)){var s0=JSON.parse(localStorage.getI
 <script src="welcome.js?v=20261026bk6"></script>
 <script src="landing.js?v=36" defer></script>
 <script src="sync.js?v=20261026bk5" defer></script>
+<script src="app-install.js?v=20261026pwa1" defer></script>
 <script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
 </body>
 </html>

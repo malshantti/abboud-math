@@ -1,13 +1,20 @@
 {
- "name": "بستان التعلّم — زيتون",
- "short_name": "بستان التعلّم",
+ "id": "./",
+ "name": "بستان التعلّم",
+ "short_name": "بستان",
+ "description": "دروس تفاعلية للمنهاج الفلسطيني مع زيتون",
  "lang": "ar",
  "dir": "rtl",
- "start_url": "./",
+ "start_url": "./?source=pwa",
  "scope": "./",
  "display": "standalone",
+ "orientation": "any",
  "background_color": "#f8f9f5",
  "theme_color": "#647b43",
+ "categories": [
+  "education",
+  "kids"
+ ],
  "icons": [
   {
    "src": "assets/icon-192.png",
@@ -22,10 +29,22 @@
    "purpose": "any"
   },
   {
+   "src": "assets/brand/icon-maskable-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
    "src": "assets/brand/icon-maskable-512.png",
    "sizes": "512x512",
    "type": "image/png",
    "purpose": "maskable"
+  },
+  {
+   "src": "assets/brand/apple-touch-icon.png",
+   "sizes": "180x180",
+   "type": "image/png",
+   "purpose": "any"
   }
  ]
 }
