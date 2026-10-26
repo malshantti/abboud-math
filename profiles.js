@@ -127,7 +127,7 @@ const P={
   // خروج: نحفظ تقدّم الطالب في ملفه ونُبقي نسخة العمل له (لا شيء يضيع)، وننهي الجلسة فقط
   logout(){return locked(()=>{if(!recoverRestore()||!recover()||!stash()||!set(K.session,null))return storageError();lastError='';return true})},
   rename(id,name){return locked(()=>{const a=list();const p=a.find(x=>x.id===id);if(p){p.name=name.trim().slice(0,24);return saveList(a)}return false})},
-  // رقم ولي الأمر (قفل خفيف أيضًا) يحمي الإعدادات ومسح التقدّم والاستيراد
+  // رقم الأهل (قفل خفيف أيضًا) يحمي الإعدادات ومسح التقدّم والاستيراد
   hasParent:()=>!!J('bustan_parent',null),
   async setParent(pin){const salt=newSalt();set('bustan_parent',JSON.stringify({salt,pin:await hash('parent:'+pin,salt)}))},
   async checkParent(pin){const p=J('bustan_parent',null);if(!p)return false;return (await hash('parent:'+pin,p.salt))===p.pin},
@@ -159,12 +159,12 @@ window.PROFILES=P;
 const pending=!!(get(K.transition)||get(K.restore));
 P.ready=locked(()=>recoverRestore()&&recover()&&migrate()).then(ok=>{if(ok&&pending&&typeof location!=='undefined')location.reload();return ok});
 })();
-// مزامنة اختيارية مع حساب ولي الأمر (sync.js). لا تعمل إلا بعد تفعيلها، ولا تغيّر شيئًا في الحفظ المحلي أعلاه.
-// صفحات الدروس: الدخول بحساب ولي الأمر إلزامي. نُخفي الدرس حتى يتحقق sync.js من الحساب (من سجّل سابقًا يرى الدرس فورًا ولو دون إنترنت).
+// مزامنة اختيارية مع حساب العائلة (sync.js). لا تعمل إلا بعد تفعيلها، ولا تغيّر شيئًا في الحفظ المحلي أعلاه.
+// صفحات الدروس: الدخول بحساب العائلة إلزامي. نُخفي الدرس حتى يتحقق sync.js من الحساب (من سجّل سابقًا يرى الدرس فورًا ولو دون إنترنت).
 try{if(typeof document!=='undefined'&&document.documentElement&&/^https?:$/.test(location.protocol)&&/\/g\d+\/[a-z]+\//.test(location.pathname)&&!localStorage.getItem('bustan_account')){document.documentElement.dataset.gate='checking';const st=document.createElement('style');st.textContent='html[data-gate=checking] body{visibility:hidden}';document.head.append(st)}}catch(e){}
 try{if(typeof document!=='undefined'&&document.currentScript&&document.head){const s=document.createElement('script');const me=new URL(document.currentScript.src),u=new URL('sync.js',me);u.search=me.search;s.src=u.href;s.defer=true;document.head.append(s)}}catch(e){}
 try{if(typeof document!=='undefined'&&document.currentScript&&document.head&&/\/g\d+\/[a-z]+\//.test(location.pathname)){const s=document.createElement('script');const me=new URL(document.currentScript.src),u=new URL('shell.js',me);u.search=me.search;s.src=u.href;s.defer=true;document.head.append(s)}}catch(e){}
-// سجلّ تقرير ولي الأمر (report-log.js): وقت الدراسة والإجابات الخاطئة، في صفحات المواد فقط.
+// سجلّ تقرير الأهل (report-log.js): وقت الدراسة والإجابات الخاطئة، في صفحات المواد فقط.
 try{if(typeof document!=='undefined'&&document.currentScript&&document.head&&/\/g\d+\/[a-z]+\//.test(location.pathname)){const s=document.createElement('script');const me=new URL(document.currentScript.src),u=new URL('report-log.js',me);u.search=me.search;s.src=u.href;s.defer=true;document.head.append(s)}}catch(e){}
 // المحتوى المنشور من لوحة التحكم (published.js): في صفحات مواد الصفين ٦ و٨.
 try{if(typeof document!=='undefined'&&document.currentScript&&document.head&&/\/g(6|8)\/[a-z]+\//.test(location.pathname)){const s=document.createElement('script');const me=new URL(document.currentScript.src),u=new URL('published.js',me);u.search=me.search;s.src=u.href;s.defer=true;document.head.append(s)}}catch(e){}

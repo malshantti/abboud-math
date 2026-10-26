@@ -69,6 +69,24 @@ class SyncController extends Controller
         abort_unless($student->user_id === $request->user()->id, 404);
     }
 
+    /**
+     * A PIN chosen on a device (login.html) is saved to the account so it works on every device.
+     * Only when the student has no PIN yet: a PIN set by the family on the account page is never overwritten from a device.
+     */
+    public function storePin(Request $request, Student $student): JsonResponse
+    {
+        $this->own($request, $student);
+        $data = $request->validate([
+            'salt' => ['required', 'string', 'regex:/^[0-9a-f]{16}$/'],
+            'hash' => ['required', 'string', 'regex:/^sha256:[0-9a-f]{64}$/'],
+        ]);
+        if (! $student->hasPin()) {
+            $student->forceFill(['pin_salt' => $data['salt'], 'pin_hash' => $data['hash']])->save();
+        }
+
+        return response()->json(['student' => $student->fresh()->toApi(), 'saved' => $student->pin_hash === $data['hash']]);
+    }
+
     public function storeStudent(Request $request): JsonResponse
     {
         $data = $request->validate([

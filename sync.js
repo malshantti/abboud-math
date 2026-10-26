@@ -1,4 +1,4 @@
-/* مزامنة التقدّم مع حساب ولي الأمر (اختيارية).
+/* مزامنة التقدّم مع حساب العائلة (اختيارية).
    - دون تفعيل: لا تفعل شيئًا سوى عرض شريط الإعلان العام إن وُجد. يبقى الحفظ محليًا كما هو تمامًا.
    - بعد التفعيل (زر «افتح الموقع وزامن هذا الجهاز» في صفحة الحساب، أو ?sync=1): عند أول دخول تُستورد ملفات الطلاب
      وتقدّمهم المحلي إلى الخادم، ثم يُرفع كل تغيير لاحق. دون إنترنت يبقى كل شيء محليًا ويُزامَن عند عودة الاتصال.
@@ -85,7 +85,7 @@ function badge(){
  let a=document.getElementById('bustan-account');
  if(!a){a=document.createElement('a');a.id='bustan-account';a.style.cssText='position:fixed;z-index:9997;bottom:14px;inset-inline-start:14px;display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border-radius:999px;background:#fff;border:2px solid #e2e7d9;box-shadow:0 3px 0 #e2e7d9;color:#3e5729;font:700 15px/1.5 inherit;text-decoration:none';document.body.append(a)}
  if(session&&session.authenticated){a.textContent='متزامن مع حساب '+session.user.name;a.href=session.urls.account}
- else{a.textContent='حساب ولي الأمر: احفظ التقدّم على الخادم';a.href=new URL('admin-api/account/login',root).href;a.onclick=()=>set(K.on,'1')}
+ else{a.textContent='حساب العائلة: احفظ التقدّم على الخادم';a.href=new URL('admin-api/account/login',root).href;a.onclick=()=>set(K.on,'1')}
 }
 
 // ---- قفل المادة غير المشترك فيها ----
@@ -100,7 +100,7 @@ function gate(access,urls){
   d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;box-shadow:0 4px 0 #e2e7d9;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b"><h2 id="bustan-locked-t" style="margin:0 0 8px;color:#3e5729"></h2><p style="margin:0 0 18px"></p><a style="display:inline-flex;align-items:center;min-height:48px;padding:10px 24px;border-radius:16px;background:#1f9d55;color:#fff;font-weight:700;text-decoration:none;box-shadow:0 4px 0 #13693a"></a><p style="margin:16px 0 0"><a style="color:#3e5729"></a></p></div>';
   const other=ent==='grade'||ent==='none';
   d.querySelector('h2').textContent=other?(ent==='grade'?'هذه المادة ليست من صف الطالب':'هذا الملف ليس من أبناء الحساب'):access.kind==='expired'?'انتهت الفترة التجريبية':'هذه المادة غير مشمولة باشتراكك';
-  d.querySelector('p').textContent=other?'يحدّد ولي الأمر صف كل طالب من صفحة الحساب، ويتعلّم الطالب مواد صفه فقط.':'تقدّم طفلك محفوظ ولن يضيع. اشترك في هذه المادة لمتابعة الدروس، والدفع عبر واتساب.';
+  d.querySelector('p').textContent=other?'يحدّد الأهل صف كل طالب من صفحة الحساب، ويتعلّم الطالب مواد صفه فقط.':'تقدّم طفلك محفوظ ولن يضيع. اشترك في هذه المادة لمتابعة الدروس، والدفع عبر واتساب.';
   const [go,back]=d.querySelectorAll('a');go.textContent=other?'إدارة الأبناء':'اشترك';go.href=other?new URL('admin-api/account',root).href:urls.subscribe;back.textContent='العودة إلى البداية';back.href=new URL('login.html',root).href;
   document.body.append(d);go.focus()};
  document.body?show():addEventListener('DOMContentLoaded',show);
@@ -124,7 +124,7 @@ function trialBanner(access){
 }
 
 // ---- الدخول إلزامي قبل أي درس ----
-// صفحة مادة دون حساب مسجَّل: تحويل إلى دخول/تسجيل ولي الأمر ثم العودة إلى الصفحة نفسها.
+// صفحة مادة دون حساب مسجَّل: تحويل إلى دخول/تسجيل الأهل ثم العودة إلى الصفحة نفسها.
 // من سجّل الدخول من قبل على هذا الجهاز (bustan_account) يتابع دون إنترنت أو مع اتصال ضعيف؛ لا نُقفل إلا حين يؤكد الخادم أن الجلسة انتهت.
 const loginUrl=()=>new URL('admin-api/account/login',root).href+'?return='+encodeURIComponent(location.href);
 // ---- جهاز واحد لكل حساب: آخر دخول يغلق الجلسة على الجهاز السابق ----
@@ -159,7 +159,7 @@ function offlineNotice(){
  const show=()=>{if(document.getElementById('bustan-signin'))return;reveal();const app=document.querySelector('#app');if(app)app.inert=true;
   const d=document.createElement('div');d.id='bustan-signin';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
   d.style.cssText='position:fixed;inset:0;z-index:10000;background:#fbf8ef;display:grid;place-items:center;padding:20px;direction:rtl';
-  d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b"><h2 style="margin:0 0 8px;color:#3e5729">سجّل الدخول أولًا</h2><p style="margin:0 0 18px">يلزم الاتصال بالإنترنت مرة واحدة لتسجيل الدخول بحساب ولي الأمر. بعدها تعمل الدروس على هذا الجهاز حتى دون إنترنت.</p><a style="display:inline-flex;align-items:center;min-height:48px;padding:10px 24px;border-radius:16px;background:#1f9d55;color:#fff;font-weight:700;text-decoration:none">تسجيل الدخول</a></div>';
+  d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b"><h2 style="margin:0 0 8px;color:#3e5729">سجّل الدخول أولًا</h2><p style="margin:0 0 18px">يلزم الاتصال بالإنترنت مرة واحدة لتسجيل الدخول بحساب العائلة. بعدها تعمل الدروس على هذا الجهاز حتى دون إنترنت.</p><a style="display:inline-flex;align-items:center;min-height:48px;padding:10px 24px;border-radius:16px;background:#1f9d55;color:#fff;font-weight:700;text-decoration:none">تسجيل الدخول</a></div>';
   d.querySelector('a').href=loginUrl();document.body.append(d)};
  document.body?show():addEventListener('DOMContentLoaded',show);
  addEventListener('online',()=>location.reload(),{once:true});
@@ -199,7 +199,7 @@ async function sync(){
  for(const p of local){
   if(st.map[p.id]&&servers.has(st.map[p.id]))continue;
   const data=backup.data[p.id]||{};
-  // لا يُنشأ طالب من الجهاز: يضيف ولي الأمر أبناءه من صفحة الحساب. يُربط الملف المحلي فقط إن كان الخادم يعرفه.
+  // لا يُنشأ طالب من الجهاز: يضيف الأهل أبناءه من صفحة الحساب. يُربط الملف المحلي فقط إن كان الخادم يعرفه.
   const s=session.students.find(x=>x.local_id===p.id);if(!s)continue;
   st.map[p.id]=s.id;st.base[p.id]={};
   const items={},now=Date.now();Object.entries(data).forEach(([k,v])=>{if(typeof v==='string')items[k]={value:v,updated:now}});
@@ -207,7 +207,7 @@ async function sync(){
   Object.keys(items).forEach(k=>{if(res.items[k]&&res.items[k].value===items[k].value)st.base[p.id][k]=fnv(items[k].value)});
   save();
  }
- // ٢) قائمة الطلاب على هذا الجهاز تُستبدل بقائمة الخادم (لا دمج): كل طالب سجّله ولي الأمر يصير له ملف هنا،
+ // ٢) قائمة الطلاب على هذا الجهاز تُستبدل بقائمة الخادم (لا دمج): كل طالب سجّله الأهل يصير له ملف هنا،
  //    وتُحذف الملفات المحلية التي لا ترتبط بطالب من الحساب (من حساب آخر أو من النسخة القديمة)، ولا يُحفظ تقدّمها إلا إن كانت مرتبطة بطالب.
  for(const [lid,sid] of Object.entries(st.map))if(!servers.has(sid)){delete st.map[lid];delete st.base[lid]}
  if(entryPage){
@@ -220,7 +220,7 @@ async function sync(){
     id=s.local_id&&/^p\w+$/.test(s.local_id)&&!P.find(s.local_id)?s.local_id:'ps'+s.id;
    }
    if(s.grade)data.bustan_grade=String(s.grade);
-   const cur=P.find(id)||{},pin=s.pin&&s.pin.hash?{pin:s.pin.hash,salt:s.pin.salt}:{pin:cur.pin||null,salt:cur.salt||null};// الرقم السري الذي حدّده ولي الأمر هو المرجع
+   const cur=P.find(id)||{},pin=s.pin&&s.pin.hash?{pin:s.pin.hash,salt:s.pin.salt}:{pin:cur.pin||null,salt:cur.salt||null};// الرقم السري الذي حدّده الأهل هو المرجع
    if(!have||cur.name!==s.name||cur.pin!==pin.pin||(s.grade&&String(P.dataOf(id,'bustan_grade'))!==data.bustan_grade))
     await P.restore({app:'bustan-backup-v1',profiles:[{id,name:s.name,avatar:s.avatar||cur.avatar,created:cur.created,...pin}],data:{[id]:data}});
    if(!have){st.map[id]=s.id;st.base[id]={};Object.entries(data).forEach(([k,v])=>st.base[id][k]=fnv(v))}
@@ -266,6 +266,10 @@ async function start(){
  addEventListener('online',run);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});
 }
-window.BUSTAN_SYNC={run,enabled,daysText,disable(){set(K.on,null);set(K.roster,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
+// رقم سري اختاره الطفل على هذا الجهاز: يُحفظ في الحساب ليعمل على أي جهاز (لا يستبدل رقمًا حدّده الأهل).
+async function pushPin(localId){try{const P=window.PROFILES;if(!P)return false;const p=P.find(localId),st=P.accountStudent(localId);if(!p||!p.pin||!st||!st.sid||!/^sha256:/.test(p.pin))return false;
+ if(!csrf){session=await api('session',{timeout:10000});csrf=session.csrf||''}
+ const r=await api('students/'+st.sid+'/pin',{body:{salt:p.salt,hash:p.pin},timeout:10000});return !!(r&&r.saved)}catch(e){return false}}
+window.BUSTAN_SYNC={run,enabled,daysText,pushPin,disable(){set(K.on,null);set(K.roster,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();

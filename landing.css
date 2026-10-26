@@ -258,7 +258,8 @@ html[data-entry=checking] #visitor-home{visibility:hidden}
 .L-voice-play i{font-style:normal;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#5b8c3a;color:#fff;font-size:.7rem}
 .L-voice-mute{width:44px;height:44px;display:grid;place-items:center;padding:0}.L-voice-mute svg{display:block}.L-voice.is-on .L-voice-mute{background:#5b8c3a;color:#fff}
 .L-voice button:focus-visible{outline:3px solid #5b8c3a;outline-offset:2px}
-.L-voice-cap{position:fixed;bottom:calc(144px + env(safe-area-inset-bottom,0px));inset-inline:16px;margin:0 auto;max-width:560px;z-index:149;background:rgba(30,40,25,.86);color:#fff;font-size:.88rem;line-height:1.7;padding:8px 14px;border-radius:12px;max-height:5.6em;overflow:auto}
+.L-voice-cap{position:fixed;bottom:calc(144px + env(safe-area-inset-bottom,0px));inset-inline:16px;margin:0 auto;max-width:560px;z-index:149;background:rgba(30,40,25,.78);color:#fff;font-size:.8rem;line-height:1.6;padding:6px 12px;border-radius:12px;max-height:3.4em;overflow:hidden;pointer-events:none}
+html[data-entry=student] .L-voice,html[data-entry=student] .L-voice-cap{display:none!important}
 .is-speaking{position:relative}
 .is-speaking::after{content:"";position:absolute;inset-inline-end:12px;top:12px;width:10px;height:10px;border-radius:50%;background:#5b8c3a;box-shadow:0 0 0 0 rgba(91,140,58,.5);animation:L-speak 1.4s ease-out infinite;pointer-events:none}
 @media (min-width:700px){.L-voice{bottom:20px;inset-inline-start:20px}.L-voice-cap{bottom:84px}}
@@ -322,3 +323,5 @@ html[data-entry=checking] #visitor-home{visibility:hidden}
 .L-btn-sm,.L-foot nav a{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:10px 14px}
 /* شريط سفلي ثابت للجوال فقط، ظاهر دائمًا */
 @media (max-width:820px){.L-sticky,.L-sticky:not(.is-on){transform:none}.L-foot{padding-bottom:96px}}
+
+.L-split{margin:2px 0 6px;font-size:.88rem;font-weight:700;color:#5b6b52}.L-split[hidden]{display:none}

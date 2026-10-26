@@ -24,7 +24,7 @@
   const curriculum=C.units.flatMap(unit=>unit.lessons.map(lesson=>({...lesson,unit:unit.title,term:unit.term})));
   const foundations=(C.foundations||[]).map(lesson=>({...lesson,unit:'أساسياتي'}));
   const lessons=[...curriculum,...foundations],ids=lessons.map(lesson=>lesson.id);
-  const routeNames={home:'رحلتي',basics:'أساسياتي',play:'مغامراتي',lab:'أجرّب',report:'لوليّ الأمر'};
+  const routeNames={home:'رحلتي',basics:'أساسياتي',play:'مغامراتي',lab:'أجرّب',report:'للأهل'};
   const shortNames={home:'رحلتي',basics:'الأساس',play:'ألعب',lab:'أجرّب',report:'للأهل'};
   const routes={home:'home',basics:'seed',play:'map',lab:'lab',report:'report'};
   const icon=name=>A.icon(name),scene=value=>value?A.scene(value):'';
@@ -118,7 +118,7 @@
     state=next;query('#g1-lesson-dialog').innerHTML='<div class="g1-finish"><img src="../../assets/img/av-celebrate.webp" width="170" height="170" alt="زيتون يحتفل بخطوتك"><h2 id="g1-activity-title">أحسنت، أتممت الخطوة!</h2><p>فهمنا الفكرة وجرّبناها معًا.</p>'+button('العودة إلى رحلتي '+icon('arrow'),'finish')+'</div>';query('[data-action="finish"]').focus();
   }
   function nextStage(){if(!session||session.busy)return;const steps=session.adventure?[]:session.lesson.steps;if(session.index>=steps.length&&!session.answered)return;session.index++;session.answered=false;if(session.index>=steps.length+session.lesson.tasks.length)finish();else drawStage();}
-  // تسجيل الإجابة في تقرير ولي الأمر (report-log.js)
+  // تسجيل الإجابة في تقرير الأهل (report-log.js)
   function report(index,ok,task){try{const R=window.BUSTAN_REPORT;if(!R||!R.record)return;const b=query('[data-answer="'+index+'"]')||document.activeElement;if(!b)return;const txt=x=>String(x==null?'':x).replace(/<[^>]*>/g,' ');const good=task.choices&&task.choices[task.answer];R.record(b,ok,{l:txt(session.lesson.title),q:txt(task.prompt),c:ok?'':txt(good&&(good.label||good.aria))})}catch(e){}}
   function answer(index){if(!session||session.answered||session.busy)return;const offset=session.adventure?0:session.lesson.steps.length,task=session.lesson.tasks[session.index-offset];if(!task||!Number.isInteger(index)||index<0||index>=task.choices.length)return;session.attempts++;const feedback=query('[data-activity-feedback]');
     if(index!==task.answer){report(index,false,task);feedback.className='g1-feedback g1-retry';feedback.textContent='لِننظر مرة أخرى. جرّب اختيارًا آخر.';query('[data-answer="'+index+'"]').setAttribute('aria-pressed','false');return;}
