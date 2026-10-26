@@ -128,15 +128,22 @@ function trialBanner(access){
 // من سجّل الدخول من قبل على هذا الجهاز (bustan_account) يتابع دون إنترنت أو مع اتصال ضعيف؛ لا نُقفل إلا حين يؤكد الخادم أن الجلسة انتهت.
 const loginUrl=()=>new URL('admin-api/account/login',root).href+'?return='+encodeURIComponent(location.href);
 // ---- جهاز واحد لكل حساب: آخر دخول يغلق الجلسة على الجهاز السابق ----
-const KICK='bustan_kicked',KICK_MSG='تم تسجيل الدخول إلى هذا الحساب من جهاز آخر، لذلك أُغلقت الجلسة هنا.';
+const KICK='bustan_kicked',KICK_ACK='bustan_kick_ack',KICK_MSG='تم تسجيل الدخول إلى هذا الحساب من جهاز آخر، لذلك أُغلقت الجلسة هنا.';
 function kicked(msg){
  set(K.account,null);set(K.access,null);set(K.roster,null);set(KICK,'1');// التقدّم المحلي يبقى محفوظًا؛ يُفتح بعد الدخول من جديد
+ // أغلق المستخدم الإشعار سابقًا: يتابع كزائر غير مسجَّل (الدروس تبقى مقفلة) دون إعادة إظهاره
+ if(get(KICK_ACK)){set(KICK,null);if(subject){requireLogin();return}try{dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}return}
  const show=()=>{reveal();const app=document.querySelector('#app,#main');if(app)app.inert=true;if(document.getElementById('bustan-kicked'))return;
   const d=document.createElement('div');d.id='bustan-kicked';d.setAttribute('role','alertdialog');d.setAttribute('aria-modal','true');d.setAttribute('aria-labelledby','bustan-kicked-t');d.setAttribute('aria-describedby','bustan-kicked-p');
   d.style.cssText='position:fixed;inset:0;z-index:10003;background:#fbf8efee;display:grid;place-items:center;padding:20px;direction:rtl;font-family:Cairo,Tahoma,sans-serif';
-  d.innerHTML='<div style="width:100%;max-width:440px;background:#fff;border:2px solid #e2e7d9;border-radius:24px;box-shadow:0 5px 0 #e2e7d9;padding:28px 22px;text-align:center;color:#29392b"><span style="display:inline-grid;place-items:center;width:64px;height:64px;border-radius:20px;background:#eaf1df;color:#4e6635;margin-bottom:10px"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M11 18.5h2"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg></span><h2 id="bustan-kicked-t" style="margin:0 0 8px;font:800 23px/1.45 Baloo,Cairo,sans-serif;color:#3e5729">أُغلقت الجلسة على هذا الجهاز</h2><p id="bustan-kicked-p" style="margin:0 0 20px;font-size:17px;line-height:1.9"></p><a style="display:flex;align-items:center;justify-content:center;min-height:52px;padding:10px 24px;border-radius:16px;background:#6c854c;color:#fff;font:800 18px/1.4 Baloo,Cairo,sans-serif;text-decoration:none;box-shadow:0 4px 0 #4e6635">تسجيل الدخول مرة أخرى</a><p style="margin:14px 0 0;font-size:14px;color:#7b8479;line-height:1.8">تقدّم الطلاب محفوظ. يبقى الحساب مفتوحًا على جهاز واحد في الوقت نفسه.</p></div>';
+  d.innerHTML='<div style="width:100%;max-width:440px;background:#fff;border:2px solid #e2e7d9;border-radius:24px;box-shadow:0 5px 0 #e2e7d9;padding:28px 22px;text-align:center;color:#29392b;position:relative" data-box><button type="button" data-x aria-label="إغلاق" style="position:absolute;top:8px;inset-inline-start:8px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:14px;background:#f2f5ec;color:#3e5729;font:700 26px/1 sans-serif;cursor:pointer">×</button><span style="display:inline-grid;place-items:center;width:64px;height:64px;border-radius:20px;background:#eaf1df;color:#4e6635;margin-bottom:10px"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M11 18.5h2"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg></span><h2 id="bustan-kicked-t" style="margin:0 0 8px;font:800 23px/1.45 Baloo,Cairo,sans-serif;color:#3e5729">أُغلقت الجلسة على هذا الجهاز</h2><p id="bustan-kicked-p" style="margin:0 0 20px;font-size:17px;line-height:1.9"></p><a style="display:flex;align-items:center;justify-content:center;min-height:52px;padding:10px 24px;border-radius:16px;background:#6c854c;color:#fff;font:800 18px/1.4 Baloo,Cairo,sans-serif;text-decoration:none;box-shadow:0 4px 0 #4e6635">تسجيل الدخول مرة أخرى</a><p style="margin:14px 0 0;font-size:14px;color:#7b8479;line-height:1.8">تقدّم الطلاب محفوظ. يبقى الحساب مفتوحًا على جهاز واحد في الوقت نفسه.</p></div>';
   d.querySelector('#bustan-kicked-p').textContent=msg||KICK_MSG;
   d.querySelector('a').href=entryPage?new URL('admin-api/account/login',root).href+'?return='+encodeURIComponent(new URL('login.html?sync=1',root).href):loginUrl();
+  const close=()=>{set(KICK,null);set(KICK_ACK,'1');removeEventListener('keydown',esc);d.remove();
+   if(subject){location.replace(new URL('index.html',root).href);return}// صفحة درس: تبقى مقفلة، نعود إلى الصفحة الرئيسية كزائر
+   if(app)app.inert=false;try{dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}};
+  const esc=e=>{if(e.key==='Escape')close()};addEventListener('keydown',esc);
+  d.querySelector('[data-x]').addEventListener('click',close);d.addEventListener('click',e=>{if(!e.target.closest('[data-box]'))close()});
   document.body.append(d);d.querySelector('a').focus()};
  document.body?show():addEventListener('DOMContentLoaded',show);
  try{dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}
@@ -167,7 +174,7 @@ function maintenance(site){
   d.innerHTML='<div style="max-width:480px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b;box-shadow:0 5px 0 #e2e7d9"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#6f9e23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 005 5L21 13l-8 8-3-3 8-8-1.3-1.3a4 4 0 01-5-5l2.5 2.5 2-2z"/><path d="M3 21l6-6"/></svg><h2 id="bustan-maint-t" style="margin:6px 0 8px;color:#3e5729">البستان في صيانة مؤقتة</h2><p style="margin:0;white-space:pre-line"></p></div>';
   d.querySelector('p').textContent=m.message||'';document.body.append(d)};
  document.body?show():addEventListener('DOMContentLoaded',show);return true}
-function remember(s){set(KICK,null);set(K.account,JSON.stringify({email:s.user.email,name:s.user.name,t:Date.now()}));set(K.on,'1')}
+function remember(s){set(KICK,null);set(KICK_ACK,null);set(K.account,JSON.stringify({email:s.user.email,name:s.user.name,t:Date.now()}));set(K.on,'1')}
 async function lessonGate(){
  const had=J(K.account,null);
  if(had)reveal();// جهاز سبق تسجيل الدخول عليه: الدرس يفتح فورًا ونتحقق في الخلفية
