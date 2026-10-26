@@ -74,6 +74,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // One line per outgoing email (type, status, SMTP message id or error).
+        'mail' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mail.log'),
+            'level' => 'info',
+            'days' => 60,
+            'replace_placeholders' => true,
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),

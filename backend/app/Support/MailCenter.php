@@ -108,11 +108,13 @@ class MailCenter
             return MailLog::create($log + ['status' => 'disabled']);
         }
         try {
-            Mail::to($to)->send(new BrandMail($data, Setting::get('mail_from_name') ?: Setting::get('site_name')));
+            $sent = Mail::to($to)->send(new BrandMail($data, Setting::get('mail_from_name') ?: Setting::get('site_name')));
+            \Illuminate\Support\Facades\Log::channel('mail')->info('mail.sent', ['type' => $type, 'user' => $log['user_id'], 'to_domain' => \Illuminate\Support\Str::after($to, '@'), 'message_id' => $sent?->getMessageId(), 'smtp' => mb_substr((string) ($sent?->getDebug() ? \Illuminate\Support\Str::of($sent->getDebug())->afterLast('250 ')->before("\n") : ''), 0, 120)]);
 
             return MailLog::create($log + ['status' => 'sent']);
         } catch (\Throwable $e) {
             report($e);
+            \Illuminate\Support\Facades\Log::channel('mail')->error('mail.failed', ['type' => $type, 'user' => $log['user_id'], 'to_domain' => \Illuminate\Support\Str::after($to, '@'), 'error' => mb_substr($e->getMessage(), 0, 300)]);
 
             return MailLog::create($log + ['status' => 'failed', 'error' => mb_substr($e->getMessage(), 0, 500)]);
         }
