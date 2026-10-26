@@ -96,7 +96,7 @@ const MROW=(pose,msg)=>`<div class="mrow" id="mascot">${FX.MASCOT(pose||'think',
 function renderOld(el,id,item,mode,done){let si=0,firstTry=true,usedHint=false,conf=2;
  const draw=()=>{const s=item.steps[si];const multi=item.steps.length>1;
   el.innerHTML=(multi?`<div class="stepdots">${item.steps.map((_,i)=>`<i class="${i<=si?'on':''}"></i>`).join('')}</div><div class="muted">خطوة ${si+1} من ${item.steps.length}</div>`:'')+
-  `<div class="q">${mt(s.q)}</div>`+
+  `<div class="q">${mt(s.q)}${s.img?`<img class="q-img" src="${esc(s.img)}" alt="" loading="lazy">`:''}</div>`+
   (mode==='diag'?`<div class="conf" role="radiogroup" aria-label="كم أنت متأكد؟"><span>كم أنت متأكد قبل أن تجيب؟</span><div class="conf-seg">${[[1,'أخمّن'],[2,'متأكد نوعاً ما'],[3,'متأكد جداً']].map(([v,t])=>`<button role="radio" aria-checked="${v===conf}" class="cseg ${v===conf?'on':''}" data-c="${v}">${t}</button>`).join('')}</div></div>`:'')+
   `<div class="choices">${s.choices.map((c,i)=>`<button class="choice" data-i="${i}">${mt(c.t)}</button>`).join('')}</div>`+
   (mode==='practice'?`<button class="btn ghost" id="hintb">${I('bulb')} تلميح</button>`:'')+(mode==='diag'?`<button class="btn ghost" id="idk">${I('question')} لا أعرف</button>`:'')+`<div id="fb" aria-live="polite"></div>`;
@@ -132,7 +132,7 @@ function renderItem(el,id,item,mode,done){if(mode==='diag')return renderOld(el,i
  let si=0,firstTry=true,usedHint=false;const bar=getBar();
  const draw=()=>{const s=item.steps[si],multi=item.steps.length>1;let sel=-1,state='pick';
   el.innerHTML=`<div class="qkind">${I(multi?'tiles':'pencil','sm')} ${multi?'خطوة '+(si+1)+' من '+item.steps.length:'اختر الإجابة الصحيحة'}</div>
-  <div class="qrow">${FX.MASCOT(si%2?'think':'read','')}<div class="q">${mt(s.q)}</div></div>
+  <div class="qrow">${FX.MASCOT(si%2?'think':'read','')}<div class="q">${mt(s.q)}${s.img?`<img class="q-img" src="${esc(s.img)}" alt="" loading="lazy">`:''}</div></div>
   <div class="choices">${s.choices.map((c,i)=>`<button class="choice" data-i="${i}">${mt(c.t)}</button>`).join('')}</div>
   ${mode==='practice'&&s.hint?`<button class="hintlink" id="hintb">${I('bulb','sm')} تلميح</button><div id="hintt"></div>`:''}`;
   bar.className='checkbar';bar.innerHTML=`<div class="in"><div class="sheet"><span class="sh-ic"></span><div><div class="sh-t"></div><div class="sh-b"></div></div></div><button class="btn off" id="chk" disabled>تحقّق</button></div>`;

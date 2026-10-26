@@ -81,6 +81,7 @@ Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
     Route::get('site', [SyncController::class, 'site']);
     Route::get('public/prices', [SyncController::class, 'prices']);
     Route::get('public/content', [App\Http\Controllers\Admin\PublishController::class, 'public']);
+    Route::get('questions/{grade}/{subject}', [App\Http\Controllers\Admin\QuestionController::class, 'feed'])->whereNumber('grade');
     Route::get('session', [SyncController::class, 'session']);
     Route::middleware('auth')->group(function () {
         Route::post('students', [SyncController::class, 'storeStudent']);
@@ -127,6 +128,14 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::get('seo', [App\Http\Controllers\Admin\SeoController::class, 'index'])->name('manage.seo');
         Route::put('seo', [App\Http\Controllers\Admin\SeoController::class, 'update'])->name('manage.seo.update');
         Route::post('seo/apply', [App\Http\Controllers\Admin\SeoController::class, 'apply'])->name('manage.seo.apply');
+        Route::get('questions', [App\Http\Controllers\Admin\QuestionController::class, 'index'])->name('manage.questions');
+        Route::get('questions/new', [App\Http\Controllers\Admin\QuestionController::class, 'create'])->name('manage.questions.create');
+        Route::post('questions', [App\Http\Controllers\Admin\QuestionController::class, 'store'])->name('manage.questions.store');
+        Route::post('questions/mode', [App\Http\Controllers\Admin\QuestionController::class, 'mode'])->name('manage.questions.mode');
+        Route::get('questions/{question}', [App\Http\Controllers\Admin\QuestionController::class, 'edit'])->whereNumber('question')->name('manage.questions.edit');
+        Route::put('questions/{question}', [App\Http\Controllers\Admin\QuestionController::class, 'update'])->whereNumber('question')->name('manage.questions.update');
+        Route::post('questions/{question}/toggle', [App\Http\Controllers\Admin\QuestionController::class, 'toggle'])->whereNumber('question')->name('manage.questions.toggle');
+        Route::delete('questions/{question}', [App\Http\Controllers\Admin\QuestionController::class, 'destroy'])->whereNumber('question')->name('manage.questions.destroy');
         Route::get('media', [App\Http\Controllers\Admin\MediaController::class, 'index'])->name('manage.media');
         Route::get('media/list', [App\Http\Controllers\Admin\MediaController::class, 'list'])->name('manage.media.list');
         Route::get('media/usage', [App\Http\Controllers\Admin\MediaController::class, 'usage'])->name('manage.media.usage');
