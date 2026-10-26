@@ -327,10 +327,10 @@ class ManageController extends Controller
         'voice_enabled' => 'الجولة الصوتية', 'voice_volume' => 'مستوى الصوت', 'voice_autoplay' => 'التشغيل التلقائي',
         'facebook_url' => 'رابط فيسبوك', 'instagram_url' => 'رابط إنستغرام', 'contact_email' => 'بريد التواصل', 'footer_text' => 'نص التذييل',
         'maintenance_on' => 'وضع الصيانة', 'maintenance_message' => 'رسالة الصيانة',
-        'subjects_hidden' => 'المواد المخفية', 'badges_enabled' => 'إظهار الشارات', 'points_multiplier' => 'مضاعف النقاط',
+        'subjects_hidden' => 'المواد المخفية', 'badges_enabled' => 'إظهار الشارات', 'push_enabled' => 'تذكير يومي بالإشعارات', 'points_multiplier' => 'مضاعف النقاط',
     ];
 
-    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on', 'badges_enabled'];
+    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on', 'badges_enabled', 'push_enabled'];
 
     public function updateSettings(Request $request): RedirectResponse
     {

@@ -352,6 +352,9 @@
       </fieldset>
     @endforeach
   </div>
+  <div class="card"><h3>الإشعارات</h3>
+    <label class="sw"><span><b>تذكير يومي بالإشعارات</b><small>رسالة واحدة يوميًا عصرًا بتوقيت غزة: «[اسم الطفل]، درسك اليوم جاهز في بستان 🌱». لا تُرسل لمن درس اليوم، ولا لمن أوقفها من صفحة حسابه. المشتركون الآن: {{ \App\Models\PushSubscription::count() }} جهاز.</small></span><span class="tg"><input type="checkbox" name="push_enabled" value="1" @checked($on('push_enabled'))><i></i></span></label>
+  </div>
   <div class="card"><h3>الشارات والنقاط</h3>
     <label class="sw"><span><b>إظهار الشارات والإنجازات</b><small>عند الإيقاف تختفي لوحة الشارات من صفحات المواد، ويبقى ما جمعه الطالب محفوظًا.</small></span><span class="tg"><input type="checkbox" name="badges_enabled" value="1" @checked($on('badges_enabled'))><i></i></span></label>
     <div class="field"><label for="points_multiplier">قيمة النقاط</label>

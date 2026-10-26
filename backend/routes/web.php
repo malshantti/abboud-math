@@ -66,6 +66,7 @@ Route::prefix('account')->group(function () {
         Route::get('students/{student}/report', [App\Http\Controllers\ReportController::class, 'parent'])->name('account.report');
         Route::post('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'share'])->middleware('throttle:10,1')->name('account.report.share');
         Route::delete('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'unshare'])->name('account.report.unshare');
+        Route::post('reminders', [AccountHome::class, 'toggleReminders'])->name('account.reminders');
         Route::get('subscribe', [AccountHome::class, 'subscribe'])->name('account.subscribe');
         Route::post('subscribe', [AccountHome::class, 'requestSubscription'])->middleware('throttle:10,1')->name('account.subscribe.store');
     });
@@ -83,7 +84,10 @@ Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
     Route::get('public/content', [App\Http\Controllers\Admin\PublishController::class, 'public']);
     Route::get('questions/{grade}/{subject}', [App\Http\Controllers\Admin\QuestionController::class, 'feed'])->whereNumber('grade');
     Route::get('session', [SyncController::class, 'session']);
+    Route::get('push/key', [App\Http\Controllers\Api\PushController::class, 'key']);
     Route::middleware('auth')->group(function () {
+        Route::post('push/subscribe', [App\Http\Controllers\Api\PushController::class, 'subscribe'])->middleware('throttle:20,1');
+        Route::post('push/unsubscribe', [App\Http\Controllers\Api\PushController::class, 'unsubscribe']);
         Route::post('students', [SyncController::class, 'storeStudent']);
         Route::get('students/{student}/progress', [SyncController::class, 'show']);
         Route::put('students/{student}/progress', [SyncController::class, 'update']);

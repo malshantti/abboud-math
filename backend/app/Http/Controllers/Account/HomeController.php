@@ -69,6 +69,15 @@ class HomeController extends Controller
         return back()->with('status', 'حُفظت بيانات الطالب.');
     }
 
+    /** Daily reminder on/off for this account (all devices). */
+    public function toggleReminders(Request $request): RedirectResponse
+    {
+        $on = $request->boolean('on');
+        $request->user()->forceFill(['push_reminders' => $on])->save();
+
+        return back()->with('status', $on ? 'سنذكّرك يوميًا بدرس اليوم.' : 'أوقفنا التذكير اليومي. يمكنك تشغيله متى شئت.');
+    }
+
     public function destroyStudent(Request $request, Student $student): RedirectResponse
     {
         abort_unless($student->user_id === $request->user()->id, 404);

@@ -130,6 +130,12 @@
       <a class="btn ghost" href="{{ route('account.subscribe') }}">الاشتراكات</a>
     </div>
   </section>
+  <section class="card" id="reminders">
+    <h2>التذكير اليومي</h2>
+    @php($pushN = $user->pushSubscriptions()->count())
+    <p class="muted">إشعار واحد يوميًا عصرًا: «اسم طفلك، درسك اليوم جاهز في بستان 🌱»، ولا يصل إن درس طفلك قبله. @if ($pushN) مفعّل على {{ $pushN }} @if ($pushN == 1) جهاز @else أجهزة @endif. @else لتفعيله على جهاز طفلك: افتح بستان عليه واضغط «نعم، ذكّرني» حين يظهر الاقتراح. @endif</p>
+    <form method="post" action="{{ route('account.reminders') }}">@csrf<input type="hidden" name="on" value="{{ $user->push_reminders ? 0 : 1 }}"><button class="btn {{ $user->push_reminders ? '' : 'primary' }}" type="submit">{{ $user->push_reminders ? 'إيقاف التذكير اليومي' : 'تشغيل التذكير اليومي' }}</button></form>
+  </section>
   <details class="card more">
     <summary>التفعيل والأجهزة @unless ($user->isVerified())<span class="chip warn">البريد غير مفعّل</span>@endunless</summary>
   @unless ($user->isVerified())

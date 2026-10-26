@@ -25,6 +25,11 @@ class User extends Authenticatable
         return $this->hasMany(Student::class);
     }
 
+    public function pushSubscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
     /** Classes this teacher is assigned to. */
     public function classrooms(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -161,6 +166,8 @@ class User extends Authenticatable
             'disabled_at' => 'datetime',
             'last_login_at' => 'datetime', 'active_device_seen_at' => 'datetime',
             'trial_ends_at' => 'datetime',
+            'push_reminders' => 'boolean',
+            'last_reminder_on' => 'date',
             'password' => 'hashed',
         ];
     }
