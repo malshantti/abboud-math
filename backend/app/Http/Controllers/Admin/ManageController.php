@@ -330,7 +330,7 @@ class ManageController extends Controller
         'subjects_hidden' => 'المواد المخفية', 'badges_enabled' => 'إظهار الشارات', 'points_multiplier' => 'مضاعف النقاط',
     ];
 
-    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'require_verification', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on', 'badges_enabled'];
+    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on', 'badges_enabled'];
 
     public function updateSettings(Request $request): RedirectResponse
     {

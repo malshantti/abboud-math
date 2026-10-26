@@ -121,7 +121,6 @@
         @case('trial')<p><span class="chip warn">فترة تجريبية</span> كل المواد متاحة حتى {{ $ar::date($access['ends_at']) }}.</p>@break
         @case('paid')<p><span class="chip">مشترك</span> المواد المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</p>@break
         @case('expired')<p><span class="chip bad">انتهت الفترة التجريبية</span> اشترك في المادة التي يحتاجها طفلك لمتابعة الدروس.</p>@break
-        @case('unverified')<p><span class="chip bad">البريد غير مفعّل</span> فعّل بريدك الإلكتروني من الرسالة التي أرسلناها إليك لتفتح الدروس.</p>@break
         @default<p><span class="chip">وصول كامل</span></p>
       @endswitch
       @foreach ($expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
@@ -136,7 +135,7 @@
   @unless ($user->isVerified())
   <section class="verify" aria-label="تفعيل الحساب">
     <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
-    <div class="txt">@if (\App\Models\Setting::flag('require_verification'))<b>فعّل حسابك بلمسة واحدة</b><p>@else<b>فعّل بريدك متى شئت</b><p>يمكنك استخدام الحساب وإضافة طلابك الآن دون تفعيل. @endif أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر.</p></div>
+    <div class="txt"><b>فعّل بريدك متى شئت</b><p>يمكنك استخدام الحساب وإضافة طلابك الآن دون تفعيل. أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر. لم تصلك الرسالة؟ افحص مجلد «الرسائل غير المرغوب فيها» (Spam) أو «العروض» ثم اضغط «ليست رسالة غير مرغوب فيها».</p></div>
     <form method="post" action="{{ route('account.verify.resend') }}">@csrf<button class="btn" type="submit">إعادة إرسال رابط التفعيل</button></form>
   </section>
   @endunless
