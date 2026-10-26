@@ -128,3 +128,5 @@
 [data-theme=dark] .g1-page .g1-hero::before,[data-theme=dark] .g1-page .j-basics-hero::before{background:#2a3a25!important;border-color:#22301f!important}
 [data-theme=dark] .g1-page .g1-tabs .g1-selected,[data-theme=dark] .g1-page .g1-tabs [aria-selected=true]{color:#cfe3ad!important}
 [data-theme=dark] .g1-page .g1-modal::backdrop{background:#000b}
+/* UX #11: header tap targets >=44px on phones */
+@media (max-width:899px){.top .switch-mini,.top .themebtn,.top button,.top [role=button],.top a.iconbtn{min-width:44px!important;min-height:44px!important;box-sizing:border-box}}
