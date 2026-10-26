@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # One canonical host: the Google sign-in state lives in a host-only session cookie.
+    RewriteCond %{HTTP_HOST} ^www\.bustankids\.com$ [NC]
+    RewriteRule ^ https://bustankids.com%{REQUEST_URI} [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

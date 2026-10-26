@@ -27,6 +27,12 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Email domains of test/QA/bot accounts kept out of the admin stats (comma separated).
+    'test_email_domains' => array_values(array_filter(array_map('trim', explode(',', (string) env('TEST_EMAIL_DOMAINS', 'example.com,formtests.info'))))),
+
+    // Register-form bot check (honeypot + minimum fill time). Always on outside unit tests.
+    'bot_check' => (bool) env('BOT_CHECK', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

@@ -4,7 +4,7 @@
 <div class="head"><h1>لوحة المعلومات</h1>@can('manage-site')@include('partials.export-menu')@endcan</div>
 @php($subs = [
   'students' => $stats['families'] ? 'لدى '.$ar::num($stats['families']).' '.($stats['families'] === 1 ? 'وليّ أمر' : 'من أولياء الأمور') : 'لم يُضف وليّ أمر طالبًا بعد',
-  'parents' => $stats['parents'] - $stats['families'] > 0 ? $ar::num($stats['parents'] - $stats['families']).' بلا طلاب بعد' : null,
+  'parents' => trim(($stats['parents'] - $stats['families'] > 0 ? $ar::num($stats['parents'] - $stats['families']).' بلا طلاب بعد' : '').(! empty($stats['test_accounts']) ? ' · لا تُحتسب '.$ar::num($stats['test_accounts']).' حسابات تجريبية' : ''), ' ·') ?: null,
 ])
 <div class="stats">
   @foreach ([['parents','أولياء الأمور','users',''],['students','الطلاب','students','t-sky'],['new_week','حسابات جديدة هذا الأسبوع','plus',''],['active_week','طلاب نشطون هذا الأسبوع','activity','t-sky'],['trials','في فترة تجريبية','clock','t-sun'],['subs_active','اشتراكات فعّالة','check',''],['subs_pending','طلبات بانتظار الدفع','card','t-o'],['staff','المشرفون والمعلّمون','shield','t-grey'],['disabled','حسابات معطّلة','lock','t-red'],['drafts','مسودات المحتوى','book','t-grey']] as [$k,$label,$icon,$tone])

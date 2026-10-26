@@ -65,6 +65,24 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Every Google sign-in attempt and its outcome (started, callback_ok, state_fail_*, inapp_blocked, bot_hit, error).
+        'google' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/google-oauth.log'),
+            'level' => 'info',
+            'days' => 60,
+            'replace_placeholders' => true,
+        ],
+
+        // One line per outgoing email (type, status, SMTP message id or error).
+        'mail' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mail.log'),
+            'level' => 'info',
+            'days' => 60,
+            'replace_placeholders' => true,
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
