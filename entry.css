@@ -7,7 +7,7 @@
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--tx);font:500 16px/1.7 Baloo,Cairo,Tahoma,sans-serif;min-height:100vh}
 button,input{font:inherit;color:inherit}a{color:var(--gd)}
-.skip{position:absolute;inset-inline-start:-999px}.skip:focus{inset-inline-start:12px;top:12px;background:var(--card);padding:8px 12px;border-radius:12px;z-index:9}
+.skip{position:absolute;inset-inline-start:12px;top:-200px}.skip:focus{inset-inline-start:12px;top:12px;background:var(--card);padding:8px 12px;border-radius:12px;z-index:9}
 .wrap{max-width:980px;margin:0 auto;padding:18px 18px 48px}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;color:var(--gd);text-decoration:none}

@@ -249,7 +249,8 @@ function fill(d){
    var li=card.querySelector('ul li');if(li){var sv=li.querySelector('svg');li.textContent='';if(sv)li.append(sv);li.append((g.subjects||[]).join('، '))}
    [].slice.call(card.querySelectorAll('ul li')).slice(1).forEach(function(x){x.remove()});tpl.parentNode.append(card)}
   var t=card.querySelector('.L-plan-for'),b=card.querySelector('.L-price b'),f=card.querySelector('.L-from'),u=card.querySelector('.L-cur'),dd=card.querySelector('[data-days]');
-  if(t&&g.title)t.textContent=g.title;if(b)b.textContent=AR(g.min);if(f)f.hidden=!g.from;if(u)u.textContent=cur(g.min,d.currency);if(dd)dd.textContent=(g.days_vary?'من ':'')+days(g.days)});
+  if(t&&g.title)t.textContent=g.title;if(b)b.textContent=g.max>g.min?AR(g.min)+'–'+AR(g.max):AR(g.min);if(f)f.hidden=true;if(u)u.textContent='₪';
+  var l0=card.querySelector('ul li');if(l0&&g.subjects&&g.subjects.length){var s0=l0.querySelector('svg');l0.textContent='';if(s0)l0.append(s0);l0.append(g.subjects.join('، '))}if(dd)dd.textContent=(g.days_vary?'من ':'')+days(g.days)});
  var dy=d.groups.length?Math.min.apply(null,d.groups.map(function(g){return g.days})):0;
  if(dy)document.querySelectorAll('[data-days]').forEach(function(el){if(!el.closest('[data-price-group]'))el.textContent=days(dy)});
  if(typeof d.trial_days==='number'){var on=d.trial_days>0;
