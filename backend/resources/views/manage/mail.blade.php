@@ -28,7 +28,7 @@
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'users'])المرسِل</h2>
   <div class="field"><label for="mail_from_name">اسم المرسِل</label><input id="mail_from_name" name="mail_from_name" value="{{ old('mail_from_name', $s['mail_from_name']) }}" required maxlength="80"><p class="hint">يظهر في صندوق الوارد بدل العنوان.</p></div>
   <dl class="transport"><div><dt>عنوان الإرسال:</dt><dd dir="ltr">{{ $from }}</dd></div><div><dt>طريقة الإرسال:</dt><dd dir="ltr">{{ $mailer }}</dd></div></dl>
-  <div class="ph" aria-label="المتغيرات المتاحة">@foreach (\App\Support\MailCenter::PLACEHOLDERS as $k => $v)<code>{{ $k }}</code>@php($ar = array_search($k, \App\Support\MailCenter::AR_PLACEHOLDERS, true))@if($ar)<code>{{ $ar }}</code>@endif<span>{{ $v }}</span>@endforeach</div>
+  <div class="ph" aria-label="المتغيرات المتاحة">@foreach (\App\Support\MailCenter::PLACEHOLDERS as $k => $v)<code>{{ $k }}</code>@php($arAlias = array_search($k, \App\Support\MailCenter::AR_PLACEHOLDERS, true))@if($arAlias)<code>{{ $arAlias }}</code>@endif<span>{{ $v }}</span>@endforeach</div>
   <p class="hint">يمكن كتابة المتغير بالعربية أو بالإنجليزية. اترك سطرًا فارغًا بين الفقرات. يُضاف الزر والرابط تلقائيًا أسفل النص. إن تُرك العنوان أو النص فارغًا يُستخدم النص الأصلي.</p>
 </section>
 @foreach (\App\Support\MailCenter::TYPES as $t => $label)
