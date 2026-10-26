@@ -47,14 +47,14 @@ function saveError(){let m=$('#msg');if(!m){m=document.createElement('p');m.id='
 async function done(p){if(!p||(!(P.current()&&P.current().id===p.id)&&!await P.login(p.id)))return saveError();celebrate(`أهلًا ${p.name}! هيّا نتعلّم`);
  const m=view.querySelector('.msg');if(m){m.className='msg ok';m.textContent='تم الدخول بنجاح'}
  setTimeout(()=>location.replace(next),RM?250:1500);return true}
-// الطلاب هم أبناء حساب ولي الأمر فقط (يضيفهم مع صفوفهم من صفحة الحساب). لا يُنشأ ملف من هذه الشاشة.
+// الطلاب هم أبناء حساب العائلة فقط (يضيفهم مع صفوفهم من صفحة الحساب). لا يُنشأ ملف من هذه الشاشة.
 const ACCOUNT=new URL('admin-api/account',location.href).href;
 const GRADES=['','الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','الصف الخامس','الصف السادس','الصف السابع','الصف الثامن','الصف التاسع','الصف العاشر','الصف الحادي عشر','الصف الثاني عشر'];
 const account=()=>{try{return JSON.parse(localStorage.getItem('bustan_account'))}catch(e){return null}};
 const signedIn=()=>!!account();
 const LOGIN=()=>new URL('admin-api/account/login',location.href).href+'?return='+encodeURIComponent(new URL('login.html?sync=1',location.href).href);
 let picking=false,pickNote='',checked=false,checkT=0;
-// قائمة الخادم لهذا الحساب فقط: ملف محلي لا يظهر إلا إن كان مرتبطًا بطالب سجّله ولي الأمر.
+// قائمة الخادم لهذا الحساب فقط: ملف محلي لا يظهر إلا إن كان مرتبطًا بطالب سجّله الأهل.
 function accountProfiles(){const r=P.roster(),acc=account();if(!r||!Array.isArray(r.students)||!acc||r.email!==acc.email)return null;
  return r.students.map(s=>{const p=P.find(s.local);return p?{p,s}:null}).filter(Boolean)}
 const manageLink=()=>`<p class="manage"><a href="${esc(ACCOUNT)}">إدارة الطلاب من صفحة الحساب</a></p>`;
@@ -65,16 +65,16 @@ function pick(note){
  if(!checked&&navigator.onLine){
   if(!checkT)checkT=setTimeout(()=>{checked=true;if(picking)pick(pickNote)},8000);
   say('لحظة، أجهّز أسماء الطلاب');
-  show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">نتحقق من حساب ولي الأمر المرتبط بهذا الجهاز...</p>`);return}
+  show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">نتحقق من حساب العائلة المرتبط بهذا الجهاز...</p>`);return}
  if(!signedIn()){
-  say('سجّل الدخول بحساب ولي الأمر أولًا');
-  show(`<h1>سجّل الدخول أولًا</h1><p class="sub">يظهر هنا الطلاب الذين أضافهم ولي الأمر إلى حسابه. سجّل الدخول بحساب ولي الأمر على هذا الجهاز مرة واحدة.</p>
+  say('سجّل الدخول بحساب العائلة أولًا');
+  show(`<h1>سجّل الدخول أولًا</h1><p class="sub">يظهر هنا الطلاب الذين أضافهم الأهل إلى حسابهم. سجّل الدخول بحساب العائلة على هذا الجهاز مرة واحدة.</p>
   <div class="actions"><a class="btn" id="signin" href="${esc(LOGIN())}">${svg('lock',18)} تسجيل الدخول</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);
   let kicked=false;try{kicked=localStorage.getItem('bustan_kicked')==='1'}catch(e){}
   if(navigator.onLine&&!note&&!kicked)location.replace(LOGIN());// جهاز أُغلقت جلسته: تبقى رسالة sync.js ظاهرة
   return}
  say(note||'من سيتعلّم اليوم؟');if(pose!=='welcome')setPose('idle');
- if(!a||!a.length){show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">لم يُضف ولي الأمر طلابًا إلى الحساب بعد. أضف كل طالب مع صفه ورقمه السري من صفحة الحساب.</p><div class="actions"><a class="btn" href="${esc(ACCOUNT)}">إضافة الطلاب</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}
+ if(!a||!a.length){show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">لم يُضف الأهل طلابًا إلى الحساب بعد. أضف كل طالب مع صفه ورقمه السري من صفحة الحساب.</p><div class="actions"><a class="btn" href="${esc(ACCOUNT)}">إضافة الطلاب</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}
  show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">اختر اسمك، ثم اكتب رقمك السري.</p>
   <div class="profiles">${a.map(({p,s})=>{const subj=Array.isArray(s.subjects)?(s.subjects.length?s.subjects.join('، '):'لا مواد مفعّلة'):'';
    return `<button type="button" class="pcard" data-id="${esc(p.id)}"><img src="${P.avatarSrc(p.avatar)}" alt="" width="72" height="72"><b>${esc(p.name)}</b><small>${esc(s.grade_name||GRADES[s.grade]||'لم يُحدَّد الصف')}</small>${subj?`<span class="subj">${esc(subj)}</span>`:''}</button>`}).join('')}</div>
@@ -88,19 +88,19 @@ function enter(p){
  show(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1><p class="sub" style="margin:0">اكتب رقمك السري المكوّن من ٤ أرقام</p></div></div>
   ${pinBox('pinIn')}<p class="msg" id="msg"></p>
   <p class="forgot-row"><button type="button" class="forgot" id="forgot" aria-expanded="false" aria-controls="forgotPanel">نسيت الرقم السري؟</button></p>
-  <div class="forgot-panel" id="forgotPanel" role="region" aria-labelledby="forgotT" hidden><h2 id="forgotT">لا تقلق، يمكن استعادة الدخول بسهولة</h2><p>اطلب من ولي أمرك أن يفتح <b>صفحة الحساب</b>، ثم يغيّر رقمك السري أو يزيله. قد يُطلب منه إدخال كلمة مرور الحساب للتأكيد.</p><div class="forgot-acts"><a class="btn sm" id="forgotGo" href="${esc(ACCOUNT)}">الانتقال إلى صفحة الحساب</a><button type="button" class="btn sm ghost" id="forgotX">إغلاق</button></div></div>
+  <div class="forgot-panel" id="forgotPanel" role="region" aria-labelledby="forgotT" hidden><h2 id="forgotT">لا تقلق، يمكن استعادة الدخول بسهولة</h2><p>اطلب من أهلك أن يفتحوا <b>صفحة الحساب</b>، ثم يغيّروا رقمك السري أو يزيلوه. قد يُطلب منهم إدخال كلمة مرور الحساب للتأكيد.</p><div class="forgot-acts"><a class="btn sm" id="forgotGo" href="${esc(ACCOUNT)}">الانتقال إلى صفحة الحساب</a><button type="button" class="btn sm ghost" id="forgotX">إغلاق</button></div></div>
   <div class="actions"><button type="button" class="btn ghost" id="back">${svg('back',18)} ملف آخر</button></div>`,'#pinIn input');
  const wrap=$('#pinIn'),msg=$('#msg');
  const inp=bindPin(wrap,async v=>{const lock=P.lockedFor(p.id);if(lock){msg.className='msg err';msg.textContent=`محاولات كثيرة. انتظر ${AR(Math.ceil(lock/1000))} ثانية.`;inp.value='';return}
   if(await P.check(p.id,v)){inp.blur();done(p)}else{const n=P.fail(p.id);wrap.classList.add('bad');inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'));msg.className='msg err';msg.textContent=n>=5?'محاولات كثيرة. انتظر ٣٠ ثانية ثم حاول.':'الرقم غير صحيح، حاول مرة أخرى.';inp.blur();oops('لا بأس، جرّب مرة أخرى!');if(!RM){wrap.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:380})}}});
  $('#back').onclick=()=>pick();
- const fb=$('#forgot'),fp=$('#forgotPanel'),tg=o=>{fp.hidden=!o;fb.setAttribute('aria-expanded',o);if(o){say('اطلب المساعدة من ولي أمرك');fp.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'})}else fb.focus()};
+ const fb=$('#forgot'),fp=$('#forgotPanel'),tg=o=>{fp.hidden=!o;fb.setAttribute('aria-expanded',o);if(o){say('اطلب المساعدة من أهلك');fp.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'})}else fb.focus()};
  fb.onclick=()=>tg(fp.hidden);$('#forgotX').onclick=()=>tg(false)}
 function twoPins(title,sub,extra,onOk){
  picking=false;
  show(`${title}<p class="sub">${sub}</p>${extra||''}<div class="field"><span>رقم سري من ٤ أرقام</span>${pinBox('p1')}</div><div class="field"><span>أعد كتابة الرقم للتأكيد</span>${pinBox('p2')}</div><p class="msg" id="msg"></p>
   <div class="actions"><button type="button" class="btn" id="ok" disabled>${svg('lock',18)} احفظ وادخل</button>${P.list().length?`<button type="button" class="btn ghost" id="back">${svg('back',18)} رجوع</button>`:''}</div>
-  <p class="note">${svg('lock',16)}<span>الرقم السري يميّز ملفات الإخوة على هذا الجهاز. يستطيع ولي الأمر تحديده أو تغييره من صفحة الحساب.</span></p>`,extra?'#nm':'#p1 input');
+  <p class="note">${svg('lock',16)}<span>الرقم السري يميّز ملفات الإخوة على هذا الجهاز. يُحفظ الرقم في حساب العائلة فيعمل على أي جهاز، ويستطيع الأهل تغييره من صفحة الحساب.</span></p>`,extra?'#nm':'#p1 input');
  const msg=$('#msg'),ok=$('#ok');let a='',b='';
  const i1=bindPin($('#p1'),v=>{a=v;$('#p2 input').focus()}),i2=bindPin($('#p2'),v=>{b=v;check()});
  const check=()=>{a=i1.value;b=i2.value;const nm=$('#nm');const nameOk=!nm||nm.value.trim().length>=2;const good=a.length===4&&b.length===4&&a===b&&nameOk;ok.disabled=!good;
@@ -110,7 +110,7 @@ function twoPins(title,sub,extra,onOk){
  if($('#back'))$('#back').onclick=()=>pick()}
 function setpin(p){
  say(`أهلًا ${p.name}! تقدّمك محفوظ، اختر رقمًا سريًا`);setPose('idle');
- twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'لم يحدّد ولي الأمر رقمًا سريًا لك بعد. اختر أربعة أرقام تتذكّرها، وستكتبها في كل دخول.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');return done(P.find(p.id))})}
+ twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'لم يحدّد الأهل رقمًا سريًا لك بعد. اختر أربعة أرقام تتذكّرها، وستكتبها في كل دخول.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');if(window.BUSTAN_SYNC&&BUSTAN_SYNC.pushPin)await Promise.race([BUSTAN_SYNC.pushPin(p.id),new Promise(r=>setTimeout(r,6000))]);return done(P.find(p.id))})}
 
 // ---------- البداية ----------
 const tb=$('#theme');const paint=()=>{tb.innerHTML=svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',22)};paint();

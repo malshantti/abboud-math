@@ -31,7 +31,7 @@ const sname=s=>(C.subjects.find(x=>x.id===s)||{}).name||'';
 // الطالب الحالي (من صفحة الدخول)
 const me=window.PROFILES&&PROFILES.current();
 const myName=me?me.name:'';
-// صف الطالب ثابت كما حدّده ولي الأمر، ولا تُفتح إلا مواد صفه المشمولة بالتجربة أو الاشتراك.
+// صف الطالب ثابت كما حدّده الأهل، ولا تُفتح إلا مواد صفه المشمولة بالتجربة أو الاشتراك.
 const acct=me&&PROFILES.roster&&PROFILES.roster()?PROFILES.accountStudent(me.id):null;
 const fixedG=acct&&acct.grade?+acct.grade:null;
 const ent=(g,s)=>acct?PROFILES.entitlement(me.id,g,s):'ok';
@@ -53,7 +53,7 @@ function renderGrades(){
 }
 function renderSubjects(){
  const box=$('#subjects');
- if(!selG){$('#s2h').classList.add('off');$('#s2p').textContent=acct?'لم يحدّد ولي الأمر صفك بعد؛ يحدّده من صفحة الحساب.':'اختر الصف أولًا';box.innerHTML=acct?`<a class="btn" href="${ACCOUNT}">إدارة الأبناء</a>`:'';return}
+ if(!selG){$('#s2h').classList.add('off');$('#s2p').textContent=acct?'لم يحدّد الأهل صفك بعد؛ يحدّدونه من صفحة الحساب.':'اختر الصف أولًا';box.innerHTML=acct?`<a class="btn" href="${ACCOUNT}">إدارة الأبناء</a>`:'';return}
  $('#s2h').classList.remove('off');$('#s2t').textContent='اختر المادة — '+gname(selG);
  const any=gradeActive(selG);$('#s2p').textContent=any?'المواد المتاحة عليها زر «ابدأ»':'مواد هذا الصف قيد التحضير';
  box.innerHTML=C.subjects.filter(s=>!hid(selG,s.id)&&(!s.grades||s.grades.includes(selG))&&(!C.gradeSubjects?.[selG]||C.gradeSubjects[selG].includes(s.id))).map(s=>{const e=active(selG,s.id);

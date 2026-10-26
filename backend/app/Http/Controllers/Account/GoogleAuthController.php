@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
-/** "الدخول بحساب جوجل" for parent accounts. */
+/** "الدخول بحساب Google" for parent accounts. */
 class GoogleAuthController extends Controller
 {
     private function fail(string $message): RedirectResponse
@@ -42,7 +42,7 @@ class GoogleAuthController extends Controller
     public function redirect(Request $request): RedirectResponse
     {
         if (! self::enabled()) {
-            return $this->fail('الدخول بحساب جوجل غير متاح حاليًا. استخدم البريد الإلكتروني وكلمة المرور.');
+            return $this->fail('الدخول بحساب Google غير متاح حاليًا. استخدم البريد الإلكتروني وكلمة المرور.');
         }
         // Google blocks sign-in inside Facebook/Instagram/TikTok webviews (disallowed_useragent): send them to the
         // "open in browser" helper on the register page instead of a Google error page.
@@ -80,7 +80,7 @@ class GoogleAuthController extends Controller
     public function callback(Request $request): RedirectResponse
     {
         if (! self::enabled()) {
-            return $this->fail('الدخول بحساب جوجل غير متاح حاليًا. استخدم البريد الإلكتروني وكلمة المرور.');
+            return $this->fail('الدخول بحساب Google غير متاح حاليًا. استخدم البريد الإلكتروني وكلمة المرور.');
         }
         if ($request->has('error')) {
             self::trace($request, 'cancelled', ['error' => mb_substr((string) $request->query('error'), 0, 60)]);
@@ -110,7 +110,7 @@ class GoogleAuthController extends Controller
         $email = Str::lower(trim((string) $g->getEmail()));
         $verified = filter_var($g->user['email_verified'] ?? $g->user['verified_email'] ?? false, FILTER_VALIDATE_BOOLEAN);
         if ($googleId === '' || $email === '' || ! $verified) {
-            return $this->fail('بريدك في جوجل غير مؤكَّد. أكّده في جوجل أولًا أو سجّل الدخول بالبريد وكلمة المرور.');
+            return $this->fail('بريدك في Google غير مؤكَّد. أكّده في Google أولًا أو سجّل الدخول بالبريد وكلمة المرور.');
         }
 
         $user = User::where('google_id', $googleId)->first();
@@ -119,10 +119,10 @@ class GoogleAuthController extends Controller
             $user = User::where('email', $email)->first();
             if ($user) {
                 if ($user->google_id && $user->google_id !== $googleId) {
-                    return $this->fail('هذا البريد مربوط بحساب جوجل آخر. سجّل الدخول بالبريد وكلمة المرور.');
+                    return $this->fail('هذا البريد مربوط بحساب Google آخر. سجّل الدخول بالبريد وكلمة المرور.');
                 }
                 if ($user->isStaff()) {
-                    return $this->fail('حسابات الإدارة لا تدخل بحساب جوجل. استخدم صفحة دخول الإدارة.');
+                    return $this->fail('حسابات الإدارة لا تدخل بحساب Google. استخدم صفحة دخول الإدارة.');
                 }
                 if ($user->isDisabled()) {
                     return $this->fail('هذا الحساب معطّل. تواصل مع إدارة الموقع.');
@@ -149,7 +149,7 @@ class GoogleAuthController extends Controller
         }
 
         if ($user->isStaff()) {
-            return $this->fail('حسابات الإدارة لا تدخل بحساب جوجل. استخدم صفحة دخول الإدارة.');
+            return $this->fail('حسابات الإدارة لا تدخل بحساب Google. استخدم صفحة دخول الإدارة.');
         }
         if ($user->isDisabled()) {
             return $this->fail('هذا الحساب معطّل. تواصل مع إدارة الموقع.');

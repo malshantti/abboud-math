@@ -1,6 +1,6 @@
-/* سجلّ تقرير ولي الأمر (bustan_report_v1): وقت الدراسة لكل درس، وعدد الإجابات، والأخطاء الأخيرة (السؤال والاختيار الخاطئ).
+/* سجلّ تقرير الأهل (bustan_report_v1): وقت الدراسة لكل درس، وعدد الإجابات، والأخطاء الأخيرة (السؤال والاختيار الخاطئ).
    - يعمل في صفحات المواد فقط، ويُحمَّل من profiles.js. لا يغيّر منطق الدروس ولا مفاتيحها: يراقب فقط الأزرار التي تأخذ الصنف ok أو bad بعد ضغط الطالب.
-   - المفتاح ضمن مفاتيح الطالب (PER) فيُحفظ لكل طالب ويُزامَن مع حساب ولي الأمر عبر sync.js كباقي التقدّم.
+   - المفتاح ضمن مفاتيح الطالب (PER) فيُحفظ لكل طالب ويُزامَن مع حساب العائلة عبر sync.js كباقي التقدّم.
    - الحجم محدود (آخر ٤٠ خطأ لكل مادة، ٦٠ درسًا، ٦٠ يومًا) حتى لا يكبر التخزين. */
 (function(){
 'use strict';
@@ -50,7 +50,9 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 addEventListener('pagehide',flush);
 // الإجابات: الزر الذي ضغطه الطالب ثم أخذ الصنف ok (صحيح) أو bad (خطأ) خلال ثانيتين.
 let pressed=null,pressedAt=0;const seen=new WeakSet();
-addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button,[role=button]');if(b){pressed=b;pressedAt=Date.now()}},true);
+// زر «تحقّق/متابعة» (اختر ثم تحقّق): لا يصير هو المضغوط؛ الاختيار السابق يبقى، ويُمدَّد وقته حتى يأخذ الصنف ok أو bad.
+const isCheck=b=>b.id==='chk'||b.id==='check'||!!(b.closest&&b.closest('.checkbar,.check-bar,.actions-check'))||/^\s*(تحقّق|تحقق|تأكّد)\s*$/.test(b.textContent||'');
+addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button,[role=button]');if(!b)return;if(isCheck(b)){if(pressed)pressedAt=Date.now();return}pressed=b;pressedAt=Date.now()},true);
 // o (اختياري): {l: الدرس, q: السؤال, c: الإجابة الصحيحة} لمحرّكات تمرّر بياناتها مباشرة (مثل محرّك الصفين ١ و٢).
 function record(b,ok,o){
  o=o||{};if(seen.has(b))return;seen.add(b);

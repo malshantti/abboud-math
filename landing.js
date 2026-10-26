@@ -11,8 +11,8 @@ addEventListener('scroll',onScroll,{passive:true});onScroll();
 var cheer=root.querySelector('.L-cheer');
 function celebrate(){if(!cheer)return;cheer.classList.remove('is-on');void cheer.offsetWidth;cheer.classList.add('is-on')}
 var audio=null;
-function play(src,btn){try{if(window.__bustanVoice&&window.__bustanVoice.stop)window.__bustanVoice.stop();if(audio)audio.pause();audio=new Audio(src);if(btn){btn.classList.add('is-playing');audio.onended=audio.onerror=function(){btn.classList.remove('is-playing')}}var p=audio.play();if(p&&p.catch)p.catch(function(){if(btn)btn.classList.remove('is-playing')})}catch(e){}}
-root.querySelectorAll('.L-say').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.audio,b)})});
+function play(src,btn){try{if(window.__bustanVoice&&window.__bustanVoice.pause)window.__bustanVoice.pause();else if(window.__bustanVoice&&window.__bustanVoice.stop)window.__bustanVoice.stop();if(audio)audio.pause();audio=new Audio(src);if(btn){btn.classList.add('is-playing');audio.onended=audio.onerror=function(){btn.classList.remove('is-playing')}}var p=audio.play();if(p&&p.catch)p.catch(function(){if(btn)btn.classList.remove('is-playing')})}catch(e){}}
+root.querySelectorAll('.L-say').forEach(function(b){b.addEventListener('click',function(){if(document.documentElement.dataset.entry==='student')return;play(b.dataset.audio,b)})});
 window.__bustanDemoStop=function(){if(audio){audio.pause();audio=null}root.querySelectorAll('.L-say.is-playing').forEach(function(b){b.classList.remove('is-playing')})};
 var demo=root.querySelector('[data-demo-group]'),RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
 var AR=function(n){return String(n).replace(/\d/g,function(d){return'٠١٢٣٤٥٦٧٨٩'[d]})};
@@ -172,6 +172,7 @@ window.__bustanSite.then(fill);window.__bustanSiteFill=fill;
 (function(){
 'use strict';
 var root=document.getElementById('visitor-home');if(!root||typeof Audio==='undefined')return;
+function isVisitor(){return !root.hidden&&document.documentElement.dataset.entry!=='student'}
 var CLIPS=[["welcome","#L-top","أَهْلًا وَسَهْلًا بِكَ فِي «بُسْتَانِ التَّعَلُّم». أَنَا زَيْتُون، وَيَسُرُّنِي أَنْ أَصْحَبَكَ فِي جَوْلَةٍ قَصِيرَةٍ عَلَى هٰذِهِ الصَّفْحَةِ. هُنَا نَزْرَعُ الفَهْمَ، وَنَحْصُدُ المَعْرِفَةَ؛ دُرُوسٌ تَفَاعُلِيَّةٌ مُطَابِقَةٌ لِلْمِنْهَاجِ الفِلَسْطِينِيِّ، صُمِّمَتْ لِيَفْهَمَ طِفْلُكَ دَرْسَهُ وَيُحِبَّ أَنْ يَتَعَلَّمَهُ. تَعَالَ نَكْتَشِفْ مَعًا كَيْفَ يَصْنَعُ البُسْتَانُ فَرْقًا حَقِيقِيًّا فِي يَوْمِ طِفْلِكَ."],["hero",".L-hero","فِي البِدَايَةِ، تَرَى وَعْدَنَا لَكَ: دُرُوسٌ قَصِيرَةٌ بِالصَّوْتِ وَالصُّورَةِ، مُرَتَّبَةٌ كَمَا فِي كِتَابِ المَدْرَسَةِ، وَمُطَابِقَةٌ لِلْمِنْهَاجِ الفِلَسْطِينِيِّ كَامِلًا. مَوَادُّ دِرَاسِيَّةٌ كَثِيرَةٌ، بِلَا إِعْلَانَاتٍ، وَتَعْمَلُ حَتَّى مَعَ إِنْتَرْنِتٍ ضَعِيفٍ. وَأَنَا زَيْتُون أُشَجِّعُ طِفْلَكَ عِنْدَ كُلِّ إِجَابَةٍ، وَأَنْتَ تُتَابِعُ تَقَدُّمَهُ مِنْ حِسَابِكَ."],["demos","#L-demos","وَهُنَا لَا نَطْلُبُ مِنْكَ أَنْ تُصَدِّقَنَا، بَلْ أَنْ تُجَرِّبَ بِنَفْسِكَ. هٰذِهِ أَسْئِلَةٌ حَقِيقِيَّةٌ مِنْ دُرُوسِ البُسْتَانِ: رِيَاضِيَّاتٌ وَلُغَتُنَا الجَمِيلَةُ وَإِنْجِلِيزِيَّةٌ وَعُلُومٌ وَكُسُورٌ. اخْتَرْ مَادَّةً وَأَجِبْ، وَشَاهِدْ كَيْفَ يَتَلَقَّى طِفْلُكَ التَّشْجِيعَ وَالتَّصْحِيحَ فَوْرًا."],["screens",".L-screens","هٰذِهِ شَاشَاتٌ حَقِيقِيَّةٌ مِنْ دَاخِلِ البُسْتَانِ، لَا صُوَرٌ تَوْضِيحِيَّةٌ. هٰكَذَا تَبْدُو دُرُوسُ طِفْلِكَ عَلَى هَاتِفِكَ أَوْ جِهَازِ البَيْتِ: مِنْ لُغَتِنَا الجَمِيلَةِ وَالرِّيَاضِيَّاتِ، إِلَى مُخْتَبَرِ العُلُومِ. مَا تَرَاهُ هُنَا، هُوَ تَمَامًا مَا سَيَعِيشُهُ طِفْلُكَ."],["how","#L-how","أَرْبَعُ خُطُوَاتٍ فَقَطْ، وَتَبْدَأُ اللَّيْلَةَ: أَنْشِئْ حِسَابًا وَاحِدًا لِلْعَائِلَةِ كُلِّهَا، ثُمَّ أَضِفْ مِلَفًّا لِكُلِّ طِفْلٍ وَاخْتَرْ صَفَّهُ وَمَادَّتَهُ. يَتَعَلَّمُ طِفْلُكَ بِشَرْحٍ قَصِيرٍ وَأَسْئِلَةٍ بِتَصْحِيحٍ فَوْرِيٍّ، وَتُتَابِعُ أَنْتَ مَا أَنْجَزَهُ وَمَا يَحْتَاجُ إِلَى مُرَاجَعَةٍ، مِنْ أَيِّ جِهَازٍ."],["curriculum","#L-curriculum","كُلُّ دَرْسٍ هُنَا مُطَابِقٌ لِكُتُبِ المِنْهَاجِ الفِلَسْطِينِيِّ، بِوَحَدَاتِهَا وَتَرْتِيبِهَا وَصَفَحَاتِهَا، وَيَذْكُرُ مَرْجِعَهُ فِي الكِتَابِ. اخْتَرْ صَفَّ طِفْلِكَ لِتَرَى مَوَادَّهُ كُلَّهَا؛ فَيُرَاجِعُ طِفْلُكَ مَا أَخَذَهُ فِي الصَّفِّ تَمَامًا."],["benefits",".L-benefits","صَمَّمْنَا البُسْتَانَ لِيَطْمَئِنَّ قَلْبُكَ: تَقَدُّمُ طِفْلِكَ مَحْفُوظٌ فِي حِسَابِكَ فَلَا يَضِيعُ، وَالدُّرُوسُ المُنَزَّلَةُ تَعْمَلُ دُونَ اتِّصَالٍ. بِيئَةٌ آمِنَةٌ لَا غُرَبَاءَ فِيهَا وَلَا رَوَابِطَ خَارِجِيَّةَ، وَبِلَا إِعْلَانَاتٍ إِطْلَاقًا، مَعَ صَوْتٍ مُرَافِقٍ يَنْطِقُ كُلَّ كَلِمَةٍ. وَقْتُ الشَّاشَةِ كُلُّهُ لِلتَّعَلُّمِ."],["pricing","#L-pricing","اشْتِرَاكُنَا مَرِنٌ وَبَسِيطٌ: تَشْتَرِكُ فَقَطْ فِي المَوَادِّ الَّتِي يَحْتَاجُهَا طِفْلُكَ، مَادَّةً مَادَّةً، فَلَا تَدْفَعُ إِلَّا لِمَا يَنْفَعُهُ. وَالأَسْعَارُ وَاضِحَةٌ أَمَامَكَ فِي هٰذَا القِسْمِ، بِلَا مُفَاجَآتٍ. وَقَبْلَ أَنْ تُقَرِّرَ، جَرِّبِ البُسْتَانَ ثَلَاثَةَ أَيَّامٍ مَجَّانًا بِكُلِّ مَوَادِّهِ، ثُمَّ اشْتَرِكْ بِسُهُولَةٍ عَبْرَ وَاتْسَاب."],["faq",".L-faq","وَهُنَا أَجْوِبَةُ أَسْئِلَتِكَ قَبْلَ أَنْ تَبْدَأَ: لَا يُخْصَمُ أَيُّ مَبْلَغٍ تِلْقَائِيًّا بَعْدَ التَّجْرِبَةِ، وَيُمْكِنُكَ إِضَافَةُ أَكْثَرَ مِنْ طِفْلٍ. يَعْمَلُ البُسْتَانُ عَلَى الهَاتِفِ وَالجِهَازِ اللَّوْحِيِّ وَالحَاسُوبِ دُونَ تَثْبِيتِ تَطْبِيقٍ، وَهُوَ سَنَدٌ لِلْكِتَابِ وَالمُعَلِّمِ، لَا بَدِيلٌ عَنْهُمَا."],["final",".L-final","ازْرَعِ اليَوْمَ بِذْرَةَ فَهْمٍ، وَاحْصُدْ غَدًا ثِقَةَ طِفْلِكَ. ثَلَاثَةُ أَيَّامٍ مَجَّانِيَّةٌ لِكُلِّ المَوَادِّ، دُونَ بِطَاقَةٍ وَدُونَ الْتِزَامٍ. لَا تُؤَجِّلْ مَا يَسْتَحِقُّهُ طِفْلُكَ؛ اضْغَطِ الآنَ عَلَى «جَرِّبْ كُلَّ المَوَادِّ مَجَّانًا»، وَابْدَأْ رِحْلَتَهُ مَعَنَا فِي بُسْتَانِ التَّعَلُّم. أَنَا زَيْتُون، وَبِانْتِظَارِكُمَا!"]];
 var KEY='bustan_landing_voice',VOL=0.35,AUTO=true,DIR='assets/landing/voice/';
 function pref(){try{return localStorage.getItem(KEY)}catch(e){return null}}
@@ -196,7 +197,7 @@ au.onended=function(){if(cur)finish()};au.onerror=function(){if(cur)finish()};
 var stopping=0;
 function stop(cb){if(!cur){if(cb)cb();return}var c=byId(curId),tok=++stopping;cur=null;curId=null;mark(c,false);cap.hidden=true;fade(au,0,350,function(){if(tok===stopping&&!cur)au.pause();if(cb)cb()})}
 // يستدعي play() متزامنًا (داخل معالج اللمسة نفسه عند الحاجة).
-function start(id,silentFail){var c=byId(id);if(!c||played[id])return Promise.resolve(false);played[id]=1;
+function start(id,silentFail){var c=byId(id);if(!c||played[id]||!isVisitor())return Promise.resolve(false);played[id]=1;
  if(window.__bustanDemoStop)window.__bustanDemoStop();var tok=++stopping;clearInterval(au._f);au.src=DIR+id+((id==='pricing'||id==='how')?'.mp3?v=3':'.mp3?v=2');au.volume=0;cur=au;curId=id;
  var p;try{p=au.play()}catch(e){p=Promise.reject(e)}
  return Promise.resolve(p).then(function(){if(tok!==stopping)return true;fade(au,VOL,500);mark(c,true);cap.textContent=c[2];cap.hidden=false;return true},function(){if(tok!==stopping)return false;cur=null;curId=null;if(silentFail)played[id]=0;else finish();return false})}
@@ -217,13 +218,15 @@ playBtn.addEventListener('click',function(){muted=false;save('on');enable()});
 muteBtn.addEventListener('click',function(){muted=!muted;save(muted?'off':'on');if(muted){queue=[];stop();off()}else enable();ui()});
 // أول تفاعل في أي مكان يبدأ الترحيب. التمرير والعجلة ليسا تفعيلًا حقيقيًّا في كروم فتُجرَّب دون ضمان؛ اللمس والنقر والمفاتيح مضمونة.
 var evs=['pointerdown','touchstart','keydown','scroll','wheel','pointerup','click','touchend'];
-function gesture(e){if(e&&e.target&&pill.contains&&pill.contains(e.target))return;if(muted||enabled){off();return}
+function gesture(e){if(e&&e.target&&pill.contains&&pill.contains(e.target))return;if(!isVisitor()){off();return}
+ // لمسة على زر صوت الدرس التجريبي لا تبدأ الجولة؛ زر «استمع» يشغّل صوته وحده
+ if(e&&e.target&&e.target.closest&&e.target.closest('.L-say,.L-opt,.L-demo-tabs,[role=tab]'))return;if(muted||enabled){off();return}
  if(e&&e.type==='keydown'&&(e.key==='Escape'||e.key==='Tab'||e.altKey||e.ctrlKey||e.metaKey))return;
  enable()}
 function arm(){if(armed||muted||enabled)return;armed=true;evs.forEach(function(t){addEventListener(t,gesture,{capture:true,passive:true})})}
 function off(){if(!armed)return;armed=false;evs.forEach(function(t){removeEventListener(t,gesture,true)})}
 function onLoad(f){if(document.readyState==='complete')f();else addEventListener('load',function(){f()},{once:true})}
-function show(){if(!pill.hidden)return;pill.hidden=false;ui();if(muted||!AUTO)return;arm();
+function show(){if(!pill.hidden||!isVisitor())return;pill.hidden=false;ui();if(muted||!AUTO)return;arm();
  // بعد اكتمال تحميل الصفحة: محاولة تشغيل الترحيب تلقائيًّا بصوت منخفض؛ إن منعها المتصفح تبقى المستمعات مسلّحة حتى أول تفاعل
  onLoad(function(){if(enabled||muted||played.welcome||curId)return;start('welcome',true).then(function(ok){if(ok&&!enabled){enabled=true;queueVisible();ui();off()}else if(!ok)arm()})})}
 // إعدادات الجولة من لوחة الإدارة: تشغيل/إيقاف، مستوى الصوت، البدء التلقائي. دون اتصال تبقى القيم الافتراضية.
@@ -231,7 +234,12 @@ Promise.resolve(window.__bustanSite||null).then(function(d){var v=d&&d.voice;
  if(v){if(v.enabled===false){pill.remove&&pill.remove();cap.remove&&cap.remove();return}
   if(typeof v.volume==='number')VOL=Math.max(0,Math.min(1,v.volume/100));if(v.autoplay===false)AUTO=false}
  show()});
-window.__bustanVoice={stop:function(){queue=[];stop()},want:want,enable:enable,state:function(){return{enabled:enabled,muted:muted,cur:curId,played:played,queue:queue.slice()}}};
+// صوت واحد فقط: «استمع» في العيّنات يوقف الجولة تمامًا (لا تستأنف تلقائيًا؛ زرّ الجولة يعيدها)
+function pauseTour(){queue=[];enabled=false;off();stop();ui()}
+// الجولة لصفحة الزائر فقط: إن تحوّلت الصفحة إلى واجهة الطفل نوقفها ونخفي زرّها وترجمتها
+function guard(){if(isVisitor())return;pauseTour();pill.hidden=true;cap.hidden=true}
+try{new MutationObserver(guard).observe(document.documentElement,{attributes:true,attributeFilter:['data-entry']});new MutationObserver(guard).observe(root,{attributes:true,attributeFilter:['hidden']})}catch(e){}
+window.__bustanVoice={pause:pauseTour,stop:function(){queue=[];stop()},want:want,enable:enable,state:function(){return{enabled:enabled,muted:muted,cur:curId,played:played,queue:queue.slice()}}};
 })();
 
 // الأسعار ومدة الاشتراك والتجربة من لوحة الإدارة؛ النصوص المكتوبة في الصفحة احتياط عند تعذّر الاتصال.
@@ -250,7 +258,13 @@ function fill(d){
    var li=card.querySelector('ul li');if(li){var sv=li.querySelector('svg');li.textContent='';if(sv)li.append(sv);li.append((g.subjects||[]).join('، '))}
    [].slice.call(card.querySelectorAll('ul li')).slice(1).forEach(function(x){x.remove()});tpl.parentNode.append(card)}
   var t=card.querySelector('.L-plan-for'),b=card.querySelector('.L-price b'),f=card.querySelector('.L-from'),u=card.querySelector('.L-cur'),dd=card.querySelector('[data-days]');
-  if(t&&g.title)t.textContent=g.title;if(b)b.textContent=g.max>g.min?AR(g.min)+'–'+AR(g.max):AR(g.min);if(f)f.hidden=true;if(u)u.textContent='₪';
+  if(t&&g.title)t.textContent=g.title;if(b)b.textContent=AR(g.min);if(f)f.hidden=!(g.max>g.min);
+  // سعران مختلفان في المجموعة: «يبدأ من» + سعر كل صف بوضوح بدل «٨–١٠» الملتبس في الاتجاه العربي
+  var sp=card.querySelector('.L-split');if(g.max>g.min&&d.plans){var GN={1:'الأول',2:'الثاني',3:'الثالث',4:'الرابع',5:'الخامس',6:'السادس',7:'السابع',8:'الثامن',9:'التاسع'},per={};
+   (Array.isArray(d.plans)?d.plans:Object.keys(d.plans).map(function(k){return d.plans[k]})).forEach(function(p){if((g.grades||[]).indexOf(p.grade)>=0)per[p.grade]=per[p.grade]==null?p.price:Math.min(per[p.grade],p.price)});
+   if(!sp){sp=document.createElement('p');sp.className='L-split';var pr=card.querySelector('.L-price');if(pr)pr.after(sp)}
+   sp.textContent=Object.keys(per).sort(function(a,b){return a-b}).map(function(k){return 'الصف '+(GN[k]||AR(k))+': '+AR(per[k])+' ₪'}).join(' · ');sp.hidden=false}
+  else if(sp)sp.hidden=true;if(u)u.textContent='₪';
   var l0=card.querySelector('ul li');if(l0&&g.subjects&&g.subjects.length){var s0=l0.querySelector('svg');l0.textContent='';if(s0)l0.append(s0);l0.append(g.subjects.join('، '))}if(dd)dd.textContent=(g.days_vary?'من ':'')+days(g.days)});
  var dy=d.groups.length?Math.min.apply(null,d.groups.map(function(g){return g.days})):0;
  if(dy)document.querySelectorAll('[data-days]').forEach(function(el){if(!el.closest('[data-price-group]'))el.textContent=days(dy)});

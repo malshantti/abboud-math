@@ -67,7 +67,7 @@
 
   <section class="card first" id="students">
     <div class="sec-h"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><h2>الطلاب</h2>@if ($user->students->isNotEmpty())<span class="chip count">{{ $ar::num($user->students->count()) }}</span>@endif</div>
-    <p class="hint">الخطوة الأولى: أضف طالبك مع صفه ورقمه السري.</p>
+    <p class="hint">@if ($user->students->isEmpty())الخطوة الأولى: أضف طالبك مع صفه.@else طلابك المسجّلون. يختار كل طالب اسمه على جهازه ويكتب رقمه السري.@endif</p>
     @if ($user->students->isEmpty())
     <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
       <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>@if ($user->students->isEmpty()) أضف طالبك الأول @else إضافة طالب @endif</b></span></div>
@@ -77,7 +77,7 @@
         <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="اختياري"></div>
         <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
       </div>
-      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول</p>
+      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول. يُحفظ في الحساب ويعمل على كل الأجهزة، وإن تركته فارغًا يختاره طفلك أول مرة.</p>
     </form>
     @else
     <ul class="kids">
@@ -109,7 +109,7 @@
         <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="اختياري"></div>
         <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
       </div>
-      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول</p>
+      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول. يُحفظ في الحساب ويعمل على كل الأجهزة، وإن تركته فارغًا يختاره طفلك أول مرة.</p>
     </form>
     @endif
   </section>
@@ -126,22 +126,22 @@
       @foreach ($expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
     </div>
     <div class="row">
-      @if ($siteUrl)<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">افتح الموقع وزامن هذا الجهاز</a>@endif
+      @if ($siteUrl)<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">ابدأ التعلّم على هذا الجهاز</a>@endif
       <a class="btn ghost" href="{{ route('account.subscribe') }}">الاشتراكات</a>
     </div>
   </section>
   <section class="card" id="reminders">
     <h2>التذكير اليومي</h2>
     @php($pushN = $user->pushSubscriptions()->count())
-    <p class="muted">إشعار واحد يوميًا عصرًا: «اسم طفلك، درسك اليوم جاهز في بستان 🌱»، ولا يصل إن درس طفلك قبله. @if ($pushN) مفعّل على {{ $pushN }} @if ($pushN == 1) جهاز @else أجهزة @endif. @else لتفعيله على جهاز طفلك: افتح بستان عليه واضغط «نعم، ذكّرني» حين يظهر الاقتراح. @endif</p>
-    <form method="post" action="{{ route('account.reminders') }}">@csrf<input type="hidden" name="on" value="{{ $user->push_reminders ? 0 : 1 }}"><button class="btn {{ $user->push_reminders ? '' : 'primary' }}" type="submit">{{ $user->push_reminders ? 'إيقاف التذكير اليومي' : 'تشغيل التذكير اليومي' }}</button></form>
+    <p class="muted">إشعار واحد يوميًا عصرًا: «اسم طفلك، درسك اليوم جاهز في بستان 🌱»، ولا يصل إن درس طفلك قبله. @if ($pushN) مفعّل على {{ $pushN }} @if ($pushN == 1) جهاز @else أجهزة @endif. @else <b>لم يُفعَّل على أي جهاز بعد.</b> لتفعيله على جهاز طفلك: افتح بستان عليه واضغط «نعم، ذكّرني» حين يظهر الاقتراح. @endif</p>
+    <form method="post" action="{{ route('account.reminders') }}">@csrf<input type="hidden" name="on" value="{{ $user->push_reminders ? 0 : 1 }}"><button class="btn {{ $user->push_reminders ? '' : 'primary' }}" type="submit">{{ $user->push_reminders ? ($pushN ? 'إيقاف التذكير اليومي' : 'لا أريد التذكير') : 'تشغيل التذكير اليومي' }}</button></form>
   </section>
   <details class="card more">
     <summary>التفعيل والأجهزة @unless ($user->isVerified())<span class="chip warn">البريد غير مفعّل</span>@endunless</summary>
   @unless ($user->isVerified())
   <section class="verify" aria-label="تفعيل الحساب">
     <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
-    <div class="txt"><b>فعّل بريدك متى شئت</b><p>يمكنك استخدام الحساب وإضافة طلابك الآن دون تفعيل. أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر. لم تصلك الرسالة؟ افحص مجلد «الرسائل غير المرغوب فيها» (Spam) أو «العروض» ثم اضغط «ليست رسالة غير مرغوب فيها».</p></div>
+    <div class="txt"><b>فعّل بريدك متى شئت</b><p>يمكنك استخدام الحساب وإضافة طلابك الآن دون تفعيل. أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة المرور. لم تصلك الرسالة؟ افحص مجلد «الرسائل غير المرغوب فيها» (Spam) أو «العروض» ثم اضغط «ليست رسالة غير مرغوب فيها».</p></div>
     <form method="post" action="{{ route('account.verify.resend') }}">@csrf<button class="btn" type="submit">إعادة إرسال رابط التفعيل</button></form>
   </section>
   @endunless

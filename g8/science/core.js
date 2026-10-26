@@ -111,13 +111,13 @@ R.ach=()=>{const L=lvl(),r=Math.min(LV.length,1+Math.floor((L.l-1)/2)),got=ACH.f
  return '<h2 class="bk-page-h">إنجازاتي</h2>'+bkLadder({names:LV,cur:r,img:k=>'../math/img/rank-'+k+'.webp',pct:Math.round(L.x/L.need*100),left:ar(L.need-L.x)+' نقطة للوصول إلى المستوى '+ar(L.l+1),sub:'المستوى '+ar(L.l)+' · '+ar(S.xp)+' نقطة',rung:k=>k===LV.length?'من المستوى '+ar(2*k-1):'المستويان '+ar(2*k-1)+' و'+ar(2*k)})+
  '<div class="bk-stats"><div><b>'+ar(S.xp)+'</b><small>مجموع النقاط</small></div><div><b>'+ar(S.streak)+'</b><small>يوم متتالٍ</small></div><div><b>'+ar(S.qs)+'</b><small>سؤالًا أُجيب عنه</small></div><div><b>'+ar(got)+'</b><small>إنجاز</small></div></div>'+
  '<div class="bk-sec-h"><h2>الإنجازات</h2><span>'+ar(got)+' من '+ar(ACH.length)+'</span></div><div class="ach">'+ACH.map(a=>{const ok=S.ach.includes(a[0]);return '<div class="'+(ok?'on':'lock')+'">'+ic(a[4])+(ok?'':bkLock)+'<b style="display:block">'+a[1]+'</b><small class="mut">'+a[2]+'</small></div>'}).join('')+'</div>'};
-// تقرير وليّ الأمر
+// تقرير الأهل
 R.report=function(){const P=window.PROFILES;let name='';try{const s=JSON.parse(localStorage.getItem('bustan_session')||'null');const p=P&&P.list().find(x=>x.id===(s&&s.id));name=p?p.name:''}catch(e){}
  const d=(P&&(()=>{try{const s=JSON.parse(localStorage.getItem('bustan_session'));return P.dataOf(s.id,K)}catch(e){return null}})())||S;
  const items=C.sections(),counts=mastery(d.done);const days=[];for(let i=6;i>=0;i--){const t=new Date(Date.now()-i*864e5);const k=t.getFullYear()+'-'+(t.getMonth()+1)+'-'+t.getDate();days.push([t.toLocaleDateString('ar',{weekday:'short'}),(d.days||{})[k]||0])}
  const mx=Math.max(10,...days.map(x=>x[1]));const acc=d.qs?Math.round(d.ok/d.qs*100):0;
  const weak=items.filter(i=>d.done[i.key]!=null&&d.done[i.key]<70);
- return '<h2>تقرير التعلّم'+(name?' — '+esc(name):'')+'</h2><p class="mut">'+C.title+'. ملخّص لوليّ الأمر من التقدّم المحفوظ على هذا الجهاز.</p>'+
+ return '<h2>تقرير التعلّم'+(name?' — '+esc(name):'')+'</h2><p class="mut">'+C.title+'. ملخّص للأهل من التقدّم المحفوظ على هذا الجهاز.</p>'+
  '<div class="statrow"><div><div class="big-n">'+(d.xp||0)+'</div>نقاط</div><div><div class="big-n">'+(d.streak||0)+'</div>أيّام متتالية</div><div><div class="big-n">'+acc+'٪</div>دقّة الإجابات</div><div><div class="big-n">'+counts.lessons+'/'+counts.total+'</div>أقسام المنهاج المتقنة</div></div>'+
  '<div class="card"><b>الأنشطة الإضافية</b><p class="mut">'+(n=>{const m=n%100;return n===0?'لا أنشطة':n===1?'نشاط واحد':n===2?'نشاطان':(n>=100&&m<3)?n+' نشاط':(m>=3&&m<=10)?n+' أنشطة':n+' نشاطًا'})(counts.extra)+' بنتيجة ٧٠٪ فأكثر في الأساسيات واختبارات الوحدات والمختبر والمغامرات. تبقى نتائجها محفوظة، ولا تدخل في عدّ أقسام المنهاج.</p></div>'+
  '<div class="card"><b>نشاط آخر سبعة أيّام</b><div style="display:flex;gap:8px;align-items:flex-end;height:120px;margin-top:10px">'+days.map(x=>'<div style="flex:1;text-align:center"><div style="height:'+Math.round(x[1]/mx*90)+'px;background:var(--pri);border-radius:6px 6px 0 0"></div><small>'+x[0]+'</small></div>').join('')+'</div></div>'+

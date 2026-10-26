@@ -16,7 +16,7 @@ class MailCenter
 
     public const BUTTONS = ['verify' => 'تفعيل الحساب', 'reset' => 'تعيين كلمة مرور جديدة', 'welcome' => 'ادخل إلى الموقع'];
 
-    public const PLACEHOLDERS = ['{name}' => 'اسم ولي الأمر', '{site}' => 'اسم الموقع', '{trial_days}' => 'أيام التجربة', '{whatsapp}' => 'رقم واتساب', '{minutes}' => 'صلاحية رابط الاستعادة بالدقائق', '{days}' => 'صلاحية رابط التفعيل بالأيام'];
+    public const PLACEHOLDERS = ['{name}' => 'اسم صاحب الحساب', '{site}' => 'اسم الموقع', '{trial_days}' => 'أيام التجربة', '{whatsapp}' => 'رقم واتساب', '{minutes}' => 'صلاحية رابط الاستعادة بالدقائق', '{days}' => 'صلاحية رابط التفعيل بالأيام'];
 
     /** Arabic aliases the admin may type instead of the Latin placeholders. */
     public const AR_PLACEHOLDERS = ['{اسم_ولي_الأمر}' => '{name}', '{الاسم}' => '{name}', '{اسم_الموقع}' => '{site}', '{أيام_التجربة}' => '{trial_days}', '{واتساب}' => '{whatsapp}', '{الدقائق}' => '{minutes}', '{الأيام}' => '{days}'];
@@ -62,7 +62,7 @@ class MailCenter
     {
         $wa = self::whatsapp();
         $vars = [
-            '{name}' => trim($name) !== '' ? trim($name) : 'ولي الأمر',
+            '{name}' => trim($name) !== '' ? trim($name) : 'عائلتنا الكريمة',
             '{site}' => Setting::get('site_name'),
             '{trial_days}' => Ar::num(max(0, (int) Setting::get('trial_days'))),
             '{whatsapp}' => Ar::num('00'.$wa),

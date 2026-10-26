@@ -92,6 +92,7 @@ Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
         Route::get('students/{student}/progress', [SyncController::class, 'show']);
         Route::put('students/{student}/progress', [SyncController::class, 'update']);
         Route::post('students/{student}/import', [SyncController::class, 'import']);
+        Route::post('students/{student}/pin', [SyncController::class, 'storePin'])->middleware('throttle:10,1');
     });
 });
 

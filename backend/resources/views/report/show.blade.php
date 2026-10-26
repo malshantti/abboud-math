@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
+<head><meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
@@ -192,7 +192,7 @@ $dayLbl = fn ($d) => $ar::num((int) substr($d, 8, 2).'/'.(int) substr($d, 5, 2))
     @endif
   </section>
   @empty
-  <p class="card">لا يوجد تقدّم متزامن لهذا الطالب بعد. يظهر التقرير بعد أن يدرس الطالب درسًا على جهاز مسجَّل بحساب ولي الأمر.</p>
+  <p class="card">لا يوجد تقدّم متزامن لهذا الطالب بعد. يظهر التقرير بعد أن يدرس الطالب درسًا على جهاز مسجَّل بحساب العائلة.</p>
   @endforelse
   <p class="hint noprint" style="text-align:center"><button class="btn ghost small" type="button" onclick="document.querySelectorAll('details').forEach(d=>d.open=true);print()">طباعة / حفظ PDF</button></p>
 </main>

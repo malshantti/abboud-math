@@ -44,7 +44,7 @@
 .plan:has(input:checked){border-color:var(--g);background:var(--gl);box-shadow:0 3px 0 var(--g)}
 .plan:has(input:checked) .price{background:#fff}
 .plan:has(input:focus-visible){outline:3px solid var(--b);outline-offset:3px}
-.paybar{position:sticky;bottom:12px;z-index:5;margin-top:22px;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;min-width:0;max-width:100%;padding:14px 16px;background:#fff;border:2px solid #cfe3a8;border-radius:20px;box-shadow:0 6px 0 #dfeac4,0 10px 30px rgba(36,51,28,.12)}
+.paybar:not(.on){position:static}.paybar{position:sticky;bottom:12px;z-index:5;margin-top:22px;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;min-width:0;max-width:100%;padding:14px 16px;background:#fff;border:2px solid #cfe3a8;border-radius:20px;box-shadow:0 6px 0 #dfeac4,0 10px 30px rgba(36,51,28,.12)}
 .paybar .sum{flex:1 1 220px;min-width:0}
 .paybar .sum p{margin:0;min-width:0}
 .paybar .sel{font-size:14px;color:var(--muted);line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
@@ -65,11 +65,6 @@
   @include('partials.flash')
   <section class="card">
     <div class="sub-h"><img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="72" height="95"><h1>الاشتراك في المواد</h1></div>
-    <ol class="steps" aria-label="خطوات الاشتراك">
-      <li><span class="n" aria-hidden="true"><i>١</i><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg></span><span>اختر الطالب</span></li>
-      <li><span class="n" aria-hidden="true"><i>٢</i><svg viewBox="0 0 24 24"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg></span><span>اختر المواد</span></li>
-      <li><span class="n" aria-hidden="true"><i>٣</i><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-13.3 7.9L3 21l1.1-4.6A9 9 0 1 1 21 12ZM9 12l2 2 4-4"/></svg></span><span>ادفع عبر واتساب وسنفعّل الاشتراك بعد التأكيد</span></li>
-    </ol>
     @if ($access['kind'] === 'trial')
       <p class="trialbox on" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/></svg><span>الفترة التجريبية: متبقٍّ {{ $ar::num($daysLeft) }} {{ $daysLeft === 1 ? 'يوم' : ($daysLeft === 2 ? 'يومان' : 'أيام') }}، حتى {{ $ar::date($access['ends_at']) }}. اشترك الآن ليستمر الوصول بعدها.</span></p>
     @elseif ($access['kind'] === 'expired')
@@ -84,7 +79,7 @@
       <h2 class="stp"><i>١</i>اختر الطالب</h2>
       @if ($user->students->isNotEmpty())
       <label class="sr" for="student_id">الطالب</label>
-      <select id="student_id" name="student_id"><option value="" data-grade="">كل الطلاب في الحساب</option>@foreach ($user->students as $s)<option value="{{ $s->id }}" data-grade="{{ $s->grade }}">{{ $s->name }} — {{ $ar::grade($s->grade) }}</option>@endforeach</select>
+      <select id="student_id" name="student_id">@foreach ($user->students as $s)<option value="{{ $s->id }}" data-grade="{{ $s->grade }}" @selected($loop->first)>{{ $s->name }} — {{ $ar::grade($s->grade) }}</option>@endforeach<option value="" data-grade="">كل الطلاب في الحساب</option></select>
       @else
       <p class="hint" style="margin:0">سيشمل الاشتراك كل الطلاب في الحساب. يمكنك <a href="{{ route('account.home') }}">إضافة طالب</a> أولًا.</p>
       @endif
@@ -108,6 +103,7 @@
       </div>
       </fieldset>
 
+      <h2 class="stp"><i>٣</i>ادفع عبر واتساب، ونفعّل الاشتراك بعد التأكيد</h2>
       <div class="paybar" aria-live="polite">
         <div class="sum">
           <p class="tot">المجموع: <b id="tot">{{ $ar::num(0) }}</b> {{ $currency }}</p>
@@ -135,6 +131,7 @@
   var ar=function(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})};
   function upd(){var on=boxes.filter(function(b){return b.checked}),t=0;on.forEach(function(b){t+=+b.dataset.price});
     document.getElementById('tot').textContent=ar(t);
+    var pb=f.querySelector('.paybar');if(pb)pb.classList.toggle('on',on.length>0);
     document.getElementById('sel').textContent=on.length?ar(on.length)+(on.length===1?' مادة: ':' مواد: ')+on.map(function(b){return b.dataset.name}).join('، '):'لم تختر أي مادة بعد.';}
   var cards=[].slice.call(f.querySelectorAll('.gc'));
   function open(c,o){c.classList.toggle('open',o);c.querySelector('.gt').setAttribute('aria-expanded',o?'true':'false');c.querySelector('.gb').hidden=!o;}
