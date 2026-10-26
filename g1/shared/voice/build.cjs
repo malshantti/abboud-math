@@ -37,5 +37,7 @@ for(const subject of subjects){const course=load(subject);if(!course)throw new E
   if(missing.length){const tmp=path.join(require('os').tmpdir(),'g1-voice-'+subject+'.json');fs.writeFileSync(tmp,JSON.stringify(missing));
     const r=cp.spawnSync('python3',[path.join(__dirname,'tts.py'),tmp],{stdio:'inherit'});if(r.status)console.error('Some clips failed; rerun to retry.');}
   const ok={};for(const [k,f] of Object.entries(index))if(fs.existsSync(path.join(OUT,f+'.mp3')))ok[k]=f;
+  /* تسجيلات نَوْرَس البشرية تتقدّم على edge-tts: human.json = {subject:{key:file}}. */
+  {const hf=path.join(__dirname,'human.json'),hu=fs.existsSync(hf)?(JSON.parse(fs.readFileSync(hf,'utf8'))[subject]||{}):{};for(const [k,f] of Object.entries(hu))if(k in index&&fs.existsSync(path.join(OUT,f+'.mp3')))ok[k]=f;}
   fs.writeFileSync(path.join(G1,subject,'audio-index.js'),'/* مولَّد بـ g1/shared/voice/build.cjs — لا تحرّره يدويًا. */\nwindow.G1_AUDIO_INDEX=Object.assign(window.G1_AUDIO_INDEX||{},'+JSON.stringify(ok)+');\n');}
 console.log('total',total);
