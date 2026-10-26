@@ -65,6 +65,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Every Google sign-in attempt and its outcome (started, callback_ok, state_fail_*, inapp_blocked, bot_hit, error).
+        'google' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/google-oauth.log'),
+            'level' => 'info',
+            'days' => 60,
+            'replace_placeholders' => true,
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),

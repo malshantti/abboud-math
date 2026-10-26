@@ -9,6 +9,9 @@ RewriteCond %{HTTPS} !=on
 RewriteCond %{HTTP:X-Forwarded-Proto} !=https
 RewriteCond %{HTTP:CF-Visitor} !https
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# نطاق واحد فقط: www → bustankids.com (وإلا تضيع جلسة الدخول بحساب Google بين النطاقين)
+RewriteCond %{HTTP_HOST} ^www\.bustankids\.com$ [NC]
+RewriteRule ^ https://bustankids.com%{REQUEST_URI} [L,R=301]
 </IfModule>
 
 <IfModule mod_mime.c>

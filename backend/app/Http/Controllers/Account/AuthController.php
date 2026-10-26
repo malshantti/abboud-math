@@ -84,6 +84,7 @@ class AuthController extends Controller
     public function register(Request $request): RedirectResponse
     {
         abort_unless(Setting::flag('registration_open'), 403, 'التسجيل مغلق حاليًا.');
+        $this->botCheck($request);
         $this->lower($request);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
@@ -117,6 +118,36 @@ class AuthController extends Controller
         \App\Support\Landing::scrubIntended($request);
 
         return redirect()->intended(route('account.home', absolute: false))->with('status', 'أهلًا بك! أُنشئ حسابك. أضف الآن طلابك.');
+    }
+
+    /** Minimum seconds between showing the signup form and submitting it (bots post instantly). */
+    public const MIN_FILL_SECONDS = 3;
+
+    /** Hidden honeypot field + signed form timestamp, both checked server-side. Google sign-in is not affected. */
+    private function botCheck(Request $request): void
+    {
+        if (app()->runningUnitTests() && ! config('app.bot_check')) {
+            return; // feature tests post the form directly; BotCheckTest turns this on
+        }
+        $reason = null;
+        if (trim((string) $request->input('website', '')) !== '') {
+            $reason = 'honeypot';
+        } else {
+            try {
+                $at = (int) \Illuminate\Support\Facades\Crypt::decryptString((string) $request->input('form_t'));
+            } catch (\Throwable) {
+                $at = 0;
+            }
+            if ($at <= 0) {
+                $reason = 'no_token';
+            } elseif (time() - $at < self::MIN_FILL_SECONDS) {
+                $reason = 'too_fast';
+            }
+        }
+        if ($reason !== null) {
+            \Illuminate\Support\Facades\Log::warning('register.blocked '.$reason, ['ip' => $request->ip(), 'ua' => mb_substr((string) $request->userAgent(), 0, 200)]);
+            throw ValidationException::withMessages(['form' => 'لم يكتمل التسجيل. انتظر لحظة ثم اضغط «إنشاء الحساب» مرة أخرى.']);
+        }
     }
 
     public function loginForm(Request $request): View

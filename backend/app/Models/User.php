@@ -37,6 +37,47 @@ class User extends Authenticatable
     }
 
     /** Parent (family) accounts only: excludes admins, teachers and legacy is_admin flags. */
+    /** Test/QA/bot domains kept out of the admin stats (accounts still visible in the users list). */
+    public static function testEmailPatterns(): array
+    {
+        return array_map(fn ($d) => '%@'.$d, (array) config('app.test_email_domains', []));
+    }
+
+    public function isTest(): bool
+    {
+        foreach ((array) config('app.test_email_domains', []) as $d) {
+            if (str_ends_with(strtolower((string) $this->email), '@'.strtolower($d))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Real accounts only: excludes test/QA emails. */
+    public function scopeReal($query)
+    {
+        foreach (self::testEmailPatterns() as $p) {
+            $query->where('email', 'not like', $p);
+        }
+
+        return $query;
+    }
+
+    public function scopeTest($query)
+    {
+        $patterns = self::testEmailPatterns();
+        if ($patterns === []) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function ($q) use ($patterns) {
+            foreach ($patterns as $p) {
+                $q->orWhere('email', 'like', $p);
+            }
+        });
+    }
+
     public function scopeParents($query)
     {
         return $query->where('role', 'parent')->where(fn ($q) => $q->where('is_admin', false)->orWhereNull('is_admin'));

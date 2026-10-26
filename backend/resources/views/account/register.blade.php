@@ -16,11 +16,13 @@
     <h1>أنشئ حسابك المجاني – {{ $ar::num(\App\Models\Setting::get('trial_days')) }} أيام بكل المواد</h1>
     @if ($open)
     <p class="lead">حساب واحد للعائلة، ثم أضف طلابك. لا يلزم أي دفع.</p>
-    @if (session('status'))<p class="alert ok" role="status">{{ session('status') }}</p>@endif
+    @if (session('status'))<p class="alert {{ request()->boolean('email') ? 'warn' : 'ok' }}" role="status">{{ session('status') }}</p>@endif
     @php($other = collect($errors->getMessages())->except(['name', 'email', 'password'])->flatten())
     @if ($other->isNotEmpty())<div class="alert err" role="alert"><ul>@foreach ($other as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
     @include('partials.google-button')
     <form method="post" action="{{ route('account.register.store') }}" id="reg" novalidate>@csrf
+      <input type="hidden" name="form_t" value="{{ \Illuminate\Support\Facades\Crypt::encryptString((string) time()) }}">
+      <div class="hp" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label for="website">اترك هذا الحقل فارغًا</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" value=""></div>
       <div class="field"><label for="name">الاسم</label><input id="name" name="name" value="{{ old('name') }}" required maxlength="80" autocomplete="name" @error('name') class="bad" aria-invalid="true" @enderror aria-describedby="name-err"><p class="ferr" id="name-err" role="alert">@error('name'){{ $message }}@enderror</p></div>
       <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" name="email" type="email" dir="ltr" inputmode="email" value="{{ old('email') }}" required maxlength="255" autocomplete="email" @error('email') class="bad" aria-invalid="true" @enderror aria-describedby="email-err"><p class="ferr" id="email-err" role="alert">@error('email'){{ $message }}@enderror</p></div>
       <div class="field"><label for="password">كلمة المرور</label><div class="pw"><input id="password" name="password" type="password" dir="ltr" required minlength="8" maxlength="72" autocomplete="new-password" @error('password') class="bad" aria-invalid="true" @enderror aria-describedby="pw-hint password-err"><button type="button" class="eye" aria-controls="password" aria-pressed="false" aria-label="إظهار كلمة المرور">إظهار</button></div><p class="hint" id="pw-hint">٨ محارف على الأقل.</p><p class="ferr" id="password-err" role="alert">@error('password'){{ $message }}@enderror</p></div>
@@ -51,6 +53,7 @@
       if(f.querySelector('.ferr:not(:empty)'))first();
     })();
     </script>
+    @if (request()->boolean('email'))<script>(function(){var n=document.getElementById('name');if(n){n.scrollIntoView({block:'center'});n.focus()}})();</script>@endif
     @else
     <p class="alert err">التسجيل مغلق حاليًا. يمكنك متابعة التعلّم على الجهاز دون حساب.</p>
     @endif

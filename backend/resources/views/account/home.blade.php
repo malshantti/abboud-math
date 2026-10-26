@@ -72,12 +72,12 @@
     <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
       <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>@if ($user->students->isEmpty()) أضف طالبك الأول @else إضافة طالب @endif</b></span></div>
       <div class="fields">
-        <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required></div>
-        <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
-        <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="٤ أرقام"></div>
+        <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required value="{{ old('name') }}"></div>
+        <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade" required><option value="" disabled @selected(! old('grade'))>اختر الصف</option>@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected((string) old('grade') === (string) $g)>{{ $label }}</option>@endforeach</select></div>
+        <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="اختياري"></div>
         <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
       </div>
-      <p class="pinhelp">الرقم السري أربعة أرقام يكتبها الطالب عند اختيار اسمه، ويميّز ملفات الإخوة على الجهاز نفسه. إن تركته فارغًا يختاره الطالب بنفسه عند أول دخول.</p>
+      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول</p>
     </form>
     @else
     <ul class="kids">
@@ -104,12 +104,12 @@
     <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
       <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>@if ($user->students->isEmpty()) أضف طالبك الأول @else إضافة طالب @endif</b></span></div>
       <div class="fields">
-        <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required></div>
-        <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
-        <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="٤ أرقام"></div>
+        <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required value="{{ old('name') }}"></div>
+        <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade" required><option value="" disabled @selected(! old('grade'))>اختر الصف</option>@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected((string) old('grade') === (string) $g)>{{ $label }}</option>@endforeach</select></div>
+        <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="اختياري"></div>
         <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
       </div>
-      <p class="pinhelp">الرقم السري أربعة أرقام يكتبها الطالب عند اختيار اسمه، ويميّز ملفات الإخوة على الجهاز نفسه. إن تركته فارغًا يختاره الطالب بنفسه عند أول دخول.</p>
+      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول</p>
     </form>
     @endif
   </section>
@@ -136,7 +136,7 @@
   @unless ($user->isVerified())
   <section class="verify" aria-label="تفعيل الحساب">
     <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
-    <div class="txt"><b>فعّل حسابك بلمسة واحدة</b><p>أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر.</p></div>
+    <div class="txt">@if (\App\Models\Setting::flag('require_verification'))<b>فعّل حسابك بلمسة واحدة</b><p>@else<b>فعّل بريدك متى شئت</b><p>يمكنك استخدام الحساب وإضافة طلابك الآن دون تفعيل. @endif أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر.</p></div>
     <form method="post" action="{{ route('account.verify.resend') }}">@csrf<button class="btn" type="submit">إعادة إرسال رابط التفعيل</button></form>
   </section>
   @endunless

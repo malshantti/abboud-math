@@ -35,15 +35,16 @@ class ManageController extends Controller
         $since = now()->subDays(7);
         $audit = \App\Support\StudentAudit::summary();
         $stats = [
-            'parents' => User::parents()->count(),
+            'parents' => User::parents()->real()->count(),
+            'test_accounts' => User::parents()->test()->count(),
             'staff' => User::whereIn('role', ['admin', 'teacher'])->orWhere('is_admin', true)->count(),
             // Real students belong to parent accounts; staff test students and legacy rows are counted apart.
-            'students' => Student::whereHas('user', fn ($u) => $u->parents())->whereNotIn('id', $audit['ids'])->count(),
-            'families' => User::parents()->whereHas('students', fn ($q) => $q->whereNotIn('id', $audit['ids']))->count(),
+            'students' => Student::whereHas('user', fn ($u) => $u->parents()->real())->whereNotIn('id', $audit['ids'])->count(),
+            'families' => User::parents()->real()->whereHas('students', fn ($q) => $q->whereNotIn('id', $audit['ids']))->count(),
             'students_all' => Student::count(),
-            'new_week' => User::where('created_at', '>=', $since)->count(),
+            'new_week' => User::real()->where('created_at', '>=', $since)->count(),
             'active_week' => Student::where('last_synced_at', '>=', $since)->count(),
-            'trials' => User::where('trial_ends_at', '>', now())->count(),
+            'trials' => User::real()->where('trial_ends_at', '>', now())->count(),
             'subs_active' => Subscription::where('status', 'active')->where('ends_at', '>', now())->count(),
             'subs_pending' => Subscription::where('status', 'pending')->count(),
             'disabled' => User::whereNotNull('disabled_at')->count(),
