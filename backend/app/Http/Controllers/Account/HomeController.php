@@ -22,7 +22,7 @@ class HomeController extends Controller
 
     public function index(Request $request): View
     {
-        $user = $request->user()->load(['students' => fn ($q) => $q->orderBy('id')]);
+        $user = $request->user()->load(['students' => fn ($q) => $q->orderBy('id')->with('classrooms:id,name')]);
         $subs = $user->subscriptions()->latest()->take(10)->get();
 
         return view('account.home', ['user' => $user, 'access' => Access::state($user), 'subscriptions' => $subs, 'expiring' => Access::expiringSoon($user), 'grades' => Setting::gradeOptions(), 'siteUrl' => rtrim((string) config('app.student_site_url'), '/')]);
@@ -131,5 +131,29 @@ class HomeController extends Controller
         $list = collect($subs)->pluck('code')->join('، ');
 
         return $url ? redirect()->away($url) : redirect()->route('account.subscribe')->with('status', (count($subs) > 1 ? 'سُجّلت طلباتك برموز ' : 'سُجّل طلبك برمز ').$list.'. سنتواصل معك لإتمام الدفع.');
+    }
+
+    /** Parent puts a child in a teacher's class with the class code. */
+    public function joinClass(Request $request, Student $student): RedirectResponse
+    {
+        abort_unless($student->user_id === $request->user()->id, 404);
+        $code = \App\Models\Classroom::normalizeCode((string) $request->input('code'));
+        $c = $code !== '' ? \App\Models\Classroom::where('code', $code)->where('join_open', true)->first() : null;
+        if (! $c) {
+            return back()->withErrors(['code'.$student->id => 'رمز الصف غير صحيح أو أن الانضمام مغلق. تأكد من الرمز مع المعلّم.'])->withInput();
+        }
+        $c->students()->syncWithoutDetaching([$student->id => ['joined_at' => now()]]);
+        \App\Models\ActivityLog::record('class.join', $student->name, $c->name);
+
+        return back()->with('status', 'انضم '.$student->name.' إلى «'.$c->name.'». يستطيع معلّم الصف الآن رؤية تقدّمه.');
+    }
+
+    public function leaveClass(Request $request, Student $student, \App\Models\Classroom $classroom): RedirectResponse
+    {
+        abort_unless($student->user_id === $request->user()->id, 404);
+        $classroom->students()->detach($student->id);
+        \App\Models\ActivityLog::record('class.leave', $student->name, $classroom->name);
+
+        return back()->with('status', 'غادر '.$student->name.' «'.$classroom->name.'»، ولم يعد معلّمه يرى تقدّمه.');
     }
 }

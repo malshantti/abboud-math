@@ -26,8 +26,9 @@ class ReportController extends Controller
         return $this->render($student, 'parent', route('account.home'));
     }
 
-    public function staff(Student $student): Response
+    public function staff(Request $request, Student $student): Response
     {
+        abort_unless($student->isVisibleTo($request->user()), 404);
         return $this->render($student, 'staff', route('manage.student', $student));
     }
 

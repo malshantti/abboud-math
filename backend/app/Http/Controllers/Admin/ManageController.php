@@ -25,8 +25,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ManageController extends Controller
 {
-    public function dashboard(): View
+    public function dashboard(Request $request): View|RedirectResponse
     {
+        // Teachers get their classes, never the site-wide numbers, users or payments.
+        if (! $request->user()->isAdminRole()) {
+            return redirect()->route('manage.classes');
+        }
         Subscription::sweep();
         $since = now()->subDays(7);
         $audit = \App\Support\StudentAudit::summary();
@@ -193,7 +197,7 @@ class ManageController extends Controller
     // ---- Students ----
     public function students(Request $request): View
     {
-        $q = Student::with('user')->withCount('progress');
+        $q = Student::with('user')->withCount('progress')->visibleTo($request->user());
         if ($s = trim((string) $request->query('q'))) {
             $q->where(fn ($w) => $w->where('name', 'like', "%$s%")->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%$s%")->orWhere('name', 'like', "%$s%")));
         }
@@ -209,8 +213,9 @@ class ManageController extends Controller
         return view('manage.students', ['students' => $q->latest('id')->paginate(25)->withQueryString()]);
     }
 
-    public function student(Student $student): View
+    public function student(Request $request, Student $student): View
     {
+        abort_unless($student->isVisibleTo($request->user()), 404);
         $rows = [];
         foreach ($student->progress()->get() as $p) {
             if (isset(Ar::KEYS[$p->key])) {
