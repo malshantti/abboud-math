@@ -96,7 +96,12 @@
       <li class="kid">
         <div class="kid-h"><span class="av" aria-hidden="true">{{ mb_substr($s->name, 0, 1) }}</span><span class="nm"><b>{{ $s->name }}</b><span class="chip grey">{{ $ar::grade($s->grade) }}</span>@if ($s->hasPin())<span class="chip">الرقم السري محدَّد</span>@else<span class="chip warn">لم يُحدَّد رقم سري</span>@endif</span>
           <p class="sync">{{ $s->last_synced_at ? 'آخر مزامنة: '.$ar::date($s->last_synced_at) : 'لم يُزامَن بعد' }}</p>
-          <p style="margin:6px 0 0"><a class="btn small" href="{{ route('account.report', $s) }}">تقرير التقدّم</a></p></div>
+          <p style="margin:6px 0 0"><a class="btn small" href="{{ route('account.report', $s) }}">تقرير التقدّم</a></p>
+          @foreach ($s->classrooms as $cl)<p class="sync" style="margin:6px 0 0">في صف: <b>{{ $cl->name }}</b> <form method="post" action="{{ route('account.students.leave', [$s, $cl]) }}" style="display:inline" onsubmit="return confirm('مغادرة الصف؟ لن يرى المعلّم تقدّم الطالب بعدها.')">@csrf @method('delete')<button class="btn ghost small" type="submit">مغادرة</button></form></p>@endforeach
+          <details style="margin:6px 0 0"@if($errors->has('code'.$s->id)) open @endif><summary style="cursor:pointer;font-weight:700">الانضمام إلى صف معلّم</summary>
+            <form method="post" action="{{ route('account.students.join', $s) }}" style="display:flex;gap:8px;align-items:end;margin-top:6px">@csrf<div><label for="cc{{ $s->id }}">رمز الصف</label><input id="cc{{ $s->id }}" name="code" maxlength="12" dir="ltr" autocomplete="off" placeholder="مثل: K7QH2M" required></div><button class="btn small" type="submit">انضمام</button></form>
+            @error('code'.$s->id)<p class="err" role="alert" style="margin:4px 0 0">{{ $message }}</p>@enderror
+            <p class="sync" style="margin:4px 0 0">يرى معلّم الصف تقدّم الطالب وتقريره فقط، ولا يرى بريدك أو اشتراكاتك.</p></details></div>
         <form method="post" action="{{ route('account.students.update', $s) }}" class="fields">@csrf @method('put')
           <div class="f-name"><label for="n{{ $s->id }}">اسم الطالب</label><input id="n{{ $s->id }}" name="name" value="{{ $s->name }}" maxlength="24" required></div>
           <div class="f-grade"><label for="g{{ $s->id }}">الصف</label><select id="g{{ $s->id }}" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected($s->grade === $g)>{{ $label }}</option>@endforeach</select></div>

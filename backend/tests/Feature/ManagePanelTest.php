@@ -42,11 +42,17 @@ class ManagePanelTest extends TestCase
 
     public function test_teacher_can_log_in_and_see_students_but_not_admin_sections(): void
     {
-        $this->teacher();
+        $t = $this->teacher();
         $this->post('/login', ['email' => 'teacher@example.test', 'password' => 'An-example-passphrase-123'])->assertRedirect('/admin/manage');
         $this->get('/admin')->assertOk();
-        $this->get('/admin/manage')->assertOk()->assertSee('لوحة المعلومات')->assertDontSee('سجل النشاط');
+        $this->get('/admin/manage')->assertRedirect('/admin/manage/classes');
+        $this->get('/admin/manage/classes')->assertOk()->assertSee('صفوفي')->assertDontSee('سجل النشاط');
         $s = User::factory()->create()->students()->create(['name' => 'سامي', 'grade' => 6]);
+        // Privacy: a teacher only sees students in their own classes.
+        $this->get('/admin/manage/students')->assertOk()->assertDontSee('سامي');
+        $c = \App\Models\Classroom::create(['name' => 'ص', 'code' => 'ABCDEF']);
+        $c->teachers()->attach($t->id);
+        $c->students()->attach($s->id);
         $this->get('/admin/manage/students')->assertOk()->assertSee('سامي');
         $this->get("/admin/manage/students/{$s->id}")->assertOk();
         foreach (['/admin/manage/users', '/admin/manage/settings', '/admin/manage/activity', '/admin/manage/subscriptions', '/admin/manage/export/users'] as $url) {

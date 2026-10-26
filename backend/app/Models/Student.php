@@ -53,6 +53,29 @@ class Student extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function classrooms(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Classroom::class, 'classroom_student')->withPivot('joined_at');
+    }
+
+    /** Privacy: admins see every student, teachers only students in their own classes, nobody else any. */
+    public function scopeVisibleTo($q, User $u)
+    {
+        if ($u->isAdminRole()) {
+            return $q;
+        }
+        if ($u->role !== 'teacher') {
+            return $q->whereRaw('1 = 0');
+        }
+
+        return $q->whereHas('classrooms.teachers', fn ($t) => $t->whereKey($u->id));
+    }
+
+    public function isVisibleTo(User $u): bool
+    {
+        return static::query()->visibleTo($u)->whereKey($this->id)->exists();
+    }
+
     public function progress(): HasMany
     {
         return $this->hasMany(StudentProgress::class);

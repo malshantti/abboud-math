@@ -70,6 +70,10 @@ class ProgressReportTest extends TestCase
     {
         $s = $this->studentWithProgress(User::factory()->create());
         $t = User::factory()->create(['role' => 'teacher']);
+        $this->actingAs($t)->get("/admin/manage/students/{$s->id}/report")->assertNotFound();
+        $c = \App\Models\Classroom::create(['name' => 'ص', 'code' => 'ABCDEF']);
+        $c->teachers()->attach($t->id);
+        $c->students()->attach($s->id);
         $this->actingAs($t)->get("/admin/manage/students/{$s->id}")->assertOk()->assertSee("/admin/manage/students/{$s->id}/report", false);
         $this->actingAs($t)->get("/admin/manage/students/{$s->id}/report")->assertOk()->assertSee('ما قيمة ٢ أس ٣؟');
         $this->actingAs(User::factory()->create())->get("/admin/manage/students/{$s->id}/report")->assertRedirect();

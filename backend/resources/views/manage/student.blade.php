@@ -3,7 +3,7 @@
 @section('content')
 <div class="head"><h1>{{ $student->name }} <span class="chip">{{ $ar::grade($student->grade) }}</span></h1><a class="btn small" href="{{ route('manage.student.report', $student) }}">تقرير التقدّم</a> <a class="btn ghost small" href="{{ route('manage.students') }}">@include('partials.admin-icon',['name'=>'back'])كل الطلاب</a></div>
 <dl class="facts">
-  <div><dt>@include('partials.admin-icon',['name'=>'users'])وليّ الأمر</dt><dd>@if ($student->user)<a href="{{ route('manage.user', $student->user) }}">{{ $student->user->name }}</a><span class="mail" dir="ltr" title="{{ $student->user->email }}">{{ $student->user->email }}</span>@else — @endif</dd></div>
+  <div><dt>@include('partials.admin-icon',['name'=>'users'])وليّ الأمر</dt><dd>@if ($student->user)@can('manage-site')<a href="{{ route('manage.user', $student->user) }}">{{ $student->user->name }}</a><span class="mail" dir="ltr" title="{{ $student->user->email }}">{{ $student->user->email }}</span>@else{{ $student->user->name }}@endcan @else — @endif</dd></div>
   <div><dt>@include('partials.admin-icon',['name'=>'clock'])آخر مزامنة</dt><dd><time datetime="{{ $student->last_synced_at?->toIso8601String() }}">{{ $ar::when($student->last_synced_at) }}</time></dd></div>
 </dl>
 @forelse ($rows as $g => $items)

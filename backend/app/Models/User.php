@@ -25,6 +25,12 @@ class User extends Authenticatable
         return $this->hasMany(Student::class);
     }
 
+    /** Classes this teacher is assigned to. */
+    public function classrooms(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Classroom::class, 'classroom_teacher');
+    }
+
     public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Subscription::class);

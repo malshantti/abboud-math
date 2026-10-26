@@ -61,6 +61,8 @@ Route::prefix('account')->group(function () {
         Route::post('students', [AccountHome::class, 'storeStudent'])->name('account.students.store');
         Route::put('students/{student}', [AccountHome::class, 'updateStudent'])->name('account.students.update');
         Route::delete('students/{student}', [AccountHome::class, 'destroyStudent'])->name('account.students.destroy');
+        Route::post('students/{student}/join', [AccountHome::class, 'joinClass'])->middleware('throttle:10,1')->name('account.students.join');
+        Route::delete('students/{student}/classes/{classroom}', [AccountHome::class, 'leaveClass'])->name('account.students.leave');
         Route::get('students/{student}/report', [App\Http\Controllers\ReportController::class, 'parent'])->name('account.report');
         Route::post('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'share'])->middleware('throttle:10,1')->name('account.report.share');
         Route::delete('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'unshare'])->name('account.report.unshare');
@@ -94,7 +96,18 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
     Route::get('students', [Manage::class, 'students'])->name('manage.students');
     Route::get('students/{student}', [Manage::class, 'student'])->name('manage.student');
     Route::get('students/{student}/report', [App\Http\Controllers\ReportController::class, 'staff'])->name('manage.student.report');
+    Route::get('classes', [App\Http\Controllers\Admin\ClassroomController::class, 'index'])->name('manage.classes');
+    Route::get('classes/{classroom}', [App\Http\Controllers\Admin\ClassroomController::class, 'show'])->name('manage.class');
+    Route::get('classes/{classroom}/report', [App\Http\Controllers\Admin\ClassroomController::class, 'report'])->name('manage.class.report');
     Route::middleware('can:manage-site')->group(function () {
+        Route::post('classes', [App\Http\Controllers\Admin\ClassroomController::class, 'store'])->name('manage.classes.store');
+        Route::put('classes/{classroom}', [App\Http\Controllers\Admin\ClassroomController::class, 'update'])->name('manage.class.update');
+        Route::delete('classes/{classroom}', [App\Http\Controllers\Admin\ClassroomController::class, 'destroy'])->name('manage.class.destroy');
+        Route::post('classes/{classroom}/code', [App\Http\Controllers\Admin\ClassroomController::class, 'regenerate'])->name('manage.class.code');
+        Route::post('classes/{classroom}/teachers', [App\Http\Controllers\Admin\ClassroomController::class, 'addTeacher'])->name('manage.class.teachers.add');
+        Route::delete('classes/{classroom}/teachers/{user}', [App\Http\Controllers\Admin\ClassroomController::class, 'removeTeacher'])->name('manage.class.teachers.remove');
+        Route::post('classes/{classroom}/students', [App\Http\Controllers\Admin\ClassroomController::class, 'addStudents'])->name('manage.class.students.add');
+        Route::delete('classes/{classroom}/students/{student}', [App\Http\Controllers\Admin\ClassroomController::class, 'removeStudent'])->name('manage.class.students.remove');
         Route::put('students/{student}', [Manage::class, 'updateStudent'])->name('manage.student.update');
         Route::delete('students/{student}', [Manage::class, 'destroyStudent'])->name('manage.student.destroy');
         Route::get('users', [Manage::class, 'users'])->name('manage.users');
