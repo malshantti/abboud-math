@@ -6,10 +6,10 @@
 .field .ferr{margin:6px 0 0;color:#a3261f;font-size:15px;font-weight:700}
 .field .ferr:empty{display:none}
 .pw{position:relative}
-.pw input{padding-inline-end:96px}
-.pw .eye{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);min-height:44px;min-width:44px;padding:6px 12px;border:0;border-radius:12px;background:transparent;color:var(--gd);font:inherit;font-weight:800;font-size:15px;cursor:pointer}
+.pw input{padding-left:92px}
+.pw .eye{position:absolute;left:6px;top:50%;transform:translateY(-50%);min-height:44px;min-width:44px;padding:6px 12px;border:0;border-radius:12px;background:transparent;color:var(--gd);font:inherit;font-weight:800;font-size:15px;cursor:pointer}
 .pw .eye:focus-visible{outline:3px solid var(--g)}
-.auth .links a,.auth p.hint a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+.auth .links a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
 </style>
 <main class="auth">
   <section class="card">
