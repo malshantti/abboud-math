@@ -302,7 +302,6 @@
   <div class="stack">
   <div class="card">
     <label class="sw"><span><b>التسجيل مفتوح للحسابات الجديدة</b><small>عند الإغلاق تختفي روابط التسجيل ويُرفض إنشاء الحسابات.</small></span><span class="tg"><input type="checkbox" name="registration_open" value="1" @checked($on('registration_open'))><i></i></span></label>
-    <label class="sw"><span><b>اشتراط تفعيل البريد قبل فتح الدروس</b><small>يبقى الحساب مقفلًا حتى يضغط ولي الأمر رابط التفعيل. تأكّد من تشغيل رسالة التفعيل في <a href="{{ route('manage.mail') }}">إعدادات البريد</a>.</small></span><span class="tg"><input type="checkbox" name="require_verification" value="1" @checked($on('require_verification'))><i></i></span></label>
     <label class="sw"><span><b>جهاز واحد لكل حساب</b><small>يبقى الحساب مفتوحًا على آخر جهاز سجّل الدخول فقط، وتُغلق الجلسة على الجهاز السابق عند اتصاله التالي. لا يشمل حسابات المشرفين.</small></span><span class="tg"><input type="checkbox" name="single_device" value="1" @checked($on('single_device'))><i></i></span></label>
   </div>
   <div class="card"><div class="fg">

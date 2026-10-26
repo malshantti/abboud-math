@@ -186,8 +186,8 @@ class SettingsCenterTest extends TestCase
     public function test_verification_and_max_students(): void
     {
         $u = User::factory()->unverified()->create(['trial_ends_at' => now()->addDays(2)]);
-        Setting::put(['require_verification' => '1']);
-        $this->assertSame('unverified', Access::state($u)['kind']);
+        Setting::put(['require_verification' => '1']); // legacy flag: ignored, unverified never blocks
+        $this->assertSame('trial', Access::state($u)['kind']);
         Setting::put(['require_verification' => '0', 'max_students' => '1']);
         $this->assertSame('trial', Access::state($u)['kind']);
         $this->actingAs($u)->post('/account/students', ['name' => 'أ', 'grade' => 1])->assertSessionHasNoErrors();

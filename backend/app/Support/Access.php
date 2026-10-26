@@ -51,9 +51,7 @@ class Access
         if ($user->isStaff() || ! Setting::flag('gating_enabled')) {
             return ['access' => true, 'kind' => $user->isStaff() ? 'staff' : 'open', 'ends_at' => null, 'subjects' => null];
         }
-        if (Setting::flag('require_verification') && ! $user->isVerified()) {
-            return ['access' => false, 'kind' => 'unverified', 'ends_at' => null, 'subjects' => []];
-        }
+        // Email verification never gates access: an unverified account uses the site normally.
         if ($user->trial_ends_at && $user->trial_ends_at->isFuture()) {
             return ['access' => true, 'kind' => 'trial', 'ends_at' => $user->trial_ends_at, 'subjects' => null];
         }
