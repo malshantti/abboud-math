@@ -13,6 +13,7 @@
   <a class="nav-item" href="{{ route('manage.settings') }}" @if($r==='manage.settings') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'tag'])<span>الأسعار والإعدادات</span></a>
   <a class="nav-item" href="{{ route('manage.mail') }}" @if($r==='manage.mail') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'mail'])<span>البريد الإلكتروني</span></a>
   <a class="nav-item" href="{{ route('manage.seo') }}" @if($r==='manage.seo') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'search'])<span>عناوين جوجل (SEO)</span></a>
+  <a class="nav-item" href="{{ route('manage.media') }}" @if($r==='manage.media') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'image'])<span>مكتبة الوسائط</span></a>
   <a class="nav-item" href="{{ route('manage.activity') }}" @if($r==='manage.activity') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>سجل النشاط</span></a>
   @endcan
   <p class="nav-group">المحتوى والاختبارات</p>
