@@ -35,6 +35,12 @@ class MailSeoTest extends TestCase
             ->assertOk()->assertSee('نص تجريبي')->assertSee('عنوان');
     }
 
+    public function test_mail_page_renders_with_log_rows(): void
+    {
+        \App\Models\MailLog::create(['to' => 'a@b.c', 'type' => 'verify', 'subject' => 'x', 'status' => 'sent', 'is_test' => false]);
+        $this->actingAs($this->admin())->get('/admin/manage/mail')->assertOk()->assertSee('{اسم_ولي_الأمر}')->assertSee('a@b.c');
+    }
+
     public function test_mail_save_allows_blank_fields(): void
     {
         $this->actingAs($this->admin())->put('/admin/manage/mail', ['mail_from_name' => 'بستان', 'mail_verify_subject' => '', 'mail_verify_body' => ''])->assertSessionHasNoErrors();
