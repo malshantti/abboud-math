@@ -19,7 +19,7 @@ class ActivityLog extends Model
         'settings.update' => 'تعديل الإعدادات', 'export' => 'تصدير بيانات', 'subscription.request' => 'طلب اشتراك',
         'subscription.activate' => 'تفعيل اشتراك', 'subscription.cancel' => 'إلغاء اشتراك',
         'email.verify' => 'تفعيل البريد', 'user.verify' => 'تفعيل بريد يدويًا', 'mail.settings' => 'تعديل إعدادات البريد', 'mail.test' => 'رسالة تجريبية',
-        'class.create' => 'إنشاء صف', 'class.update' => 'تعديل صف', 'class.delete' => 'حذف صف', 'class.code' => 'رمز صف جديد', 'class.teacher' => 'معلّمو الصف', 'class.students' => 'طلاب الصف', 'class.join' => 'انضمام إلى صف', 'class.leave' => 'مغادرة صف', 'seo.settings' => 'تعديل عناوين جوجل', 'media.upload' => 'رفع وسائط', 'media.replace' => 'استبدال وسائط', 'media.restore' => 'إعادة وسائط أصلية',
+        'class.create' => 'إنشاء صف', 'class.update' => 'تعديل صف', 'class.delete' => 'حذف صف', 'class.code' => 'رمز صف جديد', 'class.teacher' => 'معلّمو الصف', 'class.students' => 'طلاب الصف', 'class.join' => 'انضمام إلى صف', 'class.leave' => 'مغادرة صف', 'seo.settings' => 'تعديل عناوين جوجل', 'media.upload' => 'رفع وسائط', 'media.replace' => 'استبدال وسائط', 'media.restore' => 'إعادة وسائط أصلية', 'question.create' => 'إضافة سؤال', 'question.update' => 'تعديل سؤال', 'question.delete' => 'حذف سؤال',
     ];
 
     public function user(): BelongsTo

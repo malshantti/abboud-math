@@ -29,3 +29,26 @@ Artisan::command('subscriptions:expire', function () {
     $this->info("expired: $e, cancelled pending: $c");
 })->purpose('Expire ended subscriptions and stale pending requests');
 \Illuminate\Support\Facades\Schedule::command('subscriptions:expire')->hourly();
+
+// استيراد عيّنات بنك الأسئلة (تُضاف غير مفعّلة، ولا تتكرر): php artisan questions:import database/data/questions-g6-math.json
+Artisan::command('questions:import {file} {--active}', function (string $file) {
+    $path = str_starts_with($file, '/') ? $file : base_path($file);
+    $d = json_decode((string) @file_get_contents($path), true);
+    if (! is_array($d) || empty($d['items'])) {
+        $this->error('ملف غير صالح');
+
+        return 1;
+    }
+    $have = App\Models\Question::where(['grade' => $d['grade'], 'subject' => $d['subject'], 'origin' => 'sample'])->pluck('lesson')->flip();
+    $n = 0;
+    foreach ($d['items'] as $i) {
+        if (isset($have[$i['lesson']])) {
+            continue;
+        }
+        App\Models\Question::create(['grade' => $d['grade'], 'subject' => $d['subject'], 'lesson' => $i['lesson'], 'lesson_title' => $i['lesson_title'] ?? null,
+            'unit' => $i['unit'] ?? null, 'position' => $i['position'] ?? 0, 'q' => $i['q'], 'choices' => $i['choices'], 'hint' => $i['hint'] ?: null,
+            'explain' => $i['explain'] ?: null, 'active' => (bool) $this->option('active'), 'origin' => 'sample']);
+        $n++;
+    }
+    $this->info("imported $n");
+})->purpose('Import question-bank samples');
