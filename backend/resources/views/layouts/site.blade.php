@@ -13,7 +13,7 @@
 .top-in{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;max-width:1120px;margin:0 auto;padding:10px max(20px,env(safe-area-inset-left)) 10px max(20px,env(safe-area-inset-right));min-height:68px}
 .top-in>form{margin:0;min-width:0;flex:0 1 auto}
 .top nav .btn{white-space:nowrap;flex:none}
-.logo{display:flex}.logo img{height:46px;width:auto;display:block}
+.logo{display:flex;align-items:center;min-height:44px;min-width:44px;padding:4px 0}.logo img{height:46px;width:auto;display:block}
 .top nav{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
 .top nav a{white-space:nowrap}
 .top nav a{padding:8px 14px;border-radius:12px;text-decoration:none;color:var(--ink2)}.top nav a:hover{background:var(--gl);color:var(--gd)}
@@ -63,7 +63,7 @@
 @php($pub = \App\Models\Setting::publicData())
 @if ($pub['announcement'])<div class="banner" role="note" style="background:{{ $pub['announcement_color']['bg'] }};border-color:{{ $pub['announcement_color']['line'] }};color:{{ $pub['announcement_color']['ink'] }}">{{ $pub['announcement'] }}@if ($pub['announcement_link']) <a href="{{ $pub['announcement_link'] }}" style="color:inherit;font-weight:800" rel="noopener">التفاصيل</a>@endif</div>@endif
 <header class="top"><div class="top-in">
-  <a class="logo" href="{{ config('app.student_site_url') ?: route('account.home') }}"><img src="{{ asset('ui/logo-horizontal.webp') }}" alt="{{ \App\Models\Setting::get('site_name') }}" width="144" height="46"></a>
+  <a class="logo" href="{{ config('app.student_site_url') ?: route('account.home') }}" aria-label="{{ \App\Models\Setting::get('site_name') }} — الرئيسية"><img src="{{ asset('ui/logo-horizontal.webp') }}" alt="{{ \App\Models\Setting::get('site_name') }}" width="144" height="46"></a>
   @auth
   <form method="post" action="{{ route('account.logout') }}">@csrf<nav aria-label="الحساب"><a href="{{ route('account.home') }}">حسابي</a>@can('access-admin')<a href="{{ route('manage.dashboard') }}">لوحة الإدارة</a>@endcan<button class="btn ghost small" type="submit">تسجيل الخروج</button></nav></form>
   @endauth
