@@ -196,7 +196,7 @@ var stopping=0;
 function stop(cb){if(!cur){if(cb)cb();return}var c=byId(curId),tok=++stopping;cur=null;curId=null;mark(c,false);cap.hidden=true;fade(au,0,350,function(){if(tok===stopping&&!cur)au.pause();if(cb)cb()})}
 // يستدعي play() متزامنًا (داخل معالج اللمسة نفسه عند الحاجة).
 function start(id,silentFail){var c=byId(id);if(!c||played[id])return Promise.resolve(false);played[id]=1;
- var tok=++stopping;clearInterval(au._f);au.src=DIR+id+'.mp3';au.volume=0;cur=au;curId=id;
+ var tok=++stopping;clearInterval(au._f);au.src=DIR+id+'.mp3?v=2';au.volume=0;cur=au;curId=id;
  var p;try{p=au.play()}catch(e){p=Promise.reject(e)}
  return Promise.resolve(p).then(function(){if(tok!==stopping)return true;fade(au,VOL,500);mark(c,true);cap.textContent=c[2];cap.hidden=false;return true},function(){if(tok!==stopping)return false;cur=null;curId=null;if(silentFail)played[id]=0;else finish();return false})}
 function next(){if(cur||!enabled||muted)return;while(queue.length){var id=queue.shift();if(!played[id]){start(id);return}}}
