@@ -88,7 +88,8 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => $this->passwordRules(),
+            // No confirmation field on the signup form (show-password toggle instead); reset keeps 'confirmed'.
+            'password' => ['required', 'string', PasswordRule::min(8), 'max:72'],
         ], self::MESSAGES);
 
         $user = DB::transaction(function () use ($data) {

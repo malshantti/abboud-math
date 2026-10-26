@@ -23,7 +23,7 @@ class AccountTest extends TestCase
 
     public function test_register_page_is_arabic_rtl_without_external_assets(): void
     {
-        $r = $this->get('/account/register')->assertOk()->assertSee('إنشاء حساب ولي الأمر')->assertSee('dir="rtl"', false)->assertSee('name="_token"', false);
+        $r = $this->get('/account/register')->assertOk()->assertSee('أنشئ حسابك المجاني')->assertDontSee('ولي الأمر')->assertDontSee('password_confirmation', false)->assertSee('dir="rtl"', false)->assertSee('name="_token"', false);
         $this->assertDoesNotMatchRegularExpression('#(fonts\.googleapis|cdn\.|unpkg|jsdelivr)#', $r->getContent());
         $this->assertStringContainsString('٣', $r->getContent());
     }
@@ -110,7 +110,8 @@ class AccountTest extends TestCase
 
     public function test_registration_validation_and_closed_registration(): void
     {
-        $this->register(['password_confirmation' => 'other'])->assertSessionHasErrors('password');
+        $this->register(['email' => 'noconfirm@example.test', 'password_confirmation' => 'other'])->assertSessionHasNoErrors(); // confirmation no longer required
+        auth()->guard()->logout();
         $this->register(['password' => 'short', 'password_confirmation' => 'short'])->assertSessionHasErrors('password');
         User::factory()->create(['email' => 'parent@example.test']);
         $this->register()->assertSessionHasErrors('email');

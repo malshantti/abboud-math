@@ -56,40 +56,29 @@
   .sec-h h2{font-size:22px}
   .subs li{grid-template-columns:minmax(0,1fr) auto}.subs .end{grid-column:1/-1}
 }
+.more{padding:12px 16px}.more summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--ink2)}
+.more .verify{margin-top:10px;padding:10px 14px;box-shadow:none}.more .verify b{font-size:16px}.more .verify p{font-size:14px}
+.first{border-color:#cfe3a8;box-shadow:0 5px 0 #cfe3a8}
+.first .add{margin-top:12px}
+.kid-h summary{min-height:44px;display:flex;align-items:center}
 </style>
 <main class="wrap grid">
   @include('partials.flash')
-  @unless ($user->isVerified())
-  <section class="verify" role="status" aria-label="تفعيل الحساب">
-    <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
-    <div class="txt"><b>فعّل حسابك بلمسة واحدة</b><p>أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر.</p></div>
-    <form method="post" action="{{ route('account.verify.resend') }}">@csrf<button class="btn" type="submit">إعادة إرسال رابط التفعيل</button></form>
-  </section>
-  @endunless
-  <section class="card hello">
-    <img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="96" height="126">
-    <div class="txt">
-      <h1>أهلًا {{ $user->name }}</h1>
-      @switch($access['kind'])
-        @case('trial')<p><span class="chip warn">فترة تجريبية</span> كل المواد متاحة حتى {{ $ar::date($access['ends_at']) }}.</p>@break
-        @case('paid')<p><span class="chip">مشترك</span> المواد المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</p>@break
-        @case('expired')<p><span class="chip bad">انتهت الفترة التجريبية</span> اشترك في المادة التي يحتاجها طفلك لمتابعة الدروس.</p>@break
-        @case('unverified')<p><span class="chip bad">البريد غير مفعّل</span> فعّل بريدك الإلكتروني من الرسالة التي أرسلناها إليك لتفتح الدروس.</p>@break
-        @default<p><span class="chip">وصول كامل</span></p>
-      @endswitch
-      @foreach ($expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
-    </div>
-    <div class="row">
-      @if ($siteUrl)<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">افتح الموقع وزامن هذا الجهاز</a>@endif
-      <a class="btn ghost" href="{{ route('account.subscribe') }}">الاشتراكات</a>
-    </div>
-  </section>
 
-  <section class="card">
+  <section class="card first" id="students">
     <div class="sec-h"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><h2>الطلاب</h2>@if ($user->students->isNotEmpty())<span class="chip count">{{ $ar::num($user->students->count()) }}</span>@endif</div>
-    <p class="hint">أضف كل طالب مع صفه ورقمه السري هنا. على جهاز الطالب افتح الموقع وسجّل الدخول بحسابك، فتظهر أسماء الطلاب، ويختار كل طالب اسمه ويكتب رقمه السري. يُحفظ التقدّم على الخادم، ويعمل الموقع دون إنترنت ثم يتزامن عند عودة الاتصال.</p>
+    <p class="hint">الخطوة الأولى: أضف طالبك مع صفه ورقمه السري.</p>
     @if ($user->students->isEmpty())
-      <p class="empty">لا يوجد طلاب بعد. أضف طالبك الأول من النموذج أدناه، ثم افتح الموقع على جهازه.</p>
+    <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
+      <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>@if ($user->students->isEmpty()) أضف طالبك الأول @else إضافة طالب @endif</b></span></div>
+      <div class="fields">
+        <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required></div>
+        <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
+        <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="٤ أرقام"></div>
+        <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
+      </div>
+      <p class="pinhelp">الرقم السري أربعة أرقام يكتبها الطالب عند اختيار اسمه، ويميّز ملفات الإخوة على الجهاز نفسه. إن تركته فارغًا يختاره الطالب بنفسه عند أول دخول.</p>
+    </form>
     @else
     <ul class="kids">
     @foreach ($user->students as $s)
@@ -112,9 +101,8 @@
       </li>
     @endforeach
     </ul>
-    @endif
     <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
-      <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>إضافة طالب</b></span></div>
+      <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>@if ($user->students->isEmpty()) أضف طالبك الأول @else إضافة طالب @endif</b></span></div>
       <div class="fields">
         <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required></div>
         <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}">{{ $label }}</option>@endforeach</select></div>
@@ -123,7 +111,37 @@
       </div>
       <p class="pinhelp">الرقم السري أربعة أرقام يكتبها الطالب عند اختيار اسمه، ويميّز ملفات الإخوة على الجهاز نفسه. إن تركته فارغًا يختاره الطالب بنفسه عند أول دخول.</p>
     </form>
+    @endif
   </section>
+  <section class="card hello">
+    <img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="96" height="126">
+    <div class="txt">
+      <h1>أهلًا {{ $user->name }}</h1>
+      @switch($access['kind'])
+        @case('trial')<p><span class="chip warn">فترة تجريبية</span> كل المواد متاحة حتى {{ $ar::date($access['ends_at']) }}.</p>@break
+        @case('paid')<p><span class="chip">مشترك</span> المواد المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</p>@break
+        @case('expired')<p><span class="chip bad">انتهت الفترة التجريبية</span> اشترك في المادة التي يحتاجها طفلك لمتابعة الدروس.</p>@break
+        @case('unverified')<p><span class="chip bad">البريد غير مفعّل</span> فعّل بريدك الإلكتروني من الرسالة التي أرسلناها إليك لتفتح الدروس.</p>@break
+        @default<p><span class="chip">وصول كامل</span></p>
+      @endswitch
+      @foreach ($expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
+    </div>
+    <div class="row">
+      @if ($siteUrl)<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">افتح الموقع وزامن هذا الجهاز</a>@endif
+      <a class="btn ghost" href="{{ route('account.subscribe') }}">الاشتراكات</a>
+    </div>
+  </section>
+  <details class="card more">
+    <summary>التفعيل والأجهزة @unless ($user->isVerified())<span class="chip warn">البريد غير مفعّل</span>@endunless</summary>
+  @unless ($user->isVerified())
+  <section class="verify" aria-label="تفعيل الحساب">
+    <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
+    <div class="txt"><b>فعّل حسابك بلمسة واحدة</b><p>أرسلنا رابط التفعيل إلى <bdi dir="ltr">{{ $user->email }}</bdi>. يساعدنا ذلك على استعادة حسابك إن نسيت كلمة السر.</p></div>
+    <form method="post" action="{{ route('account.verify.resend') }}">@csrf<button class="btn" type="submit">إعادة إرسال رابط التفعيل</button></form>
+  </section>
+  @endunless
+    <p class="hint">على جهاز الطالب افتح الموقع وسجّل الدخول بحسابك، فتظهر أسماء الطلاب، ويختار كل طالب اسمه ويكتب رقمه السري. يُحفظ التقدّم على الخادم، ويعمل الموقع دون إنترنت ثم يتزامن عند عودة الاتصال.</p>
+  </details>
 
   @if ($subscriptions->isNotEmpty())
   <section class="card">
