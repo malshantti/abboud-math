@@ -11,8 +11,9 @@ addEventListener('scroll',onScroll,{passive:true});onScroll();
 var cheer=root.querySelector('.L-cheer');
 function celebrate(){if(!cheer)return;cheer.classList.remove('is-on');void cheer.offsetWidth;cheer.classList.add('is-on')}
 var audio=null;
-function play(src,btn){try{if(audio)audio.pause();audio=new Audio(src);if(btn){btn.classList.add('is-playing');audio.onended=audio.onerror=function(){btn.classList.remove('is-playing')}}var p=audio.play();if(p&&p.catch)p.catch(function(){if(btn)btn.classList.remove('is-playing')})}catch(e){}}
+function play(src,btn){try{if(window.__bustanVoice&&window.__bustanVoice.stop)window.__bustanVoice.stop();if(audio)audio.pause();audio=new Audio(src);if(btn){btn.classList.add('is-playing');audio.onended=audio.onerror=function(){btn.classList.remove('is-playing')}}var p=audio.play();if(p&&p.catch)p.catch(function(){if(btn)btn.classList.remove('is-playing')})}catch(e){}}
 root.querySelectorAll('.L-say').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.audio,b)})});
+window.__bustanDemoStop=function(){if(audio){audio.pause();audio=null}root.querySelectorAll('.L-say.is-playing').forEach(function(b){b.classList.remove('is-playing')})};
 var demo=root.querySelector('[data-demo-group]'),RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
 var AR=function(n){return String(n).replace(/\d/g,function(d){return'٠١٢٣٤٥٦٧٨٩'[d]})};
 // أصوات خفيفة تشبه نقرة الإصبع والتصفيق (لا آلات موسيقية)، تُولَّد من ضجيج قصير
@@ -42,7 +43,7 @@ root.querySelectorAll('[data-quiz]').forEach(function(panel){
  var set=MORE[panel.dataset.qset]||[],first={h:h3.innerHTML,v:(panel.querySelector('[data-visual]')||{}).outerHTML,o:box.innerHTML,ok:fb.dataset.okText,no:fb.dataset.noText,m:meta&&meta.textContent},qs=[first].concat(set),qi=0,done=false,slot;
  var pics={};[].forEach.call(box.children,function(b){pics[b.getAttribute('aria-label')]=b.outerHTML.replace(' data-ok','')});
  function opts(){return[].slice.call(box.querySelectorAll('.L-opt'))}
- function render(i){var q=qs[i];qi=i;done=false;panel.classList.remove('is-solved');
+ function render(i,auto){var q=qs[i];qi=i;done=false;panel.classList.remove('is-solved');
   if(q===first){h3.innerHTML=q.h;box.innerHTML=q.o}
   else if(q.w){var say=panel.querySelector('.L-say');say.dataset.audio=q.a;say.querySelector('span').textContent=q.w;box.innerHTML=Object.keys(pics).map(function(k){var h=pics[k];return k===q.k?h.replace('class="L-opt"','class="L-opt" data-ok'):h}).join('')}
   else{h3.innerHTML=q.h;var tile=box.classList.contains('L-tiles');box.innerHTML=q.o.map(function(o){return'<button type="button" class="L-opt'+(tile?' L-tile':'')+'"'+(o[1]?' data-ok':'')+'>'+o[0]+'</button>'}).join('')}
@@ -56,7 +57,7 @@ root.querySelectorAll('[data-quiz]').forEach(function(panel){
   fb.className='L-fb';fb.textContent='';fb.dataset.okText=q.ok;fb.dataset.noText=q.no;
   if(count)count.textContent='السؤال '+AR(i+1)+' من '+AR(qs.length);
   if(next)next.hidden=true;
-  var sayBtn=panel.querySelector('.L-say');if(sayBtn&&sayBtn.dataset.audio&&panel.dataset.qset!=='en')setTimeout(function(){play(sayBtn.dataset.audio,sayBtn)},400)}
+  var sayBtn=panel.querySelector('.L-say');if(auto&&sayBtn&&sayBtn.dataset.audio&&panel.dataset.qset!=='en')setTimeout(function(){play(sayBtn.dataset.audio,sayBtn)},400)}
  render(0);
  function answer(btn){
   if(done)return;var ok=btn.hasAttribute('data-ok');
@@ -69,7 +70,7 @@ root.querySelectorAll('[data-quiz]').forEach(function(panel){
    var say=panel.querySelector('.L-say');if(say)setTimeout(function(){play(say.dataset.audio,say)},500)}
   else{sfx('no');if(btn.dataset.audio)play(btn.dataset.audio)}
  }
- if(next)next.addEventListener('click',function(){render((qi+1)%qs.length);var f=box.querySelector('.L-opt');if(f)f.focus({preventScroll:true})});
+ if(next)next.addEventListener('click',function(){render((qi+1)%qs.length,true);var f=box.querySelector('.L-opt');if(f)f.focus({preventScroll:true})});
  box.addEventListener('click',function(e){var btn=e.target.closest('.L-opt');if(!btn)return;if(btn.dataset.dragged){delete btn.dataset.dragged;return}answer(btn)});
  // سحب البطاقة إلى المربّع؛ الضغط وحده يعمل أيضًا
  box.addEventListener('pointerdown',function(e){
@@ -196,7 +197,7 @@ var stopping=0;
 function stop(cb){if(!cur){if(cb)cb();return}var c=byId(curId),tok=++stopping;cur=null;curId=null;mark(c,false);cap.hidden=true;fade(au,0,350,function(){if(tok===stopping&&!cur)au.pause();if(cb)cb()})}
 // يستدعي play() متزامنًا (داخل معالج اللمسة نفسه عند الحاجة).
 function start(id,silentFail){var c=byId(id);if(!c||played[id])return Promise.resolve(false);played[id]=1;
- var tok=++stopping;clearInterval(au._f);au.src=DIR+id+'.mp3?v=2';au.volume=0;cur=au;curId=id;
+ if(window.__bustanDemoStop)window.__bustanDemoStop();var tok=++stopping;clearInterval(au._f);au.src=DIR+id+'.mp3?v=2';au.volume=0;cur=au;curId=id;
  var p;try{p=au.play()}catch(e){p=Promise.reject(e)}
  return Promise.resolve(p).then(function(){if(tok!==stopping)return true;fade(au,VOL,500);mark(c,true);cap.textContent=c[2];cap.hidden=false;return true},function(){if(tok!==stopping)return false;cur=null;curId=null;if(silentFail)played[id]=0;else finish();return false})}
 function next(){if(cur||!enabled||muted)return;while(queue.length){var id=queue.shift();if(!played[id]){start(id);return}}}
@@ -230,7 +231,7 @@ Promise.resolve(window.__bustanSite||null).then(function(d){var v=d&&d.voice;
  if(v){if(v.enabled===false){pill.remove&&pill.remove();cap.remove&&cap.remove();return}
   if(typeof v.volume==='number')VOL=Math.max(0,Math.min(1,v.volume/100));if(v.autoplay===false)AUTO=false}
  show()});
-window.__bustanVoice={want:want,enable:enable,state:function(){return{enabled:enabled,muted:muted,cur:curId,played:played,queue:queue.slice()}}};
+window.__bustanVoice={stop:function(){queue=[];stop()},want:want,enable:enable,state:function(){return{enabled:enabled,muted:muted,cur:curId,played:played,queue:queue.slice()}}};
 })();
 
 // الأسعار ومدة الاشتراك والتجربة من لوحة الإدارة؛ النصوص المكتوبة في الصفحة احتياط عند تعذّر الاتصال.
