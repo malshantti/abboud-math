@@ -17,7 +17,7 @@ window.CATALOG = {
     {id: 11, name: 'الصف الحادي عشر',   stage: 'المرحلة الثانوية'},
     {id: 12, name: 'الصف الثاني عشر',   stage: 'المرحلة الثانوية'}
   ],
-  gradeSubjects: {1: ['math','arabic','english','life'],2: ['math','arabic','english','life']},
+  gradeSubjects: {1: ['math','arabic','english','life'],2: ['math','arabic','english','life'],3: ['math','arabic','english','science']},
   subjects: [
     {id: 'math',    name: 'الرياضيات',            icon: 'math',    color: 'g'},
     {id: 'arabic',  name: 'اللغة العربية',         icon: 'arabic',  color: 'o'},
@@ -37,6 +37,10 @@ window.CATALOG = {
     {grade: 2, subject: 'arabic', status: 'active', path: 'g2/arabic/', title: 'لغتنا الجميلة للصف الثاني', desc: 'نقرأ نصوصًا قصيرة، ونفهم الكلمات، ونرتّب الجمل.'},
     {grade: 2, subject: 'english', status: 'active', path: 'g2/english/', title: 'الإنجليزية للصف الثاني', desc: 'كلمات وعبارات وصور داعمة لكتاب English for Palestine 2.'},
     {grade: 2, subject: 'life', status: 'active', path: 'g2/life/', title: 'التربية الوطنية والحياتية للصف الثاني', desc: 'وطني وصحتي وبيئتي في أنشطة اكتشاف قصيرة.'},
+    {grade: 3, subject: 'math', status: 'active', path: 'g3/math/', title: 'الرياضيات للصف الثالث', desc: 'الأعداد حتى ٩٩٩٩٩، والجمع والطرح، والهندسة والبيانات: دروس بخطوات ومختبر «أجرّب».'},
+    {grade: 3, subject: 'arabic', status: 'active', path: 'g3/arabic/', title: 'لغتنا الجميلة للصف الثالث', desc: 'دروس الكتاب الخمسة عشر: نفهم القصة ونتعلّم المفردات والتدريبات والإملاء.'},
+    {grade: 3, subject: 'english', status: 'active', path: 'g3/english/', title: 'الإنجليزية للصف الثالث', desc: 'وحدات English for Palestine 3A: كلمات وجمل وتدريب تفاعلي.'},
+    {grade: 3, subject: 'science', status: 'active', path: 'g3/science/', title: 'العلوم والحياة للصف الثالث', desc: 'النباتات، والأرض وثرواتها، ودورة الماء، مع أنشطة «أجرّب».'},
     {grade: 8, subject: 'math', status: 'active', path: 'g8/math/',
      title: 'رياضيات الصف الثامن', desc: 'دروس المنهاج الفلسطيني بجزأيه، مختبر تفاعلي، ومغامرات مع زيتون.'},
     {grade: 8, subject: 'english', status: 'active', path: 'g8/english/',

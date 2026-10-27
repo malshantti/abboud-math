@@ -28,7 +28,7 @@ class Setting extends Model
         'whatsapp_number' => '972592945557',
         'currency' => 'شيكل',
         // One subject per line: gradeSubject|price|days  (e.g. g6-math|20|30). Unit = one subject in one grade.
-        'prices' => "g1-math|15|30\ng1-arabic|15|30\ng1-english|15|30\ng1-life|15|30\ng2-math|15|30\ng2-arabic|15|30\ng2-english|15|30\ng2-life|15|30\ng6-math|20|30\ng6-arabic|20|30\ng6-english|20|30\ng6-science|20|30\ng8-math|20|30\ng8-arabic|20|30\ng8-english|20|30\ng8-science|20|30",
+        'prices' => "g1-math|15|30\ng1-arabic|15|30\ng1-english|15|30\ng1-life|15|30\ng2-math|15|30\ng2-arabic|15|30\ng2-english|15|30\ng2-life|15|30\ng3-math|15|30\ng3-arabic|15|30\ng3-english|15|30\ng3-science|15|30\ng6-math|20|30\ng6-arabic|20|30\ng6-english|20|30\ng6-science|20|30\ng8-math|20|30\ng8-arabic|20|30\ng8-english|20|30\ng8-science|20|30",
         'gating_enabled' => '1',
         // Trial and subscriptions
         'grace_days' => '0',
@@ -196,10 +196,10 @@ class Setting extends Model
         return $out;
     }
 
-    /** Default price when the admin has not set one: 15 for grades 1-2, 20 for grades 6 and 8, 30 days. */
+    /** Default price when the admin has not set one: 15 for grades 1-3, 20 for grades 6 and 8, 30 days. */
     public static function defaultPlan(int $grade): array
     {
-        return ['price' => $grade <= 2 ? 15 : 20, 'days' => 30];
+        return ['price' => $grade <= 3 ? 15 : 20, 'days' => 30];
     }
 
     /**
@@ -229,7 +229,7 @@ class Setting extends Model
     }
 
     /** Grade groups shown on the landing pricing cards; any other priced grade gets its own card. */
-    public const PRICE_GROUPS = [[1, 2], [6, 8]];
+    public const PRICE_GROUPS = [[1, 2, 3], [6, 8]];
 
     /** Public price summary for the static landing: one entry per grade group, min/max from the active admin-set prices. */
     public static function publicPrices(): array
