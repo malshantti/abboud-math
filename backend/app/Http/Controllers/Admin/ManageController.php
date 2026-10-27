@@ -271,6 +271,7 @@ class ManageController extends Controller
         $start = $current ? \Illuminate\Support\Carbon::parse($current) : now();
         $subscription->forceFill(['status' => 'active', 'starts_at' => now(), 'ends_at' => $start->copy()->addDays($days), 'days' => $days, 'activated_by' => $request->user()->id, 'note' => $data['note'] ?? $subscription->note])->save();
         ActivityLog::record('subscription.activate', $subscription->code, $subscription->plan_name);
+        \App\Support\Funnel::log('paid', ['user_id' => $subscription->user_id, 'visitor_id' => null, 'source' => null, 'student_id' => $subscription->student_id, 'meta' => ['plan' => $subscription->plan, 'gateway' => $subscription->gateway, 'price' => $subscription->price]]);
 
         return back()->with('status', 'فُعّل الاشتراك حتى '.Ar::date($subscription->ends_at, false).'.');
     }

@@ -77,6 +77,9 @@ Route::get('/report/{token}', [App\Http\Controllers\ReportController::class, 'sh
 // Named so Laravel's password broker can build links.
 Route::get('/password-reset/{token}', fn (string $token) => redirect()->route('account.password.reset', ['token' => $token] + request()->query()))->name('password.reset');
 
+// ---- Family journey beacon (fire-and-forget from the static site; no CSRF, rate-limited, no personal data) ----
+Route::post('/api/t', [App\Http\Controllers\Api\FunnelController::class, 'store'])->middleware('throttle:funnel')->name('funnel.beacon');
+
 // ---- Progress sync API for the static site (same origin: /admin-api/api/...) ----
 Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
     Route::get('site', [SyncController::class, 'site']);
@@ -156,6 +159,8 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::get('settings', [Manage::class, 'settings'])->name('manage.settings');
         Route::put('settings', [Manage::class, 'updateSettings'])->name('manage.settings.update');
         Route::get('activity', [Manage::class, 'activity'])->name('manage.activity');
+        Route::get('funnel', [App\Http\Controllers\Admin\FunnelController::class, 'index'])->name('manage.funnel');
+        Route::get('funnel/families/{user}', [App\Http\Controllers\Admin\FunnelController::class, 'family'])->whereNumber('user')->name('manage.funnel.family');
         Route::get('export/{type}', [Manage::class, 'export'])->name('manage.export');
     });
 });

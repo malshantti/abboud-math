@@ -181,6 +181,9 @@ class SyncController extends Controller
                 $row = $student->progress()->where('key', $key)->lockForUpdate()->first();
                 if (! $row) {
                     $student->progress()->create(['key' => $key, 'value' => $value, 'client_updated_at' => $updated]);
+                    if ($subj = static::subjectOf($key)) {
+                        \App\Support\Funnel::log('lesson_first', ['user_id' => $student->user_id, 'student_id' => $student->id, 'subject' => $subj]);
+                    }
                 } elseif ($updated > $row->client_updated_at) {
                     $row->update(['value' => $value, 'client_updated_at' => $updated]);
                 }

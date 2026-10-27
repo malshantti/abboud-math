@@ -15,6 +15,7 @@
   <a class="nav-item" href="{{ route('manage.seo') }}" @if($r==='manage.seo') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'search'])<span>عناوين جوجل (SEO)</span></a>
   <a class="nav-item" href="{{ route('manage.media') }}" @if($r==='manage.media') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'image'])<span>مكتبة الوسائط</span></a>
   <a class="nav-item" href="{{ route('manage.questions') }}" @if($r==='manage.questions') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'quiz'])<span>بنك الأسئلة</span></a>
+  <a class="nav-item" href="{{ route('manage.funnel') }}" @if(str_starts_with($r,'manage.funnel')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>رحلة العائلات</span></a>
   <a class="nav-item" href="{{ route('manage.activity') }}" @if($r==='manage.activity') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>سجل النشاط</span></a>
   @endcan
   <p class="nav-group">المحتوى والاختبارات</p>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\Funnel;
 use App\Support\InApp;
 use App\Support\MailCenter;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +22,7 @@ class GoogleAuthController extends Controller
 {
     private function fail(string $message): RedirectResponse
     {
+        Funnel::log('google_fail', ['meta' => ['reason' => 'refused', 'msg' => mb_substr($message, 0, 50)]]);
         return redirect()->route('account.login')->withErrors(['email' => $message]);
     }
 
@@ -37,6 +39,12 @@ class GoogleAuthController extends Controller
             'inapp' => InApp::of($request), 'has_cookie' => $request->hasCookie(config('session.cookie')),
             'has_state' => $request->filled('state'), 'retry' => (bool) $request->session()->get('google_retry'),
         ]);
+        // Journey log: the start of a Google attempt and every way it can fail (bots/crawlers excluded).
+        if ($event === 'started') {
+            Funnel::log('google_start', ['meta' => array_filter(['inapp' => InApp::of($request)])]);
+        } elseif (in_array($event, ['inapp_blocked', 'state_fail_retry', 'state_fail_final', 'error', 'cancelled', 'no_code'], true)) {
+            Funnel::log('google_fail', ['meta' => array_filter(['reason' => $event, 'inapp' => InApp::of($request)])]);
+        }
     }
 
     public function redirect(Request $request): RedirectResponse
@@ -161,6 +169,12 @@ class GoogleAuthController extends Controller
         \App\Support\Devices::claim($request, $user);
         if ($created) {
             ActivityLog::record('register', $user->email, null, $user);
+            AuthController::funnelSignup($user, 'google');
+        } else {
+            Funnel::link($user);
+            Funnel::log('login', ['user_id' => $user->id, 'meta' => ['method' => 'google']]);
+        }
+        if ($created) {
             MailCenter::send('welcome', $user, MailCenter::welcomeLink());
         }
         ActivityLog::record('login', $user->email);
