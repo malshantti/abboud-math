@@ -1,5 +1,5 @@
 // English for Palestine 3A — الصفّ الثالث، الفصل الأوّل. الوحدات والكلمات والتراكيب كما في فهرس كتاب الطالب (ص 3).
-window.AR_AUDIO={};
+window.AR_AUDIO={"en1-lang": "en1-lang.mp3", "en1-words": "en1-words.mp3", "en2-lang": "en2-lang.mp3", "en2-words": "en2-words.mp3", "en3-lang": "en3-lang.mp3", "en3-words": "en3-words.mp3", "en4-lang": "en4-lang.mp3", "en4-words": "en4-words.mp3", "en6-lang": "en6-lang.mp3", "en7-lang": "en7-lang.mp3", "en7-words": "en7-words.mp3", "en8-lang": "en8-lang.mp3", "en8-words": "en8-words.mp3"};  // core.js plays audio/+value
 (function(){
 const E=s=>'<span class="ltr en">'+s+'</span>';
 const tbl=r=>'<table class="ltr en">'+r.map(x=>'<tr><td>'+x[0]+'</td><td dir="rtl">'+x[1]+'</td></tr>').join('')+'</table>';
