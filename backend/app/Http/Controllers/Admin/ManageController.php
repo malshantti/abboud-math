@@ -272,8 +272,25 @@ class ManageController extends Controller
         $subscription->forceFill(['status' => 'active', 'starts_at' => now(), 'ends_at' => $start->copy()->addDays($days), 'days' => $days, 'activated_by' => $request->user()->id, 'note' => $data['note'] ?? $subscription->note])->save();
         ActivityLog::record('subscription.activate', $subscription->code, $subscription->plan_name);
         \App\Support\Funnel::log('paid', ['user_id' => $subscription->user_id, 'visitor_id' => null, 'source' => null, 'student_id' => $subscription->student_id, 'meta' => ['plan' => $subscription->plan, 'gateway' => $subscription->gateway, 'price' => $subscription->price]]);
+        self::activationMail($subscription);
 
         return back()->with('status', 'فُعّل الاشتراك حتى '.Ar::date($subscription->ends_at, false).'.');
+    }
+
+    /** Activation notice to the family. Never throws (MailCenter::send logs failures). */
+    public static function activationMail(Subscription $subscription): void
+    {
+        try {
+            $u = $subscription->user;
+            if ($u && ! $u->isStaff()) {
+                $student = $subscription->student_id ? \App\Models\Student::find($subscription->student_id) : null;
+                MailCenter::send('activated', $u, rtrim((string) config('app.student_site_url') ?: 'https://bustankids.com', '/').'/login.html?sync=1', false, null, [
+                    'subjects' => $subscription->plan_name.($student ? ' ('.$student->name.')' : ''), 'until' => Ar::date($subscription->ends_at, false), 'student' => $student?->name ?? '',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function grantSubscription(Request $request, User $user): RedirectResponse

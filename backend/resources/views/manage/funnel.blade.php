@@ -33,7 +33,7 @@
   @endforeach
   </div>
   <ul class="list" style="margin-top:14px">
-    <li><span>ضغطوا «ادفع عبر واتساب»</span><span class="chip">{{ $ar::num($extra['wa_click']) }}</span></li>
+    <li><span>ضغطوا «أرسل الطلب عبر واتساب»</span><span class="chip">{{ $ar::num($extra['wa_click']) }}</span></li>
     <li><span>أكّدوا البريد الإلكتروني (لا يمنع شيئًا)</span><span class="chip grey">{{ $ar::num($extra['email_verified']) }}</span></li>
     <li><span>تعثّر الدخول بحساب Google</span><span class="chip {{ $extra['google_fail'] ? 'warn' : 'grey' }}">{{ $ar::num($extra['google_fail']) }}</span></li>
     <li><span>أخطاء في النماذج (تسجيل/دخول/طفل/اشتراك)</span><span class="chip {{ $extra['form_error'] ? 'warn' : 'grey' }}">{{ $ar::num($extra['form_error']) }}</span></li>

@@ -55,7 +55,7 @@ class EmailFeaturesTest extends TestCase
 
             return true;
         });
-        Mail::assertSentCount(1);
+        Mail::assertSentCount(2); // welcome right away + activation link
         $this->assertStringContainsString('signature=', $link);
         $this->get('/account')->assertSee('إعادة إرسال رابط التفعيل');
 
@@ -90,7 +90,7 @@ class EmailFeaturesTest extends TestCase
             $this->post('/account/verify/resend')->assertRedirect();
         }
         $this->post('/account/verify/resend')->assertStatus(429);
-        Mail::assertSentCount(4);
+        Mail::assertSentCount(5); // welcome + verify at signup, then 3 resends
     }
 
     public function test_verify_off_welcomes_immediately(): void

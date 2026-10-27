@@ -32,15 +32,16 @@ class Funnel
         'register_start' => 'بدأ التسجيل', 'google_start' => 'بدأ الدخول بحساب Google', 'registered' => 'أنشأ حسابًا', 'login' => 'سجّل الدخول',
         'logout' => 'سجّل الخروج', 'email_verified' => 'أكّد البريد الإلكتروني', 'child_created' => 'أضاف طفلًا', 'lesson_open' => 'فتح مادة',
         'lesson_first' => 'أول تقدّم محفوظ في مادة', 'answers' => 'أجاب عن أسئلة', 'trial_started' => 'بدأت الفترة التجريبية', 'trial_ending' => 'الفترة التجريبية تنتهي قريبًا',
-        'trial_ended' => 'انتهت الفترة التجريبية', 'subscribe_view' => 'فتح صفحة الاشتراك', 'subjects_selected' => 'اختار مواد', 'wa_click' => 'ضغط «ادفع عبر واتساب»',
+        'trial_ended' => 'انتهت الفترة التجريبية', 'subscribe_view' => 'فتح صفحة الاشتراك', 'subjects_selected' => 'اختار مواد', 'wa_click' => 'ضغط «أرسل الطلب عبر واتساب»',
         'order_created' => 'أُنشئ طلب اشتراك', 'paid' => 'فُعّل الاشتراك', 'google_fail' => 'تعثّر الدخول بحساب Google', 'form_error' => 'خطأ في نموذج',
         'inapp' => 'متصفح داخل تطبيق (فيسبوك/إنستغرام)', 'cta_click' => 'ضغط زر دعوة',
+        'tour_shown' => 'ظهر شرح الموقع', 'tour_completed' => 'أكمل شرح الموقع', 'tour_skipped' => 'تخطّى شرح الموقع', 'order_repeat' => 'أعاد إرسال طلب قائم', 'trial_reminder' => 'وصله تذكير نهاية التجربة',
     ];
 
     /** Events the public beacon may send (everything else is server-side only). */
-    public const CLIENT = ['visit', 'page_view', 'pricing_view', 'register_view', 'register_start', 'lesson_open', 'answers', 'subjects_selected', 'wa_click', 'inapp', 'cta_click', 'form_error'];
+    public const CLIENT = ['visit', 'page_view', 'pricing_view', 'register_view', 'register_start', 'lesson_open', 'answers', 'subjects_selected', 'wa_click', 'inapp', 'cta_click', 'form_error', 'tour_shown', 'tour_completed', 'tour_skipped'];
 
-    public const PAGES = ['landing', 'pricing', 'register', 'login', 'login_site', 'account', 'subscribe', 'lesson', 'forgot', 'reset', 'report', 'other'];
+    public const PAGES = ['landing', 'pricing', 'register', 'login', 'login_site', 'account', 'subscribe', 'lesson', 'forgot', 'reset', 'report', 'home', 'other'];
 
     private static ?bool $ready = null;
 

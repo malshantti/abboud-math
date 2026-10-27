@@ -93,7 +93,9 @@ class SignupFunnelTest extends TestCase
     {
         $u = User::factory()->create(['role' => 'parent']);
         $page = $this->actingAs($u)->get('/account')->assertOk();
-        $page->assertSee('اختر الصف')->assertSee('اختياري: ٤ أرقام يكتبها طفلك عند الدخول');
+        $page->assertSee('اختر الصف')->assertDontSee('اختياري: ٤ أرقام يكتبها طفلك عند الدخول');
+        config(['app.child_pin' => true]);
+        $this->actingAs($u)->get('/account')->assertSee('اختياري: ٤ أرقام يكتبها طفلك عند الدخول');
         $this->actingAs($u)->post('/account/students', ['name' => 'سارة'])->assertSessionHasErrors('grade');
     }
 

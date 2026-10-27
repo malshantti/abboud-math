@@ -51,6 +51,8 @@
 .paybar .tot{font:800 18px/1.5 Baloo,Cairo,sans-serif}.paybar .tot b{font-size:26px;color:var(--gd)}
 .paybar .btn{flex:none;max-width:100%}
 .pend{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 14px;padding:12px 0;border-top:2px solid var(--line);margin:0}
+.done{margin:14px 0 0;padding:14px 18px;border-radius:18px;background:#e3f6ea;border:2px solid #9fd8b4;color:#0f5c32}.done[hidden]{display:none}.done b{display:block;font:800 21px/1.5 Baloo,Cairo,sans-serif}.done p{margin:4px 0 0;line-height:1.8}
+.plan.taken{opacity:.75}.plan input:disabled{cursor:not-allowed}#pickf select{min-height:50px;font-size:18px}
 .pend .code{font-size:14px;color:var(--muted)}
 @media (max-width:820px){.steps{grid-template-columns:1fr}.steps li{padding:10px 12px}}
 @media (max-width:600px){
@@ -75,50 +77,51 @@
     @if (trim($instructions) !== '')<p class="note-pay">{{ $instructions }}</p>@endif
     @unless ($hasNumber)<p class="alert err">لم يُضبط رقم واتساب للدفع بعد. سيُسجّل طلبك وسنتواصل معك.</p>@endunless
 
+    <div class="done" id="done" role="status" @unless($sent) hidden @endunless><b>تم استلام طلبك ✅</b><p>فتحنا واتساب لترسل لنا الطلب. بعد تأكيد الدفع نفعّل المواد لطفلك، ويصلك بريد بذلك. طلبك محفوظ في «طلبات بانتظار الدفع» أدناه، فلا داعي للضغط مرة أخرى.</p></div>
+    @if (! $student)
+      <h2 class="stp"><i>١</i>أضف طفلك أولًا</h2>
+      <p class="hint" style="margin:0">نعرض المواد حسب صف طفلك. <a class="btn small" href="{{ route('account.home') }}#students">أضف طفلك</a></p>
+    @else
+    <form method="get" action="{{ route('account.subscribe') }}" id="pickf" data-tour="sub-child">
+      <h2 class="stp"><i>١</i>اختر طفلك</h2>
+      <label class="sr" for="student_id">الطفل</label>
+      <select id="student_id" name="student">@foreach ($user->students->sortBy('id') as $s)<option value="{{ $s->id }}" @selected($s->id === $student->id)>{{ $s->name }} — {{ $ar::grade($s->grade) }}</option>@endforeach</select>
+      <noscript><button class="btn small" type="submit">عرض المواد</button></noscript>
+    </form>
     <form method="post" action="{{ route('account.subscribe.store') }}" id="subf" @if($hasNumber) target="_blank" rel="noopener" @endif>@csrf
-      <h2 class="stp"><i>١</i>اختر الطالب</h2>
-      @if ($user->students->isNotEmpty())
-      <label class="sr" for="student_id">الطالب</label>
-      <select id="student_id" name="student_id">@foreach ($user->students as $s)<option value="{{ $s->id }}" data-grade="{{ $s->grade }}" @selected($loop->first)>{{ $s->name }} — {{ $ar::grade($s->grade) }}</option>@endforeach<option value="" data-grade="">كل الطلاب في الحساب</option></select>
+      <input type="hidden" name="student_id" value="{{ $student->id }}">
+      <fieldset class="plans-f" data-tour="sub-plans"><legend class="stp"><i>٢</i>اختر مواد {{ $student->name }} ({{ $ar::grade($student->grade) }})</legend>
+      @if ($plans === [])
+        <p class="alert err">لا توجد مواد متاحة لهذا الصف حاليًا. راسلنا عبر واتساب وسنساعدك.</p>
       @else
-      <p class="hint" style="margin:0">سيشمل الاشتراك كل الطلاب في الحساب. يمكنك <a href="{{ route('account.home') }}">إضافة طالب</a> أولًا.</p>
-      @endif
-
-      <fieldset class="plans-f"><legend class="stp"><i>٢</i>اختر المواد</legend>
-      <p class="hint" style="margin:-4px 0 0">يمكنك اختيار أكثر من مادة، ويُنشأ طلب مستقل لكل مادة.</p>
-      <div class="gl">
-      @foreach (collect($plans)->groupBy('grade') as $g => $group)
-        <section class="gc" data-grade="{{ $g }}">
-          <div class="gh">
-            <button type="button" class="gt" aria-expanded="true" aria-controls="gb-{{ $loop->index }}"><span class="nm">{{ $ar::grade($g) }}</span><span class="cnt" data-cnt>{{ $ar::num(0) }} / {{ $ar::num($group->count()) }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-            <label class="gall"><input type="checkbox" data-all aria-label="اختر كل مواد {{ $ar::grade($g) }}">اختر الكل</label>
-          </div>
-          <div class="gb" id="gb-{{ $loop->index }}"><div class="plans">
-          @foreach ($group as $p)
-            <label class="plan"><input type="checkbox" name="plans[]" value="{{ $p['code'] }}" data-price="{{ $p['price'] }}" data-name="{{ $p['name'] }}"><span class="pt"><b>{{ $p['subject'] }}</b><small>لمدة {{ $ar::num($p['days']) }} يومًا</small></span><span class="price"><b>{{ $ar::num($p['price']) }}</b> {{ $currency }}</span></label>
-          @endforeach
-          </div></div>
-        </section>
+      <p class="hint" style="margin:-4px 0 10px">يمكنك اختيار أكثر من مادة.</p>
+      <label class="gall" style="margin:0 0 10px"><input type="checkbox" data-all aria-label="اختر كل المواد">اختر كل المواد</label>
+      <div class="plans">
+      @foreach ($plans as $p)
+        @php($t = $taken[$p['code']] ?? null)
+        <label class="plan{{ $t ? ' taken' : '' }}"><input type="checkbox" name="plans[]" value="{{ $p['code'] }}" data-price="{{ $p['price'] }}" data-name="{{ $p['name'] }}" @if($t === 'active') disabled @endif><span class="pt"><b>{{ $p['subject'] }}</b><small>@if($t === 'active')مفعّلة لطفلك ✅@elseif($t === 'pending')طلبها بانتظار الدفع@else لمدة {{ $ar::num($p['days']) }} يومًا@endif</small></span><span class="price"><b>{{ $ar::num($p['price']) }}</b> {{ $currency }}</span></label>
       @endforeach
       </div>
+      @endif
       </fieldset>
 
-      <h2 class="stp"><i>٣</i>ادفع عبر واتساب، ونفعّل الاشتراك بعد التأكيد</h2>
-      <div class="paybar" aria-live="polite">
+      <h2 class="stp"><i>٣</i>أرسل الطلب عبر واتساب، ونفعّل المواد بعد تأكيد الدفع</h2>
+      <div class="paybar" aria-live="polite" data-tour="sub-send">
         <div class="sum">
           <p class="tot">المجموع: <b id="tot">{{ $ar::num(0) }}</b> {{ $currency }}</p>
           <p class="sel" id="sel">لم تختر أي مادة بعد.</p>
         </div>
-        <button class="btn wa" type="submit" id="pay"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>ادفع عبر واتساب</button>
+        <button class="btn wa" type="submit" id="pay"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg><span>أرسل الطلب عبر واتساب</span></button>
       </div>
     </form>
+    @endif
   </section>
   @if ($pending->isNotEmpty())
   <section class="card">
-    <h2 style="margin:0 0 8px">طلبات بانتظار الدفع</h2>
+    <h2 style="margin:0 0 8px" id="pending">طلبات بانتظار الدفع</h2><p class="hint" style="margin:0 0 6px">أرسلت الطلب؟ لا حاجة لإرساله مرة أخرى. نفعّل المواد بعد تأكيد الدفع.</p>
     @foreach ($pending as $s)
-      <p class="pend"><span><b>{{ $s->plan_name }}</b> — {{ $ar::num($s->price) }} {{ $s->currency }}<br><span class="code" dir="ltr">{{ $s->code }}</span></span>
-      @if ($url = $gateway->checkoutUrl($s->setRelation('user', $user)))<a class="btn wa small" href="{{ $url }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Z"/></svg>أرسل عبر واتساب</a>@endif</p>
+      <p class="pend"><span><b>{{ $s->plan_name }}</b>@if($s->student) — {{ $s->student->name }}@endif — {{ $ar::num($s->price) }} {{ $s->currency }}<br><span class="code" dir="ltr">{{ $s->code }}</span></span>
+      @if ($url = $gateway->checkoutUrl($s->setRelation('user', $user)))<a class="btn wa small" href="{{ $url }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Z"/></svg>أرسل الطلب عبر واتساب</a>@endif</p>
     @endforeach
   </section>
   @endif
@@ -126,27 +129,29 @@
 </main>
 <script>
 (function(){
+  var st=document.getElementById('student_id');
+  if(st)st.addEventListener('change',function(){location.href='{{ route('account.subscribe') }}?student='+encodeURIComponent(st.value)});
   var f=document.getElementById('subf');if(!f)return;
-  var boxes=[].slice.call(f.querySelectorAll('input[name="plans[]"]')),st=document.getElementById('student_id');
+  var boxes=[].slice.call(f.querySelectorAll('input[name="plans[]"]:not(:disabled)')),all=f.querySelector('[data-all]'),pay=document.getElementById('pay');
   var ar=function(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})};
   function upd(){var on=boxes.filter(function(b){return b.checked}),t=0;on.forEach(function(b){t+=+b.dataset.price});
     document.getElementById('tot').textContent=ar(t);
     var pb=f.querySelector('.paybar');if(pb)pb.classList.toggle('on',on.length>0);
+    if(all){all.checked=boxes.length>0&&on.length===boxes.length;all.indeterminate=on.length>0&&on.length<boxes.length}
     document.getElementById('sel').textContent=on.length?ar(on.length)+(on.length===1?' مادة: ':' مواد: ')+on.map(function(b){return b.dataset.name}).join('، '):'لم تختر أي مادة بعد.';}
-  var cards=[].slice.call(f.querySelectorAll('.gc'));
-  function open(c,o){c.classList.toggle('open',o);c.querySelector('.gt').setAttribute('aria-expanded',o?'true':'false');c.querySelector('.gb').hidden=!o;}
-  function counts(){cards.forEach(function(c){var bs=[].slice.call(c.querySelectorAll('input[name="plans[]"]')),n=bs.filter(function(b){return b.checked}).length,all=c.querySelector('[data-all]');
-    c.querySelector('[data-cnt]').textContent=ar(n)+' / '+ar(bs.length);c.classList.toggle('has',n>0);all.checked=n===bs.length;all.indeterminate=n>0&&n<bs.length;});}
-  // Picking a student focuses (expands) their grade; other grades stay available, collapsed. Selections are never cleared.
-  function grade(){var g=st?st.options[st.selectedIndex].dataset.grade:'',hit=g&&cards.some(function(c){return c.dataset.grade===g});
-    cards.forEach(function(c,i){var cur=hit?c.dataset.grade===g:false,sel=!!c.querySelector('input[name="plans[]"]:checked');c.classList.toggle('cur',cur);open(c,hit?(cur||sel):(i===0||sel));});
-    if(hit&&st===document.activeElement){var c=cards.filter(function(c){return c.dataset.grade===g})[0];c.scrollIntoView({block:'nearest',behavior:'smooth'});}}
-  cards.forEach(function(c){c.querySelector('.gt').addEventListener('click',function(){open(c,!c.classList.contains('open'))});
-    c.querySelector('[data-all]').addEventListener('change',function(e){[].forEach.call(c.querySelectorAll('input[name="plans[]"]'),function(b){b.checked=e.target.checked});if(e.target.checked)open(c,true);upd();});});
-  var _upd=upd;upd=function(){_upd();counts();};
-  boxes.forEach(function(b){b.addEventListener('change',upd)});if(st)st.addEventListener('change',grade);
-  f.addEventListener('submit',function(e){if(!boxes.some(function(b){return b.checked})){e.preventDefault();alert('اختر مادة واحدة على الأقل.')}});
-  grade();upd();
+  if(all)all.addEventListener('change',function(){boxes.forEach(function(b){b.checked=all.checked});upd()});
+  boxes.forEach(function(b){b.addEventListener('change',upd)});
+  var sending=false;
+  f.addEventListener('submit',function(e){
+    if(sending){e.preventDefault();return}
+    if(!boxes.some(function(b){return b.checked})){e.preventDefault();alert('اختر مادة واحدة على الأقل.');return}
+    sending=true;
+    // The form opens WhatsApp in a new tab; this tab shows the confirmation and blocks repeat taps.
+    setTimeout(function(){if(pay){pay.disabled=true;pay.querySelector('span').textContent='تم إرسال الطلب ✅'}},0);
+    if(f.target==='_blank'){var d=document.getElementById('done');if(d){d.hidden=false;d.scrollIntoView({block:'center',behavior:'smooth'})}
+      setTimeout(function(){location.replace('{{ route('account.subscribe') }}?student={{ $student?->id }}&sent=1#done')},4000)}
+  });
+  upd();
 })();
 </script>
 @endsection

@@ -57,6 +57,8 @@ let picking=false,pickNote='',checked=false,checkT=0;
 // قائمة الخادم لهذا الحساب فقط: ملف محلي لا يظهر إلا إن كان مرتبطًا بطالب سجّله الأهل.
 function accountProfiles(){const r=P.roster(),acc=account();if(!r||!Array.isArray(r.students)||!acc||r.email!==acc.email)return null;
  return r.students.map(s=>{const p=P.find(s.local);return p?{p,s}:null}).filter(Boolean)}
+// الرقم السري للطفل متوقف حاليًا (CHILD_PIN في الخادم): اختيار الاسم يدخل مباشرة. الأرقام المحفوظة تبقى كما هي.
+const pinOn=()=>{const r=P.roster&&P.roster();return !!(r&&r.pin_on===true)};
 const manageLink=()=>`<p class="manage"><a href="${esc(ACCOUNT)}">إدارة الطلاب من صفحة الحساب</a></p>`;
 function pick(note){
  picking=true;pickNote=note||'';
@@ -74,13 +76,13 @@ function pick(note){
   if(navigator.onLine&&!note&&!kicked)location.replace(LOGIN());// جهاز أُغلقت جلسته: تبقى رسالة sync.js ظاهرة
   return}
  say(note||'من سيتعلّم اليوم؟');if(pose!=='welcome')setPose('idle');
- if(!a||!a.length){show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">لم يُضف الأهل طلابًا إلى الحساب بعد. أضف كل طالب مع صفه ورقمه السري من صفحة الحساب.</p><div class="actions"><a class="btn" href="${esc(ACCOUNT)}">إضافة الطلاب</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}
- show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">اختر اسمك، ثم اكتب رقمك السري.</p>
+ if(!a||!a.length){show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">لم يُضف الأهل طلابًا إلى الحساب بعد. أضف كل طالب مع صفه من صفحة الحساب.</p><div class="actions"><a class="btn" href="${esc(ACCOUNT)}">إضافة الطلاب</a></div>${note?`<p class="msg ok">${esc(note)}</p>`:''}`);return}
+ show(`<h1>من يتعلّم اليوم؟</h1><p class="sub">${pinOn()?'اختر اسمك، ثم اكتب رقمك السري.':'اضغط على اسمك لتبدأ.'}</p>
   <div class="profiles">${a.map(({p,s})=>{const subj=Array.isArray(s.subjects)?(s.subjects.length?s.subjects.join('، '):'لا مواد مفعّلة'):'';
    return `<button type="button" class="pcard" data-id="${esc(p.id)}"><img src="${P.avatarSrc(p.avatar)}" alt="" width="72" height="72"><b>${esc(p.name)}</b><small>${esc(s.grade_name||GRADES[s.grade]||'لم يُحدَّد الصف')}</small>${subj?`<span class="subj">${esc(subj)}</span>`:''}</button>`}).join('')}</div>
   ${manageLink()}
   ${note?`<p class="msg ok">${esc(note)}</p>`:''}`);
- view.querySelectorAll('.pcard[data-id]').forEach(b=>b.onclick=()=>{const p=P.find(b.dataset.id);p.pin?enter(p):setpin(p)})}
+ view.querySelectorAll('.pcard[data-id]').forEach(b=>b.onclick=()=>{const p=P.find(b.dataset.id);if(!pinOn()){picking=false;done(p);return}p.pin?enter(p):setpin(p)})}
 addEventListener('bustan-roster',()=>{checked=true;clearTimeout(checkT);if(picking)pick(pickNote)});
 function enter(p){
  picking=false;

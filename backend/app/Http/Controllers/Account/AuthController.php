@@ -108,13 +108,13 @@ class AuthController extends Controller
         \App\Support\Devices::claim($request, $user);
         ActivityLog::record('register', $user->email, null, $user);
         self::funnelSignup($user, 'email');
-        // Activation link first; the welcome email follows once the address is confirmed.
-        // If activation emails are switched off, the account counts as verified and is welcomed now.
+        // Welcome email right away (the account works fully without verification), then the optional activation link.
+        // If activation emails are switched off, the account simply counts as verified.
+        MailCenter::send('welcome', $user, MailCenter::welcomeLink());
         if (MailCenter::enabled('verify')) {
             MailCenter::send('verify', $user, MailCenter::verifyUrl($user));
         } else {
             $user->forceFill(['email_verified_at' => now()])->save();
-            MailCenter::send('welcome', $user, MailCenter::welcomeLink());
         }
         \App\Support\Landing::scrubIntended($request);
 
@@ -253,7 +253,10 @@ class AuthController extends Controller
             $user->forceFill(['email_verified_at' => now()])->save();
             ActivityLog::record('email.verify', $user->email, null, $user);
             \App\Support\Funnel::log('email_verified', ['user_id' => $user->id]);
-            MailCenter::send('welcome', $user, MailCenter::welcomeLink());
+            // Accounts created before the welcome moved to signup still get it once.
+            if (! MailCenter::alreadySent($user, 'welcome')) {
+                MailCenter::send('welcome', $user, MailCenter::welcomeLink());
+            }
         }
 
         return redirect($to)->with('status', 'تم تفعيل حسابك وتأكيد بريدك الإلكتروني. شكرًا لك.');

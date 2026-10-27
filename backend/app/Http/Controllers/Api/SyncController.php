@@ -57,6 +57,7 @@ class SyncController extends Controller
 
         return response()->json($base + [
             'authenticated' => true,
+            'pin_required' => (bool) config('app.child_pin'),
             'user' => ['name' => $user->name, 'email' => $user->email],
             'access' => ['allowed' => $access['access'], 'kind' => $access['kind'], 'ends_at' => $access['ends_at']?->toIso8601String(), 'days_left' => $access['ends_at'] ? max(1, (int) ceil(($access['ends_at']->getTimestamp() - now()->getTimestamp()) / 86400)) : null, 'subjects' => $access['subjects'], 'expiring' => Access::expiringSoon($user)],
             // The only students a device may show: the ones the parent registered on the account page.

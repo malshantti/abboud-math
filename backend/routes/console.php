@@ -153,3 +153,11 @@ Artisan::command('funnel:backfill', function () {
     }
     $this->info('backfilled '.count($rows).' events for '.count($ids).' families (cutoff '.$cut->toDateTimeString().' UTC)');
 })->purpose('Rebuild the family journey log from existing data');
+
+// Trial-ending reminder: one email (and a push to the family's devices when available) about a day before the free trial ends.
+// Skips families who already have an active subscription. Runs hourly; each account is reminded once.
+Artisan::command('trial:remind {--hours=24}', function () {
+    $r = \App\Support\TrialReminder::run((int) $this->option('hours'));
+    $this->info(json_encode($r));
+})->purpose('Remind families before the free trial ends');
+\Illuminate\Support\Facades\Schedule::command('trial:remind')->hourly();
