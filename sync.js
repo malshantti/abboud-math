@@ -228,7 +228,7 @@ async function sync(){
   }
  }
  const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null,grade_name:s.grade_name||null,subjects:Array.isArray(s.subjects)?s.subjects.map(x=>x.name):null}});
- set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster,t:Date.now()}));save();
+ set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster,pin_on:session.pin_required===true,t:Date.now()}));save();
  if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id))await P.remove(p.id)}
  try{if(typeof CustomEvent==='function')dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}
  // ٣) رفع ما تغيّر محليًا، وسحب ما تغيّر على الخادم (السحب في صفحات الدخول فقط).

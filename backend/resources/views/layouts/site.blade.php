@@ -69,6 +69,7 @@
   @endauth
 </div></header>
 @yield('body')
-<script src="/track.js?v=20261027fn1" defer></script>
+<script src="/track.js?v=20261027tr1" defer></script>
+@auth @if (request()->routeIs('account.home', 'account.subscribe') && ! auth()->user()->isStaff())<script src="/tour.js?v=20261027tr1" data-acct="{{ auth()->user()->email }}" defer></script>@endif @endauth
 </body>
 </html>

@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\URL;
 /** One place that renders, sends and logs every account email (verify, reset, welcome). */
 class MailCenter
 {
-    public const TYPES = ['verify' => 'تفعيل الحساب', 'reset' => 'إعادة تعيين كلمة المرور', 'welcome' => 'رسالة الترحيب'];
+    public const TYPES = ['verify' => 'تفعيل الحساب', 'reset' => 'إعادة تعيين كلمة المرور', 'welcome' => 'رسالة الترحيب', 'trial_reminder' => 'تذكير قبل نهاية التجربة', 'activated' => 'تفعيل الاشتراك'];
 
-    public const BUTTONS = ['verify' => 'تفعيل الحساب', 'reset' => 'تعيين كلمة مرور جديدة', 'welcome' => 'ادخل إلى الموقع'];
+    public const BUTTONS = ['verify' => 'تفعيل الحساب', 'reset' => 'تعيين كلمة مرور جديدة', 'welcome' => 'ادخل إلى الموقع', 'trial_reminder' => 'اختر المواد واشترك', 'activated' => 'ابدأ التعلّم'];
 
-    public const PLACEHOLDERS = ['{name}' => 'اسم صاحب الحساب', '{site}' => 'اسم الموقع', '{trial_days}' => 'أيام التجربة', '{whatsapp}' => 'رقم واتساب', '{minutes}' => 'صلاحية رابط الاستعادة بالدقائق', '{days}' => 'صلاحية رابط التفعيل بالأيام'];
+    public const PLACEHOLDERS = ['{name}' => 'اسم صاحب الحساب', '{site}' => 'اسم الموقع', '{trial_days}' => 'أيام التجربة', '{whatsapp}' => 'رقم واتساب', '{minutes}' => 'صلاحية رابط الاستعادة بالدقائق', '{days}' => 'صلاحية رابط التفعيل بالأيام', '{until}' => 'تاريخ نهاية التجربة أو الاشتراك', '{subjects}' => 'المواد المفعّلة', '{student}' => 'اسم الطالب'];
 
     /** Arabic aliases the admin may type instead of the Latin placeholders. */
     public const AR_PLACEHOLDERS = ['{اسم_ولي_الأمر}' => '{name}', '{الاسم}' => '{name}', '{اسم_الموقع}' => '{site}', '{أيام_التجربة}' => '{trial_days}', '{واتساب}' => '{whatsapp}', '{الدقائق}' => '{minutes}', '{الأيام}' => '{days}'];
@@ -58,10 +58,11 @@ class MailCenter
     }
 
     /** @return array{subject:string,paragraphs:list<string>,button:string,link:string,type:string,whatsapp:?string,site_url:string,logo:string,site:string} */
-    public static function render(string $type, string $name, string $link, array $overrides = []): array
+    public static function render(string $type, string $name, string $link, array $overrides = [], array $extra = []): array
     {
         $wa = self::whatsapp();
         $vars = [
+            '{until}' => (string) ($extra['until'] ?? ''), '{subjects}' => (string) ($extra['subjects'] ?? ''), '{student}' => (string) ($extra['student'] ?? ''),
             '{name}' => trim($name) !== '' ? trim($name) : 'عائلتنا الكريمة',
             '{site}' => Setting::get('site_name'),
             '{trial_days}' => Ar::num(max(0, (int) Setting::get('trial_days'))),
@@ -88,7 +89,7 @@ class MailCenter
         return [
             'type' => $type, 'subject' => trim($fill((string) $subjectTpl)) ?: self::TYPES[$type],
             'paragraphs' => $paragraphs, 'button' => self::BUTTONS[$type], 'link' => $link,
-            'whatsapp' => $type === 'welcome' ? 'https://wa.me/'.$wa : null, 'whatsapp_label' => Ar::num('00'.$wa),
+            'whatsapp' => in_array($type, ['welcome', 'trial_reminder', 'activated'], true) ? 'https://wa.me/'.$wa : null, 'whatsapp_label' => Ar::num('00'.$wa),
             'site_url' => self::siteUrl(), 'logo' => self::logoUrl(), 'site' => Setting::get('site_name'),
             'note' => match ($type) {
                 'reset' => 'لحمايتك، لا يُستخدم الرابط إلا مرة واحدة، وينتهي بعد '.$vars['{minutes}'].' دقيقة.',
@@ -99,10 +100,10 @@ class MailCenter
     }
 
     /** Send one email and log it. Never throws: a mail failure must not break registration or reset. */
-    public static function send(string $type, User $user, string $link, bool $test = false, ?string $to = null): MailLog
+    public static function send(string $type, User $user, string $link, bool $test = false, ?string $to = null, array $extra = []): MailLog
     {
         $to ??= $user->email;
-        $data = self::render($type, $user->name, $link);
+        $data = self::render($type, $user->name, $link, [], $extra + ($test ? ['until' => Ar::date(now()->addDay()), 'subjects' => 'الرياضيات — الصف الأول', 'student' => 'سارة'] : []));
         $log = ['user_id' => $test ? null : $user->id, 'to' => mb_substr($to, 0, 255), 'type' => $type, 'subject' => mb_substr($data['subject'], 0, 255), 'is_test' => $test];
         if (! $test && ! self::enabled($type)) {
             return MailLog::create($log + ['status' => 'disabled']);
@@ -118,6 +119,12 @@ class MailCenter
 
             return MailLog::create($log + ['status' => 'failed', 'error' => mb_substr($e->getMessage(), 0, 500)]);
         }
+    }
+
+    /** True once this account already got a mail of this type (sent). */
+    public static function alreadySent(User $user, string $type): bool
+    {
+        return MailLog::where('user_id', $user->id)->where('type', $type)->where('status', 'sent')->where('is_test', false)->exists();
     }
 
     /** Welcome link: the parent's account home (add children there). */

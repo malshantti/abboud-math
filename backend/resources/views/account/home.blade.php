@@ -61,55 +61,76 @@
 .first{border-color:#cfe3a8;box-shadow:0 5px 0 #cfe3a8}
 .first .add{margin-top:12px}
 .kid-h summary{min-height:44px;display:flex;align-items:center}
+.fields.nopin{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto}
+.go{display:flex;align-items:center;gap:14px 18px;flex-wrap:wrap;margin:16px 0 0;padding:16px 18px;border-radius:20px;background:linear-gradient(160deg,#fff7d6,#ffeaa8);border:2px solid #f3d36b;box-shadow:0 5px 0 #f0cf5e}
+.go>div{flex:1;min-width:200px}.go b{font:800 22px/1.4 Baloo,Cairo,sans-serif;color:#5a4000}.go p{margin:4px 0 0;color:#6b5410}
+.go .btn.big{min-height:60px;font-size:21px;padding:10px 28px;flex:none}
+.go.fresh{animation:goPop .6s ease-out 2}@keyframes goPop{50%{transform:scale(1.03)}}
+@media (prefers-reduced-motion:reduce){.go.fresh{animation:none}}
+@media (max-width:600px){.go .btn.big{width:100%}}
+.contact{margin:0;text-align:center;color:var(--muted)}
+@media (max-width:820px){.fields.nopin{grid-template-columns:minmax(0,1fr)}}
 </style>
 <main class="wrap grid">
   @include('partials.flash')
 
   <section class="card first" id="students">
     <div class="sec-h"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><h2>الطلاب</h2>@if ($user->students->isNotEmpty())<span class="chip count">{{ $ar::num($user->students->count()) }}</span>@endif</div>
-    <p class="hint">@if ($user->students->isEmpty())الخطوة الأولى: أضف طالبك مع صفه.@else طلابك المسجّلون. يختار كل طالب اسمه على جهازه ويكتب رقمه السري.@endif</p>
+    <p class="hint">@if ($user->students->isEmpty())الخطوة الأولى: أضف طالبك مع صفه.@else طلابك المسجّلون. على جهاز طفلك يكفي أن يضغط على اسمه ليبدأ.@endif</p>
     @if ($user->students->isEmpty())
-    <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
+    <form method="post" action="{{ route('account.students.store') }}" class="add" data-tour="add-child">@csrf
       <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>@if ($user->students->isEmpty()) أضف طالبك الأول @else إضافة طالب @endif</b></span></div>
-      <div class="fields">
+      <div class="fields{{ $pinOn ? '' : ' nopin' }}">
         <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required value="{{ old('name') }}"></div>
         <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade" required><option value="" disabled @selected(! old('grade'))>اختر الصف</option>@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected((string) old('grade') === (string) $g)>{{ $label }}</option>@endforeach</select></div>
+        @if ($pinOn)
         <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="اختياري"></div>
+        @endif
         <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
       </div>
-      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول. يُحفظ في الحساب ويعمل على كل الأجهزة، وإن تركته فارغًا يختاره طفلك أول مرة.</p>
+      @if ($pinOn)<p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول. يُحفظ في الحساب ويعمل على كل الأجهزة، وإن تركته فارغًا يختاره طفلك أول مرة.</p>@endif
     </form>
     @else
-    <ul class="kids">
+    @if ($siteUrl)
+    <div class="go{{ $childAdded ? ' fresh' : '' }}" id="start" data-tour="start">
+      <div><b>{{ $childAdded ? 'كل شيء جاهز!' : 'جاهز للتعلّم؟' }}</b><p>افتح الدروس على هذا الجهاز أو على جهاز طفلك، ثم يضغط طفلك على اسمه ويبدأ.</p></div>
+      <a class="btn sun big" href="{{ $siteUrl }}/login.html?sync=1">ابدأ التعلّم ←</a>
+    </div>
+    @endif
+    <ul class="kids" data-tour="kids">
     @foreach ($user->students as $s)
       <li class="kid">
-        <div class="kid-h"><span class="av" aria-hidden="true">{{ mb_substr($s->name, 0, 1) }}</span><span class="nm"><b>{{ $s->name }}</b><span class="chip grey">{{ $ar::grade($s->grade) }}</span>@if ($s->hasPin())<span class="chip">الرقم السري محدَّد</span>@else<span class="chip warn">لم يُحدَّد رقم سري</span>@endif</span>
+        <div class="kid-h"><span class="av" aria-hidden="true">{{ mb_substr($s->name, 0, 1) }}</span><span class="nm"><b>{{ $s->name }}</b><span class="chip grey">{{ $ar::grade($s->grade) }}</span>@if ($pinOn)@if ($s->hasPin())<span class="chip">الرقم السري محدَّد</span>@else<span class="chip warn">لم يُحدَّد رقم سري</span>@endif @endif</span>
           <p class="sync">{{ $s->last_synced_at ? 'آخر مزامنة: '.$ar::date($s->last_synced_at) : 'لم يُزامَن بعد' }}</p>
-          <p style="margin:6px 0 0"><a class="btn small" href="{{ route('account.report', $s) }}">تقرير التقدّم</a></p>
+          <p style="margin:6px 0 0"><a class="btn small" href="{{ route('account.report', $s) }}" @if($loop->first) data-tour="report" @endif>تقرير التقدّم</a></p>
           @foreach ($s->classrooms as $cl)<p class="sync" style="margin:6px 0 0">في صف: <b>{{ $cl->name }}</b> <form method="post" action="{{ route('account.students.leave', [$s, $cl]) }}" style="display:inline" onsubmit="return confirm('مغادرة الصف؟ لن يرى المعلّم تقدّم الطالب بعدها.')">@csrf @method('delete')<button class="btn ghost small" type="submit">مغادرة</button></form></p>@endforeach
           <details style="margin:6px 0 0"@if($errors->has('code'.$s->id)) open @endif><summary style="cursor:pointer;font-weight:700">الانضمام إلى صف معلّم</summary>
             <form method="post" action="{{ route('account.students.join', $s) }}" style="display:flex;gap:8px;align-items:end;margin-top:6px">@csrf<div><label for="cc{{ $s->id }}">رمز الصف</label><input id="cc{{ $s->id }}" name="code" maxlength="12" dir="ltr" autocomplete="off" placeholder="مثل: K7QH2M" required></div><button class="btn small" type="submit">انضمام</button></form>
             @error('code'.$s->id)<p class="err" role="alert" style="margin:4px 0 0">{{ $message }}</p>@enderror
             <p class="sync" style="margin:4px 0 0">يرى معلّم الصف تقدّم الطالب وتقريره فقط، ولا يرى بريدك أو اشتراكاتك.</p></details></div>
-        <form method="post" action="{{ route('account.students.update', $s) }}" class="fields">@csrf @method('put')
+        <form method="post" action="{{ route('account.students.update', $s) }}" class="fields{{ $pinOn ? '' : ' nopin' }}">@csrf @method('put')
           <div class="f-name"><label for="n{{ $s->id }}">اسم الطالب</label><input id="n{{ $s->id }}" name="name" value="{{ $s->name }}" maxlength="24" required></div>
           <div class="f-grade"><label for="g{{ $s->id }}">الصف</label><select id="g{{ $s->id }}" name="grade">@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected($s->grade === $g)>{{ $label }}</option>@endforeach</select></div>
-          <div class="f-pin"><label for="p{{ $s->id }}">{{ $s->hasPin() ? 'رقم سري جديد' : 'الرقم السري' }}</label><input id="p{{ $s->id }}" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="{{ $s->hasPin() ? 'اتركه فارغًا لإبقائه' : '٤ أرقام' }}"></div>
+          @if ($pinOn)
+        <div class="f-pin"><label for="p{{ $s->id }}">{{ $s->hasPin() ? 'رقم سري جديد' : 'الرقم السري' }}</label><input id="p{{ $s->id }}" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="{{ $s->hasPin() ? 'اتركه فارغًا لإبقائه' : '٤ أرقام' }}"></div>
+        @endif
           <div class="acts"><button class="btn small" type="submit">حفظ التعديلات</button></div>
         </form>
         <form method="post" action="{{ route('account.students.destroy', $s) }}" class="del" onsubmit="return confirm('حذف الطالب «{{ e($s->name) }}» وتقدّمه من الخادم؟')">@csrf @method('delete')<input type="hidden" name="confirm" value="1"><button class="btn danger small" type="submit">حذف الطالب</button></form>
       </li>
     @endforeach
     </ul>
-    <form method="post" action="{{ route('account.students.store') }}" class="add">@csrf
+    <form method="post" action="{{ route('account.students.store') }}" class="add" data-tour="add-child">@csrf
       <div class="kid-h"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="nm"><b>@if ($user->students->isEmpty()) أضف طالبك الأول @else إضافة طالب @endif</b></span></div>
-      <div class="fields">
+      <div class="fields{{ $pinOn ? '' : ' nopin' }}">
         <div class="f-name"><label for="new-name">اسم الطالب</label><input id="new-name" name="name" maxlength="24" required value="{{ old('name') }}"></div>
         <div class="f-grade"><label for="new-grade">الصف</label><select id="new-grade" name="grade" required><option value="" disabled @selected(! old('grade'))>اختر الصف</option>@foreach ($grades as $g => $label)<option value="{{ $g }}" @selected((string) old('grade') === (string) $g)>{{ $label }}</option>@endforeach</select></div>
+        @if ($pinOn)
         <div class="f-pin"><label for="new-pin">الرقم السري</label><input id="new-pin" name="pin" inputmode="numeric" pattern="[0-9٠-٩]{4}" maxlength="4" autocomplete="off" placeholder="اختياري"></div>
+        @endif
         <div class="acts"><button class="btn small" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>إضافة</button></div>
       </div>
-      <p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول. يُحفظ في الحساب ويعمل على كل الأجهزة، وإن تركته فارغًا يختاره طفلك أول مرة.</p>
+      @if ($pinOn)<p class="pinhelp">اختياري: ٤ أرقام يكتبها طفلك عند الدخول. يُحفظ في الحساب ويعمل على كل الأجهزة، وإن تركته فارغًا يختاره طفلك أول مرة.</p>@endif
     </form>
     @endif
   </section>
@@ -126,11 +147,11 @@
       @foreach ($expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
     </div>
     <div class="row">
-      @if ($siteUrl)<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">ابدأ التعلّم على هذا الجهاز</a>@endif
-      <a class="btn ghost" href="{{ route('account.subscribe') }}">الاشتراكات</a>
+      @if ($siteUrl && $user->students->isEmpty())<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">ابدأ التعلّم على هذا الجهاز</a>@endif
+      <a class="btn ghost" href="{{ route('account.subscribe') }}" data-tour="subscribe">الاشتراك والمواد</a>
     </div>
   </section>
-  <section class="card" id="reminders">
+  <section class="card" id="reminders" data-tour="settings">
     <h2>التذكير اليومي</h2>
     @php($pushN = $user->pushSubscriptions()->count())
     <p class="muted">إشعار واحد يوميًا عصرًا: «اسم طفلك، درسك اليوم جاهز في بستان 🌱»، ولا يصل إن درس طفلك قبله. @if ($pushN) مفعّل على {{ $pushN }} @if ($pushN == 1) جهاز @else أجهزة @endif. @else <b>لم يُفعَّل على أي جهاز بعد.</b> لتفعيله على جهاز طفلك: افتح بستان عليه واضغط «نعم، ذكّرني» حين يظهر الاقتراح. @endif</p>
@@ -145,16 +166,18 @@
     <form method="post" action="{{ route('account.verify.resend') }}">@csrf<button class="btn" type="submit">إعادة إرسال رابط التفعيل</button></form>
   </section>
   @endunless
-    <p class="hint">على جهاز الطالب افتح الموقع وسجّل الدخول بحسابك، فتظهر أسماء الطلاب، ويختار كل طالب اسمه ويكتب رقمه السري. يُحفظ التقدّم على الخادم، ويعمل الموقع دون إنترنت ثم يتزامن عند عودة الاتصال.</p>
+    <p class="hint">على جهاز الطالب افتح الموقع وسجّل الدخول بحسابك، فتظهر أسماء الطلاب، ويضغط كل طالب على اسمه ليبدأ. يُحفظ التقدّم على الخادم، ويعمل الموقع دون إنترنت ثم يتزامن عند عودة الاتصال.</p>
   </details>
 
   @if ($subscriptions->isNotEmpty())
-  <section class="card">
+  <section class="card" data-tour="orders">
     <div class="sec-h"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></span><h2>طلبات الاشتراك</h2></div>
     <ul class="subs">
     @foreach ($subscriptions as $s)<li><span><b>{{ $s->plan_name }}</b><br><span class="code" dir="ltr">{{ $s->code }}</span></span><span class="chip {{ $s->status === 'active' ? '' : ($s->status === 'pending' ? 'warn' : 'grey') }}">{{ $s->statusLabel() }}</span><span class="end">ينتهي: {{ $ar::date($s->ends_at, false) }}</span></li>@endforeach
     </ul>
   </section>
   @endif
+  <p class="contact" data-tour="contact">عندك سؤال؟ نحن هنا لمساعدتك: <a href="https://wa.me/{{ \App\Support\MailCenter::whatsapp() }}" target="_blank" rel="noopener">راسلنا عبر واتساب</a> · <button type="button" class="linkbtn" data-tour-replay>شرح الموقع</button></p>
 </main>
+@if ($childAdded)<script>try{var g=document.getElementById('start');if(g)setTimeout(function(){g.scrollIntoView({block:'center',behavior:'smooth'});g.querySelector('a').focus({preventScroll:true})},300)}catch(e){}</script>@endif
 @endsection

@@ -212,7 +212,7 @@ class AccountTest extends TestCase
         Setting::put(['whatsapp_number' => '970599123456']);
         $u = User::factory()->create(['name' => 'أبو سامي', 'email' => 'p@example.test']);
         $s = $u->students()->create(['name' => 'سامي', 'grade' => 6]);
-        $this->actingAs($u)->get('/account/subscribe')->assertOk()->assertSee('ادفع عبر واتساب')->assertSee('الرياضيات');
+        $this->actingAs($u)->get('/account/subscribe')->assertOk()->assertSee('أرسل الطلب عبر واتساب')->assertSee('الرياضيات');
         $r = $this->post('/account/subscribe', ['plan' => 'g6-math', 'student_id' => $s->id]);
         $sub = $u->subscriptions()->firstOrFail();
         $this->assertSame('pending', $sub->status);

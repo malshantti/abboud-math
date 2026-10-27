@@ -14,6 +14,7 @@ class StudentRosterTest extends TestCase
 
     public function test_session_lists_only_own_students_with_grade_words_subjects_and_pin(): void
     {
+        config(['app.child_pin' => true]);
         $other = User::factory()->create();
         $other->students()->create(['name' => 'ميرا', 'grade' => 3]);
         $u = User::factory()->create(['trial_ends_at' => now()->addDays(2)]);
@@ -32,6 +33,7 @@ class StudentRosterTest extends TestCase
 
     public function test_pin_is_four_digits_and_blank_keeps_it(): void
     {
+        config(['app.child_pin' => true]);
         $u = User::factory()->create();
         $st = $u->students()->create(['name' => 'سندس', 'grade' => 6]);
         $this->actingAs($u)->put("/account/students/{$st->id}", ['name' => 'سندس', 'grade' => 6, 'pin' => '12'])->assertSessionHasErrors('pin');
@@ -50,5 +52,16 @@ class StudentRosterTest extends TestCase
         $s = $this->actingAs($u)->getJson('/api/session')->json('students.0');
         $this->assertSame('الصف السادس', $s['grade_name']);
         $this->assertIsArray($s['subjects']);
+    }
+
+    public function test_pin_off_by_default_keeps_saved_pin_and_reports_flag(): void
+    {
+        $u = User::factory()->create(['role' => 'parent']);
+        $st = $u->students()->create(['name' => 'سندس', 'grade' => 6]);
+        $st->forceFill(['pin_hash' => 'sha256:x', 'pin_salt' => 'y'])->save();
+        $this->actingAs($u)->put("/account/students/{$st->id}", ['name' => 'سندس', 'grade' => 6, 'pin' => '4321'])->assertSessionHasNoErrors();
+        $this->assertSame('sha256:x', $st->fresh()->pin_hash);
+        $this->assertFalse($this->getJson('/api/session')->json('pin_required'));
+        $this->get('/account')->assertDontSee('اختياري: ٤ أرقام يكتبها طفلك عند الدخول');
     }
 }

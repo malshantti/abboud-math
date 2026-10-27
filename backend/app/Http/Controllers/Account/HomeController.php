@@ -26,7 +26,7 @@ class HomeController extends Controller
         $subs = $user->subscriptions()->latest()->take(10)->get();
         $this->funnelTrial($user);
 
-        return view('account.home', ['user' => $user, 'access' => Access::state($user), 'subscriptions' => $subs, 'expiring' => Access::expiringSoon($user), 'grades' => Setting::gradeOptions(), 'siteUrl' => rtrim((string) config('app.student_site_url'), '/')]);
+        return view('account.home', ['user' => $user, 'access' => Access::state($user), 'subscriptions' => $subs, 'expiring' => Access::expiringSoon($user), 'grades' => Setting::gradeOptions(), 'pinOn' => (bool) config('app.child_pin'), 'childAdded' => session('child_added'), 'siteUrl' => rtrim((string) config('app.student_site_url'), '/')]);
     }
 
     /** Once per account: note in the journey log that the free trial ends within two days (or has ended). */
@@ -66,12 +66,14 @@ class HomeController extends Controller
             return back()->withErrors(['name' => 'وصلت إلى الحد الأقصى لعدد الطلاب في الحساب ('.Ar::num($max).').']);
         }
         $s = $request->user()->students()->make(['name' => trim($data['name']), 'grade' => (int) $data['grade']]);
-        $s->setPin($this->pin($request));
+        if (config('app.child_pin')) {
+            $s->setPin($this->pin($request));
+        }
         $s->save();
         ActivityLog::record('student.create', $s->name);
         \App\Support\Funnel::log('child_created', ['student_id' => $s->id, 'meta' => ['grade' => $s->grade]]);
 
-        return back()->with('status', 'أُضيف الطالب «'.$s->name.'».');
+        return back()->with('status', 'أُضيف «'.$s->name.'» بنجاح 🌱 اضغط «ابدأ التعلّم» ليبدأ أول درس.')->with('child_added', $s->id);
     }
 
     public function updateStudent(Request $request, Student $student): RedirectResponse
@@ -80,7 +82,9 @@ class HomeController extends Controller
         $request->merge(['pin' => $this->pin($request) ?? ($request->filled('pin') ? 'x' : null)]);
         $data = $request->validate($this->rules(), self::MSG);
         $student->fill(['name' => trim($data['name']), 'grade' => (int) $data['grade']]);
-        $student->setPin($this->pin($request));
+        if (config('app.child_pin')) {
+            $student->setPin($this->pin($request)); // PIN off: the saved PIN is kept untouched
+        }
         $student->save();
         ActivityLog::record('student.update', $student->name);
 
@@ -106,14 +110,42 @@ class HomeController extends Controller
         return back()->with('status', 'حُذف الطالب وتقدّمه من الخادم. يبقى ما على الأجهزة كما هو.');
     }
 
+    /** Subjects (plan codes) a student already has, active or waiting for payment: they cannot be ordered again. */
+    private function taken($user, ?Student $student): array
+    {
+        $out = [];
+        foreach ($user->subscriptions()->whereIn('status', ['pending', 'active'])->where(fn ($q) => $student ? $q->where('student_id', $student->id)->orWhereNull('student_id') : $q)->get() as $s) {
+            if ($s->status === 'active' && $s->ends_at && $s->ends_at->isPast()) {
+                continue;
+            }
+            $out[$s->plan] = $s->status === 'active' ? 'active' : ($out[$s->plan] ?? 'pending');
+        }
+
+        return $out;
+    }
+
+    private function pickStudent(Request $request, $user, $id): ?Student
+    {
+        $students = $user->students->sortBy('id')->values();
+        if ($students->isEmpty()) {
+            return null;
+        }
+
+        return ($id ? $students->firstWhere('id', (int) $id) : null) ?? $students->first();
+    }
+
     public function subscribe(Request $request): View
     {
         $user = $request->user()->load('students');
-        \App\Support\Funnel::log('subscribe_view', ['meta' => ['pending' => $user->subscriptions()->where('status', 'pending')->count()]]);
+        $student = $this->pickStudent($request, $user, $request->query('student', old('student_id')));
+        \App\Support\Funnel::log('subscribe_view', ['student_id' => $student?->id, 'meta' => ['pending' => $user->subscriptions()->where('status', 'pending')->count()]]);
+        // Only the chosen child's grade: no other grades to pick by mistake.
+        $plans = $student ? array_filter(Setting::plans(true), fn ($p) => (int) $p['grade'] === (int) $student->grade) : [];
 
         return view('account.subscribe', [
-            'user' => $user, 'access' => Access::state($user), 'plans' => Setting::plans(true), 'currency' => Setting::get('currency'), 'instructions' => Setting::get('payment_instructions'),
-            'pending' => $user->subscriptions()->where('status', 'pending')->latest()->get(),
+            'user' => $user, 'student' => $student, 'taken' => $student ? $this->taken($user, $student) : [], 'sent' => $request->boolean('sent'),
+            'access' => Access::state($user), 'plans' => $plans, 'currency' => Setting::get('currency'), 'instructions' => Setting::get('payment_instructions'),
+            'pending' => $user->subscriptions()->where('status', 'pending')->with('student:id,name')->latest()->get(),
             'hasNumber' => WhatsAppGateway::number() !== '', 'gateway' => new WhatsAppGateway,
         ]);
     }
@@ -134,14 +166,31 @@ class HomeController extends Controller
         }
         $user = $request->user();
         $student = ! empty($data['student_id']) ? $user->students()->findOrFail($data['student_id']) : null;
+        if (! $student && $user->students()->exists()) {
+            return back()->withErrors(['plan' => 'اختر طفلك أولًا، ثم اختر مواد صفه.']);
+        }
+        if ($student && ($wrong = array_filter($codes, fn ($c) => (int) $plans[$c]['grade'] !== (int) $student->grade))) {
+            return back()->withErrors(['plan' => 'هذه المواد ليست من صف '.$student->name.'. اختر من مواد '.Ar::grade($student->grade).'.'])->withInput();
+        }
+        $back = fn () => redirect()->route('account.subscribe', array_filter(['student' => $student?->id]));
+        // Dedupe on the server: a subject already active for this child is skipped; one already waiting is reused (no second request).
+        $taken = $this->taken($user, $student);
+        $active = array_values(array_filter($codes, fn ($c) => ($taken[$c] ?? null) === 'active'));
+        $codes = array_values(array_filter($codes, fn ($c) => ($taken[$c] ?? null) !== 'active'));
+        if ($codes === []) {
+            return $back()->withErrors(['plan' => 'هذه المواد مفعّلة لطفلك من قبل، ولا حاجة لطلبها مرة أخرى.']);
+        }
+        $existing = $user->subscriptions()->where('status', 'pending')->whereIn('plan', $codes)
+            ->where(fn ($q) => $student ? $q->where('student_id', $student->id) : $q->whereNull('student_id'))->get()->keyBy('plan');
+        $new = array_values(array_filter($codes, fn ($c) => ! $existing->has($c)));
         $pending = $user->subscriptions()->where('status', 'pending')->count();
         $max = Setting::int('max_pending', 1, 50);
-        if ($pending + count($codes) > $max) {
-            return back()->withErrors(['plan' => 'لديك طلبات بانتظار الدفع. الحد الأقصى للطلبات المفتوحة '.Ar::num($max).'؛ أتمّ الدفع أو انتظر معالجة طلباتك السابقة.']);
+        if ($new && $pending + count($new) > $max) {
+            return $back()->withErrors(['plan' => 'لديك طلبات بانتظار الدفع. الحد الأقصى للطلبات المفتوحة '.Ar::num($max).'؛ أتمّ الدفع أو انتظر معالجة طلباتك السابقة.']);
         }
         $subs = [];
-        $batch = count($codes) > 1 ? 'R-'.strtoupper(Str::random(6)) : null;
-        foreach ($codes as $code) {
+        $batch = count($new) > 1 ? 'R-'.strtoupper(Str::random(6)) : null;
+        foreach ($new as $code) {
             $plan = $plans[$code];
             $sub = new Subscription([
                 'code' => strtoupper(Str::random(4)).'-'.random_int(1000, 9999), 'plan' => $plan['code'], 'plan_name' => $plan['name'],
@@ -153,13 +202,20 @@ class HomeController extends Controller
             $user->subscriptions()->save($sub);
             $subs[] = $sub->setRelation('user', $user)->setRelation('student', $student);
         }
-        // One submission = one activity entry listing every subject (codes kept for the WhatsApp match).
-        ActivityLog::record('subscription.request', $batch ?? $subs[0]->code, collect($subs)->map(fn ($s) => $s->code.' '.$s->plan_name)->join('؛ '));
-        \App\Support\Funnel::log('order_created', ['student_id' => $student?->id, 'count' => count($subs), 'meta' => ['plans' => collect($subs)->pluck('plan')->join(','), 'ref' => $batch ?? $subs[0]->code]]);
+        if ($subs) {
+            // One submission = one activity entry listing every subject (codes kept for the WhatsApp match).
+            ActivityLog::record('subscription.request', $batch ?? $subs[0]->code, collect($subs)->map(fn ($s) => $s->code.' '.$s->plan_name)->join('؛ '));
+            \App\Support\Funnel::log('order_created', ['student_id' => $student?->id, 'count' => count($subs), 'meta' => ['plans' => collect($subs)->pluck('plan')->join(','), 'ref' => $batch ?? $subs[0]->code]]);
+        } else {
+            \App\Support\Funnel::log('order_repeat', ['student_id' => $student?->id, 'count' => $existing->count(), 'meta' => ['plans' => $existing->keys()->join(',')]]);
+        }
+        foreach ($existing as $e) {
+            $subs[] = $e->setRelation('user', $user)->setRelation('student', $student);
+        }
         $url = (new WhatsAppGateway)->batchCheckoutUrl($subs);
         $list = collect($subs)->pluck('code')->join('، ');
 
-        return $url ? redirect()->away($url) : redirect()->route('account.subscribe')->with('status', (count($subs) > 1 ? 'سُجّلت طلباتك برموز ' : 'سُجّل طلبك برمز ').$list.'. سنتواصل معك لإتمام الدفع.');
+        return $url ? redirect()->away($url) : $back()->with('status', 'تم استلام طلبك برمز '.$list.'. سنتواصل معك لإتمام الدفع، ونفعّل المواد فور التأكيد.');
     }
 
     /** Parent puts a child in a teacher's class with the class code. */

@@ -3,6 +3,10 @@
 return [
 
     'student_site_url' => env('STUDENT_SITE_URL', ''),
+
+    // Child PIN on the student picker and the add-child form. Off for now; existing PINs stay saved in the database.
+    // Set CHILD_PIN=true in .env to ask for it again.
+    'child_pin' => (bool) env('CHILD_PIN', false),
     'static_root' => env('STATIC_ROOT', ''),
 
     // Folder holding admin/, assets/ and catalog.js. Empty = backend/frontend if present, else the repo root.
