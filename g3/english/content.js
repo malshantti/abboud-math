@@ -6,7 +6,7 @@ const tbl=r=>'<table class="ltr en">'+r.map(x=>'<tr><td>'+x[0]+'</td><td dir="rt
 const Q=(q,a,...w)=>({q,o:[a,...w],a:0,html:true});
 const U=[
  ['All about me','كلّ شيء عنّي',4,
-  [['Good morning','صباح الخير'],['Good afternoon','مساء الخير'],['How are you? — Fine, thanks.','كيف حالك؟ — بخير، شكرًا.'],['What\'s your name? — My name\'s Walid.','ما اسمك؟ — اسمي وليد.'],['How old are you? — I\'m nine.','كم عمرك؟ — عمري تسع سنوات.'],['Where are you from? — I\'m from Bethlehem.','من أين أنت؟ — أنا من بيت لحم.']],
+  [['Good morning','صباح الخير'],['Good afternoon','طاب يومك'],['How are you? — Fine, thanks.','كيف حالك؟ — بخير، شكرًا.'],['What\'s your name? — My name\'s Walid.','ما اسمك؟ — اسمي وليد.'],['How old are you? — I\'m nine.','كم عمرك؟ — عمري تسع سنوات.'],['Where are you from? — I\'m from Bethlehem.','من أين أنت؟ — أنا من بيت لحم.']],
   [Q('What\'s your name?','My name\'s Hamzah.','I\'m 8.','I\'m from Jerusalem.'),Q('How old are you?','I\'m 8.','I\'m fine.','My name\'s Rana.'),Q('How are you?','I\'m fine.','I\'m from Gaza.','I\'m 9.'),Q('Where are you from?','I\'m from Jerusalem.','I\'m fine.','My name\'s Walid.'),Q('Manar is a girl. ___ name is Manar.','Her','His','He'),Q('Walid is a boy. ___ 9.','He\'s','She\'s','Her'),Q('Hala is a girl. ___ from Haifa.','She\'s','He\'s','His')],
   'His / Her — He\'s / She\'s'],
  ['He\'s a doctor','إنّه طبيب',10,
@@ -31,7 +31,7 @@ const U=[
   [Q('When do you get up?','In the morning.','At the zoo.','I\'m fine.'),Q('I go to ___ at night.','bed','school','the market'),Q('أكتب الواجب = ?','I do homework.','I watch cartoons.','I get up.'),Q('What do you do in the afternoon?','I play computer games.','My head hurts.','It\'s cold.'),Q('in the ___ (المساء)','evening','morning','night'),Q('I ___ cartoons.','watch','go','get'),Q('I go to school in the ___ .','morning','night','evening')],
   'What do you do in the …? / When do you …?'],
  ['It\'s sunny','الجوّ مشمس',46,
-  [['sunny','مشمس'],['rainy','ماطر'],['windy','عاصف'],['cloudy','غائم'],['hot / cold','حارّ / بارد'],['beach','شاطئ'],['park','حديقة عامّة'],['swimming pool','بركة سباحة'],['playground','ساحة لعب'],['river','نهر']],
+  [['sunny','مشمس'],['rainy','ماطر'],['windy','عاصف'],['cloudy','غائم'],['hot / cold','حارّ / بارد'],['beach','شاطئ'],['park','حديقة عامّة'],['swimming pool','بركة سباحة'],['playground','ساحة لعب'],['zoo','حديقة الحيوان'],['river','نهر']],
   [Q('☀️ What\'s the weather?','It\'s sunny.','It\'s rainy.','It\'s cloudy.'),Q('🌧️ What\'s the weather?','It\'s rainy.','It\'s hot.','It\'s windy.'),Q('☁️ = ?','cloudy','sunny','windy'),Q('Where are they? 🏖️','at the beach','at the zoo','at school'),Q('ماطر = ?','rainy','windy','cold'),Q('It\'s hot. Let\'s go to the ___ .','swimming pool','doctor','bed'),Q('They are ___ the park.','at','is','he')],
   'What\'s the weather? It\'s … / at the …'],
  ['Revision','مراجعة الوحدات 1–8',52,null,null,null]];
