@@ -1,5 +1,5 @@
 // العلوم والحياة — الصفّ الثالث، الجزء الأوّل: وحدتان كما في كتاب الطالب الرسميّ (الصفحات مطبوعة).
-window.AR_AUDIO={};
+window.AR_AUDIO={"s1-a": "s1-a.mp3", "s1-b": "s1-b.mp3", "s1-c": "s1-c.mp3", "s2-a": "s2-a.mp3", "s2-b": "s2-b.mp3", "s3-a": "s3-a.mp3", "s3-b": "s3-b.mp3", "s3-c": "s3-c.mp3", "s4-a": "s4-a.mp3", "s5-a": "s5-a.mp3", "s5-b": "s5-b.mp3", "s6-a": "s6-a.mp3", "s7-a": "s7-a.mp3", "s7-b": "s7-b.mp3", "s7-c": "s7-c.mp3", "s8-a": "s8-a.mp3", "s8-b": "s8-b.mp3"};  // core.js plays audio/+value
 (function(){
 const Q=(q,a,...w)=>({q,o:[a,...w],a:0});
 const S=(h,b,ck,say)=>({h,b,say,ck:ck?{q:ck[0],o:ck.slice(1),a:0}:undefined});
