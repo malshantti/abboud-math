@@ -15,7 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trimStrings(except: [fn (Request $request) => $request->is('admin/api/*')]);
         $middleware->convertEmptyStringsToNull(except: [fn (Request $request) => $request->is('admin/api/*')]);
-        $middleware->web(prepend: [PrivateAdminResponse::class], append: [App\Http\Middleware\LogoutDisabledUsers::class, App\Http\Middleware\SingleDevice::class, App\Http\Middleware\StudentMaintenance::class]);
+        $middleware->web(prepend: [PrivateAdminResponse::class], append: [App\Http\Middleware\LogoutDisabledUsers::class, App\Http\Middleware\SingleDevice::class, App\Http\Middleware\StudentMaintenance::class, App\Http\Middleware\FunnelFormErrors::class]);
+        // Journey log: the beacon has no CSRF token; the visitor id cookies are written by the site's JS (not encrypted).
+        $middleware->validateCsrfTokens(except: ['api/t']);
+        $middleware->encryptCookies(except: ['bk_vid', 'bk_src']);
         $middleware->redirectGuestsTo(fn (Request $r) => $r->is('api/*') ? null : ($r->is('admin', 'admin/*') ? route('login') : route('account.login')));
         $middleware->redirectUsersTo(fn (Request $r) => \App\Support\Landing::isStaff($r->user()) ? route('manage.dashboard') : route('account.home'));
     })

@@ -107,6 +107,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
         \App\Support\Devices::claim($request, $user);
         ActivityLog::record('register', $user->email, null, $user);
+        self::funnelSignup($user, 'email');
         // Activation link first; the welcome email follows once the address is confirmed.
         // If activation emails are switched off, the account counts as verified and is welcomed now.
         if (MailCenter::enabled('verify')) {
@@ -181,14 +182,31 @@ class AuthController extends Controller
         $user->forceFill(['last_login_at' => now()])->save();
         \App\Support\Devices::claim($request, $user);
         ActivityLog::record('login', $user->email);
+        if (! $user->isStaff()) {
+            \App\Support\Funnel::link($user);
+            \App\Support\Funnel::log('login', ['user_id' => $user->id, 'meta' => ['method' => 'email']]);
+        }
         \App\Support\Landing::scrubIntended($request);
 
         return redirect()->intended(\App\Support\Landing::home($user));
     }
 
+    /** Journey log for a new family account: link the anonymous visitor, then registered + trial started. Never blocks. */
+    public static function funnelSignup(User $user, string $method): void
+    {
+        \App\Support\Funnel::link($user);
+        \App\Support\Funnel::log('registered', ['user_id' => $user->id, 'meta' => ['method' => $method]]);
+        if ($user->trial_ends_at) {
+            \App\Support\Funnel::log('trial_started', ['user_id' => $user->id, 'meta' => ['until' => $user->trial_ends_at->toDateString()]]);
+        }
+    }
+
     public function logout(Request $request): RedirectResponse
     {
         ActivityLog::record('logout');
+        if (($u = $request->user()) && ! $u->isStaff()) {
+            \App\Support\Funnel::log('logout', ['user_id' => $u->id]);
+        }
         Auth::logout();
         \App\Support\Devices::forget();
         $request->session()->invalidate();
@@ -234,6 +252,7 @@ class AuthController extends Controller
         if (! $user->isVerified()) {
             $user->forceFill(['email_verified_at' => now()])->save();
             ActivityLog::record('email.verify', $user->email, null, $user);
+            \App\Support\Funnel::log('email_verified', ['user_id' => $user->id]);
             MailCenter::send('welcome', $user, MailCenter::welcomeLink());
         }
 

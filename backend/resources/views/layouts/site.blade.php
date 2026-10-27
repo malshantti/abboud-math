@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
+<head><meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#fbf9f0">
@@ -69,5 +69,6 @@
   @endauth
 </div></header>
 @yield('body')
+<script src="/track.js?v=20261027fn1" defer></script>
 </body>
 </html>

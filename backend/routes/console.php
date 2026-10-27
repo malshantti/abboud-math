@@ -71,3 +71,85 @@ Artisan::command('push:keys', function () {
     $this->line('VAPID_PUBLIC_KEY='.$k['public']);
     $this->line('VAPID_PRIVATE_KEY='.$k['private']);
 })->purpose('Generate a VAPID key pair for .env');
+
+// Journey log backfill: rebuild the «مستعاد» events from accounts, children, progress, subscriptions and the activity log.
+// Idempotent (replaces earlier backfilled rows); only covers what happened before live tracking started.
+Artisan::command('funnel:backfill', function () {
+    if (! \App\Support\Funnel::ready()) {
+        $this->error('funnel_events table missing: run migrate first');
+
+        return 1;
+    }
+    $db = Illuminate\Support\Facades\DB::connection();
+    $db->table('funnel_events')->where('backfill', true)->delete();
+    $cut = $db->table('funnel_events')->min('created_at') ?? now()->addYear()->toDateTimeString();
+    $cut = Illuminate\Support\Carbon::parse($cut, 'UTC');
+    $rows = [];
+    $add = function (string $event, $at, int $user, array $x = []) use (&$rows, $cut) {
+        if (! $at) {
+            return;
+        }
+        $at = Illuminate\Support\Carbon::parse($at, 'UTC');
+        if ($at->gte($cut)) {
+            return;
+        }
+        $rows[] = ['event' => $event, 'visitor_id' => null, 'user_id' => $user, 'student_id' => $x['student_id'] ?? null, 'subject' => $x['subject'] ?? null,
+            'page' => null, 'source' => null, 'count' => $x['count'] ?? null, 'meta' => isset($x['meta']) ? json_encode($x['meta'], JSON_UNESCAPED_UNICODE) : null,
+            'backfill' => true, 'created_at' => $at->toDateTimeString()];
+    };
+    $users = App\Models\User::parents()->get();
+    $ids = $users->pluck('id')->all();
+    $paidUsers = [];
+    foreach ($users as $u) {
+        $add('registered', $u->created_at, $u->id, ['meta' => ['method' => $u->google_id ? 'google' : 'email']]);
+        if ($u->trial_ends_at) {
+            $add('trial_started', $u->created_at, $u->id, ['meta' => ['until' => $u->trial_ends_at->toDateString()]]);
+        }
+        if ($u->email_verified_at && ! $u->google_id) {
+            $add('email_verified', $u->email_verified_at, $u->id);
+        }
+    }
+    $students = App\Models\Student::whereIn('user_id', $ids ?: [0])->get(['id', 'user_id', 'grade', 'created_at']);
+    $owner = $students->pluck('user_id', 'id');
+    foreach ($students as $s) {
+        $add('child_created', $s->created_at, $s->user_id, ['student_id' => $s->id, 'meta' => ['grade' => $s->grade]]);
+    }
+    foreach ($db->table('student_progress')->whereIn('student_id', $students->pluck('id')->all() ?: [0])->get(['student_id', 'key', 'value', 'created_at', 'updated_at']) as $p) {
+        $uid = (int) ($owner[$p->student_id] ?? 0);
+        if ($code = App\Http\Controllers\Api\SyncController::subjectOf($p->key)) {
+            $add('lesson_first', $p->created_at, $uid, ['student_id' => $p->student_id, 'subject' => $code]);
+        } elseif ($p->key === 'bustan_report_v1' && ($d = json_decode((string) $p->value, true)) && is_array($d['subj'] ?? null)) {
+            foreach ($d['subj'] as $code => $s) {
+                if (is_array($s) && ($n = (int) ($s['n'] ?? 0)) > 0 && preg_match('/^g\d{1,2}-[a-z]+$/', (string) $code)) {
+                    $add('answers', $p->updated_at, $uid, ['student_id' => $p->student_id, 'subject' => $code, 'count' => $n, 'meta' => ['total' => 1]]);
+                }
+            }
+        }
+    }
+    $subs = App\Models\Subscription::whereIn('user_id', $ids ?: [0])->orderBy('id')->get();
+    foreach ($subs->groupBy(fn ($s) => $s->batch ?: $s->code) as $ref => $g) {
+        $f = $g->first();
+        if ($f->gateway !== 'manual') {
+            $add('order_created', $f->created_at, $f->user_id, ['student_id' => $f->student_id, 'count' => $g->count(), 'meta' => ['plans' => $g->pluck('plan')->join(','), 'ref' => $ref]]);
+        }
+        foreach ($g as $s) {
+            if ($s->starts_at && in_array($s->status, ['active', 'expired'], true)) {
+                $add('paid', $s->starts_at, $s->user_id, ['student_id' => $s->student_id, 'meta' => ['plan' => $s->plan, 'gateway' => $s->gateway, 'price' => $s->price]]);
+                $paidUsers[$s->user_id] = true;
+            }
+        }
+    }
+    foreach ($users as $u) {
+        if ($u->trial_ends_at && $u->trial_ends_at->isPast() && empty($paidUsers[$u->id])) {
+            $add('trial_ended', $u->trial_ends_at, $u->id, ['meta' => ['until' => $u->trial_ends_at->toDateString()]]);
+        }
+    }
+    $map = ['login' => 'login', 'logout' => 'logout'];
+    foreach ($db->table('activity_logs')->whereIn('action', array_keys($map))->whereIn('user_id', $ids ?: [0])->get(['user_id', 'action', 'created_at']) as $l) {
+        $add($map[$l->action], $l->created_at, (int) $l->user_id);
+    }
+    foreach (array_chunk($rows, 500) as $chunk) {
+        $db->table('funnel_events')->insert($chunk);
+    }
+    $this->info('backfilled '.count($rows).' events for '.count($ids).' families (cutoff '.$cut->toDateTimeString().' UTC)');
+})->purpose('Rebuild the family journey log from existing data');

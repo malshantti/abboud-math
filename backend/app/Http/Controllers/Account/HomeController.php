@@ -24,8 +24,25 @@ class HomeController extends Controller
     {
         $user = $request->user()->load(['students' => fn ($q) => $q->orderBy('id')->with('classrooms:id,name')]);
         $subs = $user->subscriptions()->latest()->take(10)->get();
+        $this->funnelTrial($user);
 
         return view('account.home', ['user' => $user, 'access' => Access::state($user), 'subscriptions' => $subs, 'expiring' => Access::expiringSoon($user), 'grades' => Setting::gradeOptions(), 'siteUrl' => rtrim((string) config('app.student_site_url'), '/')]);
+    }
+
+    /** Once per account: note in the journey log that the free trial ends within two days (or has ended). */
+    private function funnelTrial($user): void
+    {
+        try {
+            $t = $user->trial_ends_at;
+            if (! $t || $user->isStaff() || $t->gt(now()->addDays(2)) || ! \App\Support\Funnel::ready()) {
+                return;
+            }
+            $ev = $t->isPast() ? 'trial_ended' : 'trial_ending';
+            if (! \Illuminate\Support\Facades\DB::table('funnel_events')->where('user_id', $user->id)->where('event', $ev)->exists()) {
+                \App\Support\Funnel::log($ev, ['user_id' => $user->id, 'meta' => ['until' => $t->toDateString()]]);
+            }
+        } catch (\Throwable) {
+        }
     }
 
     private function rules(): array
@@ -52,6 +69,7 @@ class HomeController extends Controller
         $s->setPin($this->pin($request));
         $s->save();
         ActivityLog::record('student.create', $s->name);
+        \App\Support\Funnel::log('child_created', ['student_id' => $s->id, 'meta' => ['grade' => $s->grade]]);
 
         return back()->with('status', 'أُضيف الطالب «'.$s->name.'».');
     }
@@ -91,6 +109,7 @@ class HomeController extends Controller
     public function subscribe(Request $request): View
     {
         $user = $request->user()->load('students');
+        \App\Support\Funnel::log('subscribe_view', ['meta' => ['pending' => $user->subscriptions()->where('status', 'pending')->count()]]);
 
         return view('account.subscribe', [
             'user' => $user, 'access' => Access::state($user), 'plans' => Setting::plans(true), 'currency' => Setting::get('currency'), 'instructions' => Setting::get('payment_instructions'),
@@ -136,6 +155,7 @@ class HomeController extends Controller
         }
         // One submission = one activity entry listing every subject (codes kept for the WhatsApp match).
         ActivityLog::record('subscription.request', $batch ?? $subs[0]->code, collect($subs)->map(fn ($s) => $s->code.' '.$s->plan_name)->join('؛ '));
+        \App\Support\Funnel::log('order_created', ['student_id' => $student?->id, 'count' => count($subs), 'meta' => ['plans' => collect($subs)->pluck('plan')->join(','), 'ref' => $batch ?? $subs[0]->code]]);
         $url = (new WhatsAppGateway)->batchCheckoutUrl($subs);
         $list = collect($subs)->pluck('code')->join('، ');
 
