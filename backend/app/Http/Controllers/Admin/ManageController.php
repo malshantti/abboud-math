@@ -251,15 +251,15 @@ class ManageController extends Controller
     public function subscriptions(Request $request): View
     {
         Subscription::sweep();
-        $q = Subscription::with(['user', 'student']);
-        if (array_key_exists($st = (string) $request->query('status'), Subscription::STATUS)) {
-            $q->where('status', $st);
-        }
-        if ($s = trim((string) $request->query('q'))) {
-            $q->where(fn ($w) => $w->where('code', 'like', "%$s%")->orWhere('batch', $s)->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%$s%")->orWhere('name', 'like', "%$s%")));
-        }
+        $f = ['status' => array_key_exists($st = (string) $request->query('status'), \App\Support\SubscriptionBoard::FILTERS) ? $st : '', 'grade' => (int) $request->query('grade'), 'q' => trim((string) $request->query('q'))];
+        $families = \App\Support\SubscriptionBoard::families($f);
+        $page = max(1, (int) $request->query('page', 1));
+        $paged = new \Illuminate\Pagination\LengthAwarePaginator($families->forPage($page, 20)->values(), $families->count(), 20, $page, ['path' => $request->url(), 'query' => $request->query()]);
 
-        return view('manage.subscriptions', ['subs' => $q->latest('id')->paginate(25)->withQueryString()]);
+        return view('manage.subscriptions', [
+            'summary' => \App\Support\SubscriptionBoard::summary(), 'requests' => \App\Support\SubscriptionBoard::pendingRequests(),
+            'families' => $paged, 'f' => $f, 'grades' => Setting::gradeOptions(), 'plans' => Setting::plans(true),
+        ]);
     }
 
     public function activateSubscription(Request $request, Subscription $subscription): RedirectResponse
