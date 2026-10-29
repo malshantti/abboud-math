@@ -178,4 +178,5 @@ T.khatt={html:it=>'<p class="mut">اكتب فوق النموذج بإصبعك أ
   cv.onpointerdown=e=>{on=true;cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);const[a,b]=pt(e);x.beginPath();x.moveTo(a,b);x.lineWidth=8;x.lineCap='round';x.strokeStyle='#4a5c30'};
   cv.onpointermove=e=>{if(!on)return;const[a,b]=pt(e);x.lineTo(a,b);x.stroke()};cv.onpointerup=()=>on=false;A.$('[data-clear]').onclick=draw0;
   $$('#kc .chip').forEach(b=>b.onclick=()=>{$$('#kc .chip').forEach(c=>c.classList.remove('on'));b.classList.add('on');sel(+b.dataset.j)});sel(0)}};
+A.labT=T;
 })();
