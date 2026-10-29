@@ -257,6 +257,7 @@ function fill(d){
   if(!card){var tpl=document.querySelector('[data-price-group]');if(!tpl||!tpl.parentNode)return;card=tpl.cloneNode(true);card.setAttribute('data-price-group',g.key);card.hidden=false;card.classList.remove('L-plan-hot');
    var li=card.querySelector('ul li');if(li){var sv=li.querySelector('svg');li.textContent='';if(sv)li.append(sv);li.append((g.subjects||[]).join('، '))}
    [].slice.call(card.querySelectorAll('ul li')).slice(1).forEach(function(x){x.remove()});tpl.parentNode.append(card)}
+  if(card.hasAttribute('data-free')){var t0=card.querySelector('.L-plan-for');if(t0&&g.title)t0.textContent=g.title;return}
   var t=card.querySelector('.L-plan-for'),b=card.querySelector('.L-price b'),f=card.querySelector('.L-from'),u=card.querySelector('.L-cur'),dd=card.querySelector('[data-days]');
   if(t&&g.title)t.textContent=g.title;if(b)b.textContent=AR(g.min);if(f)f.hidden=!(g.max>g.min);
   // سعران مختلفان في المجموعة: «يبدأ من» + سعر كل صف بوضوح بدل «٨–١٠» الملتبس في الاتجاه العربي
