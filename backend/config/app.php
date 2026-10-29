@@ -11,6 +11,7 @@ return [
 
     // Folder holding admin/, assets/ and catalog.js. Empty = backend/frontend if present, else the repo root.
     'frontend_path' => env('ADMIN_FRONTEND_PATH', ''),
+    'site_catalog_path' => env('ADMIN_SITE_CATALOG_PATH', ''),
     'display_timezone' => env('DISPLAY_TIMEZONE', 'Asia/Gaza'),
 
     // One-time setup token for hosts without SSH. Leave empty (disabled) except during setup.

@@ -24,7 +24,9 @@ class WorkspaceAssetController extends Controller
             $files['img/'.$file] = $root.'/assets/img/'.$file;
         }
         $files['brand/favicon.svg'] = $root.'/assets/brand/favicon.svg';
-        $files['catalog.js'] = $root.'/catalog.js';
+        // Prefer the live student site's catalog so new grades/subjects appear here as soon as the site is deployed.
+        $live = config('app.site_catalog_path') ?: dirname(base_path()).'/public_html/bustankids/catalog.js';
+        $files['catalog.js'] = is_file($live) ? $live : $root.'/catalog.js';
         abort_unless(isset($files[$asset]) && is_file($files[$asset]), 404);
         $type = match (pathinfo($asset, PATHINFO_EXTENSION)) {
             'js' => 'text/javascript; charset=UTF-8', 'css' => 'text/css; charset=UTF-8', 'woff2' => 'font/woff2', 'svg' => 'image/svg+xml', 'webp' => 'image/webp'
