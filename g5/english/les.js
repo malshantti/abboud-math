@@ -15,7 +15,7 @@ function factQs(l,n){return shuffle((l.facts||[]).slice()).slice(0,n).map(f=>({q
 const gens=l=>(l.gen||[]).filter(k=>MG[k]);
 function genQs(l,n){const ks=gens(l),o=[];if(!ks.length)return o;for(let i=0;i<n;i++)o.push(MG[ks[i%ks.length]]());return o}
 function bookQs(l){return (l.bmc||[]).map(b=>({q:esc(b[0])+'<br><small class="mut">من أسئلة كتاب الطالب ص '+b[3]+'</small>',o:b[1].slice(),a:b[2],keep:b[1].length<3?0:0,ex:'الإجابة: '+b[1][b[2]]+' (كتاب الطالب ص '+b[3]+')'}))}
-function lesQs(l){const g=gens(l).length,bk=shuffle(bookQs(l)),n=Math.max(10,Math.min(bk.length,14));const rest=shuffle(termQs(l,g?2:4).concat(factQs(l,g?2:4)).concat(genQs(l,g?6:0)));return shuffle(bk.concat(rest).slice(0,n))}
+function lesQs(l){if(l.bo&&(l.bmc||[]).length)return shuffle(bookQs(l)).slice(0,14);const g=gens(l).length,bk=shuffle(bookQs(l)),n=Math.max(10,Math.min(bk.length,14));const rest=shuffle(termQs(l,g?2:4).concat(factQs(l,g?2:4)).concat(genQs(l,g?6:0)));return shuffle(bk.concat(rest).slice(0,n))}
 A.gen={termQs,factQs,numQs:genQs,lesQs,bookQs,LES,NUM:Object.fromEntries(LES.map(l=>[l.id,gens(l)]))};
 R.home=function(){return ''};
 R.u=function(id){const l=LES.find(x=>x.id===id);if(!l)return R.home();S.seen[id]=1;A.save();const u=l.u;
