@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\URL;
 /** One place that renders, sends and logs every account email (verify, reset, welcome). */
 class MailCenter
 {
-    public const TYPES = ['verify' => 'تفعيل الحساب', 'reset' => 'إعادة تعيين كلمة المرور', 'welcome' => 'رسالة الترحيب', 'trial_reminder' => 'تذكير قبل نهاية التجربة', 'activated' => 'تفعيل الاشتراك'];
+    public const TYPES = ['verify' => 'تفعيل الحساب', 'reset' => 'إعادة تعيين كلمة المرور', 'welcome' => 'رسالة الترحيب', 'trial_reminder' => 'تذكير قبل نهاية التجربة', 'activated' => 'تفعيل الاشتراك', 'gift' => 'هدية الشهر المجاني'];
 
-    public const BUTTONS = ['verify' => 'تفعيل الحساب', 'reset' => 'تعيين كلمة مرور جديدة', 'welcome' => 'ادخل إلى الموقع', 'trial_reminder' => 'اختر المواد واشترك', 'activated' => 'ابدأ التعلّم'];
+    public const BUTTONS = ['verify' => 'تفعيل الحساب', 'reset' => 'تعيين كلمة مرور جديدة', 'welcome' => 'ادخل إلى الموقع', 'trial_reminder' => 'اختر المواد واشترك', 'activated' => 'ابدأ التعلّم', 'gift' => 'ابدأ التعلّم الآن'];
 
-    public const PLACEHOLDERS = ['{name}' => 'اسم صاحب الحساب', '{site}' => 'اسم الموقع', '{trial_days}' => 'أيام التجربة', '{whatsapp}' => 'رقم واتساب', '{minutes}' => 'صلاحية رابط الاستعادة بالدقائق', '{days}' => 'صلاحية رابط التفعيل بالأيام', '{until}' => 'تاريخ نهاية التجربة أو الاشتراك', '{subjects}' => 'المواد المفعّلة', '{student}' => 'اسم الطالب'];
+    public const PLACEHOLDERS = ['{name}' => 'اسم صاحب الحساب', '{site}' => 'اسم الموقع', '{trial_days}' => 'أيام التجربة', '{whatsapp}' => 'رقم واتساب', '{minutes}' => 'صلاحية رابط الاستعادة بالدقائق', '{days}' => 'صلاحية رابط التفعيل بالأيام', '{until}' => 'تاريخ نهاية التجربة أو الاشتراك', '{subjects}' => 'المواد المفعّلة', '{student}' => 'اسم الطالب', '{gift_intro}' => 'جملة الهدية (طفل/أطفال، مشترك أو لا)', '{to_kids}' => 'لطفلكم / لأطفالكم', '{kid}' => 'طفلكم / أطفالكم'];
 
     /** Arabic aliases the admin may type instead of the Latin placeholders. */
     public const AR_PLACEHOLDERS = ['{اسم_ولي_الأمر}' => '{name}', '{الاسم}' => '{name}', '{اسم_الموقع}' => '{site}', '{أيام_التجربة}' => '{trial_days}', '{واتساب}' => '{whatsapp}', '{الدقائق}' => '{minutes}', '{الأيام}' => '{days}'];
@@ -62,8 +62,9 @@ class MailCenter
     {
         $wa = self::whatsapp();
         $vars = [
-            '{until}' => (string) ($extra['until'] ?? ''), '{subjects}' => (string) ($extra['subjects'] ?? ''), '{student}' => (string) ($extra['student'] ?? ''),
+            '{until}' => (string) ($extra['until'] ?? ''), '{subjects}' => (string) ($extra['subjects'] ?? ''), '{student}' => (string) ($extra['student'] ?? ''), '{gift_intro}' => (string) ($extra['gift_intro'] ?? ''), '{to_kids}' => (string) ($extra['to_kids'] ?? 'لطفلكم'), '{kid}' => (string) ($extra['kid'] ?? 'طفلكم'),
             '{name}' => trim($name) !== '' ? trim($name) : 'عائلتنا الكريمة',
+            '{whatsapp_local}' => Ar::num('0'.substr($wa, 3)),
             '{site}' => Setting::get('site_name'),
             '{trial_days}' => Ar::num(max(0, (int) Setting::get('trial_days'))),
             '{whatsapp}' => Ar::num('00'.$wa),
@@ -89,11 +90,13 @@ class MailCenter
         return [
             'type' => $type, 'subject' => trim($fill((string) $subjectTpl)) ?: self::TYPES[$type],
             'paragraphs' => $paragraphs, 'button' => self::BUTTONS[$type], 'link' => $link,
-            'whatsapp' => in_array($type, ['welcome', 'trial_reminder', 'activated'], true) ? 'https://wa.me/'.$wa : null, 'whatsapp_label' => Ar::num('00'.$wa),
+            'whatsapp' => in_array($type, ['welcome', 'trial_reminder', 'activated', 'gift'], true) ? 'https://wa.me/'.$wa : null, 'whatsapp_label' => $type === 'gift' ? $vars['{whatsapp_local}'] : Ar::num('00'.$wa),
+            'show_link' => ! in_array($type, ['welcome', 'gift'], true),
             'site_url' => self::siteUrl(), 'logo' => self::logoUrl(), 'site' => Setting::get('site_name'),
             'note' => match ($type) {
                 'reset' => 'لحمايتك، لا يُستخدم الرابط إلا مرة واحدة، وينتهي بعد '.$vars['{minutes}'].' دقيقة.',
                 'verify' => 'إن لم يعمل الزر، فانسخ الرابط التالي وألصقه في المتصفح.',
+                'gift' => 'للدعم الفني عبر واتساب: '.$vars['{whatsapp_local}'],
                 default => 'لأي استفسار، راسلنا عبر واتساب على الرقم '.$vars['{whatsapp}'].'.',
             },
         ];
@@ -103,7 +106,7 @@ class MailCenter
     public static function send(string $type, User $user, string $link, bool $test = false, ?string $to = null, array $extra = []): MailLog
     {
         $to ??= $user->email;
-        $data = self::render($type, $user->name, $link, [], $extra + ($test ? ['until' => Ar::date(now()->addDay()), 'subjects' => 'الرياضيات — الصف الأول', 'student' => 'سارة'] : []));
+        $data = self::render($type, $user->name, $link, [], $extra + ($test ? ['until' => Ar::date(now()->addDay()), 'subjects' => 'الرياضيات — الصف الأول', 'student' => 'سارة', 'gift_intro' => 'تقديرًا لثقتكم، فعّلنا لطفلكم شهرًا مجانيًا كاملًا على جميع مواد صفّه.'] : []));
         $log = ['user_id' => $test ? null : $user->id, 'to' => mb_substr($to, 0, 255), 'type' => $type, 'subject' => mb_substr($data['subject'], 0, 255), 'is_test' => $test];
         if (! $test && ! self::enabled($type)) {
             return MailLog::create($log + ['status' => 'disabled']);

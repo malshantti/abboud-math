@@ -165,7 +165,7 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'disabled_at' => 'datetime',
             'last_login_at' => 'datetime', 'active_device_seen_at' => 'datetime',
-            'trial_ends_at' => 'datetime',
+            'trial_ends_at' => 'datetime', 'gift_notice_seen_at' => 'datetime',
             'push_reminders' => 'boolean',
             'last_reminder_on' => 'date',
             'password' => 'hashed',
