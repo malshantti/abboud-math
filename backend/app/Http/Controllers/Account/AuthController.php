@@ -103,7 +103,7 @@ class AuthController extends Controller
             return $user;
         });
 
-        Auth::login($user);
+        Auth::login($user, true);
         $request->session()->regenerate();
         \App\Support\Devices::claim($request, $user);
         ActivityLog::record('register', $user->email, null, $user);
@@ -167,7 +167,7 @@ class AuthController extends Controller
             $s = max(RateLimiter::availableIn($key), RateLimiter::availableIn($ipKey));
             throw ValidationException::withMessages(['email' => 'محاولات الدخول كثيرة. حاول مجددًا بعد '.\App\Support\Ar::num($s).' ثانية.']);
         }
-        if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']], $request->boolean('remember'))) {
+        if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']], true)) {
             RateLimiter::hit($key, 60);
             RateLimiter::hit($ipKey, 60);
             throw ValidationException::withMessages(['email' => 'البريد الإلكتروني أو كلمة المرور غير صحيحة.']);

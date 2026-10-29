@@ -56,7 +56,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $ok = Auth::attempt(['email' => $this->validated('email'), 'password' => $this->validated('password')]);
+        $ok = Auth::attempt(['email' => $this->validated('email'), 'password' => $this->validated('password')], true);
         if ($ok && ! \Illuminate\Support\Facades\Gate::allows('access-admin')) {
             Auth::logout();
             $ok = false;
