@@ -34,6 +34,8 @@ class Setting extends Model
         'grace_days' => '0',
         'reminder_days' => '3',
         'max_pending' => '16',
+        // Free-month promo: last day (Y-m-d, Asia/Gaza) of «اشترك مجانًا لمدة شهر». Empty = off; the paid per-grade flow returns the day after.
+        'free_month_until' => '',
         'auto_expire' => '1',
         'pending_expire_days' => '14',
         // Extra grade+subject units beyond the built-in catalog, one per line: code|grade|subject (e.g. g3-math|3|الرياضيات).
@@ -367,5 +369,17 @@ class Setting extends Model
         $m = static::get('points_multiplier');
 
         return ['hidden' => static::hiddenSubjects(), 'badges' => static::flag('badges_enabled'), 'points' => in_array($m, self::POINT_STEPS, true) ? (float) $m : 1.0];
+    }
+
+    /** End of the free-month promo (end of its last day) while it is running, else null. */
+    public static function freeMonthEnds(): ?\Illuminate\Support\Carbon
+    {
+        $d = trim((string) static::get('free_month_until'));
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
+            return null;
+        }
+        $end = \Illuminate\Support\Carbon::parse($d, config('app.display_timezone', 'Asia/Gaza'))->endOfDay()->utc();
+
+        return $end->isFuture() ? $end : null;
     }
 }

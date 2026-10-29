@@ -69,6 +69,7 @@ Route::prefix('account')->group(function () {
         Route::post('reminders', [AccountHome::class, 'toggleReminders'])->name('account.reminders');
         Route::get('subscribe', [AccountHome::class, 'subscribe'])->name('account.subscribe');
         Route::post('subscribe', [AccountHome::class, 'requestSubscription'])->middleware('throttle:10,1')->name('account.subscribe.store');
+        Route::post('subscribe/free', [AccountHome::class, 'freeMonth'])->middleware('throttle:10,1')->name('account.subscribe.free');
     });
 });
 // Read-only progress report share link (unguessable 40-char token, revocable by the parent).
