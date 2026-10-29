@@ -58,7 +58,7 @@ function renderSubjects(){
  const any=gradeActive(selG);$('#s2p').textContent=any?'المواد المتاحة عليها زر «ابدأ»':'مواد هذا الصف قيد التحضير';
  box.innerHTML=C.subjects.filter(s=>!hid(selG,s.id)&&(!s.grades||s.grades.includes(selG))&&(!C.gradeSubjects?.[selG]||C.gradeSubjects[selG].includes(s.id))).map(s=>{const e=active(selG,s.id);
   const lk=e&&ent(selG,s.id)!=='ok';
-  if(lk)return `<div class="tile subject locked"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${svg('lock',16)} انتهت الفترة التجريبية أو المادة غير مشمولة باشتراكك.</span></span><a class="btn sm" href="${SUBSCRIBE}">اشترك</a></div>`;
+  if(lk)return `<div class="tile subject locked"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${svg('lock',16)} المادة مقفلة حاليًا. فعّلها من صفحة الاشتراك.</span></span><a class="btn sm" href="${SUBSCRIBE}">اشترك</a></div>`;
   return e?`<button type="button" class="tile subject" data-s="${s.id}"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">${esc(e.desc||'')}</span></span><span class="tag on">ابدأ</span></button>`
    :`<div class="tile subject soon" aria-disabled="true"><span class="si c-${s.color}">${svg(s.icon,30)}</span><span><span class="sn">${esc(s.name)}</span><span class="sd">نحضّر دروسها، وستُزهر قريبًا.</span></span><span class="tag">قريبًا</span></div>`}).join('')
   +(any||acct?'':`<div class="empty"><img src="assets/img/zaytoun-think.webp" alt="" width="64" height="75"><span>لم تُضَف مواد ${esc(gname(selG))} بعد. جرّب <b>الصف الثامن · الرياضيات</b> الآن.</span></div>`);

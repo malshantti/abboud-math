@@ -75,7 +75,9 @@ class MailCenter
             $vars[$ar] = $vars[$en];
         }
         $fill = fn (string $s) => strtr($s, $vars);
-        $bodyTpl = $overrides['body'] ?? Setting::get('mail_'.$type.'_body');
+        $fmi = Setting::freeMonth();
+        $vars['{free_until}'] = $fmi['until_ar'] ?? '';
+        $bodyTpl = $overrides['body'] ?? ($type === 'welcome' && $fmi ? Setting::get('mail_welcome_free_body') : Setting::get('mail_'.$type.'_body'));
         $subjectTpl = $overrides['subject'] ?? Setting::get('mail_'.$type.'_subject');
         // Fallback: an empty template means "use the built-in text".
         if (trim((string) $bodyTpl) === '') {

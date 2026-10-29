@@ -13,7 +13,8 @@
 </style>
 <main class="auth">
   <section class="card">
-    <h1>أنشئ حسابك المجاني – {{ $ar::num(\App\Models\Setting::get('trial_days')) }} أيام بكل المواد</h1>
+    @php($fmi = \App\Models\Setting::freeMonth())
+    <h1>@if($fmi)أنشئ حسابك – البستان مجاني بالكامل حتى {{ $fmi['until_ar'] }}@elseأنشئ حسابك المجاني – {{ $ar::num(\App\Models\Setting::get('trial_days')) }} أيام بكل المواد@endif</h1>
     @if ($open)
     <p class="lead">حساب واحد للعائلة، ثم أضف طلابك. لا يلزم أي دفع.</p>
     @if (session('status'))<p class="alert {{ request()->boolean('email') ? 'warn' : 'ok' }}" role="status">{{ session('status') }}</p>@endif

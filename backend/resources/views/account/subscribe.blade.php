@@ -77,7 +77,9 @@
   @include('partials.flash')
   <section class="card">
     <div class="sub-h"><img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="72" height="95"><h1>الاشتراك في المواد</h1></div>
-    @if ($access['kind'] === 'trial')
+    @if ($access['kind'] === 'trial' && $freeEnds)
+      <p class="trialbox paid" role="status"><span>البستان مجاني بالكامل حتى {{ $ar::date($freeEnds, false) }}. اضغط الزر أدناه لتفعيل جميع مواد الصف.</span></p>
+    @elseif ($access['kind'] === 'trial')
       <p class="trialbox on" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/></svg><span>الفترة التجريبية: متبقٍّ {{ $ar::num($daysLeft) }} {{ $daysLeft === 1 ? 'يوم' : ($daysLeft === 2 ? 'يومان' : 'أيام') }}، حتى {{ $ar::date($access['ends_at']) }}. اشترك الآن ليستمر الوصول بعدها.</span></p>
     @elseif ($access['kind'] === 'expired' && ! $freeEnds)
       <p class="trialbox off" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16.5v.5M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span>انتهت الفترة التجريبية. الدروس المقفلة تحتاج اشتراكًا في المادة.</span></p>

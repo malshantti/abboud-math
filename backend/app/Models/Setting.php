@@ -36,6 +36,8 @@ class Setting extends Model
         'max_pending' => '16',
         // Free-month promo: last day (Y-m-d, Asia/Gaza) of «اشترك مجانًا لمدة شهر». Empty = off; the paid per-grade flow returns the day after.
         'free_month_until' => '',
+        'free_month_banner' => 'بستان التعلّم مجاني بالكامل حتى {until} — جميع مواد الصف بضغطة واحدة',
+        'mail_welcome_free_body' => "مرحبًا {name}،\n\nيسعدنا انضمامك إلى {site}. بستان التعلّم مجاني بالكامل حتى {free_until}: جميع مواد صف طفلك متاحة دون أي دفع.\n\nأضف طفلك من حسابك، ثم اضغط «اشترك مجانًا لمدة شهر» لتُفعَّل جميع مواد صفّه بضغطة واحدة.\n\nللدعم الفني عبر واتساب: {whatsapp_local}\n\nمع خالص التقدير،\nفريق بستان التعلّم",
         'auto_expire' => '1',
         'pending_expire_days' => '14',
         // Extra grade+subject units beyond the built-in catalog, one per line: code|grade|subject (e.g. g3-math|3|الرياضيات).
@@ -274,7 +276,7 @@ class Setting extends Model
             ];
         }
 
-        return [
+        return ['free_month' => static::freeMonth()] + [
             'currency' => static::get('currency'), 'trial_days' => static::int('trial_days', 0, 365),
             'whatsapp' => preg_replace('/\D+/', '', static::get('whatsapp_number')),
             'payment_instructions' => static::get('payment_instructions'),
@@ -334,18 +336,27 @@ class Setting extends Model
         $days = $plans ? min(array_column($plans, 'days')) : 30;
         $fill = fn (string $t) => strtr($t, ['{days}' => static::daysText($days), '{trial_days}' => static::daysText(static::int('trial_days', 0, 365))]);
 
+        $faq = array_map(fn ($i) => ['q' => $fill((string) $i['q']), 'a' => $fill((string) $i['a'])], static::faq());
+        if ($fmi = static::freeMonth()) {
+            // During the free month: no «الأيام المجانية» answers; one clear answer about the free month instead.
+            $faq = array_values(array_filter($faq, fn ($i) => ! preg_match('/مجاني|تجرب/u', $i['q'].' '.$i['a'])));
+            array_unshift($faq, ['q' => 'هل البستان مجاني الآن؟', 'a' => 'نعم. بستان التعلّم مجاني بالكامل حتى '.$fmi['until_ar'].'. أضف طفلك واضغط «اشترك مجانًا لمدة شهر» فتُفعَّل جميع مواد صفّه بضغطة واحدة، دون أي دفع.']);
+            $faq[] = ['q' => 'ماذا يحدث بعد انتهاء الشهر المجاني؟', 'a' => 'لا يُخصم أي مبلغ تلقائيًا. إن أعجبك البستان، اشترك في صف طفلك من حسابك والدفع عبر واتساب.'];
+        }
+
         return [
             'site_name' => static::get('site_name'), 'tagline' => static::get('tagline'),
             'registration_open' => static::flag('registration_open'),
-            'announcement' => $live ? static::get('announcement') : '',
-            'announcement_link' => $live ? static::get('announcement_link') : '',
+            'announcement' => $fmi ? $fmi['banner'] : ($live ? static::get('announcement') : ''),
+            'announcement_link' => $fmi ? 'https://bustankids.com/admin-api/account/register' : ($live ? static::get('announcement_link') : ''),
             'announcement_color' => ['bg' => $color['bg'], 'line' => $color['line'], 'ink' => $color['ink']],
             'hero' => ['title' => static::get('hero_title'), 'mark' => static::get('hero_title_mark'), 'subtitle' => static::get('hero_subtitle'), 'badge' => static::get('hero_badge')],
-            'faq' => array_map(fn ($i) => ['q' => $fill((string) $i['q']), 'a' => $fill((string) $i['a'])], static::faq()),
+            'faq' => $faq,
             'voice' => ['enabled' => static::flag('voice_enabled'), 'volume' => static::int('voice_volume', 0, 100), 'autoplay' => static::flag('voice_autoplay')],
             'contact' => ['facebook' => static::get('facebook_url'), 'instagram' => static::get('instagram_url'), 'email' => static::get('contact_email'),
                 'whatsapp' => preg_replace('/\D+/', '', static::get('whatsapp_number')), 'footer' => static::get('footer_text')],
             'trial_days' => static::int('trial_days', 0, 365),
+            'free_month' => $fm = static::freeMonth(),
             'rules' => static::learningRules(),
             'media' => (object) \App\Support\MediaLibrary::map(),
             'maintenance' => static::flag('maintenance_on') ? ['message' => static::get('maintenance_message')] : null,
@@ -369,6 +380,19 @@ class Setting extends Model
         $m = static::get('points_multiplier');
 
         return ['hidden' => static::hiddenSubjects(), 'badges' => static::flag('badges_enabled'), 'points' => in_array($m, self::POINT_STEPS, true) ? (float) $m : 1.0];
+    }
+
+    /** Free-month promo info for the public site (null when off): until (Y-m-d), until_ar («٢٨/١١»), banner text. */
+    public static function freeMonth(): ?array
+    {
+        $end = static::freeMonthEnds();
+        if (! $end) {
+            return null;
+        }
+        $local = $end->copy()->setTimezone(config('app.display_timezone', 'Asia/Gaza'));
+        $ar = \App\Support\Ar::num($local->day.'/'.$local->month);
+
+        return ['until' => $local->format('Y-m-d'), 'until_ar' => $ar, 'banner' => strtr((string) static::get('free_month_banner') ?: static::DEFAULTS['free_month_banner'], ['{until}' => $ar])];
     }
 
     /** End of the free-month promo (end of its last day) while it is running, else null. */

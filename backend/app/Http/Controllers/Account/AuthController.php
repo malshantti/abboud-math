@@ -70,7 +70,8 @@ class AuthController extends Controller
     {
         $hash = Access::normalizedEmailHash($user->email);
         if (! DB::table('trial_claims')->where('email_hash', $hash)->exists()) {
-            $user->trial_ends_at = now()->addDays(max(0, (int) Setting::get('trial_days')));
+            // During the free month new families get everything until its end; afterwards the normal trial.
+            $user->trial_ends_at = Setting::freeMonthEnds() ?? now()->addDays(max(0, (int) Setting::get('trial_days')));
             DB::table('trial_claims')->insert(['email_hash' => $hash, 'created_at' => now()]);
         }
     }
