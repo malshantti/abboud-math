@@ -85,7 +85,7 @@ class Ar
         'bustan_g6_math_v1' => [6, 'الرياضيات'], 'bustan_g6_english_v1' => [6, 'الإنجليزية'], 'bustan_g6_arabic_v1' => [6, 'العربية'], 'bustan_g6_science_v1' => [6, 'العلوم'],
         'bustan_g1_math_v1' => [1, 'الرياضيات'], 'bustan_g1_arabic_v1' => [1, 'العربية'], 'bustan_g1_english_v1' => [1, 'الإنجليزية'], 'bustan_g1_life_v1' => [1, 'التربية الحياتية'],
         'bustan_g2_math_v1' => [2, 'الرياضيات'], 'bustan_g2_arabic_v1' => [2, 'العربية'], 'bustan_g2_english_v1' => [2, 'الإنجليزية'], 'bustan_g2_life_v1' => [2, 'التربية الحياتية'],
-        'bustan_g4_math_v1' => [4, 'الرياضيات'], 'bustan_g5_math_v1' => [5, 'الرياضيات'], 'bustan_g7_math_v1' => [7, 'الرياضيات'], 'bustan_g4_arabic_v1' => [4, 'العربية'], 'bustan_g5_arabic_v1' => [5, 'العربية'], 'bustan_g4_english_v1' => [4, 'الإنجليزية'], 'bustan_g5_english_v1' => [5, 'الإنجليزية'], 'bustan_g7_english_v1' => [7, 'الإنجليزية'], 'bustan_g7_arabic_v1' => [7, 'العربية'],
+        'bustan_g4_math_v1' => [4, 'الرياضيات'], 'bustan_g5_math_v1' => [5, 'الرياضيات'], 'bustan_g7_math_v1' => [7, 'الرياضيات'], 'bustan_g4_arabic_v1' => [4, 'العربية'], 'bustan_g5_arabic_v1' => [5, 'العربية'], 'bustan_g4_english_v1' => [4, 'الإنجليزية'], 'bustan_g5_english_v1' => [5, 'الإنجليزية'], 'bustan_g4_science_v1' => [4, 'العلوم'], 'bustan_g5_science_v1' => [5, 'العلوم'], 'bustan_g7_science_v1' => [7, 'العلوم'], 'bustan_g7_english_v1' => [7, 'الإنجليزية'], 'bustan_g7_arabic_v1' => [7, 'العربية'],
         'bustan_g3_math_v1' => [3, 'الرياضيات'], 'bustan_g3_arabic_v1' => [3, 'العربية'], 'bustan_g3_english_v1' => [3, 'الإنجليزية'], 'bustan_g3_science_v1' => [3, 'العلوم'],
     ];
 
@@ -94,7 +94,7 @@ class Ar
         'g1-math' => [1, 'الرياضيات'], 'g1-arabic' => [1, 'العربية'], 'g1-english' => [1, 'الإنجليزية'], 'g1-life' => [1, 'التربية الحياتية'],
         'g2-math' => [2, 'الرياضيات'], 'g2-arabic' => [2, 'العربية'], 'g2-english' => [2, 'الإنجليزية'], 'g2-life' => [2, 'التربية الحياتية'],
         'g3-math' => [3, 'الرياضيات'], 'g3-arabic' => [3, 'العربية'], 'g3-english' => [3, 'الإنجليزية'], 'g3-science' => [3, 'العلوم'],
-        'g4-math' => [4, 'الرياضيات'], 'g5-math' => [5, 'الرياضيات'], 'g7-math' => [7, 'الرياضيات'], 'g4-arabic' => [4, 'العربية'], 'g5-arabic' => [5, 'العربية'], 'g4-english' => [4, 'الإنجليزية'], 'g5-english' => [5, 'الإنجليزية'], 'g7-english' => [7, 'الإنجليزية'], 'g7-arabic' => [7, 'العربية'],
+        'g4-math' => [4, 'الرياضيات'], 'g5-math' => [5, 'الرياضيات'], 'g7-math' => [7, 'الرياضيات'], 'g4-arabic' => [4, 'العربية'], 'g5-arabic' => [5, 'العربية'], 'g4-english' => [4, 'الإنجليزية'], 'g5-english' => [5, 'الإنجليزية'], 'g4-science' => [4, 'العلوم'], 'g5-science' => [5, 'العلوم'], 'g7-science' => [7, 'العلوم'], 'g7-english' => [7, 'الإنجليزية'], 'g7-arabic' => [7, 'العربية'],
         'g6-math' => [6, 'الرياضيات'], 'g6-arabic' => [6, 'العربية'], 'g6-english' => [6, 'الإنجليزية'], 'g6-science' => [6, 'العلوم'],
         'g8-math' => [8, 'الرياضيات'], 'g8-arabic' => [8, 'العربية'], 'g8-english' => [8, 'الإنجليزية'], 'g8-science' => [8, 'العلوم'],
     ];
@@ -107,7 +107,7 @@ class Ar
     }
 
     /** Keys the sync API accepts (profiles.js PER list). */
-    public const SYNC_KEYS = ['abboud_math_v1', 'bustan_g8_english_v1', 'bustan_g6_math_v1', 'bustan_g6_english_v1', 'bustan_g6_arabic_v1', 'bustan_g6_science_v1', 'bustan_g8_arabic_v1', 'bustan_g8_science_v1', 'en_rate', 'en_sfx', 'en_zay', 'abboud_coach_cfg', 'bustan_last', 'bustan_grade', 'bustan_student_name', 'bustan_g1_math_v1', 'bustan_g1_arabic_v1', 'bustan_g1_english_v1', 'bustan_g1_life_v1', 'bustan_g2_math_v1', 'bustan_g2_arabic_v1', 'bustan_g2_english_v1', 'bustan_g2_life_v1', 'bustan_g3_math_v1', 'bustan_g3_arabic_v1', 'bustan_g3_english_v1', 'bustan_g3_science_v1', 'bustan_report_v1', 'bustan_g4_math_v1', 'bustan_g5_math_v1', 'bustan_g7_math_v1', 'bustan_g4_arabic_v1', 'bustan_g5_arabic_v1', 'bustan_g7_arabic_v1', 'bustan_g4_english_v1', 'bustan_g5_english_v1', 'bustan_g7_english_v1'];
+    public const SYNC_KEYS = ['abboud_math_v1', 'bustan_g8_english_v1', 'bustan_g6_math_v1', 'bustan_g6_english_v1', 'bustan_g6_arabic_v1', 'bustan_g6_science_v1', 'bustan_g8_arabic_v1', 'bustan_g8_science_v1', 'en_rate', 'en_sfx', 'en_zay', 'abboud_coach_cfg', 'bustan_last', 'bustan_grade', 'bustan_student_name', 'bustan_g1_math_v1', 'bustan_g1_arabic_v1', 'bustan_g1_english_v1', 'bustan_g1_life_v1', 'bustan_g2_math_v1', 'bustan_g2_arabic_v1', 'bustan_g2_english_v1', 'bustan_g2_life_v1', 'bustan_g3_math_v1', 'bustan_g3_arabic_v1', 'bustan_g3_english_v1', 'bustan_g3_science_v1', 'bustan_report_v1', 'bustan_g4_math_v1', 'bustan_g5_math_v1', 'bustan_g7_math_v1', 'bustan_g4_arabic_v1', 'bustan_g5_arabic_v1', 'bustan_g7_arabic_v1', 'bustan_g4_english_v1', 'bustan_g5_english_v1', 'bustan_g7_english_v1', 'bustan_g4_science_v1', 'bustan_g5_science_v1', 'bustan_g7_science_v1'];
 
     /** Lessons per math course: prerequisites + non-review lessons (the ALLSK list in g6/math and g8/math app.js; checked by tests/admin-dashboard.cjs). */
     public const LESSON_TOTALS = ['bustan_g6_math_v1' => 59, 'abboud_math_v1' => 59];
