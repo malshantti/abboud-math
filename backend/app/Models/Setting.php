@@ -214,7 +214,10 @@ class Setting extends Model
     /** Default price when the admin has not set one: 15 for grades 1-3, 20 for grades 6 and 8, 30 days. */
     public static function defaultPlan(int $grade): array
     {
-        return ['price' => $grade <= 3 ? 15 : 20, 'days' => 30];
+        // الصفوف الجديدة ٤ و٥ و٧ تأخذ سعر جيرانها الحاليين (السادس ٨ والثامن ١٠) ما لم يحدّد المشرف سعرًا.
+        $new = [4 => 8, 5 => 8, 7 => 10];
+
+        return ['price' => $new[$grade] ?? ($grade <= 3 ? 15 : 20), 'days' => 30];
     }
 
     /**
@@ -244,7 +247,7 @@ class Setting extends Model
     }
 
     /** Grade groups shown on the landing pricing cards; any other priced grade gets its own card. */
-    public const PRICE_GROUPS = [[1, 2, 3], [6, 8]];
+    public const PRICE_GROUPS = [[1, 2, 3], [4, 5, 6, 7, 8]];
 
     /** Public price summary for the static landing: one entry per grade group, min/max from the active admin-set prices. */
     public static function publicPrices(): array

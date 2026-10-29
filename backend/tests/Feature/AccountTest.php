@@ -196,7 +196,7 @@ class AccountTest extends TestCase
         $theirs = $other->students()->create(['name' => 'غريب', 'grade' => 6]);
         $this->actingAs($u)->post('/account/students', ['name' => 'سامي', 'grade' => 6])->assertRedirect();
         $this->post('/account/students', ['name' => 'ليلى', 'grade' => 1]);
-        $this->post('/account/students', ['name' => 'خطأ', 'grade' => 5])->assertSessionHasErrors('grade');
+        $this->post('/account/students', ['name' => 'خطأ', 'grade' => 9])->assertSessionHasErrors('grade');
         $this->assertSame(['سامي', 'ليلى'], $u->students()->pluck('name')->all());
         $s = $u->students()->first();
         $this->put("/account/students/{$s->id}", ['name' => 'سامي ع', 'grade' => 8]);

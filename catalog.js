@@ -17,7 +17,7 @@ window.CATALOG = {
     {id: 11, name: 'الصف الحادي عشر',   stage: 'المرحلة الثانوية'},
     {id: 12, name: 'الصف الثاني عشر',   stage: 'المرحلة الثانوية'}
   ],
-  gradeSubjects: {1: ['math','arabic','english','life'],2: ['math','arabic','english','life'],3: ['math','arabic','english','science']},
+  gradeSubjects: {1: ['math','arabic','english','life'],2: ['math','arabic','english','life'],3: ['math','arabic','english','science'],4: ['math'],5: ['math'],7: ['math']},
   subjects: [
     {id: 'math',    name: 'الرياضيات',            icon: 'math',    color: 'g'},
     {id: 'arabic',  name: 'اللغة العربية',         icon: 'arabic',  color: 'o'},
@@ -41,6 +41,9 @@ window.CATALOG = {
     {grade: 3, subject: 'arabic', status: 'active', path: 'g3/arabic/', title: 'لغتنا الجميلة للصف الثالث', desc: 'دروس الكتاب الخمسة عشر: نفهم القصة ونتعلّم المفردات والتدريبات والإملاء.'},
     {grade: 3, subject: 'english', status: 'active', path: 'g3/english/', title: 'الإنجليزية للصف الثالث', desc: 'وحدات English for Palestine 3A: كلمات وجمل وتدريب تفاعلي.'},
     {grade: 3, subject: 'science', status: 'active', path: 'g3/science/', title: 'العلوم والحياة للصف الثالث', desc: 'النباتات، والأرض وثرواتها، ودورة الماء، مع أنشطة «أجرّب».'},
+    {grade: 4, subject: 'math', status: 'active', path: 'g4/math/', title: 'الرياضيات للصف الرابع', desc: 'الجزء الأول: الأعداد الكبيرة، العمليات، الكسور، الهندسة والبيانات، مع أمثلة محلولة وورشة تدريب.'},
+    {grade: 5, subject: 'math', status: 'active', path: 'g5/math/', title: 'الرياضيات للصف الخامس', desc: 'الجزء الأول: نظرية الأعداد، الكسور والأعداد العشرية، الهندسة والإحصاء، مع أمثلة محلولة وورشة تدريب.'},
+    {grade: 7, subject: 'math', status: 'active', path: 'g7/math/', title: 'الرياضيات للصف السابع', desc: 'الجزء الأول: الأعداد الصحيحة، الهندسة والقياس، التناسب والإحصاء، مع أمثلة محلولة وورشة تدريب.'},
     {grade: 8, subject: 'math', status: 'active', path: 'g8/math/',
      title: 'رياضيات الصف الثامن', desc: 'دروس المنهاج الفلسطيني بجزأيه، مختبر تفاعلي، ومغامرات مع زيتون.'},
     {grade: 8, subject: 'english', status: 'active', path: 'g8/english/',

@@ -17,10 +17,10 @@ async function enter(){
  if(new URLSearchParams(location.search).has('welcome'))return plain();
  if(!s||s.pending||pending||owner!==s.id||!Array.isArray(profiles)||!profiles.some(p=>p&&p.id===s.id))return plain();
  try{
-  await script('profiles.js?v=20261027tr1');
+  await script('profiles.js?v=20261029g457');
   if(!await window.PROFILES.ready||!window.PROFILES.current()||window.PROFILES.current().id!==s.id){showVisitor('افتح ملفك من صفحة الدخول للمتابعة. تقدّمك المحفوظ باقٍ على هذا الجهاز.');return}
   activeSession=raw;activeOwner=owner;if(!stillOwns()){changed();return}
-  await script('catalog.js?v=20261027g3a');
+  await script('catalog.js?v=20261029g457');
   await script('entry.js?v=20261029fm1');
   if(!stillOwns()){changed();return}
   student.querySelectorAll('img[data-src]').forEach(img=>{img.src=img.dataset.src});
