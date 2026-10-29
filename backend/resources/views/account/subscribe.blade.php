@@ -79,12 +79,12 @@
     <div class="sub-h"><img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="72" height="95"><h1>الاشتراك في المواد</h1></div>
     @if ($access['kind'] === 'trial')
       <p class="trialbox on" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/></svg><span>الفترة التجريبية: متبقٍّ {{ $ar::num($daysLeft) }} {{ $daysLeft === 1 ? 'يوم' : ($daysLeft === 2 ? 'يومان' : 'أيام') }}، حتى {{ $ar::date($access['ends_at']) }}. اشترك الآن ليستمر الوصول بعدها.</span></p>
-    @elseif ($access['kind'] === 'expired')
+    @elseif ($access['kind'] === 'expired' && ! $freeEnds)
       <p class="trialbox off" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16.5v.5M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span>انتهت الفترة التجريبية. الدروس المقفلة تحتاج اشتراكًا في المادة.</span></p>
     @elseif ($access['kind'] === 'paid')
       <p class="trialbox paid" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg><span>اشتراكاتك المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</span></p>
     @endif
-    @if (trim($instructions) !== '')<p class="note-pay">{{ $instructions }}</p>@endif
+    @if (! $freeEnds && trim($instructions) !== '')<p class="note-pay">{{ $instructions }}</p>@endif
     @unless ($hasNumber)<p class="alert err">لم يُضبط رقم واتساب للدفع بعد. سيُسجّل طلبك وسنتواصل معك.</p>@endunless
 
     <div class="done" id="done" role="status" @unless($sent) hidden @endunless><b>تم استلام طلبك ✅</b><p>فتحنا واتساب لترسل لنا الطلب. بعد تأكيد الدفع نفعّل المواد لطفلك، ويصلك بريد بذلك. طلبك محفوظ في «طلبات بانتظار الدفع» أدناه، فلا داعي للضغط مرة أخرى.</p></div>
