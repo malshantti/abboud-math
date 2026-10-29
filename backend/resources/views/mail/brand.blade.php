@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta charset="utf-8">
+<head><meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="x-apple-disable-message-reformatting">
 <meta name="color-scheme" content="light">
@@ -30,7 +30,7 @@
 @endif
 </table>
 <p style="margin:18px 0 0;padding:12px 14px;background:#f6f9ee;border-radius:12px;color:#5f6b57;font-size:14px;line-height:1.8">{{ $m['note'] }}</p>
-@if ($m['type'] !== 'welcome')
+@if ($m['show_link'] ?? $m['type'] !== 'welcome')
 <p dir="ltr" style="margin:10px 0 0;font-size:12px;line-height:1.6;color:#7a8670;word-break:break-all;text-align:left"><a href="{{ $m['link'] }}" style="color:#507a12">{{ $m['link'] }}</a></p>
 @endif
 </td></tr>

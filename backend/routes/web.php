@@ -69,6 +69,7 @@ Route::prefix('account')->group(function () {
         Route::post('reminders', [AccountHome::class, 'toggleReminders'])->name('account.reminders');
         Route::get('subscribe', [AccountHome::class, 'subscribe'])->name('account.subscribe');
         Route::post('subscribe', [AccountHome::class, 'requestSubscription'])->middleware('throttle:10,1')->name('account.subscribe.store');
+        Route::post('subscribe/free', [AccountHome::class, 'freeMonth'])->middleware('throttle:10,1')->name('account.subscribe.free');
     });
 });
 // Read-only progress report share link (unguessable 40-char token, revocable by the parent).
@@ -92,6 +93,7 @@ Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
         Route::post('push/subscribe', [App\Http\Controllers\Api\PushController::class, 'subscribe'])->middleware('throttle:20,1');
         Route::post('push/unsubscribe', [App\Http\Controllers\Api\PushController::class, 'unsubscribe']);
         Route::post('students', [SyncController::class, 'storeStudent']);
+        Route::post('gift/seen', [SyncController::class, 'giftSeen'])->middleware('throttle:10,1');
         Route::get('students/{student}/progress', [SyncController::class, 'show']);
         Route::put('students/{student}/progress', [SyncController::class, 'update']);
         Route::post('students/{student}/import', [SyncController::class, 'import']);

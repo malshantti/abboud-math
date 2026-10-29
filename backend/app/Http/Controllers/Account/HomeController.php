@@ -146,8 +146,45 @@ class HomeController extends Controller
             'user' => $user, 'student' => $student, 'taken' => $student ? $this->taken($user, $student) : [], 'sent' => $request->boolean('sent'),
             'access' => Access::state($user), 'plans' => $plans, 'currency' => Setting::get('currency'), 'instructions' => Setting::get('payment_instructions'),
             'pending' => $user->subscriptions()->where('status', 'pending')->with('student:id,name')->latest()->get(),
-            'hasNumber' => WhatsAppGateway::number() !== '', 'gateway' => new WhatsAppGateway,
+            'hasNumber' => WhatsAppGateway::number() !== '', 'gateway' => new WhatsAppGateway, 'freeEnds' => Setting::freeMonthEnds(),
         ]);
+    }
+
+    /** Free-month promo: one tap activates every subject of the child's grade, recorded as normal active rows (gateway free_promo, price 0). */
+    public function freeMonth(Request $request): RedirectResponse
+    {
+        $ends = Setting::freeMonthEnds();
+        $user = $request->user();
+        $student = $user->students()->findOrFail((int) $request->validate(['student_id' => ['required', 'integer']])['student_id']);
+        $back = fn () => redirect()->route('account.subscribe', ['student' => $student->id]);
+        if (! $ends) {
+            return $back()->withErrors(['plan' => 'انتهى عرض الشهر المجاني. يمكنك الاشتراك في صف طفلك من هذه الصفحة.']);
+        }
+        $plans = array_filter(Setting::plans(true), fn ($p) => (int) $p['grade'] === (int) $student->grade);
+        $taken = $this->taken($user, $student);
+        $batch = 'FREE-'.strtoupper(Str::random(6));
+        $n = 0;
+        \Illuminate\Support\Facades\DB::transaction(function () use ($plans, $taken, $user, $student, $ends, $batch, &$n) {
+            foreach ($plans as $plan) {
+                $cur = $user->subscriptions()->where('plan', $plan['code'])->where('status', 'active')->where('ends_at', '>', now())->max('ends_at');
+                if (($taken[$plan['code']] ?? null) === 'active' && $cur && \Illuminate\Support\Carbon::parse($cur)->gte($ends->copy()->subMinute())) {
+                    continue;
+                }
+                $sub = new Subscription(['code' => 'FREE-'.random_int(100000, 999999), 'plan' => $plan['code'], 'plan_name' => $plan['name'], 'price' => 0,
+                    'currency' => Setting::get('currency'), 'days' => max(1, (int) ceil(now()->diffInDays($ends))), 'scope' => $plan['code'], 'gateway' => 'free_promo', 'status' => 'active', 'note' => 'عرض الشهر المجاني']);
+                $sub->student_id = $student->id;
+                $sub->batch = $batch;
+                $sub->forceFill(['starts_at' => now(), 'ends_at' => $ends]);
+                $user->subscriptions()->save($sub);
+                $n++;
+            }
+        });
+        if ($n) {
+            ActivityLog::record('subscription.free', $batch, $student->name.' — '.Ar::grade($student->grade));
+            \App\Support\Funnel::log('paid', ['student_id' => $student->id, 'count' => $n, 'meta' => ['gateway' => 'free_promo', 'price' => 0, 'ref' => $batch]]);
+        }
+
+        return $back()->with('status', 'فُعّلت جميع مواد '.Ar::grade($student->grade).' لـ'.$student->name.' مجانًا حتى '.Ar::date($ends, false).'. بالتوفيق!');
     }
 
     public function requestSubscription(Request $request): RedirectResponse

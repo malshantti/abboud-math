@@ -61,20 +61,32 @@
   .paybar{bottom:8px;padding:12px}.paybar .btn{width:100%}
   .pend{grid-template-columns:1fr}.pend .btn{width:100%}
 }
+.grade-pack .plan{cursor:default}.grade-pack .plan input{pointer-events:none}
+.free-card{margin-top:18px;padding:22px 18px 18px;text-align:center;border:2px solid #cfe3a8;border-radius:24px;background:linear-gradient(165deg,#f3f8ea 0%,#fffef9 60%,#fbf3e2 100%);box-shadow:0 5px 0 #dfeac4}
+.free-tag{display:inline-block;font:700 13px Cairo,sans-serif;color:#8a5b12;background:#fff;border:1px solid #efdcb6;padding:3px 14px;border-radius:999px}
+.free-t{margin:10px 0 0;font:800 25px/1.45 Baloo,Cairo,sans-serif;color:var(--gd)}
+.free-g{margin:2px 0 12px;font-weight:700;color:var(--ink2)}
+.free-subj{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.free-subj li{font-weight:700;font-size:15px;padding:6px 14px;border-radius:999px;background:#fff;border:2px solid var(--line);color:var(--gd)}
+.free-price{margin:0 0 16px}.free-price b{display:block;font:800 30px/1.3 Baloo,Cairo,sans-serif;color:var(--gd)}.free-price span{display:block;color:var(--muted);font-size:14px}
+.free-btn{display:flex;width:100%;justify-content:center;min-height:60px;font-size:21px!important;border-radius:18px}
+.free-note{margin:10px 0 0;color:var(--muted);font-size:14px}.free-on{margin:0 0 12px;font-weight:700;color:#0f5c32;background:#e3f6ea;border:2px solid #9fd8b4;border-radius:16px;padding:10px 14px}
 </style>
 @php($daysLeft = $access['kind'] === 'trial' && $access['ends_at'] ? max(1, (int) ceil(now()->diffInSeconds($access['ends_at'], false) / 86400)) : null)
 <main class="wrap grid sub-page">
   @include('partials.flash')
   <section class="card">
     <div class="sub-h"><img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="72" height="95"><h1>الاشتراك في المواد</h1></div>
-    @if ($access['kind'] === 'trial')
+    @if ($access['kind'] === 'trial' && $freeEnds)
+      <p class="trialbox paid" role="status"><span>البستان مجاني بالكامل حتى {{ $ar::date($freeEnds, false) }}. اضغط الزر أدناه لتفعيل جميع مواد الصف.</span></p>
+    @elseif ($access['kind'] === 'trial')
       <p class="trialbox on" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/></svg><span>الفترة التجريبية: متبقٍّ {{ $ar::num($daysLeft) }} {{ $daysLeft === 1 ? 'يوم' : ($daysLeft === 2 ? 'يومان' : 'أيام') }}، حتى {{ $ar::date($access['ends_at']) }}. اشترك الآن ليستمر الوصول بعدها.</span></p>
-    @elseif ($access['kind'] === 'expired')
+    @elseif ($access['kind'] === 'expired' && ! $freeEnds)
       <p class="trialbox off" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16.5v.5M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span>انتهت الفترة التجريبية. الدروس المقفلة تحتاج اشتراكًا في المادة.</span></p>
     @elseif ($access['kind'] === 'paid')
       <p class="trialbox paid" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg><span>اشتراكاتك المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</span></p>
     @endif
-    @if (trim($instructions) !== '')<p class="note-pay">{{ $instructions }}</p>@endif
+    @if (! $freeEnds && trim($instructions) !== '')<p class="note-pay">{{ $instructions }}</p>@endif
     @unless ($hasNumber)<p class="alert err">لم يُضبط رقم واتساب للدفع بعد. سيُسجّل طلبك وسنتواصل معك.</p>@endunless
 
     <div class="done" id="done" role="status" @unless($sent) hidden @endunless><b>تم استلام طلبك ✅</b><p>فتحنا واتساب لترسل لنا الطلب. بعد تأكيد الدفع نفعّل المواد لطفلك، ويصلك بريد بذلك. طلبك محفوظ في «طلبات بانتظار الدفع» أدناه، فلا داعي للضغط مرة أخرى.</p></div>
@@ -88,18 +100,39 @@
       <select id="student_id" name="student">@foreach ($user->students->sortBy('id') as $s)<option value="{{ $s->id }}" @selected($s->id === $student->id)>{{ $s->name }} — {{ $ar::grade($s->grade) }}</option>@endforeach</select>
       <noscript><button class="btn small" type="submit">عرض المواد</button></noscript>
     </form>
+    @if ($freeEnds)
+    @php($grPlans = $plans)
+    @php($allOn = $grPlans !== [] && collect($grPlans)->every(fn ($p) => ($taken[$p['code']] ?? null) === 'active'))
+    <form method="post" action="{{ route('account.subscribe.free') }}" id="freef" class="free-card">@csrf
+      <input type="hidden" name="student_id" value="{{ $student->id }}">
+      <span class="free-tag">🎁 عرض لفترة محدودة</span>
+      <h2 class="free-t">شهر مجاني كامل لـ{{ $student->name }}</h2>
+      <p class="free-g">{{ $ar::grade($student->grade) }} — جميع المواد</p>
+      <ul class="free-subj">@foreach ($grPlans as $p)<li>{{ $p['subject'] }}</li>@endforeach</ul>
+      <p class="free-price"><b>مجاني لمدة شهر</b><span>{{ $ar::num(0) }} {{ $currency }} · حتى {{ $ar::date($freeEnds, false) }} · دون أي دفع</span></p>
+      @if ($grPlans === [])
+        <p class="alert err">لا توجد مواد متاحة لهذا الصف حاليًا. راسلنا عبر واتساب وسنساعدك.</p>
+      @elseif ($allOn)
+        <p class="free-on">✅ جميع مواد الصف مفعّلة لـ{{ $student->name }}. ابدأ التعلّم الآن!</p>
+        <a class="btn free-btn" href="{{ rtrim((string) config('app.student_site_url') ?: 'https://bustankids.com', '/') }}/login.html?sync=1">ابدأ التعلّم الآن</a>
+      @else
+        <button class="btn free-btn" type="submit" id="freebtn">اشترك مجانًا لمدة شهر</button>
+        <p class="free-note">ضغطة واحدة تفعّل جميع مواد الصف فورًا.</p>
+      @endif
+    </form>
+    <script>(function(){var f=document.getElementById('freef'),b=document.getElementById('freebtn');if(f&&b)f.addEventListener('submit',function(){setTimeout(function(){b.disabled=true;b.textContent='جارٍ التفعيل…'},0)})})();</script>
+    @else
     <form method="post" action="{{ route('account.subscribe.store') }}" id="subf" @if($hasNumber) target="_blank" rel="noopener" @endif>@csrf
       <input type="hidden" name="student_id" value="{{ $student->id }}">
-      <fieldset class="plans-f" data-tour="sub-plans"><legend class="stp"><i>٢</i>اختر مواد {{ $student->name }} ({{ $ar::grade($student->grade) }})</legend>
+      <fieldset class="plans-f" data-tour="sub-plans"><legend class="stp"><i>٢</i>اشتراك {{ $student->name }} ({{ $ar::grade($student->grade) }})</legend>
       @if ($plans === [])
         <p class="alert err">لا توجد مواد متاحة لهذا الصف حاليًا. راسلنا عبر واتساب وسنساعدك.</p>
       @else
-      <p class="hint" style="margin:-4px 0 10px">يمكنك اختيار أكثر من مادة.</p>
-      <label class="gall" style="margin:0 0 10px"><input type="checkbox" data-all aria-label="اختر كل المواد">اختر كل المواد</label>
-      <div class="plans">
+      <p class="hint" style="margin:-4px 0 10px">الاشتراك للصف كاملًا: يشمل جميع مواد {{ $ar::grade($student->grade) }}.</p>
+      <div class="plans grade-pack">
       @foreach ($plans as $p)
         @php($t = $taken[$p['code']] ?? null)
-        <label class="plan{{ $t ? ' taken' : '' }}"><input type="checkbox" name="plans[]" value="{{ $p['code'] }}" data-price="{{ $p['price'] }}" data-name="{{ $p['name'] }}" @if($t === 'active') disabled @endif><span class="pt"><b>{{ $p['subject'] }}</b><small>@if($t === 'active')مفعّلة لطفلك ✅@elseif($t === 'pending')طلبها بانتظار الدفع@else لمدة {{ $ar::num($p['days']) }} يومًا@endif</small></span><span class="price"><b>{{ $ar::num($p['price']) }}</b> {{ $currency }}</span></label>
+        <label class="plan{{ $t ? ' taken' : '' }}"><input type="checkbox" checked onclick="return false" tabindex="-1" name="plans[]" value="{{ $p['code'] }}" data-price="{{ $p['price'] }}" data-name="{{ $p['name'] }}" @if($t === 'active') disabled @endif><span class="pt"><b>{{ $p['subject'] }}</b><small>@if($t === 'active')مفعّلة لطفلك ✅@elseif($t === 'pending')طلبها بانتظار الدفع@else لمدة {{ $ar::num($p['days']) }} يومًا@endif</small></span><span class="price"><b>{{ $ar::num($p['price']) }}</b> {{ $currency }}</span></label>
       @endforeach
       </div>
       @endif
@@ -114,6 +147,7 @@
         <button class="btn wa" type="submit" id="pay"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg><span>أرسل الطلب عبر واتساب</span></button>
       </div>
     </form>
+    @endif
     @endif
   </section>
   @if ($pending->isNotEmpty())

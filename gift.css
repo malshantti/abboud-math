@@ -1,0 +1,37 @@
+/* هدية شهر بستان — نافذة تظهر مرة واحدة لكل حساب عائلة. تعتمد ألوان entry.css وخطوطه. */
+.gm-back{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;background:rgba(31,45,28,.46);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:gmFade .25s ease both;padding:0}
+.gm{--gold:#c9973e;--goldl:#fbf3e2;position:relative;width:100%;max-width:440px;max-height:92vh;overflow:auto;background:var(--card,#fff);color:var(--tx,#293a2d);border-radius:28px 28px 0 0;box-shadow:0 -10px 40px rgba(31,45,28,.22);font:500 16px/1.8 Baloo,Cairo,Tahoma,sans-serif;text-align:center;animation:gmUp .38s cubic-bezier(.2,.9,.25,1.05) both;padding:0 0 calc(18px + env(safe-area-inset-bottom))}
+.gm:focus{outline:none}
+.gm-top{position:relative;background:linear-gradient(160deg,var(--gl,#eaf1df) 0%,#f6f1df 100%);padding:26px 22px 18px;border-bottom:1.5px solid var(--line,#e5e9df);overflow:hidden}
+.gm-top:before,.gm-top:after{content:"";position:absolute;border-radius:50%;opacity:.55}
+.gm-top:before{width:150px;height:150px;background:radial-gradient(circle,#fff 0,transparent 70%);top:-50px;inset-inline-start:-40px}
+.gm-top:after{width:90px;height:90px;background:radial-gradient(circle,var(--goldl) 0,transparent 70%);bottom:-30px;inset-inline-end:-10px}
+.gm-grip{width:44px;height:5px;border-radius:5px;background:var(--lip,#d6dfcc);margin:-14px auto 14px}
+.gm-x{position:absolute;top:12px;inset-inline-end:12px;z-index:2;width:40px;height:40px;border-radius:14px;border:1.5px solid var(--line,#e5e9df);background:var(--card,#fff);color:var(--tx2,#405244);display:grid;place-items:center;cursor:pointer}
+.gm-x:focus-visible,.gm-cta:focus-visible,.gm-wa:focus-visible{outline:3px solid var(--b,#6b96ac);outline-offset:2px}
+.gm-art{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:center;gap:4px;height:112px}
+.gm-art img{height:112px;width:auto}
+.gm-box{width:74px;height:74px;margin-bottom:6px;filter:drop-shadow(0 6px 10px rgba(78,102,53,.22))}
+.gm-kicker{position:relative;z-index:1;display:inline-block;margin:10px 0 4px;font:700 12.5px Cairo,sans-serif;letter-spacing:.2px;color:var(--od,#b68136);background:var(--card,#fff);border:1px solid #efdcb6;padding:2px 12px;border-radius:999px}
+.gm h2{position:relative;z-index:1;margin:2px 0 0;font-size:clamp(23px,6.4vw,28px);line-height:1.45;font-weight:800;color:var(--gd,#4e6635)}
+.gm-body{padding:16px 22px 0}
+.gm-lead{margin:0 0 14px;font:600 16.5px/1.95 Cairo,sans-serif;color:var(--tx2,#405244)}
+.gm-kids{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px;text-align:start}
+.gm-kid{display:flex;align-items:center;gap:12px;background:var(--bg,#f8f9f5);border:1.5px solid var(--line,#e5e9df);border-radius:18px;padding:10px 12px}
+.gm-av{flex:none;width:42px;height:42px;border-radius:14px;background:var(--gl,#eaf1df);color:var(--gd,#4e6635);display:grid;place-items:center;font-weight:800;font-size:19px}
+.gm-kid b{display:block;font-size:16.5px;line-height:1.35}
+.gm-kid small{display:block;font:500 13px/1.6 Cairo,sans-serif;color:var(--mut,#7b8479)}
+.gm-tag{margin-inline-start:auto;flex:none;font:700 11.5px Cairo,sans-serif;color:var(--gd,#4e6635);background:var(--gl,#eaf1df);border-radius:999px;padding:3px 10px}
+.gm-until{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 16px;font:600 14px Cairo,sans-serif;color:var(--od,#b68136);background:var(--goldl);border:1px dashed #ead2a2;border-radius:14px;padding:8px 12px}
+.gm-cta{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;min-height:54px;border:0;border-radius:18px;background:var(--g,#6c854c);color:#fff;font:800 18px Baloo,Cairo,sans-serif;box-shadow:0 5px 0 var(--gd,#4e6635);cursor:pointer;text-decoration:none}
+.gm-cta:active{transform:translateY(3px);box-shadow:0 2px 0 var(--gd,#4e6635)}
+.gm-later{display:block;margin:12px auto 0;background:none;border:0;color:var(--mut,#7b8479);font:600 14px Cairo,sans-serif;cursor:pointer;padding:6px 10px;min-height:40px}
+.gm-foot{margin:14px 22px 0;padding-top:12px;border-top:1.5px dashed var(--line,#e5e9df);font:500 13.5px/1.9 Cairo,sans-serif;color:var(--tx2,#405244)}
+.gm-wa{display:inline-flex;align-items:center;gap:6px;color:#1f8a4c;font-weight:700;text-decoration:none}
+.gm-wa svg{flex:none}
+.gm-sign{display:block;margin-top:4px;font:800 15px Baloo,Cairo,sans-serif;color:var(--gd,#4e6635)}
+[data-theme=dark] .gm-top{background:linear-gradient(160deg,#2a3b27 0%,#33301f 100%)}
+[data-theme=dark] .gm{--goldl:#3d3620}[data-theme=dark] .gm-kicker{border-color:#5b4a2a}[data-theme=dark] .gm-wa{color:#7fd19c}
+@media(min-width:600px){.gm-back{align-items:center;padding:20px}.gm{border-radius:28px;animation-name:gmPop}.gm-grip{display:none}}
+@keyframes gmFade{from{opacity:0}}@keyframes gmUp{from{transform:translateY(40px);opacity:0}}@keyframes gmPop{from{transform:scale(.94);opacity:0}}
+@media(prefers-reduced-motion:reduce){.gm-back,.gm{animation:none}}

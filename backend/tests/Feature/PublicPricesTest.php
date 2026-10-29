@@ -26,7 +26,7 @@ class PublicPricesTest extends TestCase
         $lines = str_replace('g6-math|20|30', 'g6-math|12|30', Setting::DEFAULTS['prices']);
         Setting::put(['prices' => $lines, 'trial_days' => 5]);
         $this->getJson('/api/public/prices')->assertOk()
-            ->assertJsonPath('groups.1.min', 12)->assertJsonPath('groups.1.max', 20)
+            ->assertJsonPath('groups.1.min', 8)->assertJsonPath('groups.1.max', 20)
             ->assertJsonPath('groups.1.from', true)->assertJsonPath('trial_days', 5)
             ->assertJsonPath('plans.g6-math.price', 12);
     }

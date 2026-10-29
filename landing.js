@@ -270,6 +270,11 @@ function fill(d){
  if(dy)document.querySelectorAll('[data-days]').forEach(function(el){if(!el.closest('[data-price-group]'))el.textContent=days(dy)});
  if(typeof d.trial_days==='number'){var on=d.trial_days>0;
   document.querySelectorAll('[data-trial]').forEach(function(el){if(on)el.textContent=days(d.trial_days)});}
+ // الشهر المجاني (من لوحة الإدارة free_month_until): نصوص بديلة في data-fm، وتعود النصوص الأصلية تلقائيًا بعد انتهائه.
+ if(d.free_month&&d.free_month.until_ar){var U=d.free_month.until_ar;
+  document.querySelectorAll('[data-fm]').forEach(function(el){el.innerHTML=el.getAttribute('data-fm').split('{u}').join(U)});
+  var md=document.querySelector('meta[name=description]');if(md)md.setAttribute('content','بستان التعلّم مجاني بالكامل حتى '+U+': دروس تفاعلية بالصوت مطابقة لكتب المنهاج الفلسطيني، جميع مواد الصف بضغطة واحدة.');
+  var st=document.querySelector('.L-sticky .L-btn');if(st)st.textContent='مجاني حتى '+U;}
 }
 try{fetch('/admin-api/api/public/prices',{cache:'no-cache',credentials:'omit',headers:{Accept:'application/json'}}).then(function(r){return r.ok?r.json():null}).then(fill).catch(function(){})}catch(e){}
 window.__bustanPrices=fill;

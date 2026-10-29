@@ -5,7 +5,7 @@
 const m=location.pathname.match(/\/g(\d+)\/([a-z]+)\//);if(!m)return;
 const me=document.currentScript?new URL(document.currentScript.src):new URL('../../',location.href);
 const root=new URL('./',me).href;
-const GR={1:'الصف الأول',2:'الصف الثاني',6:'الصف السادس',8:'الصف الثامن'};
+const GR={1:'الصف الأول',2:'الصف الثاني',3:'الصف الثالث',4:'الصف الرابع',5:'الصف الخامس',6:'الصف السادس',7:'الصف السابع',8:'الصف الثامن'};
 const SU={math:'الرياضيات',arabic:'العربية',english:'الإنجليزية',science:'العلوم',life:'مهارات الحياة'};
 const label=(GR[m[1]]||'الصف '+m[1])+' · '+(SU[m[2]]||m[2]);
 const name=()=>{try{return (localStorage.getItem('bustan_student_name')||'').trim()}catch(e){return ''}};

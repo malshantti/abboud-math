@@ -64,8 +64,9 @@ function mediaHooks(){if(window.__bkMedia)return;window.__bkMedia=1;
 function applyMedia(m){if(!m||typeof m!=='object'||Array.isArray(m)||!Object.keys(m).length){MEDIA=null;return}MEDIA=m;mediaHooks()}
 function media(site){if(!site||!('media' in site))return;const m=site.media&&typeof site.media==='object'?site.media:{};const t=JSON.stringify(m);if(t!==(get('bustan_media')||'{}'))set('bustan_media',Object.keys(m).length?t:null);applyMedia(m)}
 try{applyMedia(JSON.parse(get('bustan_media')||'null'))}catch(e){}
+let FM=null;
 function banner(site){
- rules(site);media(site);
+ rules(site);media(site);FM=site&&site.free_month||null;
  const text=site&&site.announcement;
  if(!text||get(K.dismiss)===fnv(text)||document.getElementById('bustan-banner'))return;
  const c=site.announcement_color||{},col=v=>/^#[0-9a-f]{3,8}$/i.test(v||'')?v:null;
@@ -99,9 +100,9 @@ function gate(access,urls){
   d.style.cssText='position:fixed;inset:0;z-index:10000;background:#fbf8efee;display:grid;place-items:center;padding:20px;direction:rtl';
   d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;box-shadow:0 4px 0 #e2e7d9;padding:26px;text-align:center;font:17px/1.9 inherit;color:#29392b"><h2 id="bustan-locked-t" style="margin:0 0 8px;color:#3e5729"></h2><p style="margin:0 0 18px"></p><a style="display:inline-flex;align-items:center;min-height:48px;padding:10px 24px;border-radius:16px;background:#1f9d55;color:#fff;font-weight:700;text-decoration:none;box-shadow:0 4px 0 #13693a"></a><p style="margin:16px 0 0"><a style="color:#3e5729"></a></p></div>';
   const other=ent==='grade'||ent==='none';
-  d.querySelector('h2').textContent=other?(ent==='grade'?'هذه المادة ليست من صف الطالب':'هذا الملف ليس من أبناء الحساب'):access.kind==='expired'?'انتهت الفترة التجريبية':'هذه المادة غير مشمولة باشتراكك';
-  d.querySelector('p').textContent=other?'يحدّد الأهل صف كل طالب من صفحة الحساب، ويتعلّم الطالب مواد صفه فقط.':'تقدّم طفلك محفوظ ولن يضيع. اشترك في هذه المادة لمتابعة الدروس، والدفع عبر واتساب.';
-  const [go,back]=d.querySelectorAll('a');go.textContent=other?'إدارة الأبناء':'اشترك';go.href=other?new URL('admin-api/account',root).href:urls.subscribe;back.textContent='العودة إلى البداية';back.href=new URL('login.html',root).href;
+  d.querySelector('h2').textContent=other?(ent==='grade'?'هذه المادة ليست من صف الطالب':'هذا الملف ليس من أبناء الحساب'):FM?'البستان مجاني حتى '+FM.until_ar:access.kind==='expired'?'انتهت الفترة التجريبية':'هذه المادة غير مشمولة باشتراكك';
+  d.querySelector('p').textContent=other?'يحدّد الأهل صف كل طالب من صفحة الحساب، ويتعلّم الطالب مواد صفه فقط.':(FM?'اضغط «اشترك مجانًا لمدة شهر» لتفعيل جميع مواد الصف فورًا، دون أي دفع.':'تقدّم طفلك محفوظ ولن يضيع. اشترك في هذه المادة لمتابعة الدروس، والدفع عبر واتساب.');
+  const [go,back]=d.querySelectorAll('a');go.textContent=other?'إدارة الأبناء':(FM?'اشترك مجانًا لمدة شهر':'اشترك');go.href=other?new URL('admin-api/account',root).href:urls.subscribe;back.textContent='العودة إلى البداية';back.href=new URL('login.html',root).href;
   document.body.append(d);go.focus()};
  document.body?show():addEventListener('DOMContentLoaded',show);
 }
@@ -119,7 +120,7 @@ function trialBanner(access){
   b.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="flex:none"><path d="M12 21c0-6 0-9 0-11" stroke="#1f9d55" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M12 12C12 7 8.5 4.5 4 5c0 5 3.5 7.5 8 7zM12 10c0-4 3-6.5 8-6.5 0 4.5-3 7-8 6.5z" fill="#58cc02"/></svg><span></span><a style="display:inline-flex;align-items:center;min-height:36px;padding:4px 16px;border-radius:12px;background:#1f9d55;color:#fff;text-decoration:none;box-shadow:0 3px 0 #13693a">اشترك</a><button type="button" aria-label="إخفاء اليوم" style="position:absolute;inset-inline-start:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;color:inherit;cursor:pointer;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>';
   b.querySelector('a').href=new URL('admin-api/account/subscribe',root).href;
   b.querySelector('button').onclick=()=>{set(K.trialDismiss,today());b.remove()};document.body.prepend(b)}
-  b.querySelector('span').textContent='تجربة مجانية: باقٍ لك '+daysText(n)};
+  b.querySelector('span').textContent=FM?'بستان التعلّم مجاني بالكامل حتى '+FM.until_ar:'تجربة مجانية: باقٍ لك '+daysText(n);if(FM)b.querySelector('a').textContent='حسابي'};
  document.body?show():addEventListener('DOMContentLoaded',show);
 }
 

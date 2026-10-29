@@ -62,6 +62,8 @@ class SyncController extends Controller
             'access' => ['allowed' => $access['access'], 'kind' => $access['kind'], 'ends_at' => $access['ends_at']?->toIso8601String(), 'days_left' => $access['ends_at'] ? max(1, (int) ceil(($access['ends_at']->getTimestamp() - now()->getTimestamp()) / 86400)) : null, 'subjects' => $access['subjects'], 'expiring' => Access::expiringSoon($user)],
             // The only students a device may show: the ones the parent registered on the account page.
             'students' => $user->students()->orderBy('id')->get()->map(fn (Student $s) => $s->toApi($access))->values(),
+            // Gift month notice (null unless gift_notice_on and the family has an undismissed gift).
+            'gift' => \App\Support\GiftMonth::notice($user),
         ]);
     }
 
@@ -194,5 +196,16 @@ class SyncController extends Controller
         });
 
         return $this->items($student);
+    }
+
+    /** The family dismissed the gift notice: never show it again on any device. */
+    public function giftSeen(Request $request): JsonResponse
+    {
+        $u = $request->user();
+        if (! $u->gift_notice_seen_at) {
+            $u->forceFill(['gift_notice_seen_at' => now()])->save();
+        }
+
+        return response()->json(['ok' => true]);
     }
 }

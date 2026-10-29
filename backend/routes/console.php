@@ -161,3 +161,62 @@ Artisan::command('trial:remind {--hours=24}', function () {
     $this->info(json_encode($r));
 })->purpose('Remind families before the free trial ends');
 \Illuminate\Support\Facades\Schedule::command('trial:remind')->hourly();
+
+/*
+ * Gift month. Dry run by default (prints the plan, writes storage/app/gift-month-plan.json). Nothing changes without --apply.
+ *   php artisan gift:month                 # preview
+ *   php artisan gift:month --apply         # create the gift subscriptions (idempotent, one transaction)
+ *   php artisan gift:month --only=3,4      # limit to some accounts
+ */
+Artisan::command('gift:month {--apply} {--only=} {--cutoff=}', function () {
+    $only = array_values(array_filter(array_map('intval', explode(',', (string) $this->option('only')))));
+    $cutoff = $this->option('cutoff') ? \Illuminate\Support\Carbon::parse($this->option('cutoff')) : null;
+    $plan = \App\Support\GiftMonth::plan(now(), $cutoff, $only);
+    \Illuminate\Support\Facades\Storage::put('gift-month-plan.json', json_encode($plan, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    foreach ($plan as $f) {
+        $this->line(sprintf('#%d %s <%s> %s', $f['user_id'], $f['name'], $f['email'], $f['skip'] ? '— SKIP: '.$f['skip'] : ''));
+        foreach ($f['rows'] as $r) {
+            $this->line(sprintf('    %-11s %-11s %s -> %s', $r['plan'], $r['kind'], $r['current_end'] ? substr($r['current_end'], 0, 10) : '—', substr($r['ends_at'], 0, 10)));
+        }
+    }
+    $todo = array_filter($plan, fn ($f) => ! $f['skip']);
+    $this->info(count($todo).' families, '.array_sum(array_map(fn ($f) => count($f['rows']), $todo)).' subject rows.');
+    if (! $this->option('apply')) {
+        $this->warn('Dry run. Re-run with --apply to write.');
+
+        return;
+    }
+    $this->info('Created '.\App\Support\GiftMonth::apply($plan).' gift subscriptions (batch '.\App\Support\GiftMonth::BATCH.').');
+})->purpose('Gift month: 30 free days on every subject of each child\'s grade');
+
+/*
+ * Gift month email. Preview by default (renders HTML to storage/app/gift-mail/<id>.html, sends nothing).
+ *   php artisan gift:mail                  # preview all
+ *   php artisan gift:mail --to=me@x.com --only=4 --send   # one real test to yourself
+ *   php artisan gift:mail --send           # send to every gifted family once (skips those already sent)
+ */
+Artisan::command('gift:mail {--send} {--only=} {--to=} {--sleep=2}', function () {
+    $only = array_values(array_filter(array_map('intval', explode(',', (string) $this->option('only')))));
+    $users = \App\Models\User::query()->parents()->real()->whereNull('disabled_at')
+        ->whereHas('subscriptions', fn ($q) => $q->where('batch', \App\Support\GiftMonth::BATCH))
+        ->when($only, fn ($q) => $q->whereIn('id', $only))->orderBy('id')->get();
+    foreach ($users as $u) {
+        $extra = \App\Support\GiftMonth::mailExtra($u);
+        if (! $extra) {
+            continue;
+        }
+        if (! $this->option('send')) {
+            $data = \App\Support\MailCenter::render('gift', $u->name, 'https://bustankids.com/login.html', [], $extra);
+            \Illuminate\Support\Facades\Storage::put('gift-mail/'.$u->id.'.html', view('mail.brand', ['m' => $data])->render());
+            $this->line("preview #{$u->id} {$u->email}: {$data['subject']}");
+            continue;
+        }
+        if (! $this->option('to') && \App\Support\MailCenter::alreadySent($u, 'gift')) {
+            $this->line("skip #{$u->id} (already sent)");
+            continue;
+        }
+        $log = \App\Support\MailCenter::send('gift', $u, 'https://bustankids.com/login.html', (bool) $this->option('to'), $this->option('to') ?: null, $extra);
+        $this->line("#{$u->id} ".($this->option('to') ?: $u->email).': '.$log->status);
+        sleep(max(0, (int) $this->option('sleep')));
+    }
+})->purpose('Gift month email: preview or send');
