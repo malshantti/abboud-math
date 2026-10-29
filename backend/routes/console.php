@@ -206,7 +206,7 @@ Artisan::command('gift:mail {--send} {--only=} {--to=} {--sleep=2}', function ()
             continue;
         }
         if (! $this->option('send')) {
-            $data = \App\Support\MailCenter::render('gift', $u->name, 'https://bustankids.com', [], $extra);
+            $data = \App\Support\MailCenter::render('gift', $u->name, 'https://bustankids.com/login.html', [], $extra);
             \Illuminate\Support\Facades\Storage::put('gift-mail/'.$u->id.'.html', view('mail.brand', ['m' => $data])->render());
             $this->line("preview #{$u->id} {$u->email}: {$data['subject']}");
             continue;
@@ -215,7 +215,7 @@ Artisan::command('gift:mail {--send} {--only=} {--to=} {--sleep=2}', function ()
             $this->line("skip #{$u->id} (already sent)");
             continue;
         }
-        $log = \App\Support\MailCenter::send('gift', $u, 'https://bustankids.com', (bool) $this->option('to'), $this->option('to') ?: null, $extra);
+        $log = \App\Support\MailCenter::send('gift', $u, 'https://bustankids.com/login.html', (bool) $this->option('to'), $this->option('to') ?: null, $extra);
         $this->line("#{$u->id} ".($this->option('to') ?: $u->email).': '.$log->status);
         sleep(max(0, (int) $this->option('sleep')));
     }
