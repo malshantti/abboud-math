@@ -14,8 +14,9 @@ function termQs(l,n){return shuffle(uniqT(l.terms||[])).slice(0,n).map((t,i)=>i%
 function factQs(l,n){return shuffle((l.facts||[]).slice()).slice(0,n).map(f=>({q:'صواب أم خطأ؟<br>'+esc(f[0]),o:['صواب','خطأ'],a:f[1]?0:1,keep:1,ex:f[1]?'العبارة صحيحة.':'العبارة غير صحيحة.'}))}
 const gens=l=>(l.gen||[]).filter(k=>MG[k]);
 function genQs(l,n){const ks=gens(l),o=[];if(!ks.length)return o;for(let i=0;i<n;i++)o.push(MG[ks[i%ks.length]]());return o}
-function lesQs(l){const g=gens(l).length;return shuffle(termQs(l,g?2:4).concat(factQs(l,g?2:4)).concat(genQs(l,g?6:0))).slice(0,10)}
-A.gen={termQs,factQs,numQs:genQs,lesQs,LES,NUM:Object.fromEntries(LES.map(l=>[l.id,gens(l)]))};
+function bookQs(l){return (l.bmc||[]).map(b=>({q:esc(b[0])+'<br><small class="mut">من أسئلة كتاب الطالب ص '+b[3]+'</small>',o:b[1].slice(),a:b[2],keep:b[1].length<3?0:0,ex:'الإجابة: '+b[1][b[2]]+' (كتاب الطالب ص '+b[3]+')'}))}
+function lesQs(l){const g=gens(l).length,bk=shuffle(bookQs(l)),n=Math.max(10,Math.min(bk.length,14));const rest=shuffle(termQs(l,g?2:4).concat(factQs(l,g?2:4)).concat(genQs(l,g?6:0)));return shuffle(bk.concat(rest).slice(0,n))}
+A.gen={termQs,factQs,numQs:genQs,lesQs,bookQs,LES,NUM:Object.fromEntries(LES.map(l=>[l.id,gens(l)]))};
 R.home=function(){return ''};
 R.u=function(id){const l=LES.find(x=>x.id===id);if(!l)return R.home();S.seen[id]=1;A.save();const u=l.u;
  let h='<div class="mut small"><a href="#/home">رحلتي</a> / الوحدة '+ORDN[+u.id.slice(1)-1]+': '+esc(u.t)+'</div><h2>'+esc(l.t)+'</h2><nav class="tabsec">'+u.les.map(x=>'<a href="#/u/'+x.id+'" class="'+(x.id===id?'on':'')+'">'+esc(x.t)+'</a>').join('')+'</nav>';
@@ -23,7 +24,10 @@ R.u=function(id){const l=LES.find(x=>x.id===id);if(!l)return R.home();S.seen[id]
  ((l.terms||[]).length?'<div class="card"><b>المفاهيم</b><div class="voc">'+l.terms.map(t=>'<div><b style="font-family:Cairo;font-size:17px">'+esc(t[0])+'</b>'+esc(t[1])+'</div>').join('')+'</div></div>':'')+'</div><div>';
  if((l.ex||[]).length){h+='<b>أمثلة محلولة</b>';l.ex.forEach((e,i)=>{h+='<div class="card"><b>مثال '+A.ar(i+1)+'</b><p>'+esc(e[0])+'</p><details><summary>اعرض الحل</summary><p>'+esc(e[1])+'</p></details></div>'})}
  if(gens(l).length)h+='<a class="tile c2" href="#/l/'+l.id+'" style="margin:12px 0"><span class="ti">'+ic('target')+'</span><b>ورشة: تدريب متجدّد</b><small>مسائل جديدة في كل مرة على هذا الدرس</small></a>';
- h+='</div></div><button class="btn big" id="go">'+ic('play')+' تمرّن على الدّرس</button>';return h};
+ if((l.bq||[]).length){h+='<b>من تمارين كتاب الطالب</b>';l.bq.forEach((e,i)=>{h+='<div class="card"><div class="row" style="justify-content:space-between"><b>تمرين '+A.ar(i+1)+'</b><span class="tag">ص '+e[2]+'</span></div><p>'+esc(e[0])+'</p><details><summary>اعرض الإجابة</summary><p>'+esc(e[1])+'</p></details></div>'})}
+ h+='</div></div>';
+ if((l.img||[]).length)h+='<div class="card"><div class="row" style="justify-content:space-between"><b>صفحات الدرس من كتاب الطالب</b><span class="tag">ص '+l.img[0]+'–'+l.img[l.img.length-1]+'</span></div><p class="mut small">اضغط على الصفحة لتكبيرها.</p><div class="bookrow">'+l.img.map(p=>'<figure class="book"><a href="bookimg/p'+p+'.webp" target="_blank" rel="noopener"><img src="bookimg/p'+p+'.webp" alt="صفحة '+p+' من كتاب الطالب" loading="lazy" decoding="async"></a><figcaption>'+ic('book')+'كتاب الطالب ص '+p+'</figcaption></figure>').join('')+'</div></div>';
+ h+='<button class="btn big" id="go">'+ic('play')+' تمرّن على الدّرس</button>';return h};
 R.after_u=id=>{const l=LES.find(x=>x.id===id);const g=A.$('#go');if(g)g.onclick=()=>quiz(lesQs(l),{key:id,title:l.t,back:'#/u/'+id})};
 R.test=uid=>{const u=U.find(x=>x.id===uid);setTimeout(()=>{let q=[];u.les.forEach(l=>q=q.concat(lesQs(l).slice(0,4)));quiz(shuffle(q).slice(0,12),{key:'T:'+uid,title:'اختبار الوحدة: '+u.t,back:'#/home'})},0);return '<p class="mut">جارٍ تحضير اختبار الوحدة…</p>'};
 // ———— الأساسيّات ————
