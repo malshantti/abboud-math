@@ -154,6 +154,33 @@ function watch(){if(watching)return;watching=true;
  const check=()=>{if(!navigator.onLine||document.visibilityState==='hidden'||document.getElementById('bustan-kicked'))return;
   api('session',{timeout:15000}).then(s=>{if(s.authenticated)return;if(s.revoked)kicked(s.message);else if(subject)requireLogin()}).catch(()=>{})};
  setInterval(check,60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check()});addEventListener('online',check)}
+
+// ---- وضع الضيف: أول درسين في كل مادة دون حساب، والتقدّم محفوظ على الجهاز ----
+const GUEST='bustan_guest',GL='bustan_guest_lessons',GSEEN='bustan_guest_star_prompt';
+const LESSON_RE=/^#\/(?:l|lesson|les|s|b|f|p)\/([^/?#]+)/,GUEST_FREE=2,GUEST_XP_CAP=40;
+const regUrl=()=>new URL('admin-api/account/register',root).href+'?return='+encodeURIComponent(location.href);
+function guestStars(){if(!subject)return 0;const [gc,sc]=subject.split('-');let n=0;
+ for(let i=0;i<LS.length;i++){const k=LS.key(i);if(!k||/^bustan_p_/.test(k))continue;
+  if(k===`bustan_${gc}_${sc}_v1`||(subject==='g8-math'&&k==='abboud_math_v1')){try{const v=JSON.parse(LS.getItem(k));if(v&&typeof v==='object')n+=(+v.stars||0)+(+v.xp||0)+(+v.points||0)}catch(e){}}}
+ return n}
+function guestBox(id,html,wall){if(document.getElementById(id))return;const d=document.createElement('div');d.id=id;d.setAttribute('role',wall?'alertdialog':'status');
+ d.style.cssText=wall?'position:fixed;inset:0;z-index:10002;background:rgba(251,248,239,.97);display:grid;place-items:center;padding:20px;direction:rtl':'position:fixed;inset-inline:12px;bottom:14px;z-index:10002;direction:rtl;display:flex;justify-content:center';
+ d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:20px 22px;text-align:center;font:17px/1.8 inherit;color:#29392b;box-shadow:0 5px 0 #e2e7d9">'+html+'</div>';
+ const app=wall&&document.querySelector('#app');if(app)app.inert=true;(document.body||document.documentElement).append(d);return d}
+const btn=(href,t,main)=>`<a href="${href}" style="display:inline-block;margin:6px 4px 0;padding:10px 18px;border-radius:14px;font-weight:800;text-decoration:none;${main?'background:#2f8f46;color:#fff':'background:#eef3e6;color:#29392b'}">${t}</a>`;
+function guestWall(){guestBox('bustan-guest-wall','<h2 style="margin:0 0 6px;font-size:22px">أحسنت! خلّصت الدرسين المجانيين</h2><p style="margin:0 0 10px">أنشئ حسابًا مجانيًا لتكمل كل الدروس وتحفظ نجومك. البستان مجاني بالكامل حتى ٢٨/١١، بدون دفع.</p>'+btn(regUrl(),'سجّل مجانًا',1)+btn(loginUrl(),'عندي حساب'),true)}
+function guestMode(){
+ set(GUEST,'1');reveal();
+ const rec=J(GL,{}),mine=Array.isArray(rec[subject])?rec[subject]:(rec[subject]=[]);const base=J(GL+'_xp0',{});
+ if(base[subject]==null){base[subject]=guestStars();set(GL+'_xp0',JSON.stringify(base))}
+ const check=()=>{const m=(location.hash||'').match(LESSON_RE);
+  if(m){const id=m[1];if(!mine.includes(id)){if(mine.length>=GUEST_FREE){guestWall();return}mine.push(id);rec[subject]=mine;set(GL,JSON.stringify(rec))}}
+  const st=guestStars();
+  if(st>0&&!get(GSEEN)){set(GSEEN,'1');const d=guestBox('bustan-guest-star','<b>نجمة رائعة! ⭐</b> '+btn(regUrl(),'سجّل عشان تحفظ نجومك',1),false);if(d)setTimeout(()=>d.remove(),15000)}
+  if(!mine.length&&st-base[subject]>=GUEST_XP_CAP)guestWall();// مادة بلا روابط دروس: حدّ تقريبي يعادل درسين
+ };
+ check();addEventListener('hashchange',check);setInterval(check,3000);
+}
 function reveal(){try{delete document.documentElement.dataset.gate}catch(e){}}
 function requireLogin(){set(K.account,null);set(K.access,null);set(K.roster,null);location.replace(loginUrl())}
 function offlineNotice(){
@@ -178,12 +205,12 @@ function remember(s){set(KICK,null);set(KICK_ACK,null);set(K.account,JSON.string
 async function lessonGate(){
  const had=J(K.account,null);
  if(had)reveal();// جهاز سبق تسجيل الدخول عليه: الدرس يفتح فورًا ونتحقق في الخلفية
- if(!navigator.onLine){if(!had)offlineNotice();else{const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}return false}
+ if(!navigator.onLine){if(!had)guestMode();else{const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}return false}
  try{session=await api('session',{timeout:had?15000:10000})}
  catch(e){if(had){const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}else offlineNotice();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
  csrf=session.csrf||'';banner(session.site);
  if(maintenance(session.site))return false;
- if(!session.authenticated){if(session.revoked||get(KICK))kicked(session.message);else requireLogin();return false}
+ if(!session.authenticated){if(session.revoked||get(KICK))kicked(session.message);else if(had)requireLogin();else guestMode();return false}
  remember(session);set(K.access,JSON.stringify(session.access));reveal();gate(session.access,session.urls);trialBanner(session.access);watch();return true;
 }
 
@@ -211,6 +238,7 @@ async function sync(){
  // ٢) قائمة الطلاب على هذا الجهاز تُستبدل بقائمة الخادم (لا دمج): كل طالب سجّله الأهل يصير له ملف هنا،
  //    وتُحذف الملفات المحلية التي لا ترتبط بطالب من الحساب (من حساب آخر أو من النسخة القديمة)، ولا يُحفظ تقدّمها إلا إن كانت مرتبطة بطالب.
  for(const [lid,sid] of Object.entries(st.map))if(!servers.has(sid)){delete st.map[lid];delete st.base[lid]}
+ const gData=entryPage&&get(GUEST)==='1'&&!get('bustan_owner')?guestProgress():null;let gUsed=false;
  if(entryPage){
   const bySid=new Map(Object.entries(st.map).map(([l,s])=>[s,l]));
   for(const s of servers.values()){
@@ -220,16 +248,18 @@ async function sync(){
     try{const r=await api('students/'+s.id+'/progress');Object.entries(r.items||{}).forEach(([k,v])=>{if(typeof v.value==='string')data[k]=v.value})}catch(e){if(e.message==='auth')throw e}// يُنشأ الملف حتى لو تعذّر سحب التقدّم؛ يُسحب في الجولة التالية
     id=s.local_id&&/^p\w+$/.test(s.local_id)&&!P.find(s.local_id)?s.local_id:'ps'+s.id;
    }
+   const gKeys=[];if(!have&&gData&&!gUsed){gUsed=true;Object.entries(gData).forEach(([k,v])=>{if(data[k]==null){data[k]=v;gKeys.push(k)}})}
    if(s.grade)data.bustan_grade=String(s.grade);
    const cur=P.find(id)||{},pin=s.pin&&s.pin.hash?{pin:s.pin.hash,salt:s.pin.salt}:{pin:cur.pin||null,salt:cur.salt||null};// الرقم السري الذي حدّده الأهل هو المرجع
    if(!have||cur.name!==s.name||cur.pin!==pin.pin||(s.grade&&String(P.dataOf(id,'bustan_grade'))!==data.bustan_grade))
     await P.restore({app:'bustan-backup-v1',profiles:[{id,name:s.name,avatar:s.avatar||cur.avatar,created:cur.created,...pin}],data:{[id]:data}});
-   if(!have){st.map[id]=s.id;st.base[id]={};Object.entries(data).forEach(([k,v])=>st.base[id][k]=fnv(v))}
+   if(!have){st.map[id]=s.id;st.base[id]={};Object.entries(data).forEach(([k,v])=>{if(!gKeys.includes(k))st.base[id][k]=fnv(v)})}// مفاتيح الضيف تُرفع للخادم في الخطوة ٣
    save();
   }
  }
  const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null,grade_name:s.grade_name||null,subjects:Array.isArray(s.subjects)?s.subjects.map(x=>x.name):null}});
  set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster,pin_on:session.pin_required===true,t:Date.now()}));save();
+ if(gUsed){set(GUEST,null);set(GL,null);set(GL+'_xp0',null);set(GSEEN,null)}
  if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id))await P.remove(p.id)}
  try{if(typeof CustomEvent==='function')dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}
  // ٣) رفع ما تغيّر محليًا، وسحب ما تغيّر على الخادم (السحب في صفحات الدخول فقط).
@@ -248,6 +278,7 @@ async function sync(){
   save();
  }
 }
+function guestProgress(){const out={};for(let i=0;i<LS.length;i++){const k=LS.key(i);if(k&&/^(?:bustan_g\d+_[a-z]+_v\d+|abboud_math_v1)$/.test(k)){const v=LS.getItem(k);if(v&&v!=='null')out[k]=v}}return Object.keys(out).length?out:null}
 function run(){if(busy)return busy;busy=sync().catch(e=>{if(window.console)console.warn('bustan sync:',e&&e.message)}).finally(()=>{busy=null});return busy}
 
 async function start(){
