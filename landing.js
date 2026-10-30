@@ -280,3 +280,5 @@ function fill(d){
 try{fetch('/admin-api/api/public/prices',{cache:'no-cache',credentials:'omit',headers:{Accept:'application/json'}}).then(function(r){return r.ok?r.json():null}).then(fill).catch(function(){})}catch(e){}
 window.__bustanPrices=fill;
 })();
+// /?grade=4 (تحويل من /g4/): نفتح تبويب الصف ونمرّر إلى قائمة المواد
+(function(){try{var g=new URLSearchParams(location.search).get('grade');if(!/^[1-8]$/.test(g||''))return;var t=document.getElementById('L-g'+g);if(t){t.click();var c=document.getElementById('L-curriculum');if(c)setTimeout(function(){c.scrollIntoView({block:'start'})},60)}}catch(e){}})();
