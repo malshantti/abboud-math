@@ -3,9 +3,9 @@
 'use strict';
 const A=window.APP,U=window.UNITS,C=window.CFG,MG=window.MG||{};
 const {esc,ic,pick,shuffle,S,R,quiz}=A;
-const ORDN=['الأولى','الثّانية','الثّالثة','الرّابعة','الخامسة','السّادسة','السّابعة','الثّامنة'];
+const ORDN=['الأولى','الثّانية','الثّالثة','الرّابعة','الخامسة','السّادسة','السّابعة','الثّامنة','التّاسعة','العاشرة','الحادية عشرة','الثّانية عشرة','الثّالثة عشرة','الرّابعة عشرة','الخامسة عشرة','السّادسة عشرة','السّابعة عشرة','الثّامنة عشرة','التّاسعة عشرة','العشرون'];const UNL=u=>{const n=parseInt(String((u&&u.id)||'').slice(1),10);return n>0?'الوحدة '+(ORDN[n-1]||n):''},UNP=(u,t)=>{const a=UNL(u);return a?a+': '+t:t};
 const LES=[];U.forEach(u=>u.les.forEach(l=>{l.u=u;LES.push(l)}));
-C.sections=()=>LES.map(l=>({key:l.id,name:'الوحدة '+ORDN[+l.u.id.slice(1)-1]+': '+l.t,href:'#/u/'+l.id}));
+C.sections=()=>LES.map(l=>({key:l.id,name:UNP(l.u,l.t),href:'#/u/'+l.id}));
 const strip=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').trim();
 const uniqT=ts=>[...new Map(ts.map(t=>[strip(t[0]),t])).values()];
 const ALLT=uniqT(LES.flatMap(l=>l.terms||[]));
@@ -19,7 +19,7 @@ function lesQs(l){if(l.bo&&(l.bmc||[]).length)return shuffle(bookQs(l)).slice(0,
 A.gen={termQs,factQs,numQs:genQs,lesQs,bookQs,LES,NUM:Object.fromEntries(LES.map(l=>[l.id,gens(l)]))};
 R.home=function(){return ''};
 R.u=function(id){const l=LES.find(x=>x.id===id);if(!l)return R.home();S.seen[id]=1;A.save();const u=l.u;
- let h='<div class="mut small"><a href="#/home">رحلتي</a> / الوحدة '+ORDN[+u.id.slice(1)-1]+': '+esc(u.t)+'</div><h2>'+esc(l.t)+'</h2><nav class="tabsec">'+u.les.map(x=>'<a href="#/u/'+x.id+'" class="'+(x.id===id?'on':'')+'">'+esc(x.t)+'</a>').join('')+'</nav>';
+ let h='<div class="mut small"><a href="#/home">رحلتي</a> / '+UNP(u,esc(u.t))+'</div><h2>'+esc(l.t)+'</h2><nav class="tabsec">'+u.les.map(x=>'<a href="#/u/'+x.id+'" class="'+(x.id===id?'on':'')+'">'+esc(x.t)+'</a>').join('')+'</nav>';
  h+='<div class="split"><div><div class="card"><div class="row" style="justify-content:space-between"><b>الأفكار الرّئيسة</b>'+(l.pg?'<span class="tag">كتاب الطالب ص '+l.pg+'</span>':'')+'</div><ul class="pts">'+l.pts.map(p=>'<li>'+esc(p)+'</li>').join('')+'</ul></div>'+
  ((l.terms||[]).length?'<div class="card"><b>المفاهيم</b><div class="voc">'+l.terms.map(t=>'<div><b style="font-family:Cairo;font-size:17px">'+esc(t[0])+'</b>'+esc(t[1])+'</div>').join('')+'</div></div>':'')+'</div><div>';
  if((l.ex||[]).length){h+='<b>أمثلة محلولة</b>';l.ex.forEach((e,i)=>{h+='<div class="card"><b>مثال '+A.ar(i+1)+'</b><p>'+esc(e[0])+'</p><details><summary>اعرض الحل</summary><p>'+esc(e[1])+'</p></details></div>'})}
