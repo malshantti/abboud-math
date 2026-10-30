@@ -257,7 +257,7 @@ async function sync(){
    save();
   }
  }
- const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null,grade_name:s.grade_name||null,subjects:Array.isArray(s.subjects)?s.subjects.map(x=>x.name):null}});
+ const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null,grade_name:s.grade_name||null,streak:+s.streak||0,streak_best:+s.streak_best||0,subjects:Array.isArray(s.subjects)?s.subjects.map(x=>x.name):null}});
  set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster,pin_on:session.pin_required===true,t:Date.now()}));save();
  if(gUsed){set(GUEST,null);set(GL,null);set(GL+'_xp0',null);set(GSEEN,null)}
  if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id)&&!(p.id==='pguest'&&!gUsed))await P.remove(p.id)}
@@ -304,6 +304,23 @@ async function start(){
 async function pushPin(localId){try{const P=window.PROFILES;if(!P)return false;const p=P.find(localId),st=P.accountStudent(localId);if(!p||!p.pin||!st||!st.sid||!/^sha256:/.test(p.pin))return false;
  if(!csrf){session=await api('session',{timeout:10000});csrf=session.csrf||''}
  const r=await api('students/'+st.sid+'/pin',{body:{salt:p.salt,hash:p.pin},timeout:10000});return !!(r&&r.saved)}catch(e){return false}}
+// سؤال الإحماء: أول زيارة لكل مادة تبدأ بسؤال سهل جدًا يمنح نجمة سريعة خلال أقل من دقيقة
+function warmUp(){try{
+ const m=location.pathname.match(/\/g(\d)\/([a-z]+)\//);if(!m||document.getElementById('bWarm'))return;
+ const k='bustan_warm_g'+m[1]+'_'+m[2];if(localStorage.getItem(k))return;
+ const Q={math:['كم يساوي ١ + ١ ؟',['٢','٥','٩'],0],arabic:['أيّ كلمة تبدأ بحرف الباء؟',['قمر','بيت','شمس'],1],english:['ما معنى «قطّة» بالإنجليزية؟',['dog','cat','fish'],1],science:['أين تعيش السمكة؟',['في الماء','في الصحراء','على الشجرة'],0],islamic:['كم عدد أيام الأسبوع؟',['٣','٧','١٢'],1]};
+ const q=Q[m[2]]||Q.math;const d=document.createElement('div');d.id='bWarm';d.dir='rtl';
+ d.style.cssText='position:fixed;inset:0;z-index:2147483000;background:rgba(15,40,25,.55);display:grid;place-items:center;font-family:Cairo,sans-serif;padding:16px';
+ d.innerHTML='<div style="background:#fff;border-radius:22px;max-width:360px;width:100%;padding:22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)"><div style="font-size:15px;color:#2f6b3a;font-weight:700">سؤال الإحماء</div><div style="font-size:22px;font-weight:800;margin:12px 0 16px">'+q[0]+'</div><div id="bWarmO" style="display:grid;gap:10px"></div><div id="bWarmM" style="margin-top:12px;min-height:24px;font-weight:700"></div></div>';
+ const o=d.querySelector('#bWarmO');q[1].forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.lang=m[2]==='english'?'en':'ar';
+  b.style.cssText='font:700 20px Cairo,sans-serif;padding:12px;border-radius:14px;border:2px solid #cfe3d3;background:#f3faf4;cursor:pointer';
+  b.onclick=()=>{const M=d.querySelector('#bWarmM');if(i!==q[2]){b.style.borderColor='#f59e0b';M.textContent='قريب! جرّب مرة ثانية';return}
+   b.style.background='#d9f7df';b.style.borderColor='#22c55e';localStorage.setItem(k,String(Date.now()));
+   localStorage.setItem('bustan_quick_stars',String((+localStorage.getItem('bustan_quick_stars')||0)+1));
+   M.innerHTML='<svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path fill="#f5b301" d="M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21.1l1.4-7L2 9.3l7-.8z"/></svg><br>أحسنت! ربحت أول نجمة. هيّا إلى الدرس';setTimeout(()=>d.remove(),1600)};o.appendChild(b)});
+ document.body.appendChild(d);
+}catch(e){}}
+setTimeout(warmUp,900);
 window.BUSTAN_SYNC={run,enabled,daysText,pushPin,disable(){set(K.on,null);set(K.roster,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();
