@@ -16,39 +16,45 @@
     @php($fmi = \App\Models\Setting::freeMonth())
     <h1>@if($fmi)أنشئ حسابك – البستان مجاني بالكامل حتى {{ $fmi['until_ar'] }}@elseأنشئ حسابك المجاني – {{ $ar::num(\App\Models\Setting::get('trial_days')) }} أيام بكل المواد@endif</h1>
     @if ($open)
-    <p class="lead">حساب واحد للعائلة، ثم أضف طلابك. لا يلزم أي دفع.</p>
+    <p class="lead">خطوة واحدة: اسمك ورقم جوالك وصف طفلك. لا يلزم أي دفع.</p>
     @if (session('status'))<p class="alert {{ request()->boolean('email') ? 'warn' : 'ok' }}" role="status">{{ session('status') }}</p>@endif
-    @php($other = collect($errors->getMessages())->except(['name', 'email', 'password'])->flatten())
+    @php($other = collect($errors->getMessages())->except(['name', 'email', 'password', 'phone', 'grade'])->flatten())
     @if ($other->isNotEmpty())<div class="alert err" role="alert"><ul>@foreach ($other as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
     @include('partials.google-button')
     <form method="post" action="{{ route('account.register.store') }}" id="reg" novalidate>@csrf
       <input type="hidden" name="form_t" value="{{ \Illuminate\Support\Facades\Crypt::encryptString((string) time()) }}">
       <div class="hp" aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;opacity:0;pointer-events:none"><label for="website">اترك هذا الحقل فارغًا</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" value=""></div>
-      <div class="field"><label for="name">الاسم</label><input id="name" name="name" value="{{ old('name') }}" required maxlength="80" autocomplete="name" @error('name') class="bad" aria-invalid="true" @enderror aria-describedby="name-err"><p class="ferr" id="name-err" role="alert">@error('name'){{ $message }}@enderror</p></div>
-      <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" name="email" type="email" dir="ltr" inputmode="email" value="{{ old('email') }}" required maxlength="255" autocomplete="email" @error('email') class="bad" aria-invalid="true" @enderror aria-describedby="email-err"><p class="ferr" id="email-err" role="alert">@error('email'){{ $message }}@enderror</p></div>
-      <div class="field"><label for="password">كلمة المرور</label><div class="pw"><input id="password" name="password" type="password" dir="ltr" required minlength="8" maxlength="72" autocomplete="new-password" @error('password') class="bad" aria-invalid="true" @enderror aria-describedby="pw-hint password-err"><button type="button" class="eye" aria-controls="password" aria-pressed="false" aria-label="إظهار كلمة المرور">إظهار</button></div><p class="hint" id="pw-hint">٨ محارف على الأقل.</p><p class="ferr" id="password-err" role="alert">@error('password'){{ $message }}@enderror</p></div>
+      <div class="field"><label for="name">اسمك</label><input id="name" name="name" value="{{ old('name') }}" required maxlength="80" autocomplete="name" @error('name') class="bad" aria-invalid="true" @enderror aria-describedby="name-err"><p class="ferr" id="name-err" role="alert">@error('name'){{ $message }}@enderror</p></div>
+      <div class="field"><label for="phone">رقم الجوال</label><input id="phone" name="phone" type="tel" dir="ltr" inputmode="tel" value="{{ old('phone') }}" required maxlength="20" autocomplete="tel" placeholder="05XXXXXXXX" @error('phone') class="bad" aria-invalid="true" @enderror aria-describedby="phone-err"><p class="ferr" id="phone-err" role="alert">@error('phone'){{ $message }}@enderror</p></div>
+      <div class="field"><label for="password">كلمة المرور</label><div class="pw"><input id="password" name="password" type="password" dir="ltr" required minlength="6" maxlength="72" autocomplete="new-password" @error('password') class="bad" aria-invalid="true" @enderror aria-describedby="pw-hint password-err"><button type="button" class="eye" aria-controls="password" aria-pressed="false" aria-label="إظهار كلمة المرور">إظهار</button></div><p class="hint" id="pw-hint">٦ محارف أو أكثر، سهلة التذكّر.</p><p class="ferr" id="password-err" role="alert">@error('password'){{ $message }}@enderror</p></div>
+      <div class="field"><label for="child_name">اسم الطفل</label><input id="child_name" name="child_name" value="{{ old('child_name') }}" maxlength="24" autocomplete="off" @error('child_name') class="bad" @enderror></div>
+      <div class="field"><label for="grade">صف الطفل</label><select id="grade" name="grade" required @error('grade') class="bad" @enderror><option value="">اختر الصف</option>@foreach (\App\Models\Setting::gradeOptions() as $gid => $gname)<option value="{{ $gid }}" @selected((string) old('grade') === (string) $gid)>{{ $gname }}</option>@endforeach</select><p class="ferr" id="grade-err" role="alert">@error('grade'){{ $message }}@enderror</p></div>
+      <div class="field"><label for="email">البريد الإلكتروني <small>(اختياري)</small></label><input id="email" name="email" type="email" dir="ltr" inputmode="email" value="{{ old('email') }}" maxlength="255" autocomplete="email" @error('email') class="bad" aria-invalid="true" @enderror aria-describedby="email-err"><p class="ferr" id="email-err" role="alert">@error('email'){{ $message }}@enderror</p></div>
+      <div class="field"><label for="heard_from">من وين سمعت عنا؟ <small>(اختياري)</small></label><select id="heard_from" name="heard_from"><option value="">—</option>@foreach (\App\Http\Controllers\Account\AuthController::HEARD_FROM as $k => $v)<option value="{{ $k }}" @selected(old('heard_from') === $k)>{{ $v }}</option>@endforeach</select></div>
       <p class="hint">بإنشائك الحساب توافق على <a href="/terms.html">الشروط</a> و<a href="/privacy.html">سياسة الخصوصية</a>.</p>
       <button class="btn wide" type="submit">إنشاء الحساب</button>
     </form>
     <script>
     (function(){
       var f=document.getElementById('reg'),pw=document.getElementById('password'),eye=f.querySelector('.eye'),KEY='bk-reg-pw';
-      var M={name:'أدخل الاسم.',email0:'أدخل البريد الإلكتروني.',email:'أدخل بريدًا إلكترونيًا صالحًا.',pw0:'أدخل كلمة المرور.',pw:'كلمة المرور يجب أن تتكون من ٨ محارف على الأقل.'};
+      var M={name:'أدخل الاسم.',phone:'أدخل رقم جوال صحيحًا، مثل ٠٥٩١٢٣٤٥٦٧.',email:'أدخل بريدًا إلكترونيًا صالحًا.',pw0:'أدخل كلمة المرور.',pw:'كلمة المرور يجب أن تتكون من ٦ محارف على الأقل.',grade:'اختر صف طفلك.'};
       var RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
       // إبقاء كلمة المرور بعد رفض الخادم (تُحفظ في الجلسة الحالية فقط ثم تُمسح فورًا)
       try{var kept=sessionStorage.getItem(KEY);sessionStorage.removeItem(KEY);if(kept&&f.querySelector('.ferr:not(:empty)'))pw.value=kept}catch(e){}
       function check(el){var v=el.value.trim(),m='';
         if(el.id==='name')m=v?'':M.name;
-        else if(el.id==='email')m=!v?M.email0:(RE.test(v)?'':M.email);
-        else if(el.id==='password')m=!el.value?M.pw0:(el.value.length<8?M.pw:'');
+        else if(el.id==='email')m=!v||RE.test(v)?'':M.email;
+        else if(el.id==='phone')m=/^[0-9٠-٩+\s-]{9,20}$/.test(v)?'':M.phone;
+        else if(el.id==='grade')m=v?'':M.grade;
+        else if(el.id==='password')m=!el.value?M.pw0:(el.value.length<6?M.pw:'');
         set(el,m);return!m}
       function set(el,m){var e=document.getElementById(el.id+'-err');if(e)e.textContent=m;el.classList.toggle('bad',!!m);if(m)el.setAttribute('aria-invalid','true');else el.removeAttribute('aria-invalid')}
-      ['name','email','password'].forEach(function(id){var el=document.getElementById(id);
+      ['name','phone','email','password','grade'].forEach(function(id){var el=document.getElementById(id);
         el.addEventListener('input',function(){if(el.classList.contains('bad')||(id!=='name'&&el.value))check(el)});
         el.addEventListener('blur',function(){if(el.value)check(el)})});
       eye.addEventListener('click',function(){var show=pw.type==='password';pw.type=show?'text':'password';eye.textContent=show?'إخفاء':'إظهار';eye.setAttribute('aria-pressed',show);eye.setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور')});
       function first(){var b=f.querySelector('input.bad');if(b){b.scrollIntoView({block:'center',behavior:'smooth'});b.focus({preventScroll:true})}}
-      f.addEventListener('submit',function(ev){var ok=true;['name','email','password'].forEach(function(id){if(!check(document.getElementById(id)))ok=false});
+      f.addEventListener('submit',function(ev){var ok=true;['name','phone','email','password','grade'].forEach(function(id){if(!check(document.getElementById(id)))ok=false});
         if(!ok){ev.preventDefault();first();return}
         try{sessionStorage.setItem(KEY,pw.value)}catch(e){}});
       if(f.querySelector('.ferr:not(:empty)'))first();

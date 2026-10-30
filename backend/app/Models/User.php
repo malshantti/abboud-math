@@ -171,4 +171,24 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /** Families who sign up with a mobile number only get an internal placeholder email (never mailed). */
+    public const PHONE_EMAIL_DOMAIN = 'phone.bustankids.invalid';
+
+    public static function isPlaceholderEmail(?string $email): bool
+    {
+        return is_string($email) && str_ends_with(strtolower($email), '@'.self::PHONE_EMAIL_DOMAIN);
+    }
+
+    /** «٠٥٩٢ ٩٤٥ ٥٥٧» / +970592945557 / 00972… → 0592945557 (digits only, local form when Palestinian/Israeli prefix). */
+    public static function normalizePhone(?string $raw): ?string
+    {
+        $d = preg_replace('/\D+/', '', strtr((string) $raw, ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9', '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']));
+        $d = preg_replace('/^00/', '', (string) $d);
+        if (preg_match('/^(970|972)(5\d{8})$/', $d, $m)) {
+            $d = '0'.$m[2];
+        }
+
+        return preg_match('/^\d{9,15}$/', $d) ? $d : null;
+    }
 }

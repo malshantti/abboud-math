@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\Access;
+use App\Support\Ar;
 use App\Support\MailCenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,12 +17,16 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AuthController extends Controller
 {
+    /** «من وين سمعت عنا؟» (optional, stored on users.heard_from). */
+    public const HEARD_FROM = ['facebook' => 'فيسبوك', 'whatsapp' => 'واتساب', 'friend' => 'صديق أو قريب', 'school' => 'المدرسة', 'other' => 'غير ذلك'];
+
     public const MESSAGES = [
         'name.required' => 'أدخل الاسم.', 'name.max' => 'الاسم أطول من الحد المسموح.',
         'email.required' => 'أدخل البريد الإلكتروني.', 'email.email' => 'أدخل بريدًا إلكترونيًا صالحًا.',
@@ -87,35 +92,70 @@ class AuthController extends Controller
         abort_unless(Setting::flag('registration_open'), 403, 'التسجيل مغلق حاليًا.');
         $this->botCheck($request);
         $this->lower($request);
+        $request->merge(['phone' => User::normalizePhone($request->input('phone')) ?? (trim((string) $request->input('phone')) === '' ? null : 'bad')]);
+        if (trim((string) $request->input('email')) === '') {
+            $request->merge(['email' => null]);
+        }
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            // No confirmation field on the signup form (show-password toggle instead); reset keeps 'confirmed'.
-            'password' => ['required', 'string', PasswordRule::min(8), 'max:72'],
-        ], self::MESSAGES);
+            'phone' => ['nullable', 'required_without:email', 'regex:/^\d{9,15}$/', 'unique:users,phone'],
+            'email' => ['nullable', 'required_without:phone', 'string', 'email', 'max:255', 'unique:users,email'],
+            // Simple password (6+) for families; no confirmation field (show-password toggle instead).
+            'password' => ['required', 'string', 'min:6', 'max:72'],
+            'grade' => ['nullable', Rule::in(array_keys(Setting::gradeOptions()))],
+            'child_name' => ['nullable', 'string', 'max:24'],
+            'heard_from' => ['nullable', Rule::in(array_keys(self::HEARD_FROM))],
+        ], self::MESSAGES + [
+            'phone.required_without' => 'أدخل رقم الجوال.', 'phone.regex' => 'أدخل رقم جوال صحيحًا، مثل ٠٥٩١٢٣٤٥٦٧.',
+            'phone.unique' => 'هذا الرقم مسجّل من قبل. سجّل الدخول بالرقم وكلمة المرور.',
+            'email.required_without' => 'أدخل رقم الجوال أو البريد الإلكتروني.',
+            'password.min' => 'كلمة المرور يجب أن تتكون من ٦ محارف على الأقل.', 'grade.in' => 'اختر صف طفلك من القائمة.',
+        ]);
+        $email = $data['email'] ?? ('m'.$data['phone'].'@'.User::PHONE_EMAIL_DOMAIN);
 
-        $user = DB::transaction(function () use ($data) {
-            $user = new User(['name' => trim($data['name']), 'email' => $data['email'], 'password' => $data['password']]);
+        [$user, $student] = DB::transaction(function () use ($data, $email) {
+            $user = new User(['name' => trim($data['name']), 'email' => $email, 'password' => $data['password']]);
+            $user->forceFill(['phone' => $data['phone'] ?? null, 'heard_from' => $data['heard_from'] ?? null]);
             $user->setRole('parent');
             self::claimTrial($user);
             $user->last_login_at = now();
             $user->save();
+            $student = null;
+            if (! empty($data['grade'])) {
+                $student = $user->students()->make(['name' => trim((string) ($data['child_name'] ?? '')) ?: 'طفلي', 'grade' => (int) $data['grade']]);
+                $student->save();
+            }
 
-            return $user;
+            return [$user, $student];
         });
 
         Auth::login($user, true);
         $request->session()->regenerate();
         \App\Support\Devices::claim($request, $user);
         ActivityLog::record('register', $user->email, null, $user);
-        self::funnelSignup($user, 'email');
-        // Welcome email right away (the account works fully without verification), then the optional activation link.
-        // If activation emails are switched off, the account simply counts as verified.
-        MailCenter::send('welcome', $user, MailCenter::welcomeLink());
-        if (MailCenter::enabled('verify')) {
-            MailCenter::send('verify', $user, MailCenter::verifyUrl($user));
+        self::funnelSignup($user, isset($data['email']) ? 'email' : 'phone');
+        $freed = 0;
+        if ($student) {
+            \App\Support\Funnel::log('child_created', ['student_id' => $student->id, 'meta' => ['grade' => $student->grade, 'signup' => 'one_step']]);
+            if ($ends = Setting::freeMonthEnds()) {
+                $freed = app(HomeController::class)->activateFree($user, $student, $ends);
+            }
+        }
+        // Welcome email only for a real address (mobile-only families get no email). The account works fully without verification.
+        if (! User::isPlaceholderEmail($user->email)) {
+            MailCenter::send('welcome', $user, MailCenter::welcomeLink());
+            if (MailCenter::enabled('verify')) {
+                MailCenter::send('verify', $user, MailCenter::verifyUrl($user));
+            } else {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            }
         } else {
             $user->forceFill(['email_verified_at' => now()])->save();
+        }
+        if ($student) {
+            \App\Support\Landing::scrubIntended($request);
+
+            return redirect()->to(MailCenter::siteUrl().'login.html?sync=1')->with('status', 'أهلًا بك! أُنشئ حسابك'.($freed ? ' وفُعّلت جميع مواد '.Ar::grade($student->grade).' مجانًا' : '').'.');
         }
         \App\Support\Landing::scrubIntended($request);
 
@@ -161,7 +201,13 @@ class AuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $this->lower($request);
-        $data = $request->validate(['email' => ['required', 'string', 'email', 'max:255'], 'password' => ['required', 'string', 'max:1024']], self::MESSAGES);
+        // The login field takes an email or a mobile number (families who signed up with a mobile only).
+        $raw = (string) $request->input('email');
+        $phone = ! str_contains($raw, '@') ? User::normalizePhone($raw) : null;
+        $data = $request->validate(['email' => array_merge(['required', 'string', 'max:255'], $phone ? [] : ['email']), 'password' => ['required', 'string', 'max:1024']], self::MESSAGES + ['email.required' => 'أدخل رقم الجوال أو البريد الإلكتروني.', 'email.email' => 'أدخل رقم جوال صحيحًا أو بريدًا إلكترونيًا صالحًا.']);
+        if ($phone) {
+            $data['email'] = (string) (User::where('phone', $phone)->value('email') ?? ('m'.$phone.'@'.User::PHONE_EMAIL_DOMAIN));
+        }
         $key = 'account-login:'.hash('sha256', $data['email'].'|'.$request->ip());
         $ipKey = 'account-login-ip:'.hash('sha256', (string) $request->ip());
         if (RateLimiter::tooManyAttempts($key, 5) || RateLimiter::tooManyAttempts($ipKey, 30)) {

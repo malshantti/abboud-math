@@ -114,6 +114,9 @@ class MailCenter
         if (! $test && ! self::enabled($type)) {
             return MailLog::create($log + ['status' => 'disabled']);
         }
+        if (\App\Models\User::isPlaceholderEmail($to)) {
+            return MailLog::create($log + ['status' => 'disabled', 'error' => 'no email (mobile signup)']);
+        }
         try {
             $sent = Mail::to($to)->send(new BrandMail($data, Setting::get('mail_from_name') ?: Setting::get('site_name')));
             \Illuminate\Support\Facades\Log::channel('mail')->info('mail.sent', ['type' => $type, 'user' => $log['user_id'], 'to_domain' => \Illuminate\Support\Str::after($to, '@'), 'message_id' => $sent?->getMessageId(), 'smtp' => mb_substr((string) ($sent?->getDebug() ? \Illuminate\Support\Str::of($sent->getDebug())->afterLast('250 ')->before("\n") : ''), 0, 120)]);
