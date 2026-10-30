@@ -99,4 +99,31 @@ class SyncApiTest extends TestCase
             'bustan_g1_math_v1' => ['value' => 'a', 'updated' => 1], 'abboud_math_v1' => ['value' => 'b', 'updated' => 1],
         ]])->assertOk()->assertJsonPath('items.bustan_g1_math_v1.value', 'a')->assertJsonPath('rejected', ['abboud_math_v1']);
     }
+
+    public function test_two_devices_merge_lessons_instead_of_overwriting(): void
+    {
+        $u = User::factory()->create(['trial_ends_at' => now()->addDays(3)]);
+        $this->actingAs($u);
+        $s = $u->students()->create(['name' => 'رابع', 'grade' => 4]);
+        $a = '{"xp":30,"streak":1,"last":"2026-10-30","done":{"U1L1":80},"seen":{"U1L1":1},"ach":["first"],"days":{"2026-10-30":30},"log":[{"t":1,"pc":80}]}';
+        $b = '{"xp":20,"streak":1,"last":"2026-10-30","done":{"U1L2":90,"U1L1":40},"seen":{"U1L2":1},"ach":["first"],"days":{"2026-10-30":20},"log":[{"t":2,"pc":90}]}';
+        $this->putJson("/api/students/{$s->id}/progress", ['items' => ['bustan_g4_math_v1' => ['value' => $a, 'updated' => 1000]]])->assertOk();
+        $r = $this->putJson("/api/students/{$s->id}/progress", ['items' => ['bustan_g4_math_v1' => ['value' => $b, 'updated' => 2000]]])->assertOk();
+        $m = json_decode($r->json('items.bustan_g4_math_v1.value'), true);
+        $this->assertSame(['U1L1' => 80, 'U1L2' => 90], $m['done'], 'best score of each lesson from both devices');
+        $this->assertSame(30, $m['xp']);
+        $this->assertCount(2, $m['log']);
+        $this->assertSame(2000, $r->json('items.bustan_g4_math_v1.updated'));
+        // an older device uploading later does not drop the newer lessons either
+        $c = '{"xp":10,"done":{"U1L3":70},"seen":{},"ach":[],"days":{},"log":[]}';
+        $m = json_decode($this->putJson("/api/students/{$s->id}/progress", ['items' => ['bustan_g4_math_v1' => ['value' => $c, 'updated' => 1500]]])->json('items.bustan_g4_math_v1.value'), true);
+        $this->assertSame(['U1L1' => 80, 'U1L2' => 90, 'U1L3' => 70], $m['done']);
+        // the parent report log merges per subject too
+        $this->putJson("/api/students/{$s->id}/progress", ['items' => ['bustan_report_v1' => ['value' => '{"v":1,"subj":{"g4-math":{"ms":100,"n":3}}}', 'updated' => 1000]]]);
+        $rep = json_decode($this->putJson("/api/students/{$s->id}/progress", ['items' => ['bustan_report_v1' => ['value' => '{"v":1,"subj":{"g4-science":{"ms":50,"n":2}}}', 'updated' => 2000]]])->json('items.bustan_report_v1.value'), true);
+        $this->assertSame(['g4-math', 'g4-science'], array_keys($rep['subj']));
+        // other schemas keep last-write-wins (grade 6 math app unchanged)
+        $this->putJson("/api/students/{$s->id}/progress", ['items' => ['bustan_last' => ['value' => '{"grade":4,"t":5}', 'updated' => 3000]]]);
+        $this->assertSame('{"grade":4,"t":5}', $this->putJson("/api/students/{$s->id}/progress", ['items' => ['bustan_last' => ['value' => '{"grade":4,"t":1}', 'updated' => 100]]])->json('items.bustan_last.value'));
+    }
 }
