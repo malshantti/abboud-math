@@ -119,6 +119,10 @@ const tb=$('#theme');const paint=()=>{tb.innerHTML=svg(document.documentElement.
 tb.onclick=()=>{const d=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=d;try{localStorage.setItem('abboud_theme',d)}catch(e){}paint()};
 async function start(){if(!await P.ready){pick();saveError();return}
  if(q.has('logout')||q.has('switch')){const ok=await P.logout();pick(ok&&q.has('logout')?'تم تسجيل الخروج، وتقدّمك محفوظ.':'');if(!ok)saveError()}
+ else if(!signedIn()&&/^g\d+\/[a-z]+\//.test(next)){// وضع الضيف: أول درسين في كل مادة دون حساب
+  const G='pguest';if(!P.find(G))await P.restore({app:'bustan-backup-v1',profiles:[{id:G,name:'ضيف',avatar:'idle',pin:null,salt:null,created:Date.now()}],data:{[G]:{}}});
+  if(!(P.current()&&P.current().id===G)&&!await P.login(G)){pick();saveError();return}
+  try{localStorage.setItem('bustan_guest','1')}catch(e){}location.replace(next)}
  else if(P.current()&&(!signedIn()||(P.roster()&&!P.accountStudent(P.current().id)))){await P.logout();pick()}// لا حساب مرتبط أو ملف لا يخصّ الحساب
  else if(P.current())location.replace(next);
  else pick();

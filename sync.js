@@ -168,7 +168,7 @@ function guestBox(id,html,wall){if(document.getElementById(id))return;const d=do
  d.innerHTML='<div style="max-width:460px;background:#fff;border:2px solid #e2e7d9;border-radius:22px;padding:20px 22px;text-align:center;font:17px/1.8 inherit;color:#29392b;box-shadow:0 5px 0 #e2e7d9">'+html+'</div>';
  const app=wall&&document.querySelector('#app');if(app)app.inert=true;(document.body||document.documentElement).append(d);return d}
 const btn=(href,t,main)=>`<a href="${href}" style="display:inline-block;margin:6px 4px 0;padding:10px 18px;border-radius:14px;font-weight:800;text-decoration:none;${main?'background:#2f8f46;color:#fff':'background:#eef3e6;color:#29392b'}">${t}</a>`;
-function guestWall(){guestBox('bustan-guest-wall','<h2 style="margin:0 0 6px;font-size:22px">أحسنت! خلّصت الدرسين المجانيين</h2><p style="margin:0 0 10px">أنشئ حسابًا مجانيًا لتكمل كل الدروس وتحفظ نجومك. البستان مجاني بالكامل حتى ٢٨/١١، بدون دفع.</p>'+btn(regUrl(),'سجّل مجانًا',1)+btn(loginUrl(),'عندي حساب'),true)}
+function guestWall(){guestBox('bustan-guest-wall','<h2 style="margin:0 0 6px;font-size:22px">أحسنت! جرّبت الدرسين المجانيين</h2><p style="margin:0 0 10px">أنشئ حسابًا مجانيًا لتكمل كل الدروس وتحفظ نجومك. البستان مجاني بالكامل حتى ٢٨/١١، بدون دفع.</p>'+btn(regUrl(),'سجّل مجانًا',1)+btn(loginUrl(),'عندي حساب'),true)}
 function guestMode(){
  set(GUEST,'1');reveal();
  const rec=J(GL,{}),mine=Array.isArray(rec[subject])?rec[subject]:(rec[subject]=[]);const base=J(GL+'_xp0',{});
@@ -207,7 +207,7 @@ async function lessonGate(){
  if(had)reveal();// جهاز سبق تسجيل الدخول عليه: الدرس يفتح فورًا ونتحقق في الخلفية
  if(!navigator.onLine){if(!had)guestMode();else{const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}return false}
  try{session=await api('session',{timeout:had?15000:10000})}
- catch(e){if(had){const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}else offlineNotice();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
+ catch(e){if(had){const c=J(K.access,null);if(c){gate(c,{subscribe:new URL('admin-api/account/subscribe',root).href});trialBanner(c)}}else guestMode();return false}// شبكة ضعيفة أو خطأ خادم: لا إقفال لمن سجّل سابقًا
  csrf=session.csrf||'';banner(session.site);
  if(maintenance(session.site))return false;
  if(!session.authenticated){if(session.revoked||get(KICK))kicked(session.message);else if(had)requireLogin();else guestMode();return false}
@@ -238,7 +238,7 @@ async function sync(){
  // ٢) قائمة الطلاب على هذا الجهاز تُستبدل بقائمة الخادم (لا دمج): كل طالب سجّله الأهل يصير له ملف هنا،
  //    وتُحذف الملفات المحلية التي لا ترتبط بطالب من الحساب (من حساب آخر أو من النسخة القديمة)، ولا يُحفظ تقدّمها إلا إن كانت مرتبطة بطالب.
  for(const [lid,sid] of Object.entries(st.map))if(!servers.has(sid)){delete st.map[lid];delete st.base[lid]}
- const gData=entryPage&&get(GUEST)==='1'&&!get('bustan_owner')?guestProgress():null;let gUsed=false;
+ const gData=entryPage&&get(GUEST)==='1'?guestProgress(P):null;let gUsed=false;
  if(entryPage){
   const bySid=new Map(Object.entries(st.map).map(([l,s])=>[s,l]));
   for(const s of servers.values()){
@@ -260,7 +260,7 @@ async function sync(){
  const roster=Object.entries(st.map).map(([local,sid])=>{const s=servers.get(sid);return {sid,local,name:s.name,grade:s.grade||null,grade_name:s.grade_name||null,subjects:Array.isArray(s.subjects)?s.subjects.map(x=>x.name):null}});
  set(K.roster,JSON.stringify({email:session.user.email,access:session.access,students:roster,pin_on:session.pin_required===true,t:Date.now()}));save();
  if(gUsed){set(GUEST,null);set(GL,null);set(GL+'_xp0',null);set(GSEEN,null)}
- if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id))await P.remove(p.id)}
+ if(entryPage){const keep=new Set(Object.keys(st.map));for(const p of P.list())if(!keep.has(p.id)&&!(p.id==='pguest'&&!gUsed))await P.remove(p.id)}
  try{if(typeof CustomEvent==='function')dispatchEvent(new CustomEvent('bustan-roster'))}catch(e){}
  // ٣) رفع ما تغيّر محليًا، وسحب ما تغيّر على الخادم (السحب في صفحات الدخول فقط).
  backup=P.backup();
@@ -278,7 +278,9 @@ async function sync(){
   save();
  }
 }
-function guestProgress(){const out={};for(let i=0;i<LS.length;i++){const k=LS.key(i);if(k&&/^(?:bustan_g\d+_[a-z]+_v\d+|abboud_math_v1)$/.test(k)){const v=LS.getItem(k);if(v&&v!=='null')out[k]=v}}return Object.keys(out).length?out:null}
+function guestProgress(P){const out={},re=/^(?:bustan_g\d+_[a-z]+_v\d+|abboud_math_v1)$/;const d=(P.backup().data||{}).pguest;
+ if(d){Object.entries(d).forEach(([k,v])=>{if(re.test(k)&&typeof v==='string'&&v!=='null')out[k]=v})}
+ else for(let i=0;i<LS.length;i++){const k=LS.key(i);if(k&&re.test(k)){const v=LS.getItem(k);if(v&&v!=='null')out[k]=v}}return Object.keys(out).length?out:null}
 function run(){if(busy)return busy;busy=sync().catch(e=>{if(window.console)console.warn('bustan sync:',e&&e.message)}).finally(()=>{busy=null});return busy}
 
 async function start(){
