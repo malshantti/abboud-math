@@ -10,13 +10,34 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * One active device per account: the latest login wins. The device token lives in a long-lived
+ * Up to LIMIT active devices per account (2 during the free month): a new login beyond that signs out the oldest. The device token lives in a long-lived
  * encrypted cookie (so «remember me» and an expired session on the same device keep working)
  * and on the user row. A device whose cookie no longer matches is signed out on its next request.
  */
 class Devices
 {
     public const COOKIE = 'bustan_device';
+
+    /** Devices that may be signed in at the same time on one (non-admin) account. */
+    public const LIMIT = 2;
+
+    /** Tokens of the devices allowed right now (newest last). */
+    public static function tokens(User $user): array
+    {
+        $list = json_decode((string) ($user->device_tokens ?? ''), true);
+        $list = is_array($list) ? array_values(array_filter($list, 'is_string')) : [];
+        $active = (string) $user->active_device_token;
+        if ($active !== '' && ! in_array($active, $list, true)) {
+            $list[] = $active;
+        }
+
+        return array_slice($list, -self::LIMIT);
+    }
+
+    public static function allows(User $user, string $token): bool
+    {
+        return $token !== '' && in_array($token, self::tokens($user), true);
+    }
 
     public const MESSAGE = 'تم تسجيل الدخول إلى هذا الحساب من جهاز آخر، لذلك أُغلقت الجلسة هنا.';
 
@@ -30,7 +51,7 @@ class Devices
     public static function revokedGuest(Request $request): bool
     {
         $mine = (string) $request->cookie(self::COOKIE, '');
-        if ($mine === '' || User::where('active_device_token', $mine)->exists()) {
+        if ($mine === '' || User::where('active_device_token', $mine)->orWhere('device_tokens', 'like', '%"'.$mine.'"%')->exists()) {
             return false;
         }
         Cookie::queue(Cookie::forget(self::COOKIE));
@@ -55,16 +76,16 @@ class Devices
         Cookie::queue(Cookie::make(self::COOKIE, $token, 60 * 24 * 400, null, null, null, true, false, 'lax'));
         $request->cookies->set(self::COOKIE, $token);
         $request->session()->put(self::COOKIE, $token);
-        $user->forceFill(['active_device_token' => $token, 'active_device_ua' => Str::limit((string) $request->userAgent(), 250, ''), 'active_device_seen_at' => now()])->save();
-        if (self::enforced($user)) {
-            self::dropSessions($user, $request->session()->getId());
-        }
+        $list = array_slice(array_merge(array_values(array_filter(self::tokens($user), fn ($t) => ! str_starts_with($t, 'revoked:'))), [$token]), -self::LIMIT);
+        $user->forceFill(['device_tokens' => json_encode($list), 'active_device_token' => $token, 'active_device_ua' => Str::limit((string) $request->userAgent(), 250, ''), 'active_device_seen_at' => now()])->save();
+        // Sessions are not dropped: the other allowed device stays signed in; a device pushed out
+        // of the list is signed out on its next request by the SingleDevice middleware.
     }
 
     /** Admin action: every device is signed out (including remembered logins). */
     public static function revokeAll(User $user): void
     {
-        $user->forceFill(['active_device_token' => 'revoked:'.Str::random(40), 'remember_token' => Str::random(60)])->save();
+        $user->forceFill(['device_tokens' => null, 'active_device_token' => 'revoked:'.Str::random(40), 'remember_token' => Str::random(60)])->save();
         self::dropSessions($user, null);
     }
 

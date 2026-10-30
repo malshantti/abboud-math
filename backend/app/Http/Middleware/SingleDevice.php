@@ -25,7 +25,7 @@ class SingleDevice
 
             return $next($request);
         }
-        if (Devices::enforced($user) && ! hash_equals($active, $mine) && ! hash_equals($active, $held)) {
+        if (Devices::enforced($user) && ! Devices::allows($user, $mine) && ! Devices::allows($user, $held)) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -39,7 +39,7 @@ class SingleDevice
 
             return redirect()->route($request->is('admin', 'admin/*') ? 'login' : 'account.login')->withErrors(['email' => Devices::MESSAGE]);
         }
-        if ((hash_equals($active, $mine) || hash_equals($active, $held)) && (! $user->active_device_seen_at || $user->active_device_seen_at->lt(now()->subMinute()))) {
+        if ((Devices::allows($user, $mine) || Devices::allows($user, $held)) && (! $user->active_device_seen_at || $user->active_device_seen_at->lt(now()->subMinute()))) {
             $user->forceFill(['active_device_seen_at' => now()])->saveQuietly();
         }
 

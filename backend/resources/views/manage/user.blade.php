@@ -34,7 +34,7 @@
     <dt style="color:var(--muted)">المتصفح</dt><dd style="margin:0;font-size:13px;color:var(--muted);overflow-wrap:anywhere" dir="ltr">{{ $user->active_device_ua }}</dd>
   </dl>
   @else<p class="hint">لم يسجّل هذا الحساب الدخول من أي جهاز بعد.</p>@endif
-  <p class="hint" style="margin:0 0 12px">{{ \App\Models\Setting::flag('single_device') ? 'جهاز واحد لكل حساب مفعّل: آخر جهاز يسجّل الدخول هو الوحيد المفتوح.' : 'جهاز واحد لكل حساب متوقف حاليًا من الإعدادات.' }}@if($user->isAdminRole()) حسابات المشرفين مستثناة.@endif</p>
+  <p class="hint" style="margin:0 0 12px">{{ \App\Models\Setting::flag('single_device') ? 'حد الجهازين مفعّل: يبقى الحساب مفتوحًا على آخر جهازين سجّلا الدخول.' : 'حد الجهازين متوقف حاليًا من الإعدادات.' }}@if($user->isAdminRole()) حسابات المشرفين مستثناة.@endif</p>
   <form method="post" action="{{ route('manage.user.devices', $user) }}" onsubmit="return confirm('تسجيل خروج هذا الحساب من كل الأجهزة؟')">@csrf<button class="btn ghost small" type="submit">تسجيل الخروج من كل الأجهزة</button></form>
 </section>
 
