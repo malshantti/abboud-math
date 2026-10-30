@@ -26,6 +26,6 @@ const tick=()=>new Promise(r=>setTimeout(r,40));
  m.delete('bustan_trial_dismissed');p=page(m,{online:false});await tick();assert.ok(p.banner,'offline uses cached access');assert.equal(p.banner.kids.span.textContent,'تجربة مجانية: باقٍ لك ٣ أيام');
  p=page(new Map([['bustan_account',acct]]),{access:{allowed:true,kind:'paid',subjects:['g6-math']}});await tick();assert.equal(p.banner,null,'paid: nothing');assert.equal(p.nodes.length,0);
  p=page(new Map([['bustan_account',acct]]),{access:{allowed:false,kind:'expired',subjects:[]}});await tick();assert.equal(p.banner,null);assert.equal(p.nodes.length,1,'expired: existing lock');
- const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(html.replace(/<[^>]+>/g,''),/جرّب كل المواد مجانًا لمدة ٣ أيام/);assert.match(html,/href="admin-api\/account\/register">إنشاء حساب/);
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(html.replace(/<[^>]+>/g,''),/مجاني بالكامل حتى ٢٨\/١١، بدون دفع/);assert.doesNotMatch(html,/٣ أيام|ثلاثة أيام/);assert.match(html,/href="admin-api\/account\/register">إنشاء حساب/);
  console.log('PASS: trial banner');
 })().catch(e=>{console.error(e);process.exit(1)});
