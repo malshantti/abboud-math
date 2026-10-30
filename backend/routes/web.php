@@ -67,6 +67,7 @@ Route::prefix('account')->group(function () {
         Route::post('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'share'])->middleware('throttle:10,1')->name('account.report.share');
         Route::delete('students/{student}/report/share', [App\Http\Controllers\ReportController::class, 'unshare'])->name('account.report.unshare');
         Route::post('reminders', [AccountHome::class, 'toggleReminders'])->name('account.reminders');
+        Route::post('phone', [AccountHome::class, 'updatePhone'])->middleware('throttle:10,1')->name('account.phone');
         Route::get('subscribe', [AccountHome::class, 'subscribe'])->name('account.subscribe');
         Route::post('subscribe', [AccountHome::class, 'requestSubscription'])->middleware('throttle:10,1')->name('account.subscribe.store');
         Route::post('subscribe/free', [AccountHome::class, 'freeMonth'])->middleware('throttle:10,1')->name('account.subscribe.free');

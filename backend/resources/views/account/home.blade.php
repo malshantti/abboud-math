@@ -73,6 +73,13 @@
 </style>
 <main class="wrap grid">
   @include('partials.flash')
+  @unless ($user->phone)
+  <div class="card phone-note" id="phoneNote" role="note" style="display:flex;align-items:center;gap:10px;justify-content:space-between;padding:12px 16px">
+    <span>أضيفوا رقم الجوال ليسهل التواصل معكم — اختياري. <a href="#phone">إضافة الرقم</a></span>
+    <button type="button" class="btn ghost" id="phoneNoteX" aria-label="إخفاء">إخفاء</button>
+  </div>
+  <script>(function(){var n=document.getElementById('phoneNote');try{if(localStorage.getItem('bustan_phone_note_x')){n.remove();return}}catch(e){}document.getElementById('phoneNoteX').onclick=function(){try{localStorage.setItem('bustan_phone_note_x','1')}catch(e){}n.remove()}})();</script>
+  @endunless
 
   <section class="card first" id="students">
     <div class="sec-h"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><h2>الطلاب</h2>@if ($user->students->isNotEmpty())<span class="chip count">{{ $ar::num($user->students->count()) }}</span>@endif</div>
@@ -156,6 +163,16 @@
     @php($pushN = $user->pushSubscriptions()->count())
     <p class="muted">إشعار واحد يوميًا عصرًا: «اسم طفلك، درسك اليوم جاهز في بستان 🌱»، ولا يصل إن درس طفلك قبله. @if ($pushN) مفعّل على {{ $pushN }} @if ($pushN == 1) جهاز @else أجهزة @endif. @else <b>لم يُفعَّل على أي جهاز بعد.</b> لتفعيله على جهاز طفلك: افتح بستان عليه واضغط «نعم، ذكّرني» حين يظهر الاقتراح. @endif</p>
     <form method="post" action="{{ route('account.reminders') }}">@csrf<input type="hidden" name="on" value="{{ $user->push_reminders ? 0 : 1 }}"><button class="btn {{ $user->push_reminders ? '' : 'primary' }}" type="submit">{{ $user->push_reminders ? ($pushN ? 'إيقاف التذكير اليومي' : 'لا أريد التذكير') : 'تشغيل التذكير اليومي' }}</button></form>
+  </section>
+  <section class="card" id="phone">
+    <h2>رقم الجوال/واتساب</h2>
+    <p class="muted">اختياري. نستخدمه فقط للتواصل معكم عند الحاجة.</p>
+    <form method="post" action="{{ route('account.phone') }}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">@csrf
+      <label for="phoneIn" class="sr-only">رقم الجوال/واتساب</label>
+      <input id="phoneIn" name="phone" type="tel" inputmode="tel" dir="ltr" maxlength="30" autocomplete="tel" placeholder="0599123456" value="{{ old('phone', $user->phone) }}" style="flex:1;min-width:180px">
+      <button class="btn primary" type="submit">حفظ الرقم</button>
+    </form>
+    @error('phone')<p class="err" role="alert">{{ $message }}</p>@enderror
   </section>
   <details class="card more">
     <summary>التفعيل والأجهزة @unless ($user->isVerified())<span class="chip warn">البريد غير مفعّل</span>@endunless</summary>

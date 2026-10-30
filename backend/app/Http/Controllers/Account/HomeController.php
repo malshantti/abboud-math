@@ -92,6 +92,31 @@ class HomeController extends Controller
     }
 
     /** Daily reminder on/off for this account (all devices). */
+    /** Optional parent mobile/WhatsApp number (loose check; empty clears it). Nothing is sent to it. */
+    public function updatePhone(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $raw = trim((string) $request->input('phone', ''));
+        if ($raw === '') {
+            if (\App\Models\User::isPlaceholderEmail($user->email)) {
+                return back()->withErrors(['phone' => 'رقم الجوال هو طريقة دخولك لهذا الحساب، فلا يمكن حذفه.']);
+            }
+            $user->forceFill(['phone' => null])->save();
+
+            return back()->with('status', 'حذفنا رقم الجوال.');
+        }
+        $phone = \App\Models\User::normalizePhone($raw);
+        if (! $phone || strlen($raw) > 30) {
+            return back()->withErrors(['phone' => 'اكتبوا رقم جوال صحيحًا، مثل 0599123456.'])->withInput();
+        }
+        if (\App\Models\User::where('phone', $phone)->where('id', '!=', $user->id)->exists()) {
+            return back()->withErrors(['phone' => 'هذا الرقم مستخدم في حساب آخر.'])->withInput();
+        }
+        $user->forceFill(['phone' => $phone])->save();
+
+        return back()->with('status', 'حفظنا رقم الجوال. شكرًا لكم.');
+    }
+
     public function toggleReminders(Request $request): RedirectResponse
     {
         $on = $request->boolean('on');
