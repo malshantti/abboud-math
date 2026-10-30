@@ -157,7 +157,8 @@ function watch(){if(watching)return;watching=true;
 
 // ---- وضع الضيف: أول درسين في كل مادة دون حساب، والتقدّم محفوظ على الجهاز ----
 const GUEST='bustan_guest',GL='bustan_guest_lessons',GSEEN='bustan_guest_star_prompt';
-const LESSON_RE=/^#\/(?:l|lesson|les|s|b|f|p)\/([^/?#]+)/,GUEST_FREE=2,GUEST_XP_CAP=40;
+// مسارات الدروس: محرّك الصفوف ٤ و٥ و٧ وعلوم السادس يفتح الدرس بـ #/u/ID (في إنجليزي السادس #/u/ صفحة وحدة لا درس، فلا تُحسب هناك).
+const LESSON_RE=subject==='g6-english'?/^#\/(?:l|lesson|les|s|b|f|p)\/([^/?#]+)/:/^#\/(?:l|lesson|les|s|b|f|p|u)\/([^/?#]+)/,GUEST_FREE=2,GUEST_XP_CAP=40;
 const regUrl=()=>new URL('admin-api/account/register',root).href+'?return='+encodeURIComponent(location.href);
 function guestStars(){if(!subject)return 0;const [gc,sc]=subject.split('-');let n=0;
  for(let i=0;i<LS.length;i++){const k=LS.key(i);if(!k||/^bustan_p_/.test(k))continue;
