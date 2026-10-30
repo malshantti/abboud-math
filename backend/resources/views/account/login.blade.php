@@ -10,7 +10,7 @@
     @if (! $errors->any() && \App\Support\Devices::revokedGuest(request()))<p class="alert err" role="alert">{{ \App\Support\Devices::MESSAGE }} سجّل الدخول من جديد لتتابع هنا.</p>@endif
     @include('partials.google-button')
     <form method="post" action="{{ route('account.login.store') }}">@csrf
-      <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" name="email" type="email" dir="ltr" value="{{ old('email') }}" required maxlength="255" autocomplete="username" autofocus></div>
+      <div class="field"><label for="email">رقم الجوال أو البريد الإلكتروني</label><input id="email" name="email" type="text" inputmode="email" dir="ltr" value="{{ old('email') }}" required maxlength="255" autocomplete="username" autofocus></div>
       <div class="field"><label for="password">كلمة المرور</label><input id="password" name="password" type="password" dir="ltr" required maxlength="1024" autocomplete="current-password"></div>
       <button class="btn wide" type="submit">دخول</button>
     </form>

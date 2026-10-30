@@ -160,6 +160,14 @@ class HomeController extends Controller
         if (! $ends) {
             return $back()->withErrors(['plan' => 'انتهى عرض الشهر المجاني. يمكنك الاشتراك في صف طفلك من هذه الصفحة.']);
         }
+        $this->activateFree($user, $student, $ends);
+
+        return $back()->with('status', 'فُعّلت جميع مواد '.Ar::grade($student->grade).' لـ'.$student->name.' مجانًا حتى '.Ar::date($ends, false).'. بالتوفيق!');
+    }
+
+    /** Activates every subject of the child's grade until the free-month end (used by the button and by one-step signup). Returns rows created. */
+    public function activateFree($user, Student $student, $ends): int
+    {
         $plans = array_filter(Setting::plans(true), fn ($p) => (int) $p['grade'] === (int) $student->grade);
         $taken = $this->taken($user, $student);
         $batch = 'FREE-'.strtoupper(Str::random(6));
@@ -184,7 +192,8 @@ class HomeController extends Controller
             \App\Support\Funnel::log('paid', ['student_id' => $student->id, 'count' => $n, 'meta' => ['gateway' => 'free_promo', 'price' => 0, 'ref' => $batch]]);
         }
 
-        return $back()->with('status', 'فُعّلت جميع مواد '.Ar::grade($student->grade).' لـ'.$student->name.' مجانًا حتى '.Ar::date($ends, false).'. بالتوفيق!');
+
+        return $n;
     }
 
     public function requestSubscription(Request $request): RedirectResponse
