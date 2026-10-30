@@ -27,4 +27,13 @@ class FreeMonthTest extends TestCase
         Setting::put(['free_month_until' => now()->subDays(2)->format('Y-m-d')]);
         $this->actingAs($u)->get('/account/subscribe?student='.$s->id)->assertOk()->assertDontSee('اشترك مجانًا لمدة شهر')->assertSee('الاشتراك للصف كاملًا');
     }
+
+    public function test_welcome_mail_renders_free_until_date(): void
+    {
+        Setting::put(['free_month_until' => '2026-11-28']);
+        $m = \App\Support\MailCenter::render('welcome', 'سارة', 'https://bustankids.com');
+        $txt = implode(' ', $m['paragraphs']);
+        $this->assertStringNotContainsString('{free_until}', $txt);
+        $this->assertStringContainsString('٢٨/١١', $txt);
+    }
 }
