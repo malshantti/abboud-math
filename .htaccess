@@ -12,6 +12,11 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # نطاق واحد فقط: www → bustankids.com (وإلا تضيع جلسة الدخول بحساب Google بين النطاقين)
 RewriteCond %{HTTP_HOST} ^www\.bustankids\.com$ [NC]
 RewriteRule ^ https://bustankids.com%{REQUEST_URI} [L,R=301]
+# جذر الصف بلا مادة (/g4/) → صفحة اختيار المواد بدل 403
+RewriteRule ^g([1-8])/?$ /?grade=$1#L-curriculum [L,R=302,NE]
+# روابط مختصرة للتسجيل والدخول
+RewriteRule ^(?:register|signup|sign-up)/?$ /admin-api/account/register [L,R=302]
+RewriteRule ^(?:login|signin|sign-in)/?$ /admin-api/account/login [L,R=302]
 </IfModule>
 
 <IfModule mod_mime.c>
