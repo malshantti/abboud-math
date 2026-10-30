@@ -189,6 +189,12 @@ class SyncController extends Controller
                     if ($subj = static::subjectOf($key)) {
                         \App\Support\Funnel::log('lesson_first', ['user_id' => $student->user_id, 'student_id' => $student->id, 'subject' => $subj]);
                     }
+                } elseif (($merged = \App\Support\ProgressMerge::merge($key, $row->value, $value, $updated > $row->client_updated_at)) !== null) {
+                    // Two devices: combine both instead of the newer upload replacing the other device's lessons.
+                    if ($merged !== $row->value) {
+                        $learned = $learned || static::subjectOf($key) !== null;
+                        $row->update(['value' => $merged, 'client_updated_at' => max($updated, (int) $row->client_updated_at)]);
+                    }
                 } elseif ($updated > $row->client_updated_at) {
                     $learned = $learned || (static::subjectOf($key) !== null && $row->value !== $value);
                     $row->update(['value' => $value, 'client_updated_at' => $updated]);

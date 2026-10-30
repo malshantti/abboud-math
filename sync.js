@@ -268,13 +268,20 @@ async function sync(){
  for(const [lid,sid] of Object.entries(st.map)){
   const p=P.find(lid);if(!p){delete st.map[lid];delete st.base[lid];save();continue}
   const data=backup.data[lid]||{},base=st.base[lid]||(st.base[lid]={}),items={},now=Date.now();
-  Object.entries(data).forEach(([k,v])=>{if(k!=='bustan_grade'&&typeof v==='string'&&base[k]!==fnv(v))items[k]={value:v,updated:now}});
-  const res=Object.keys(items).length?await api('students/'+sid+'/progress',{method:'PUT',body:{items}}):(entryPage?await api('students/'+sid+'/progress'):null);
+  // وقت التغيير الحقيقي لكل مفتاح (أول مرة لاحظنا القيمة الجديدة)، لا وقت الرفع: جهاز كان بلا إنترنت لا يغلب تقدّمًا أحدث منه.
+  const chg=(st.chg||(st.chg={}))[lid]||(st.chg[lid]={});
+  Object.entries(data).forEach(([k,v])=>{if(k!=='bustan_grade'&&typeof v==='string'&&base[k]!==fnv(v)){const h=fnv(v);if(!chg[k]||chg[k][0]!==h)chg[k]=[h,now];items[k]={value:v,updated:chg[k][1]}}});
+  // السحب في كل الصفحات (صفحات المواد أيضًا، كل دقيقة على الأكثر) حتى يظهر تقدّم الجهاز الآخر
+  const pullDue=entryPage||!st.pt||!st.pt[lid]||now-st.pt[lid]>60000;
+  const res=Object.keys(items).length?await api('students/'+sid+'/progress',{method:'PUT',body:{items}}):(pullDue?await api('students/'+sid+'/progress'):null);
+  if(res)(st.pt||(st.pt={}))[lid]=now;
   if(!res)continue;
   const pull={};(res.rejected||[]).forEach(k=>{if(items[k])base[k]=fnv(items[k].value)});// رفضه الخادم (صف آخر أو مادة غير مشمولة): لا يُعاد إرساله، ويبقى محليًا
   Object.entries(res.items||{}).forEach(([k,v])=>{if(typeof v.value!=='string'||k==='bustan_grade')return;
-   if(items[k]&&items[k].value===v.value){base[k]=fnv(v.value);return}
-   if(entryPage&&data[k]!==v.value&&!items[k])pull[k]=v.value;});
+   if(items[k]&&items[k].value===v.value){base[k]=fnv(v.value);delete chg[k];return}
+   // الخادم دمج تقدّم الجهازين: نأخذ النسخة المدمجة. أو قيمة أحدث من جهاز آخر لم تتغيّر هنا.
+   if(data[k]!==v.value&&!(res.rejected||[]).includes(k)&&(items[k]||(v.updated||0)>=(chg[k]?chg[k][1]:0)))pull[k]=v.value;});
+  Object.keys(pull).forEach(k=>delete chg[k]);
   if(Object.keys(pull).length){await P.restore({app:'bustan-backup-v1',profiles:[p],data:{[lid]:pull}});Object.entries(pull).forEach(([k,v])=>base[k]=fnv(v))}
   save();
  }
