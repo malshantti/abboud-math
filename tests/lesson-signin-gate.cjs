@@ -26,9 +26,11 @@ const tick=()=>new Promise(r=>setTimeout(r,40));
  const progress=JSON.stringify({stars:4});
  // 1) No account: lesson hidden, then redirected to login with return to the same lesson. Progress untouched.
  let map=new Map([['bustan_g1_math_v1',progress]]);
+ // Guest mode (new): no redirect; lesson opens, progress stays local, device marked as guest.
  let p=page(map,{auth:false});assert.equal(p.hidden,true,'lesson hidden until the account is checked');await tick();
- assert.deepEqual(p.replaced,['https://bustankids.com/admin-api/account/login?return='+encodeURIComponent('https://bustankids.com/g1/math/')]);
+ assert.deepEqual(p.replaced,[]);assert.equal(p.ds.gate,undefined,'guest sees the lesson');assert.equal(map.get('bustan_guest'),'1');
  assert.equal(map.get('bustan_g1_math_v1'),progress);
+ map.delete('bustan_guest');map.delete('bustan_guest_lessons');map.delete('bustan_guest_lessons_xp0');map.delete('bustan_guest_star_prompt');
  // 2) Logged in: lesson opens, account remembered.
  p=page(map,{auth:true});await tick();
  assert.deepEqual(p.replaced,[]);assert.equal(p.ds.gate,undefined,'lesson revealed');
@@ -41,11 +43,11 @@ const tick=()=>new Promise(r=>setTimeout(r,40));
  // 5) Server says logged out: lock again and drop the stored account; progress kept.
  p=page(map,{auth:false});await tick();assert.equal(p.replaced.length,1);assert.equal(map.has('bustan_account'),false);
  assert.equal(map.get('bustan_g1_math_v1'),progress);
- // 6) Never logged in and offline: no redirect loop, a sign-in notice is shown instead.
- p=page(new Map(),{online:false});await tick();assert.deepEqual(p.replaced,[]);assert.equal(p.doc.appended.length,1);
+ // 6) Never logged in and offline: no redirect loop; guest mode opens the lesson.
+ let gm=new Map();p=page(gm,{online:false});await tick();assert.deepEqual(p.replaced,[]);assert.equal(gm.get('bustan_guest'),'1');
  // 7) Entry pages are not gated.
  p=page(new Map(),{pathname:'/login.html',auth:false});assert.equal(p.hidden,false);await tick();assert.deepEqual(p.replaced,[]);
  // 8) Visitor page sends a signed-in account without an open student to the student picker.
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(html,/bustan_account[\s\S]*location\.replace\('login\.html'\)/);
- console.log('PASS: lessons require sign-in, return to the lesson, stay open offline for signed-in devices, entry pages stay public');
+ console.log('PASS: guests open lessons (2 free per subject), signed-out accounts re-login, return to the lesson, stay open offline for signed-in devices, entry pages stay public');
 })().catch(e=>{console.error(e);process.exitCode=1});
