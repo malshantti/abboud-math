@@ -84,11 +84,41 @@ class Student extends Model
     public function toApi(?array $access = null): array
     {
         $out = ['id' => $this->id, 'name' => $this->name, 'grade' => $this->grade, 'grade_name' => $this->grade ? \App\Support\Ar::grade($this->grade) : null, 'avatar' => $this->avatar, 'local_id' => $this->local_id,
-            'pin' => $this->pin_hash ? ['salt' => $this->pin_salt, 'hash' => $this->pin_hash] : null];
+            'pin' => $this->pin_hash ? ['salt' => $this->pin_salt, 'hash' => $this->pin_hash] : null,
+            'streak' => $this->currentStreak(), 'streak_best' => (int) ($this->streak_best ?? 0)];
         if ($access !== null) {
             $out['subjects'] = $this->subjectsFor($access);
         }
 
         return $out;
+    }
+
+    private static function today(): \Illuminate\Support\Carbon
+    {
+        return now()->setTimezone(config('app.display_timezone', 'Asia/Gaza'))->startOfDay();
+    }
+
+    /** Days in a row (Gaza time) with saved learning; 0 once a whole day is missed. */
+    public function currentStreak(): int
+    {
+        if (! $this->streak_last) {
+            return 0;
+        }
+        $last = \Illuminate\Support\Carbon::parse($this->streak_last, config('app.display_timezone', 'Asia/Gaza'))->startOfDay();
+
+        return $last->diffInDays(self::today()) <= 1 ? (int) $this->streak_days : 0;
+    }
+
+    /** Called when the child saves learning progress. Counts each day once. Caller saves. */
+    public function touchStreak(): void
+    {
+        $today = self::today();
+        $last = $this->streak_last ? \Illuminate\Support\Carbon::parse($this->streak_last, config('app.display_timezone', 'Asia/Gaza'))->startOfDay() : null;
+        if ($last && $last->equalTo($today)) {
+            return;
+        }
+        $this->streak_days = $last && (int) $last->diffInDays($today) === 1 ? (int) $this->streak_days + 1 : 1;
+        $this->streak_best = max((int) ($this->streak_best ?? 0), (int) $this->streak_days);
+        $this->streak_last = $today->toDateString();
     }
 }

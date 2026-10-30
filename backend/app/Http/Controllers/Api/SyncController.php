@@ -171,6 +171,7 @@ class SyncController extends Controller
             }
         }
         DB::transaction(function () use ($items, $student) {
+            $learned = false; // a subject progress value changed today → counts for the streak
             foreach ($items as $key => $item) {
                 if (! in_array($key, Ar::SYNC_KEYS, true) || ! is_array($item)) {
                     continue;
@@ -184,14 +185,19 @@ class SyncController extends Controller
                 $row = $student->progress()->where('key', $key)->lockForUpdate()->first();
                 if (! $row) {
                     $student->progress()->create(['key' => $key, 'value' => $value, 'client_updated_at' => $updated]);
+                    $learned = $learned || static::subjectOf($key) !== null;
                     if ($subj = static::subjectOf($key)) {
                         \App\Support\Funnel::log('lesson_first', ['user_id' => $student->user_id, 'student_id' => $student->id, 'subject' => $subj]);
                     }
                 } elseif ($updated > $row->client_updated_at) {
+                    $learned = $learned || (static::subjectOf($key) !== null && $row->value !== $value);
                     $row->update(['value' => $value, 'client_updated_at' => $updated]);
                 }
             }
             $student->last_synced_at = now();
+            if ($learned) {
+                $student->touchStreak();
+            }
             $student->save();
         });
 

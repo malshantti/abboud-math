@@ -21,7 +21,7 @@ async function enter(){
   if(!await window.PROFILES.ready||!window.PROFILES.current()||window.PROFILES.current().id!==s.id){showVisitor('افتح ملفك من صفحة الدخول للمتابعة. تقدّمك المحفوظ باقٍ على هذا الجهاز.');return}
   activeSession=raw;activeOwner=owner;if(!stillOwns()){changed();return}
   await script('catalog.js?v=20261029g457ar');
-  await script('entry.js?v=20261029fm1');
+  await script('entry.js?v=20261030t6');
   if(!stillOwns()){changed();return}
   student.querySelectorAll('img[data-src]').forEach(img=>{img.src=img.dataset.src});
   visitor.hidden=true;student.hidden=false;document.documentElement.dataset.entry='student';

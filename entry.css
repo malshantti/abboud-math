@@ -58,3 +58,4 @@ button,input{font:inherit;color:inherit}a{color:var(--gd)}
 .btn.sm{min-height:40px;padding:6px 12px;font-size:14px;border-radius:14px}
 @media(max-width:560px){.userbar .btn.sm{flex:1}}
 .tile.subject.locked{opacity:.92;cursor:default}.tile.subject.locked .sd svg{vertical-align:-3px}
+.resume .streak{display:block;color:#c2410c;font-weight:700;margin-top:2px}

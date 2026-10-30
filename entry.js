@@ -67,10 +67,14 @@ function renderSubjects(){
 // متابعة سريعة لآخر اختيار
 function renderResume(){
  let last=null;try{last=JSON.parse(get('bustan_last')||'null')}catch(e){}
- const e=last&&active(last.grade,last.subject)&&ent(last.grade,last.subject)==='ok'?active(last.grade,last.subject):null;const r=$('#resume');
+ let e=last&&active(last.grade,last.subject)&&ent(last.grade,last.subject)==='ok'?active(last.grade,last.subject):null;const r=$('#resume');
+ // «درس اليوم»: آخر مادة فتحها الطفل (تفتح على الدرس التالي)، وإلا أول مادة متاحة في صفّه
+ if(!e&&selG){const f=C.subjects.find(s=>active(selG,s.id)&&ent(selG,s.id)==='ok');if(f)e=active(selG,f.id)}
  if(!e){r.classList.add('hidden');return}
  const sub=C.subjects.find(s=>s.id===e.subject)||{};
- r.innerHTML=`<span class="ri">${svg(sub.icon||'sprout',30)}</span><span class="rt"><b>تابع من حيث توقفت</b><small>${esc(sname(e.subject))} · ${esc(gname(e.grade))}</small></span><a class="btn" id="resumeBtn" href="${esc(e.path)}">متابعة ${svg('go',18)}</a>${acct?'':`<button type="button" class="btn ghost" id="changeBtn">${svg('swap',18)} تغيير</button>`}`;
+ const n=acct?+acct.streak||0:0;
+ const fire=acct?`<small class="streak" id="streak">سلسلة أيامك: ${n>0?`${n.toLocaleString('ar-EG')} ${n===1?'يوم':n===2?'يومان':n<=10?'أيام':'يومًا'} متتالية`:'تبدأ اليوم'}</small>`:'';
+ r.innerHTML=`<span class="ri">${svg(sub.icon||'sprout',30)}</span><span class="rt"><b>درس اليوم</b><small>${esc(sname(e.subject))} · ${esc(gname(e.grade))}${last?' · الدرس التالي':' · ابدأ أول درس'}</small>${fire}</span><a class="btn" id="resumeBtn" href="${esc(e.path)}">${last?'تابع':'ابدأ'} ${svg('go',18)}</a>${acct?'':`<button type="button" class="btn ghost" id="changeBtn">${svg('swap',18)} تغيير</button>`}`;
  r.classList.remove('hidden');
  $('#resumeBtn').onclick=ev=>{ev.preventDefault();go(e)};
  if($('#changeBtn'))$('#changeBtn').onclick=()=>{selG=e.grade;renderGrades();renderSubjects();$('#s1h').scrollIntoView({behavior:'smooth'})};
