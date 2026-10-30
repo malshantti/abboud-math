@@ -279,7 +279,7 @@ async function sync(){
   save();
  }
 }
-function guestProgress(P){const out={},re=/^(?:bustan_g\d+_[a-z]+_v\d+|abboud_math_v1)$/;const d=(P.backup().data||{}).pguest;
+function guestProgress(P){const out={},re=/^(?:bustan_g\d+_[a-z]+_v\d+|abboud_math_v1|bustan_report_v1)$/;const d=(P.backup().data||{}).pguest;
  if(d){Object.entries(d).forEach(([k,v])=>{if(re.test(k)&&typeof v==='string'&&v!=='null')out[k]=v})}
  else for(let i=0;i<LS.length;i++){const k=LS.key(i);if(k&&re.test(k)){const v=LS.getItem(k);if(v&&v!=='null')out[k]=v}}return Object.keys(out).length?out:null}
 function run(){if(busy)return busy;busy=sync().catch(e=>{if(window.console)console.warn('bustan sync:',e&&e.message)}).finally(()=>{busy=null});return busy}
