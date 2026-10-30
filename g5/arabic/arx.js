@@ -1,0 +1,22 @@
+/* تدريبات تفاعليّة داخل الدّرس (على نمط تدريبات أقسام الصف السادس) — كلّ مادّتها من بيانات الدّرس المأخوذة من الكتاب */
+(function(){const A=window.APP;if(!A||!A.R||!A.R.u)return;const {esc,R}=A;
+ const find=id=>{let r;(window.UNITS||[]).forEach(u=>u.les.forEach(l=>{if(l.id===id)r=l}));return r};
+ const pgT=p=>p?(p>1000?'ص '+(p-1000)+' ج٢':'ص '+p):'';
+ const sh=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+ const st=document.createElement('style');st.textContent='.arx{margin:16px 0}.arx h3{margin:6px 0 4px}.arx .arx-b{border:1px solid #d9e4c8;border-radius:14px;padding:12px;margin:10px 0;background:#fbfdf7}.arx .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.arx button.ch{border:1px solid #b8cba0;background:#fff;border-radius:999px;padding:6px 12px;font:inherit;cursor:pointer}.arx button.ch.sel{background:#e8f1da;border-color:#5b8a3a}.arx button.ch.ok{background:#5b8a3a;color:#fff;border-color:#5b8a3a}.arx button.ch.no{background:#f6dcd6;border-color:#c0533a}.arx .row{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px dashed #d9e4c8;padding:8px 0}.arx .fb{min-height:1.4em;font-weight:700}.arx details{border-top:1px dashed #d9e4c8;padding:8px 0}.arx summary{cursor:pointer}';document.head.appendChild(st);
+ function html(l){const P=pgT(l.pg),src=P?' <span class="mut small">('+P+')</span>':'';let h='',n=0;
+  const T=(l.terms||[]).filter(t=>t[0]&&t[1]).slice(0,6);
+  if(T.length>=2){n++;h+='<div class="arx-b" data-k="match"><b>١) صِل الكلمة بمعناها</b>'+src+'<p class="mut small">اختر كلمة، ثم اختر معناها.</p><div class="chips" data-side="w">'+sh(T.map((t,i)=>'<button class="ch" data-i="'+i+'">'+esc(t[0])+'</button>')).join('')+'</div><div class="chips" data-side="m">'+sh(T.map((t,i)=>'<button class="ch" data-i="'+i+'">'+esc(t[1])+'</button>')).join('')+'</div><div class="fb"></div></div>'}
+  const F=(l.facts||[]).slice(0,6);
+  if(F.length>=2){n++;h+='<div class="arx-b" data-k="tf"><b>'+(n===1?'١':'٢')+') صواب أم خطأ؟</b>'+src+F.map((f,i)=>'<div class="row" data-a="'+(f[1]?1:0)+'"><span>'+esc(f[0])+'</span><span style="white-space:nowrap"><button class="ch" data-v="1">صواب</button> <button class="ch" data-v="0">خطأ</button></span></div>').join('')+'<div class="fb"></div></div>'}
+  const E=(l.ex||[]).slice(0,4);
+  if(E.length){n++;h+='<div class="arx-b" data-k="ex"><b>'+['١','٢','٣'][n-1]+') أجب ثم تحقّق</b>'+src+'<p class="mut small">فكّر في الجواب أو اكتبه، ثم افتح الإجابة لتقارن.</p>'+E.map(e=>'<details><summary>'+esc(e[0])+'</summary><textarea rows="2" style="width:100%;margin:6px 0;font:inherit" placeholder="اكتب إجابتك هنا"></textarea><p><b>الإجابة:</b> '+esc(e[1])+'</p></details>').join('')+'</div>'}
+  return n?'<section class="arx card"><h3>تدرّب تفاعليًّا</h3><p class="mut small">تدريبات من نصّ الدّرس في كتاب الطّالب'+(P?' ('+P+')':'')+'.</p>'+h+'</section>':''}
+ function bind(){document.querySelectorAll('.arx-b[data-k="match"]').forEach(b=>{let sel=null,done=0;const tot=b.querySelectorAll('[data-side="w"] .ch').length,fb=b.querySelector('.fb');
+   b.querySelectorAll('[data-side="w"] .ch').forEach(x=>x.onclick=()=>{if(x.classList.contains('ok'))return;b.querySelectorAll('[data-side="w"] .ch').forEach(y=>y.classList.remove('sel'));x.classList.add('sel');sel=x});
+   b.querySelectorAll('[data-side="m"] .ch').forEach(x=>x.onclick=()=>{if(!sel||x.classList.contains('ok'))return;if(sel.dataset.i===x.dataset.i){sel.classList.remove('sel');sel.classList.add('ok');x.classList.add('ok');sel=null;done++;fb.textContent=done===tot?'أحسنت! وصلت كلّ الكلمات ✓':'صحيح ✓'}else{x.classList.add('no');fb.textContent='حاول مرّة أخرى';setTimeout(()=>x.classList.remove('no'),600)}})});
+  document.querySelectorAll('.arx-b[data-k="tf"]').forEach(b=>{const fb=b.querySelector('.fb');b.querySelectorAll('.row').forEach(r=>r.querySelectorAll('.ch').forEach(x=>x.onclick=()=>{r.querySelectorAll('.ch').forEach(y=>y.classList.remove('ok','no'));const ok=x.dataset.v===r.dataset.a;x.classList.add(ok?'ok':'no');const c=b.querySelectorAll('.ch.ok').length,t=b.querySelectorAll('.row').length;fb.textContent=ok?(c===t?'أحسنت! أجبت عن الكلّ ✓':'صحيح ✓'):'ليس صحيحًا، راجع النّصّ'}))})}
+ const orig=R.u;R.u=id=>{const h=orig(id),l=find(id);const x=l?html(l):'';if(!x)return h;const k=h.lastIndexOf('<button class="btn big" id="go"');return k<0?h+x:h.slice(0,k)+x+h.slice(k)};
+ const oa=R.after_u;R.after_u=function(){const r=oa?oa.apply(this,arguments):undefined;bind();return r};
+ window.ARX={html};
+})();
