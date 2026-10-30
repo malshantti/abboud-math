@@ -33,19 +33,23 @@ class SingleDeviceTest extends TestCase
         return $this->actingAs($u->fresh())->withCredentials()->withCookie(Devices::COOKIE, $token);
     }
 
-    public function test_second_login_revokes_the_first_device(): void
+    public function test_third_login_revokes_the_oldest_device_two_stay_signed_in(): void
     {
         $u = User::factory()->create(['trial_ends_at' => now()->addDay()]);
         $a = $this->loginAs($u, 'Mozilla/5.0 (Windows NT 10.0) Chrome/130');
         $this->device($u, $a)->getJson('/api/session')->assertJson(['authenticated' => true]);
+        $m = $this->loginAs($u, 'Mozilla/5.0 (Linux; Android 14) Chrome/130');
+        $this->device($u->fresh(), $a)->getJson('/api/session')->assertJson(['authenticated' => true]); // 2 devices allowed
+        $this->device($u->fresh(), $m)->getJson('/api/session')->assertJson(['authenticated' => true]);
         $b = $this->loginAs($u, 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0) Safari/604');
+        $this->device($u->fresh(), $m)->getJson('/api/session')->assertJson(['authenticated' => true]);
         $this->assertNotSame($a, $b);
         $this->assertSame('آيفون — Safari', $u->fresh()->deviceLabel(), (string) $u->fresh()->active_device_ua);
 
         $this->device($u->fresh(), $a)->getJson('/api/session')->assertOk()->assertJson(['authenticated' => false, 'revoked' => true, 'message' => Devices::MESSAGE]);
         $this->device($u->fresh(), $a)->getJson('/api/students/'.$u->students()->create(['name' => 'سندس', 'grade' => 6])->id.'/progress')->assertStatus(401)->assertJson(['revoked' => true]);
         $this->device($u->fresh(), $a)->get('/account')->assertRedirect(route('account.login'))->assertSessionHasErrors(['email' => Devices::MESSAGE]);
-        // Its session gone (database sessions are dropped at the new login): the old device cookie alone tells it why.
+        // Without a session, the old device cookie alone tells it why.
         auth()->forgetGuards();
         $this->flushSession();
         $this->withCredentials()->withCookie(Devices::COOKIE, $a)->getJson('/api/session')->assertJson(['authenticated' => false, 'revoked' => true]);
@@ -82,6 +86,6 @@ class SingleDeviceTest extends TestCase
         $this->device($admin, 'x')->get(route('manage.user', $u))->assertOk()->assertSee('الجهاز الحالي')->assertSee('أندرويد — Chrome')->assertSee('تسجيل الخروج من كل الأجهزة');
         $this->device($admin, 'x')->post(route('manage.user.devices', $u))->assertRedirect();
         $this->device($u->fresh(), $t)->getJson('/api/session')->assertJson(['authenticated' => false, 'revoked' => true]);
-        $this->device($admin, 'x')->get(route('manage.settings', ['tab' => 'accounts']))->assertOk()->assertSee('جهاز واحد لكل حساب');
+        $this->device($admin, 'x')->get(route('manage.settings', ['tab' => 'accounts']))->assertOk()->assertSee('جهازان لكل حساب');
     }
 }

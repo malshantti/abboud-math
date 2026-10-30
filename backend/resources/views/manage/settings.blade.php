@@ -302,7 +302,7 @@
   <div class="stack">
   <div class="card">
     <label class="sw"><span><b>التسجيل مفتوح للحسابات الجديدة</b><small>عند الإغلاق تختفي روابط التسجيل ويُرفض إنشاء الحسابات.</small></span><span class="tg"><input type="checkbox" name="registration_open" value="1" @checked($on('registration_open'))><i></i></span></label>
-    <label class="sw"><span><b>جهاز واحد لكل حساب</b><small>يبقى الحساب مفتوحًا على آخر جهاز سجّل الدخول فقط، وتُغلق الجلسة على الجهاز السابق عند اتصاله التالي. لا يشمل حسابات المشرفين.</small></span><span class="tg"><input type="checkbox" name="single_device" value="1" @checked($on('single_device'))><i></i></span></label>
+    <label class="sw"><span><b>جهازان لكل حساب</b><small>يبقى الحساب مفتوحًا على آخر جهازين سجّلا الدخول، وعند الدخول من جهاز ثالث تُغلق الجلسة على أقدم جهاز. المشرفون مستثنون.</small></span><span class="tg"><input type="checkbox" name="single_device" value="1" @checked($on('single_device'))><i></i></span></label>
   </div>
   <div class="card"><div class="fg">
     <div class="field"><label for="max_students">الحد الأقصى للطلاب في حساب ولي الأمر</label><input id="max_students" name="max_students" inputmode="numeric" data-num value="{{ $n('max_students') }}" class="@error('max_students') is-bad @enderror">{!! $err('max_students') !!}</div>

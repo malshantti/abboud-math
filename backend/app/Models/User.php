@@ -150,7 +150,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token', 'active_device_token',
+        'remember_token', 'active_device_token', 'device_tokens',
     ];
 
     /**
