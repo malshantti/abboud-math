@@ -135,10 +135,11 @@ const P={
   dataOf(id,k){k=k||'abboud_math_v1';try{return JSON.parse(profileValue(id,k))}catch(e){return null}},
   // نسخة احتياطية لكل الطلاب (الأرقام السرية تبقى مُجزّأة)
   backup(){const ps=list(),legacy=!ps.length&&J('abboud_math_v1',null);if(legacy)ps.push({id:'p1',name:legacy.name||'عبّود',avatar:'idle',migrated:true});const data={};ps.forEach(p=>{data[p.id]={};PER.forEach(k=>{const v=legacy?get(k):profileValue(p.id,k);if(v!=null)data[p.id][k]=v})});return{app:'bustan-backup-v1',exported:new Date().toISOString(),profiles:ps,data}},
-  restore(b){return locked(()=>{if(!b||b.app!=='bustan-backup-v1'||!Array.isArray(b.profiles))throw Error('bad');if(!recoverRestore()||!recover()||!stash())throw Error('storage');const a=list(),changes=new Map();
+  restore(b,opt){return locked(()=>{if(!b||b.app!=='bustan-backup-v1'||!Array.isArray(b.profiles))throw Error('bad');if(!recoverRestore()||!recover()||!stash())throw Error('storage');const a=list(),changes=new Map();
     b.profiles.forEach(p=>{if(!p||!p.id||!/^p[\w]+$/.test(p.id))return;const i=a.findIndex(x=>x.id===p.id);const q={id:p.id,name:String(p.name||'').slice(0,24),avatar:AVATARS.includes(p.avatar)?p.avatar:'idle',pin:p.pin||null,salt:p.salt||null,created:p.created||Date.now()};if(!q.pin)q.migrated=true;if(i>=0)a[i]=q;else a.push(q);
       const d=(b.data||{})[p.id]||{};PER.forEach(k=>{if(typeof d[k]==='string'){changes.set(slot(p.id,k),d[k]);if(get(K.owner)===p.id)changes.set(k,d[k])}});changes.set(storeKey(p.id),'1')});
-    changes.set(K.list,JSON.stringify(a));const s=J(K.session,null);if(s)changes.set(K.session,JSON.stringify({...s,t:Date.now(),token:newSalt()}));
+    changes.set(K.list,JSON.stringify(a));const s=J(K.session,null);// سحب المزامنة للطالب نفسه لا يغيّر الجلسة (وإلا ظنّ التبويب أن ملفًا آخر فُتح)
+    if(s&&!(opt&&opt.sync))changes.set(K.session,JSON.stringify({...s,t:Date.now(),token:newSalt()}));
     const before={};changes.forEach((v,k)=>before[k]=LS.getItem(k));
     try{required(K.restore,JSON.stringify(before));changes.forEach((v,k)=>required(k,null));changes.forEach((v,k)=>required(k,v));required(K.restore,null);drafts.clear();lastError='';return a.length}
     catch(e){recoverRestore();storageError();throw Error(lastError)}
