@@ -282,7 +282,7 @@ async function sync(){
    // الخادم دمج تقدّم الجهازين: نأخذ النسخة المدمجة. أو قيمة أحدث من جهاز آخر لم تتغيّر هنا.
    if(data[k]!==v.value&&!(res.rejected||[]).includes(k)&&(items[k]||(v.updated||0)>=(chg[k]?chg[k][1]:0)))pull[k]=v.value;});
   Object.keys(pull).forEach(k=>delete chg[k]);
-  if(Object.keys(pull).length){await P.restore({app:'bustan-backup-v1',profiles:[p],data:{[lid]:pull}});Object.entries(pull).forEach(([k,v])=>base[k]=fnv(v))}
+  if(Object.keys(pull).length){await P.restore({app:'bustan-backup-v1',profiles:[p],data:{[lid]:pull}},{sync:true});Object.entries(pull).forEach(([k,v])=>base[k]=fnv(v))}
   save();
  }
 }
