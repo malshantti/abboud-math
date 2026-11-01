@@ -4,7 +4,7 @@
 'use strict';
 const A=window.APP,G=window.G3,X=window.G3X||{},C=window.CFG,R=A.R,S=A.S;
 const {esc,ic,quiz,shuffle,pick,ar}=A;
-const ORD=['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة'];
+const ORD=['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة','الحادية عشرة','الثانية عشرة','الثالثة عشرة','الرابعة عشرة','الخامسة عشرة'];
 const LES=[];G.units.forEach(u=>u.les.forEach(l=>{l.u=u;LES.push(l)}));
 const find=id=>LES.find(l=>l.id===id);
 const img=n=>'../shared/img/zaytoun-'+n+'.webp';
