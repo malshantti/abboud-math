@@ -55,5 +55,5 @@ const app=loaded['g4/english'].app;app.quiz([{q:'test',o:['one','two'],a:0,img:'
 const escaped=app.R.quiz();assert.ok(escaped.includes('&lt;script&gt;test&lt;/script&gt;'));assert.ok(!escaped.includes('<img onerror='));
 const base=process.env.CACHE_BASE_REF||'origin/main',previous=file=>execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});
 const version=text=>{const match=text.match(/\bconst V='([^']+)'/);assert.ok(match);return match[1];};
-for(const subject of subjects)if(['content.js','core.js','core.css','les.js'].some(file=>read(subject+'/'+file)!==previous(subject+'/'+file)))assert.notEqual(version(read(subject+'/sw.js')),version(previous(subject+'/sw.js')),'Every changed subject has a new cache version without pinning the release name');
+for(const subject of subjects)if(['content.js','core.js','core.css','les.js'].some(file=>read(subject+'/'+file).replace(/\r\n/g,'\n')!==previous(subject+'/'+file).replace(/\r\n/g,'\n')))assert.notEqual(version(read(subject+'/sw.js')),version(previous(subject+'/sw.js')),'Every changed subject has a new cache version without pinning the release name');
 console.log('PASS: '+checked+' independent question contexts, source data, constrained grammar tasks, accessible escaped rendering and offline cache updates');
