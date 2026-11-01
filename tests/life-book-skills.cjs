@@ -1,6 +1,9 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),cp=require('node:child_process');
 const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+// Compare actual precache resources after URL parsing; query versions are not resource names.
+const resourcePath=value=>{const url=new URL(value,'https://bustan.test/course/subject/');assert.equal(url.origin,'https://bustan.test','Local resource stays on the site origin');return url.pathname};
+const cachePaths=source=>{const match=source.match(/\bF\s*=\s*(\[[\s\S]*?\])\s*[,;]/);assert.ok(match,'Service worker declares its precache list');return new Set(JSON.parse(match[1]).map(resourcePath))};
 const normalize=x=>JSON.parse(JSON.stringify(x));
 function course(g,withExtra){const context={window:{}};vm.createContext(context);vm.runInContext(read(`g${g}/life/content.js`),context);if(withExtra)vm.runInContext(read(`g${g}/life/book-activities.js`),context);return context;}
 for(const g of [1,2]){
@@ -24,7 +27,7 @@ for(const g of [1,2]){
  const completed=Object.fromEntries(previous.map(L=>[L.id,{at:'2026-10-21T10:00:00Z',attempts:1}]));
  const kept=ctx.window.G1_PROGRESS.normalize({version:1,completed,last:previous[0].id,rounds:1},lessons.map(l=>l.id));
  assert.equal(Object.keys(kept.completed).length,previous.length);assert(added.every(l=>!kept.completed[l.id]),'Old progress never credits new book objectives');
- const sw=read(`g${g}/life/sw.js`);assert(sw.includes('"book-activities.js"'));
+ const sw=read(`g${g}/life/sw.js`);assert(cachePaths(sw).has(resourcePath('book-activities.js')));
  const html=read(`g${g}/life/index.html`);assert(html.indexOf('book-activities.js')>html.indexOf('content.js'));assert(html.indexOf('book-activities.js')<html.indexOf('early.js'));
  const base=process.env.CACHE_BASE_REF||'origin/main',dep=`g${g}/life/book-activities.js`;
  let old=null;try{old=cp.execFileSync('git',['show',base+':'+dep],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});}catch{}

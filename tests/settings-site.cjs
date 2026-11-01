@@ -5,7 +5,7 @@ const root=path.join(__dirname,'..'),src=fs.readFileSync(path.join(root,'landing
 function el(tag){const e={tag,hidden:false,attrs:{},children:[],textContent:'',className:'',classList:{s:new Set(),add(c){this.s.add(c)},remove(c){this.s.delete(c)},toggle(c,on){on?this.s.add(c):this.s.delete(c)},contains(c){return this.s.has(c)}},
  setAttribute(k,v){this.attrs[k]=String(v)},getAttribute(k){return this.attrs[k]??null},addEventListener(){},append(...c){c.forEach(x=>{if(typeof x!=='string'){x.parentNode=this}this.children.push(x)})},appendChild(c){this.append(c);return c},
  remove(){this.removed=true},contains(){return false},querySelector(s){return(this.q=this.q||{})[s]||(this.q[s]=el())},querySelectorAll(){return[]}};return e}
-function run(site,prices){
+function run(site,prices,entry={}){
  const sel={},all={};
  const reg=(s,e)=>(sel[s]=e,e);
  const badge=reg('[data-site="badge"]',el('p'));badge.q={span:el('span')};
@@ -13,8 +13,9 @@ function run(site,prices){
  const faq=reg('[data-site="faq"]',el('div'));const foot=reg('[data-site="footer"]',el('p'));
  const fb=reg('[data-site="facebook"]',el('a'));fb.hidden=true;const ig=reg('[data-site="instagram"]',el('a'));ig.hidden=true;const em=reg('[data-site="email"]',el('a'));em.hidden=true;
  const pay=reg('[data-site="pay"]',el('p'));pay.hidden=true;
- const body=el('body');
- const doc={readyState:'complete',body,createElement:el,getElementById:id=>id==='visitor-home'?el():id==='L-hero-title'?h1:null,querySelector:s=>sel[s]||(sel[s]=el()),querySelectorAll:s=>all[s]||[]};
+ const body=el('body'),visitor=el('main');visitor.hidden=!!entry.hidden;
+ const documentElement={dataset:{entry:entry.type||'visitor'}};
+ const doc={readyState:'complete',body,documentElement,createElement:el,getElementById:id=>id==='visitor-home'?visitor:id==='L-hero-title'?h1:null,querySelector:s=>sel[s]||(sel[s]=el()),querySelectorAll:s=>all[s]||[]};
  const json=o=>Promise.resolve({ok:true,json:()=>Promise.resolve(o)});
  class A{constructor(){this.volume=1;this.paused=true}play(){this.paused=false;return Promise.resolve()}pause(){}}
  const listeners={};
@@ -42,5 +43,12 @@ const flush=async()=>{for(let i=0;i<10;i++)await new Promise(setImmediate)};
  // Voice switched off: the pill is removed.
  x=run({...site,voice:{enabled:false,volume:35,autoplay:true}},{groups:[]});await flush();
  assert.equal(x.body.children[0].removed,true);assert.equal(x.body.children[0].hidden,true);
- console.log('PASS: settings → landing');
+ // Visitor-only voice must remain hidden on student entry, even if admin autoplay is enabled.
+ for(const entry of [{type:'student'},{type:'visitor',hidden:true}]){
+  x=run({...site,voice:{enabled:true,volume:35,autoplay:true}},{groups:[]},entry);await flush();
+  assert.equal(x.body.children[0].hidden,true,'Voice control stays hidden outside visible visitor entry');
+  assert.equal(x.ctx.__bustanVoice.state().enabled,false,'Student entry never starts the visitor tour');
+  assert.equal(x.listeners.pointerup,undefined,'Student entry does not arm visitor gestures');
+ }
+ console.log('PASS: settings → landing, including visitor/student voice gating');
 })().catch(e=>{console.error(e);process.exit(1)});
