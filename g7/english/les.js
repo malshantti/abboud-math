@@ -15,7 +15,7 @@ function factQs(l,n){return shuffle((l.facts||[]).slice()).slice(0,n).map(f=>({q
 const gens=l=>(l.gen||[]).filter(k=>MG[k]);
 function genQs(l,n){const ks=gens(l),o=[];if(!ks.length)return o;for(let i=0;i<n;i++)o.push(MG[ks[i%ks.length]]());return o}
 const P2=l=>!!l&&+l.pg>=1000,PGL=(l,n)=>{n=+n>=1000?+n-1000:n;return n+(P2(l)?' ج٢':'')},FX=(l,s)=>P2(l)?String(s).replace(/(^|[\s(«])ص\s*([0-9٠-٩]+(?:\s*[–-]\s*[0-9٠-٩]+)?)(?!\s*ج)/g,'$1ص $2 ج٢'):s;
-function bookQs(l){const E=(window.CFG||{}).subject==='english',W=t=>E?'<span class="ltr" dir="ltr">'+esc(t)+'</span>':esc(t);return (l.bmc||[]).map(b=>({img:b[4]||'',html:E?1:0,q:W(FX(l,b[0]))+'<br><small class="mut">من أسئلة كتاب الطالب ص '+PGL(l,b[3])+'</small>',o:E?b[1].map(W):b[1].slice(),a:b[2],keep:b[1].length<3?0:0,ex:'الإجابة: '+b[1][b[2]]+' (كتاب الطالب ص '+PGL(l,b[3])+')'}))}
+function bookQs(l){const E=(window.CFG||{}).subject==='english',W=t=>E?'<span class="ltr" dir="ltr">'+esc(t)+'</span>':esc(t);return (l.bmc||[]).map(b=>({img:b[4]||'',context:b[5]||null,html:E?1:0,q:W(FX(l,b[0]))+'<br><small class="mut">من أسئلة كتاب الطالب ص '+PGL(l,b[3])+'</small>',o:E?b[1].map(W):b[1].slice(),a:b[2],keep:b[1].length<3?0:0,ex:(b[5]&&b[5].feedback)||'الإجابة: '+b[1][b[2]]+' (كتاب الطالب ص '+PGL(l,b[3])+')'}))}
 function lesQs(l){if(l.bo&&(l.bmc||[]).length)return shuffle(bookQs(l)).slice(0,14);const g=gens(l).length,bk=shuffle(bookQs(l)),n=Math.max(10,Math.min(bk.length,14));const rest=shuffle(termQs(l,g?2:4).concat(factQs(l,g?2:4)).concat(genQs(l,g?6:0)));return shuffle(bk.concat(rest).slice(0,n))}
 A.gen={termQs,factQs,numQs:genQs,lesQs,bookQs,LES,NUM:Object.fromEntries(LES.map(l=>[l.id,gens(l)]))};
 R.home=function(){return ''};
