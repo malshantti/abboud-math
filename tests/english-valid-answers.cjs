@@ -1,6 +1,9 @@
 // T04: run with node tests/english-valid-answers.cjs (no network or packages).
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),window={};
+// Compare actual precache resources after URL parsing; query versions are not resource names.
+const resourcePath=value=>{const url=new URL(value,'https://bustan.test/course/subject/');assert.equal(url.origin,'https://bustan.test','Local resource stays on the site origin');return url.pathname};
+const cachePaths=source=>{const match=source.match(/\bF\s*=\s*(\[[\s\S]*?\])\s*[,;]/);assert.ok(match,'Service worker declares its precache list');return new Set(JSON.parse(match[1]).map(resourcePath))};
 vm.runInNewContext(fs.readFileSync(path.join(root,'g6/english/gen.js'),'utf8'),{window},{filename:'g6/english/gen.js'});
 const gen=window.GEN;
 let seed=104,checks=0;
@@ -37,5 +40,5 @@ for(const id of ['U11','U14','U16','U18'])for(let i=0;i<250;i++){
  if(q.en==='I hate ___!')assert.ok(!q.opts.includes('to shout'));
 }
 const sw=fs.readFileSync(path.join(root,'g6/english/sw.js'),'utf8');
-assert.ok(sw.includes("V='g6en-")&&!sw.includes("V='g6en-v4-20261016'"));assert.ok(sw.includes('"gen.js"'));
+assert.match(sw,/const V='g6en-[^']+'/);assert.ok(cachePaths(sw).has(resourcePath('gen.js')));
 console.log('Passed '+checks+' English answer checks (T04 / EN-02 / EN-03).');

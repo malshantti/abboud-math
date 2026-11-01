@@ -1,6 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),cp=require('node:child_process');
 const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+// Compare actual precache resources after URL parsing; query versions are not resource names.
+const resourcePath=value=>{const url=new URL(value,'https://bustan.test/course/subject/');assert.equal(url.origin,'https://bustan.test','Local resource stays on the site origin');return url.pathname};
+const cachePaths=source=>{const match=source.match(/\bF\s*=\s*(\[[\s\S]*?\])\s*[,;]/);assert.ok(match,'Service worker declares its precache list');return new Set(JSON.parse(match[1]).map(resourcePath))};
 const load=source=>{const ctx={window:{}};vm.runInNewContext(source,ctx);return ctx.window.G1_COURSE;};
 const words=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
 let checked=0;
@@ -45,7 +48,7 @@ for(const grade of [1,2]){
  assert(!/<script|onload=|<img/.test(unsafe),'Untrusted descriptors cannot inject markup');
  const index=read(`g${grade}/english/index.html`),sw=read(`g${grade}/english/sw.js`);
  assert(index.indexOf('../shared/language-art.js')>index.indexOf('../shared/art.js')&&index.indexOf('../shared/language-art.js')<index.indexOf('../shared/early.js'),'Scene extension is ready before the application captures it');
- assert(sw.includes('"../shared/language-art.js"'),'Language scenes are available offline');
+ assert(cachePaths(sw).has(resourcePath('../shared/language-art.js')),'Language scenes are available offline');
  const cacheBase=process.env.CACHE_BASE_REF||'origin/main';
  const oldSw=cp.execFileSync('git',['show',`${cacheBase}:g${grade}/english/sw.js`],{cwd:root,encoding:'utf8'});
  const dependencies=[`g${grade}/english/content.js`,`g${grade}/english/index.html`,`g${grade}/shared/language-art.js`,`g${grade}/shared/early.js`,`g${grade}/shared/art.js`,`g${grade}/shared/early.css`,`g${grade}/shared/offline.js`,'assets/early/early-ui.css','profiles.js'];
