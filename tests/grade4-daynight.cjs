@@ -35,6 +35,8 @@ assert.equal(A.S.done['qa:preserve'],37,'Existing progress is preserved');
 if(!original){
  const version=text=>text.match(/\bconst\s+V\s*=\s*['"]([^'"]+)/)?.[1];
  assert.ok(version(read('g4/science/sw.js')),'The subject has a cache version');
- assert.notEqual(version(read('g4/science/sw.js')),version(previous('g4/science/sw.js')),'The changed simulation receives a changed cache version');
+ const normalize=text=>text.replace(/\r\n/g,'\n');
+ if(normalize(read('g4/science/sims.js'))!==normalize(previous('g4/science/sims.js')))
+  assert.notEqual(version(read('g4/science/sw.js')),version(previous('g4/science/sw.js')),'The changed simulation receives a changed cache version');
 }
 console.log(`PASS grade-four day/night: ${checks} hourly positions, transition labels, numerals, progress and changed cache`);

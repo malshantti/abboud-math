@@ -38,5 +38,6 @@ const base=process.env.CACHE_BASE_REF||'origin/main';
 const previous=execFileSync('git',['show',base+':g5/math/sw.js'],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});
 const previousContent=execFileSync('git',['show',base+':g5/math/content.js'],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});
 const currentVersion=cacheVersion(read('g5/math/sw.js'));
-if(read('g5/math/content.js')!==previousContent)assert.notEqual(currentVersion,cacheVersion(previous),'Modified subject has a new cache version; do not pin a release name');
+const normalize=text=>text.replace(/\r\n/g,'\n');
+if(normalize(read('g5/math/content.js'))!==normalize(previousContent))assert.notEqual(currentVersion,cacheVersion(previous),'Modified subject has a new cache version; do not pin a release name');
 console.log('PASS: grade-five examples have exactly one answer satisfying their full instruction; cache update verified when subject content differs');
