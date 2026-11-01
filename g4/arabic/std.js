@@ -25,7 +25,7 @@ const pool=(l,n)=>{let o=[];if(G.NUM&&(G.NUM[l.id]||[]).length&&G.numQs)o=o.conc
 const poolAll=(ls,n)=>{const o=[];let g=0;while(o.length<n&&g++<n*4){const l=pick(ls);const q=pool(l,1)[0];if(q)o.push(Object.assign({},q,{_l:l}))}return o};
 const strip=h=>String(h).replace(/<br>/g,' ').replace(/<small[^>]*>.*?<\/small>/g,'').replace(/<[^>]+>/g,'').trim();
 const back=(h,t)=>'<div class="mut small"><a href="'+h+'">'+t+'</a></div>';
-const NOTE='<p class="source-note small mut">كلّ الأسئلة والأمثلة من كتاب الطالب؛ رقم الصفحة بجانب كلّ سؤال.</p>';
+const NOTE='<p class="source-note small mut">تدريبات تعليمية مبنيّة على كتاب الطالب؛ مرجع الصفحة بجانب كلّ سؤال، والنص الأصلي في صور الكتاب.</p>';
 
 /* ================= التعريفات لكلّ مادّة ================= */
 const ADV={},LABS={};
