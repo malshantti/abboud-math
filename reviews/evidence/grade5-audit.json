@@ -1,0 +1,67 @@
+{
+  "baseCommit": "199bca542e07cdcb760a5c9c8481ae26612ad49f",
+  "date": "2026-11-01",
+  "scope": "g5; source spot-checks, not complete textbook certification",
+  "subjects": {
+    "math": {
+      "units": 9,
+      "lessons": 43,
+      "firstPartLessons": 19,
+      "secondPartLessons": 24,
+      "bmc": 473,
+      "declaredPartValues": [
+        1
+      ]
+    },
+    "arabic": {
+      "units": 20,
+      "lessons": 50,
+      "firstPartLessons": 25,
+      "secondPartLessons": 25,
+      "bmc": 634,
+      "declaredPartValues": [
+        1
+      ]
+    },
+    "english": {
+      "units": 18,
+      "lessons": 25,
+      "firstPartLessons": 16,
+      "secondPartLessons": 9,
+      "bmc": 286,
+      "declaredPartValues": [
+        1
+      ]
+    },
+    "science": {
+      "units": 6,
+      "lessons": 17,
+      "firstPartLessons": 8,
+      "secondPartLessons": 9,
+      "bmc": 190,
+      "declaredPartValues": [
+        1
+      ]
+    }
+  },
+  "viewedPages": [
+    "g5/math/bookimg/p8.webp",
+    "g5/math/bookimg/p39.webp",
+    "g5/math/bookimg/p75.webp",
+    "g5/math/bookimg/p106.webp",
+    "g5/arabic/bookimg/p39.webp",
+    "g5/english/bookimg/p4.webp"
+  ],
+  "degenerateTriangle": {
+    "q": "مثلث أطوال أضلاعه ⁦3، 3، 6⁩ سم. ما نوعه حسب أضلاعه؟",
+    "o": [
+      "متطابق الضلعين",
+      "متطابق الأضلاع",
+      "مختلف الأضلاع",
+      "قائم الزاوية"
+    ],
+    "a": 0,
+    "ex": "المثلث متطابق الضلعين فيه ضلعان متساويان فقط.",
+    "html": 1
+  }
+}

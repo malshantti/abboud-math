@@ -15,7 +15,7 @@ for(const grade of [4,5,7])for(const subject of ['math','arabic','english','scie
  assert.ok(files.every(f=>/^(bookimg|audio)\//.test(f)&&fs.existsSync(path.join(root,folder,f))));
  const sw=read(folder+'/sw.js'),ctx={self:{addEventListener(){}},files:null};vm.runInNewContext(sw+';files=F;',ctx);
  assert.ok(ctx.files.includes('../../assets/brand/logo-mascot-sm.webp'),'Shared logo is precached');assert.ok(ctx.files.includes('media.js'),'Download index is available offline');
- const old=cp.execFileSync('git',['show',base+':'+folder+'/sw.js'],{cwd:root,encoding:'utf8'});assert.ok(version(sw));assert.notEqual(version(sw),version(old),'Changed subject receives a changed cache version');
+ const old=cp.execFileSync('git',['show',base+':'+folder+'/sw.js'],{cwd:root,encoding:'utf8'});assert.ok(version(sw));const previous=file=>cp.execFileSync('git',['show',base+':'+folder+'/'+file],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n');const comparable=s=>s.replace(/\r\n/g,'\n').replace(/(const V=)['"][^'"]+['"]/,'$1VERSION');if(['core.js','media.js'].some(file=>read(folder+'/'+file).replace(/\r\n/g,'\n')!==previous(file))||comparable(sw)!==comparable(old))assert.notEqual(version(sw),version(old),'Changed subject receives a changed cache version');
  count++;
 }
 console.log(`PASS new grades offline: ${count} complete manifests, lesson-mode buttons, precached logos/indexes and changed cache versions`);

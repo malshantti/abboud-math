@@ -95,7 +95,7 @@ T.angle={html:()=>rng('t','قياس الزاوية (بالدرجات)',0,180,60)
 T.tri={html:()=>'<div class="row">'+rng('p','الزاوية الأولى',10,160,60)+rng('q','الزاوية الثانية',10,160,60)+'</div><div id="tv"></div>'+box,
  init(){bind(['p','q'],()=>{let p=v('p'),q=v('q');if(p+q>170){q=170-p;$('#q').value=q}shw('p',p);shw('q',q);const r=180-p-q;const B=[60,220],Cc=[400,220];const tp=Math.tan(p*Math.PI/180),tq=Math.tan(q*Math.PI/180);const bx=340*tq/(tp+tq),hy=bx*tp;const s=Math.min(1,190/hy);
   out('#tv',svg(460,240,'<polygon points="'+B[0]+','+B[1]+' '+Cc[0]+','+Cc[1]+' '+(B[0]+bx)+','+(B[1]-hy*s)+'" fill="#e8f2df" stroke="#2f6f4f" stroke-width="3"/>'));
-  const kind=(p===90||q===90||r===90)?'قائم الزاوية':(p>90||q>90||r>90)?'منفرج الزاوية':'حادّ الزوايا';const sides=(p===q&&q===r)?'متطابق الأضلاع':(p===q||q===r||p===r)?'متطابق الضلعين':'مختلف الأضلاع';
+  const kind=(p===90||q===90||r===90)?'قائم الزاوية':(p>90||q>90||r>90)?'منفرج الزاوية':'حادّ الزوايا';const sides=(p===q&&q===r)?'متساوي الأضلاع':(p===q||q===r||p===r)?'متساوي الساقين':'مختلف الأضلاع';
   out('#o','الزاوية الثالثة = ١٨٠ − ('+p+' + '+q+') = <b>'+r+'°</b><br>مجموع زوايا المثلث = ١٨٠°.<br>المثلث '+kind+'، و'+sides+'.'+(s<1?'<br><small class="mut">الرسم مصغّر رأسيًا ليتّسع.</small>':''));done('tri')})}};
 T.rect={html:()=>'<div class="row">'+rng('w','الطول',1,15,6)+rng('h','العرض',1,12,4)+'</div><div id="rv"></div>'+box,
  init(){bind(['w','h'],()=>{const w=v('w'),h=v('h');shw('w',w);shw('h',h);let g='';for(let i=0;i<h;i++)for(let j=0;j<w;j++)g+='<rect x="'+(10+j*28)+'" y="'+(10+i*28)+'" width="28" height="28" fill="'+(w===h?'#f7dcae':'#cde0f2')+'" stroke="#777"/>';
