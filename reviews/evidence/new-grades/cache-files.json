@@ -1,0 +1,130 @@
+[
+  {
+    "g": 3,
+    "s": "math",
+    "coreAssets": 34,
+    "coreBytes": 730095,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 3,
+    "s": "arabic",
+    "coreAssets": 34,
+    "coreBytes": 736769,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 3,
+    "s": "english",
+    "coreAssets": 34,
+    "coreBytes": 704759,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 3,
+    "s": "science",
+    "coreAssets": 34,
+    "coreBytes": 710081,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 4,
+    "s": "math",
+    "coreAssets": 46,
+    "coreBytes": 1090570,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 4,
+    "s": "arabic",
+    "coreAssets": 45,
+    "coreBytes": 981222,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 4,
+    "s": "english",
+    "coreAssets": 45,
+    "coreBytes": 912091,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 4,
+    "s": "science",
+    "coreAssets": 46,
+    "coreBytes": 1050061,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 5,
+    "s": "math",
+    "coreAssets": 45,
+    "coreBytes": 1057860,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 5,
+    "s": "arabic",
+    "coreAssets": 44,
+    "coreBytes": 1028145,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 5,
+    "s": "english",
+    "coreAssets": 44,
+    "coreBytes": 900775,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 5,
+    "s": "science",
+    "coreAssets": 45,
+    "coreBytes": 1006081,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 7,
+    "s": "math",
+    "coreAssets": 45,
+    "coreBytes": 1058107,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 7,
+    "s": "arabic",
+    "coreAssets": 44,
+    "coreBytes": 1048111,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 7,
+    "s": "english",
+    "coreAssets": 44,
+    "coreBytes": 906729,
+    "missing": [],
+    "mascotCached": false
+  },
+  {
+    "g": 7,
+    "s": "science",
+    "coreAssets": 46,
+    "coreBytes": 1086489,
+    "missing": [],
+    "mascotCached": false
+  }
+]

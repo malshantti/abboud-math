@@ -1,0 +1,275 @@
+[
+  {
+    "g": 3,
+    "s": "math",
+    "units": 5,
+    "lessons": 17,
+    "questions": 0,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": []
+  },
+  {
+    "g": 3,
+    "s": "arabic",
+    "units": 15,
+    "lessons": 45,
+    "questions": 0,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": []
+  },
+  {
+    "g": 3,
+    "s": "english",
+    "units": 9,
+    "lessons": 16,
+    "questions": 0,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": []
+  },
+  {
+    "g": 3,
+    "s": "science",
+    "units": 2,
+    "lessons": 8,
+    "questions": 0,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": []
+  },
+  {
+    "g": 4,
+    "s": "math",
+    "units": 11,
+    "lessons": 52,
+    "questions": 543,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U7",
+      "U8",
+      "U9",
+      "U10",
+      "U11"
+    ]
+  },
+  {
+    "g": 4,
+    "s": "arabic",
+    "units": 10,
+    "lessons": 30,
+    "questions": 291,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U6",
+      "U7",
+      "U8",
+      "U9",
+      "U10"
+    ]
+  },
+  {
+    "g": 4,
+    "s": "english",
+    "units": 18,
+    "lessons": 25,
+    "questions": 273,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U10",
+      "U11",
+      "U12",
+      "U13",
+      "U14",
+      "U15",
+      "U16",
+      "U17",
+      "U18"
+    ]
+  },
+  {
+    "g": 4,
+    "s": "science",
+    "units": 6,
+    "lessons": 29,
+    "questions": 277,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U4",
+      "U5",
+      "U6"
+    ]
+  },
+  {
+    "g": 5,
+    "s": "math",
+    "units": 9,
+    "lessons": 43,
+    "questions": 473,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U6",
+      "U7",
+      "U8",
+      "U9"
+    ]
+  },
+  {
+    "g": 5,
+    "s": "arabic",
+    "units": 20,
+    "lessons": 50,
+    "questions": 634,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U11",
+      "U12",
+      "U13",
+      "U14",
+      "U15",
+      "U16",
+      "U17",
+      "U18",
+      "U19",
+      "U20"
+    ]
+  },
+  {
+    "g": 5,
+    "s": "english",
+    "units": 18,
+    "lessons": 25,
+    "questions": 286,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U10",
+      "U11",
+      "U12",
+      "U13",
+      "U14",
+      "U15",
+      "U16",
+      "U17",
+      "U18"
+    ]
+  },
+  {
+    "g": 5,
+    "s": "science",
+    "units": 6,
+    "lessons": 17,
+    "questions": 190,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U4",
+      "U5",
+      "U6"
+    ]
+  },
+  {
+    "g": 7,
+    "s": "math",
+    "units": 6,
+    "lessons": 31,
+    "questions": 388,
+    "blankOptions": [
+      {
+        "id": "U5L1",
+        "i": 4,
+        "q": "تُكتب عناصر المجموعة بين (ص 1006)",
+        "o": [
+          "حاصرتين { }",
+          "قوسين ( )",
+          "عارضتين",
+          ""
+        ]
+      }
+    ],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U5",
+      "U6"
+    ]
+  },
+  {
+    "g": 7,
+    "s": "arabic",
+    "units": 20,
+    "lessons": 55,
+    "questions": 658,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U11",
+      "U12",
+      "U13",
+      "U14",
+      "U15",
+      "U16",
+      "U17",
+      "U18",
+      "U19",
+      "U20"
+    ]
+  },
+  {
+    "g": 7,
+    "s": "english",
+    "units": 18,
+    "lessons": 25,
+    "questions": 282,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U10",
+      "U11",
+      "U12",
+      "U13",
+      "U14",
+      "U15",
+      "U16",
+      "U17",
+      "U18"
+    ]
+  },
+  {
+    "g": 7,
+    "s": "science",
+    "units": 8,
+    "lessons": 30,
+    "questions": 367,
+    "blankOptions": [],
+    "missingImages": [],
+    "badKeys": [],
+    "p2UnitsWrongPart": [
+      "U5",
+      "U6",
+      "U7",
+      "U8"
+    ]
+  }
+]
