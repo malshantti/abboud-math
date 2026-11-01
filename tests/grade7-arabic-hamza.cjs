@@ -6,7 +6,7 @@ const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p
 const ctx={console};ctx.window=ctx;vm.createContext(ctx);
 vm.runInContext(read('g7/arabic/content.js'),ctx);
 ctx.CFG={subject:'arabic'};
-ctx.APP={esc:String,ic:()=>'',pick:a=>a[0],shuffle:a=>a.slice(),S:{seen:{},done:{}},R:{},quiz(){}};
+ctx.APP={ar:n=>String(n).replace(/[0-9]/g,d=>String.fromCharCode(1632+Number(d))),esc:String,ic:()=>'',pick:a=>a[0],shuffle:a=>a.slice(),S:{seen:{},done:{}},R:{},quiz(){}};
 vm.runInContext(read('g7/arabic/les.js'),ctx);
 const lessons=ctx.UNITS.flatMap(u=>u.les),lesson=id=>lessons.find(l=>l.id===id);
 const markless=t=>String(t).replace(/[\u064B-\u0652\u0640]/g,'');
