@@ -52,7 +52,7 @@ function render(){if(window.APP&&window.APP.stopSim)window.APP.stopSim();const h
  $('#page-label').textContent=({home:'رحلتي',basics:'الأساسيات',play:'المغامرات',lab:'المختبر',ach:'إنجازاتي',report:'تقرير التعلّم'})[t]||'';
  if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',offline());digits(app);if(R['after_'+r])R['after_'+r](...a.map(decodeURIComponent));digits(app);if(r!=='quiz')scrollTo(0,0);app.focus({preventScroll:true})}
 addEventListener('hashchange',render);
-function offline(){if(C.lesmode)return '';return '<div class="card row" style="justify-content:space-between"><div><b>العمل دون اتّصال</b><div class="mut small">يمكن فتح الدروس المحفوظة على الجهاز دون إنترنت. نزّل صفحات الكتاب كلّها'+(C.audio?' والتّسجيلات':'')+'، ثمّ انتظر تأكيد اكتمال التنزيل.</div><div id="offstatus" class="small" role="status" aria-live="polite"></div></div><button class="btn alt" id="offbtn">'+ic('check')+' احفظ الكتاب على الجهاز</button></div>'}
+function offline(){return '<div class="card row" style="justify-content:space-between"><div><b>العمل دون اتّصال</b><div class="mut small">يمكن فتح الدروس المحفوظة على الجهاز دون إنترنت. نزّل صفحات الكتاب كلّها'+(C.audio?' والتّسجيلات':'')+'، ثمّ انتظر تأكيد اكتمال التنزيل.</div><div id="offstatus" class="small" role="status" aria-live="polite"></div></div><button class="btn alt" id="offbtn">'+ic('check')+' احفظ الكتاب على الجهاز</button></div>'}
 let downloading=false;
 document.addEventListener('click',e=>{if(!e.target.closest('#offbtn'))return;if(downloading){toast('تنزيل الكتاب مستمرّ؛ انتظر ظهور النتيجة.');return}const b=$('#offbtn'),status=$('#offstatus'),sw=navigator.serviceWorker;
  if(!sw||!sw.controller){status.textContent='لم يجهز الحفظ بعد. اتّصل بالإنترنت وأعد فتح الصفحة ثمّ حاول مجدّدًا.';return}
@@ -73,12 +73,21 @@ document.addEventListener('click',e=>{if(!e.target.closest('#offbtn'))return;if(
 // الاختبار
 let Q=null;
 function quiz(qs,meta){if(!qs.length){toast('لا تتوافر أسئلة لهذا النشاط في الوحدة المختارة؛ اختر نشاطًا آخر.');return}Q={qs:qs.map(q=>{const o=q.o.map((t,i)=>({t,ok:i===q.a}));return Object.assign({},q,{oo:q.keep?o:shuffle(o)})}),i:0,ok:0,meta,wrong:[]};location.hash='#/quiz';if(curRoute==='quiz')render()}
+function questionContext(q){
+ const c=q.context;if(!c)return q.img?'<figure class="book"><img src="'+esc(q.img)+'" alt="رسم السؤال من كتاب الطالب" loading="lazy"></figure>':'';
+ const direction=c.dir==='ltr'?'ltr':'rtl',source='كتاب الطالب · ص '+ar(c.page%1000)+(c.page>=1000?' · الجزء الثاني':'');
+ let body='';if(c.paragraphs)body='<div class="question-context-body" dir="'+direction+'">'+c.paragraphs.map(text=>'<p>'+esc(text)+'</p>').join('')+'</div>';
+ else if(c.rows)body='<div class="question-context-table" dir="'+direction+'"><table><caption class="sr">'+esc(c.title)+'</caption><thead><tr>'+c.headers.map(text=>'<th scope="col">'+esc(text)+'</th>').join('')+'</tr></thead><tbody>'+c.rows.map(row=>'<tr>'+row.map((text,index)=>index?'<td>'+esc(text)+'</td>':'<th scope="row">'+esc(text)+'</th>').join('')+'</tr>').join('')+'</tbody></table></div>';
+ else body='<button type="button" id="qcontext-preview" class="question-context-preview" aria-label="تكبير '+esc(c.title)+'"><img src="'+esc(q.img)+'" alt="'+esc(c.title)+'"><span>'+ic('eye')+' كبّر الصورة لقراءة التفاصيل</span></button>';
+ return '<section class="question-context" aria-labelledby="qcontext-title"><h3 id="qcontext-title">'+esc(c.title)+'</h3>'+body+'<div class="question-context-source"><span>'+esc(source)+'</span><button type="button" class="btn alt" id="qcontext-open">'+ic('book')+' صفحة الكتاب</button></div><dialog id="qcontext" class="question-context-dialog" aria-labelledby="qcontext-dialog-title"><div class="question-context-toolbar"><div><b id="qcontext-dialog-title">'+esc(c.title)+'</b><small>'+esc(source)+' · حرّك الصورة لقراءة التفاصيل.</small></div><button type="button" class="btn" id="qcontext-close">العودة إلى السؤال</button></div><div class="question-context-sheet" tabindex="0" role="region" aria-label="صفحة الكتاب المكبّرة"><img src="'+esc(q.img)+'" alt="'+esc(c.title)+' — '+esc(source)+'"></div></dialog></section>';
+}
 R.quiz=function(){if(!Q)return location.hash='#/home',null;const q=Q.qs[Q.i];const pc=Math.round(Q.i/Q.qs.length*100);
  return '<div class="qz"><div class="qbar"><button class="x" id="qx" aria-label="إنهاء">'+ic('x')+'</button><div class="track"><div class="fill" style="width:'+pc+'%"></div></div><span class="pill" style="background:var(--bad-bg);color:var(--bad)">'+ic('heart')+' <b>'+S.hearts+'</b></span></div>'+
- (q.pre?'<div class="mut small">'+q.pre+'</div>':'')+'<div class="qq">'+q.q+(q.say?' '+say(q.say):'')+'</div>'+(q.img?'<figure class="book"><img src="'+q.img+'" alt="" loading="lazy"></figure>':'')+
+ (q.pre?'<div class="mut small">'+q.pre+'</div>':'')+'<div class="qq">'+q.q+(q.say?' '+say(q.say):'')+'</div>'+questionContext(q)+
  '<div class="opts">'+q.oo.map((o,i)=>'<button class="opt'+(q.arOpt?' ar':'')+'" data-i="'+i+'">'+(q.html?o.t:esc(o.t))+'</button>').join('')+'</div>'+
  '<div class="chk"><button class="btn big" id="qchk" disabled>تحقّق</button></div></div><div class="fb" id="fb"><div class="in"><div><b id="fbt"></b><div id="fbx" class="small"></div></div><button class="btn" id="qnext">متابعة</button></div></div>'};
-R.after_quiz=function(){if(!Q)return;let sel=-1;const q=Q.qs[Q.i];
+R.after_quiz=function(){if(!Q)return;let sel=-1;const q=Q.qs[Q.i];window.scrollTo(0,0);
+ const context=$('#qcontext');if(context){const open=()=>context.showModal();$('#qcontext-open').onclick=open;const preview=$('#qcontext-preview');if(preview)preview.onclick=open;$('#qcontext-close').onclick=()=>context.close()}
  $$('.opt').forEach(b=>b.onclick=()=>{if($('#fb').classList.contains('show'))return;$$('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel=+b.dataset.i;$('#qchk').disabled=false});
  $('#qx').onclick=()=>{Q=null;history.back()};
  $('#qchk').onclick=()=>{if(sel<0)return;const ok=q.oo[sel].ok;S.qs++;if(ok){Q.ok++;S.ok++}else{S.hearts=Math.max(0,S.hearts-1);Q.wrong.push(q)}save();hdr();

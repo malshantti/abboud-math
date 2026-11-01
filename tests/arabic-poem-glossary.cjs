@@ -1,6 +1,9 @@
 // T09: node tests/arabic-poem-glossary.cjs — local textbook page p2-117.webp.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),dir=path.join(root,'g8/arabic');
+// Compare actual precache resources after URL parsing; query versions are not resource names.
+const resourcePath=value=>{const url=new URL(value,'https://bustan.test/course/subject/');assert.equal(url.origin,'https://bustan.test','Local resource stays on the site origin');return url.pathname};
+const cachePaths=source=>{const match=source.match(/\bF\s*=\s*(\[[\s\S]*?\])\s*[,;]/);assert.ok(match,'Service worker declares its precache list');return new Set(JSON.parse(match[1]).map(resourcePath))};
 const A={S:{seen:{},done:{}},R:{},save(){},esc:s=>String(s??''),ic:()=>'',pick:a=>a[0],shuffle:a=>a.slice(),rnd:()=>0,quiz(){},say:()=>'',fig:()=>''};
 const window={APP:A,CFG:{grade:8,ap:'g8ar',title:'اللغة العربية'}};
 const context={window,document:{},console};vm.createContext(context);
@@ -29,5 +32,5 @@ for(const [word,meaning] of poem.voc){
  assert.equal(q.o[q.a],meaning);assert.equal(q.o.length,4);assert.equal(new Set(q.o).size,4);
  assert.ok(q.q.includes(word));
 }
-const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');assert.ok(/const V='g8ar-[^']+'/.test(sw)&&!sw.includes("V='g8ar-20261016-design2-brand1-fix1'"));assert.ok(sw.includes('"content.js"'));
+const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');assert.ok(/const V='g8ar-[^']+'/.test(sw));assert.ok(cachePaths(sw).has(resourcePath('content.js')));
 console.log('Passed: eleven textbook glossary entries, lesson display and generated questions (T09).');

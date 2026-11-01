@@ -30,7 +30,7 @@ function rootFixture(){const scope='https://example.test/abboud-math/',clock=tim
  function request(file,mode='cors'){let response;const waits=[],url=new URL(file,scope).href;handlers.fetch({request:{url,mode,method:'GET'},respondWith:p=>response=p,waitUntil:p=>waits.push(p)});return{response,waits,url}}
  return{saved,puts,reads,clock,request,resolve:r=>fetchResolve(r),reject:()=>fetchReject(Error('offline')),scope};
 }
-async function run(){for(const grade of [6,8])for(const subject of ['arabic','science']){const folder='g'+grade+'/'+subject,x=workerFixture(folder),n=x.files.length;
+async function run(){for(const grade of [4,5,6,7,8])for(const subject of ([6,8].includes(grade)?['arabic','science']:['math','arabic','english','science'])){const folder='g'+grade+'/'+subject,x=workerFixture(folder),n=x.files.length;
  x.absolute.forEach(u=>x.fail.add(u));let ms=await x.send(),last=ms.at(-1);assert.equal(last.saved,0);assert.equal(last.remaining,n);assert.equal(last.error,true);assert.equal(last.done,true);checks+=4;
  x.fail.clear();x.fail.add(x.absolute[0]);x.fail.add(x.absolute[1]);ms=await x.send();last=ms.at(-1);assert.equal(last.saved,n-2);assert.equal(last.remaining,2);assert.equal(x.saved.size,n-2);checks+=3;
  x.fail.clear();const before=x.adds.length;ms=await x.send();assert.equal(x.adds.length-before,2);assert.equal(ms.at(-1).saved,n);assert.equal(ms.at(-1).error,false);assert.ok(ms.every(m=>m.remaining===n-m.saved));checks+=4;
