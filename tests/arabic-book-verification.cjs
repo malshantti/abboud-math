@@ -1,6 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),cp=require('node:child_process');
 const root=path.resolve(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8'),plain=v=>JSON.parse(JSON.stringify(v));
+// Compare actual precache resources after URL parsing; query versions are not resource names.
+const resourcePath=value=>{const url=new URL(value,'https://bustan.test/course/subject/');assert.equal(url.origin,'https://bustan.test','Local resource stays on the site origin');return url.pathname};
+const cachePaths=source=>{const match=source.match(/\bF\s*=\s*(\[[\s\S]*?\])\s*[,;]/);assert.ok(match,'Service worker declares its precache list');return new Set(JSON.parse(match[1]).map(resourcePath))};
 const load=(g,old=false)=>{const x={window:{}};vm.runInNewContext(old?cp.execFileSync('git',['show','origin/main:g'+g+'/arabic/content.js'],{cwd:root,encoding:'utf8'}):read(`g${g}/arabic/content.js`),x);if(g===2&&!old)vm.runInNewContext(read('g2/arabic/book-skills.js'),x);return x.window.G1_COURSE;};
 for(const g of [1,2]){const c=load(g),before=load(g,true),lessons=c.units.flatMap(u=>u.lessons),ids=lessons.map(l=>l.id);assert.equal(ids.length,new Set(ids).size);assert.equal(c.key,before.key);
  const retired=new Set(c.retiredLessonIds||[]);for(const l of before.units.flatMap(u=>u.lessons)){if(retired.has(l.id))continue;const current=lessons.find(n=>n.id===l.id);assert.ok(current,l.id);assert.deepEqual(plain(current.tasks),plain(l.tasks),'Previously completed objective is unchanged: '+l.id);}
@@ -15,5 +18,5 @@ const second=load(2);assert.equal(second.units.length,30);
 for(const u of second.units){const l=u.lessons.find(l=>l.id.endsWith('-book-skills'));assert.ok(l&&l.references.length===2);assert.equal(l.references[0].page,u.page+3);assert.ok(l.guidedPractice.every(p=>p.text.length>25));assert.ok(l.steps.every(s=>s.text.length>10));assert.equal(l.tasks.length,2);assert.match(l.referenceLabel,/صياغة مساندة/);}
 for(const [id,term] of [['ar2-p1-5','الْحِجَارَة'],['ar2-p1-7','يَرْكَبُه'],['ar2-p2-2','الْحِيلَة'],['ar2-p2-9','الْأَمَانَة'],['ar2-p2-15','إِعْدَادِ الطَّعَام']]){const l=second.units.find(u=>u.id===id).lessons[0];assert.ok(l.steps[0].text.replaceAll('حِجَارَةً','الْحِجَارَة').includes(term),'Central verified event is present offline: '+id);}
 const index=read('g2/arabic/index.html');assert.ok(index.indexOf('content.js')<index.indexOf('book-skills.js')&&index.indexOf('book-skills.js')<index.indexOf('../shared/early.js'));
-assert.match(read('g2/arabic/sw.js'),/"book-skills.js"/,'New objectives are cached for offline use');assert.equal(second.books.find(b=>b.id==='p2').pdfOffset,4);
+assert.ok(cachePaths(read('g2/arabic/sw.js')).has(resourcePath('book-skills.js')),'New objectives are cached for offline use');assert.equal(second.books.find(b=>b.id==='p2').pdfOffset,4);
 console.log('Arabic book verification: referenced sequence, 30 book skill activities, old objectives and progress preserved, offline module wiring passed.');

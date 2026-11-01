@@ -1,0 +1,671 @@
+{
+  "date": "2026-11-01",
+  "baseCommit": "199bca542e07cdcb760a5c9c8481ae26612ad49f",
+  "method": "Read-only Node VM evaluation; DOM stub for named lab initializers. No real student storage or browser.",
+  "subjects": [
+    {
+      "subject": "math",
+      "units": 5,
+      "sections": 17,
+      "steps": 37,
+      "staticPracticeQuestions": 57,
+      "invalidQuestionIndices": [],
+      "coverage": [
+        {
+          "id": "m1",
+          "title": "الأعداد ضمن ٩٩٩٩",
+          "declaredPage": 4
+        },
+        {
+          "id": "m2",
+          "title": "القيمة المنزليّة",
+          "declaredPage": 10
+        },
+        {
+          "id": "m3",
+          "title": "المقارنة بين الأعداد ضمن ٩٩٩٩",
+          "declaredPage": 13
+        },
+        {
+          "id": "m4",
+          "title": "التقريب",
+          "declaredPage": 17
+        },
+        {
+          "id": "m5",
+          "title": "جمع عددين دون حمل",
+          "declaredPage": 26
+        },
+        {
+          "id": "m6",
+          "title": "جمع عددين مع الحمل",
+          "declaredPage": 31
+        },
+        {
+          "id": "m7",
+          "title": "طرح عددين دون استلاف",
+          "declaredPage": 36
+        },
+        {
+          "id": "m8",
+          "title": "طرح عددين مع الاستلاف",
+          "declaredPage": 40
+        },
+        {
+          "id": "m9",
+          "title": "الأعداد ضمن ٩٩٩٩٩",
+          "declaredPage": 49
+        },
+        {
+          "id": "m10",
+          "title": "القيمة المنزليّة والصورة الموسّعة",
+          "declaredPage": 55
+        },
+        {
+          "id": "m11",
+          "title": "مقارنة الأعداد",
+          "declaredPage": 57
+        },
+        {
+          "id": "m12",
+          "title": "الشعاع والمستقيم",
+          "declaredPage": 67
+        },
+        {
+          "id": "m13",
+          "title": "الزاوية وأنواعها",
+          "declaredPage": 72
+        },
+        {
+          "id": "m14",
+          "title": "المستطيل والمربّع",
+          "declaredPage": 79
+        },
+        {
+          "id": "m15",
+          "title": "المثلّث",
+          "declaredPage": 86
+        },
+        {
+          "id": "m16",
+          "title": "البيانات وتمثيلها بالصور",
+          "declaredPage": 97
+        },
+        {
+          "id": "m17",
+          "title": "تمثيل البيانات بالجداول",
+          "declaredPage": 103
+        }
+      ],
+      "labs": [
+        "blocks",
+        "compare",
+        "round",
+        "column",
+        "lines",
+        "angle"
+      ],
+      "missingSay": [
+        {
+          "lesson": "m12",
+          "key": "m12s1"
+        }
+      ],
+      "mappedAudioMissing": [],
+      "audio": {
+        "count": 36,
+        "bytes": 3863376
+      }
+    },
+    {
+      "subject": "arabic",
+      "units": 15,
+      "sections": 45,
+      "steps": 75,
+      "staticPracticeQuestions": 270,
+      "invalidQuestionIndices": [],
+      "coverage": [
+        {
+          "id": "a1r",
+          "title": "القصّة والفهم",
+          "declaredPage": 5
+        },
+        {
+          "id": "a1v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 10
+        },
+        {
+          "id": "a1s",
+          "title": "الإملاء: أنواع التنوين",
+          "declaredPage": 12
+        },
+        {
+          "id": "a2r",
+          "title": "القصّة والفهم",
+          "declaredPage": 15
+        },
+        {
+          "id": "a2v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 20
+        },
+        {
+          "id": "a2s",
+          "title": "الإملاء: الهاء والتاء المربوطة والتاء المبسوطة",
+          "declaredPage": 22
+        },
+        {
+          "id": "a3r",
+          "title": "القصّة والفهم",
+          "declaredPage": 25
+        },
+        {
+          "id": "a3v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 30
+        },
+        {
+          "id": "a3s",
+          "title": "الإملاء: الهاء والتاء المربوطة والتاء المبسوطة",
+          "declaredPage": 32
+        },
+        {
+          "id": "a4r",
+          "title": "القصّة والفهم",
+          "declaredPage": 35
+        },
+        {
+          "id": "a4v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 40
+        },
+        {
+          "id": "a4s",
+          "title": "الإملاء: اللام الشمسيّة واللام القمريّة",
+          "declaredPage": 42
+        },
+        {
+          "id": "a5r",
+          "title": "القصّة والفهم",
+          "declaredPage": 45
+        },
+        {
+          "id": "a5v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 50
+        },
+        {
+          "id": "a5s",
+          "title": "الإملاء: علامات الترقيم",
+          "declaredPage": 52
+        },
+        {
+          "id": "a6r",
+          "title": "القصّة والفهم",
+          "declaredPage": 55
+        },
+        {
+          "id": "a6v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 60
+        },
+        {
+          "id": "a6s",
+          "title": "الإملاء: إضافة «ال» إلى الكلمة",
+          "declaredPage": 62
+        },
+        {
+          "id": "a7r",
+          "title": "القصّة والفهم",
+          "declaredPage": 65
+        },
+        {
+          "id": "a7v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 70
+        },
+        {
+          "id": "a7s",
+          "title": "الإملاء: اللام الشمسيّة واللام القمريّة",
+          "declaredPage": 72
+        },
+        {
+          "id": "a8r",
+          "title": "القصّة والفهم",
+          "declaredPage": 75
+        },
+        {
+          "id": "a8v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 80
+        },
+        {
+          "id": "a8s",
+          "title": "الإملاء: الهاء والتاء المربوطة والتاء المبسوطة",
+          "declaredPage": 82
+        },
+        {
+          "id": "a9r",
+          "title": "القصّة والفهم",
+          "declaredPage": 85
+        },
+        {
+          "id": "a9v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 90
+        },
+        {
+          "id": "a9s",
+          "title": "الإملاء: أنواع التنوين",
+          "declaredPage": 92
+        },
+        {
+          "id": "a10r",
+          "title": "القصّة والفهم",
+          "declaredPage": 95
+        },
+        {
+          "id": "a10v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 100
+        },
+        {
+          "id": "a10s",
+          "title": "الإملاء: التاء المربوطة والتاء المبسوطة",
+          "declaredPage": 102
+        },
+        {
+          "id": "a11r",
+          "title": "القصّة والفهم",
+          "declaredPage": 105
+        },
+        {
+          "id": "a11v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 110
+        },
+        {
+          "id": "a11s",
+          "title": "الإملاء: أنواع التنوين",
+          "declaredPage": 112
+        },
+        {
+          "id": "a12r",
+          "title": "القصّة والفهم",
+          "declaredPage": 115
+        },
+        {
+          "id": "a12v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 120
+        },
+        {
+          "id": "a12s",
+          "title": "الإملاء: الشدّة",
+          "declaredPage": 122
+        },
+        {
+          "id": "a13r",
+          "title": "القصّة والفهم",
+          "declaredPage": 125
+        },
+        {
+          "id": "a13v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 130
+        },
+        {
+          "id": "a13s",
+          "title": "الإملاء: الشدّة",
+          "declaredPage": 132
+        },
+        {
+          "id": "a14r",
+          "title": "القصّة والفهم",
+          "declaredPage": 135
+        },
+        {
+          "id": "a14v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 140
+        },
+        {
+          "id": "a14s",
+          "title": "الإملاء: إضافة «ال» إلى الكلمة",
+          "declaredPage": 142
+        },
+        {
+          "id": "a15r",
+          "title": "القصّة والفهم",
+          "declaredPage": 145
+        },
+        {
+          "id": "a15v",
+          "title": "المفردات والتدريبات",
+          "declaredPage": 150
+        },
+        {
+          "id": "a15s",
+          "title": "الإملاء: علامات الترقيم",
+          "declaredPage": 152
+        }
+      ],
+      "labs": [
+        "lam",
+        "tanween",
+        "number",
+        "letters"
+      ],
+      "missingSay": [
+        {
+          "lesson": "a7r",
+          "key": "a7-story"
+        }
+      ],
+      "mappedAudioMissing": [],
+      "audio": {
+        "count": 59,
+        "bytes": 5862052
+      }
+    },
+    {
+      "subject": "english",
+      "units": 9,
+      "sections": 16,
+      "steps": 16,
+      "staticPracticeQuestions": 146,
+      "invalidQuestionIndices": [],
+      "coverage": [
+        {
+          "id": "e1w",
+          "title": "Words — كلمات الوحدة",
+          "declaredPage": 4
+        },
+        {
+          "id": "e1l",
+          "title": "Language — His / Her — He's / She's",
+          "declaredPage": 6
+        },
+        {
+          "id": "e2w",
+          "title": "Words — كلمات الوحدة",
+          "declaredPage": 10
+        },
+        {
+          "id": "e2l",
+          "title": "Language — What's his/her job? He's/She's a …",
+          "declaredPage": 12
+        },
+        {
+          "id": "e3w",
+          "title": "Words — كلمات الوحدة",
+          "declaredPage": 16
+        },
+        {
+          "id": "e3l",
+          "title": "Language — I'd like … please. / I don't like …",
+          "declaredPage": 18
+        },
+        {
+          "id": "e4w",
+          "title": "Words — كلمات الوحدة",
+          "declaredPage": 22
+        },
+        {
+          "id": "e4l",
+          "title": "Language — It's … / It has …",
+          "declaredPage": 24
+        },
+        {
+          "id": "e5",
+          "title": "Revision — مراجعة الوحدات 1–4",
+          "declaredPage": 28
+        },
+        {
+          "id": "e6w",
+          "title": "Words — كلمات الوحدة",
+          "declaredPage": 34
+        },
+        {
+          "id": "e6l",
+          "title": "Language — What's the matter? My … hurts.",
+          "declaredPage": 36
+        },
+        {
+          "id": "e7w",
+          "title": "Words — كلمات الوحدة",
+          "declaredPage": 40
+        },
+        {
+          "id": "e7l",
+          "title": "Language — What do you do in the …? / When do you …?",
+          "declaredPage": 42
+        },
+        {
+          "id": "e8w",
+          "title": "Words — كلمات الوحدة",
+          "declaredPage": 46
+        },
+        {
+          "id": "e8l",
+          "title": "Language — What's the weather? It's … / at the …",
+          "declaredPage": 48
+        },
+        {
+          "id": "e9",
+          "title": "Revision — مراجعة الوحدات 1–8",
+          "declaredPage": 52
+        }
+      ],
+      "labs": [
+        "food",
+        "zoo",
+        "body",
+        "weather"
+      ],
+      "missingSay": [
+        {
+          "lesson": "e6w",
+          "key": "en6-words"
+        }
+      ],
+      "mappedAudioMissing": [],
+      "audio": {
+        "count": 13,
+        "bytes": 2258684
+      }
+    },
+    {
+      "subject": "science",
+      "units": 2,
+      "sections": 8,
+      "steps": 17,
+      "staticPracticeQuestions": 44,
+      "invalidQuestionIndices": [],
+      "coverage": [
+        {
+          "id": "s1",
+          "title": "أجزاء النبات ووظائفها",
+          "declaredPage": 4
+        },
+        {
+          "id": "s2",
+          "title": "البذور",
+          "declaredPage": 22
+        },
+        {
+          "id": "s3",
+          "title": "الإنبات وشروطه",
+          "declaredPage": 34
+        },
+        {
+          "id": "s4",
+          "title": "العناية بالنبات",
+          "declaredPage": 45
+        },
+        {
+          "id": "s5",
+          "title": "طبقات الأرض",
+          "declaredPage": 56
+        },
+        {
+          "id": "s6",
+          "title": "مكوّنات القشرة الأرضيّة",
+          "declaredPage": 59
+        },
+        {
+          "id": "s7",
+          "title": "الثروات الطبيعيّة",
+          "declaredPage": 62
+        },
+        {
+          "id": "s8",
+          "title": "دورة الماء في الطبيعة",
+          "declaredPage": 73
+        }
+      ],
+      "labs": [
+        "parts",
+        "germ",
+        "layers",
+        "cycle"
+      ],
+      "missingSay": [],
+      "mappedAudioMissing": [],
+      "audio": {
+        "count": 17,
+        "bytes": 1251196
+      }
+    }
+  ],
+  "reproductions": [
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 86,
+      "label": "زاوية حادّة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L50.5 -9.6\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 87,
+      "label": "زاوية قائمة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L47.9 -9.8\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><path d=\"M40 115h25v25\" fill=\"none\" stroke=\"#c98a2e\" stroke-width=\"3\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 89,
+      "label": "زاوية قائمة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L42.6 -10.0\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><path d=\"M40 115h25v25\" fill=\"none\" stroke=\"#c98a2e\" stroke-width=\"3\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 90,
+      "label": "زاوية قائمة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L40.0 -10.0\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><path d=\"M40 115h25v25\" fill=\"none\" stroke=\"#c98a2e\" stroke-width=\"3\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 91,
+      "label": "زاوية قائمة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L37.4 -10.0\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><path d=\"M40 115h25v25\" fill=\"none\" stroke=\"#c98a2e\" stroke-width=\"3\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 93,
+      "label": "زاوية قائمة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L32.1 -9.8\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><path d=\"M40 115h25v25\" fill=\"none\" stroke=\"#c98a2e\" stroke-width=\"3\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 94,
+      "label": "زاوية منفرجة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L29.5 -9.6\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-01/G3-10",
+      "inputDegrees": 170,
+      "label": "زاوية منفرجة",
+      "svg": "<path d=\"M40 140H200\" stroke=\"#647b43\" stroke-width=\"5\"/><path d=\"M40 140L-107.7 114.0\" stroke=\"#2f7fb5\" stroke-width=\"5\"/><circle cx=\"40\" cy=\"140\" r=\"7\" fill=\"#c98a2e\"/>"
+    },
+    {
+      "finding": "G3-03",
+      "kind": "compareLab",
+      "rndSequence": [
+        0,
+        1,
+        0,
+        3
+      ],
+      "display": [
+        "1000",
+        "0"
+      ]
+    },
+    {
+      "finding": "G3-03",
+      "kind": "compareLab",
+      "rndSequence": [
+        98999,
+        1,
+        1,
+        3
+      ],
+      "display": [
+        "99999",
+        "100999"
+      ]
+    },
+    {
+      "finding": "G3-03",
+      "kind": "cmp4",
+      "rndSequence": [
+        1,
+        8999,
+        1,
+        1,
+        3
+      ],
+      "question": {
+        "q": "أيّ إشارة نضع؟ 9999 ◯ 10999",
+        "o": [
+          ">",
+          "<",
+          "="
+        ],
+        "a": 1,
+        "keep": 1
+      }
+    },
+    {
+      "finding": "G3-03",
+      "kind": "subBorrow",
+      "rndSequence": [
+        0,
+        999
+      ],
+      "question": {
+        "q": "2000 − 1999 = ؟",
+        "o": [
+          "1",
+          "1999",
+          "11",
+          "-9"
+        ],
+        "a": 0,
+        "ex": "نستلف من المنزلة التالية عندما يكون الرقم الأعلى أصغر."
+      }
+    },
+    {
+      "finding": "G3-05",
+      "undefinedHomeLabels": 5,
+      "a11Breadcrumb": "<div class=\"mut small\"><a href=\"#/home\">رحلتي</a> / الوحدة undefined: الدرس الحادي عشر: عروس البحر</div><h2>القصّة والفهم</h2><nav class=\"tabsec\"><a href=\"#/u/a"
+    }
+  ],
+  "limits": [
+    "No complete textbook matching for math, English, science",
+    "No visual browser or mobile QA in this child audit",
+    "No audio listening",
+    "Arabic source compared through web extracted text, not rendered images"
+  ]
+}

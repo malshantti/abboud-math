@@ -100,18 +100,32 @@ for(const raw of [null,[],{},'{invalid',JSON.stringify({version:2})])equal(progr
 for(const attempts of [-1,0,1.5,10001])equal(Object.keys(progress.normalize({version:1,completed:{'allowed-one':{at:'2026-10-18T10:00:00Z',attempts}}},ids).completed),[],'Invalid attempt count excluded');
 // Exercise each SW's real allowlist and fetch policy; no network is needed here.
 async function verifyWorker(subject){
-  const handlers={},deleted=[],added=[];let served=false;
-  const cache={addAll:async files=>{for(const request of files)ok(request.cache==='reload','Cache install bypasses stale HTTP responses');added.push(...files.map(request=>request.url));},match:async()=>new Response('offline-cached'),put:async()=>{}};
+  const handlers={},deleted=[],added=[],stored=new Map();let served=false,online=true,installing=true,status=200,networkCalls=0,skipCalls=0;
   const scope=`https://example.test/abboud-math/g1/${subject}/`;
-  const context={URL,Request,Response,fetch:async()=>{throw Error('Network unavailable');},self:{registration:{scope},addEventListener:(name,fn)=>handlers[name]=fn,skipWaiting:async()=>{},clients:{claim:async()=>{}}},caches:{open:async()=>cache,keys:async()=>[`${subject}-foreign`],delete:async name=>{deleted.push(name);}},importScripts:()=>{}};
+  const keyOf=request=>typeof request==='string'?request:request.url;
+  const cache={match:async request=>{const value=stored.get(keyOf(request));return value&&value.clone();},put:async(request,response)=>stored.set(keyOf(request),response.clone())};
+  const network=async request=>{networkCalls++;if(!online)throw Error('Network unavailable');if(installing){ok(request.cache==='reload','Install fetch bypasses stale HTTP responses');added.push(request.url);}return new Response('offline-cached',{status});};
+  const context={URL,Request,Response,fetch:network,self:{registration:{scope},addEventListener:(name,fn)=>handlers[name]=fn,skipWaiting:async()=>{skipCalls++;},clients:{claim:async()=>{}}},caches:{open:async name=>{equal(name,context.workerConfig.V,'Worker opens its own versioned cache');return cache;},keys:async()=>[`${subject}-foreign`],delete:async name=>{deleted.push(name);}},importScripts:()=>{}};
   const file=`g1/${subject}/sw.js`;vm.createContext(context);vm.runInContext(read(file)+'\nthis.workerConfig={V,PREFIX,F};',context);const cfg=context.workerConfig;
   ok(typeof cfg.V==='string'&&cfg.V.startsWith(cfg.PREFIX),'Worker version belongs to subject namespace');ok(Array.isArray(cfg.F)&&cfg.F.length>12,'Public dependency manifest exists');equal(new Set(cfg.F).size,cfg.F.length,'No duplicate cache dependencies');
   for(const asset of cfg.F){const resolved=new URL(asset,scope);equal(resolved.origin,new URL(scope).origin,'Same-origin offline dependency');const relative=decodeURIComponent(resolved.pathname).replace(/^\/abboud-math\//,'');ok(fs.existsSync(path.join(root,relative)),'Cached file exists: '+relative);ok(!/\.(mp3|wav|ogg|m4a)$/i.test(relative),'No unapproved audio dependency');ok(!/api|backup|draft/i.test(relative),'No private cache entry');}
   for(const asset of ['content.js','../shared/early.js','../shared/art.js','../shared/early.css','../../profiles.js'])ok(cfg.F.some(u=>u.split('?')[0]===asset),'Cached essential asset: '+asset);
   let base=process.env.CACHE_BASE_REF||'origin/main';try{const old=execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});const prior=old.match(/\bconst\s+V\s*=\s*['"]([^'"]+)/)?.[1];if(old.replace(/\r\n/g,'\n')!==read(file).replace(/\r\n/g,'\n'))ok(cfg.V!==prior,'Changed SW uses changed cache version, without hard-coded release');}catch(error){if(error.code==='ERR_ASSERTION')throw error;/* New subject has no prior cache release. */}
-  vm.runInContext(read('g1/shared/offline.js'),context);let wait;handlers.install({waitUntil:p=>wait=p});await wait;equal(added,cfg.F.map(file=>new URL(file,scope).href),'Install caches exact public manifest');
+  vm.runInContext(read('g1/shared/offline.js'),context);let wait;handlers.install({waitUntil:p=>wait=p});await wait;equal(added,cfg.F.map(file=>new URL(file,scope).href),'Install fetches the exact versioned public manifest');
+  equal(skipCalls,1,'Worker becomes ready only after a successful installation');
+  const canonical=file=>{const u=new URL(file,scope);u.search='';u.hash='';return u.href;};
+  equal([...stored.keys()].sort(),[...new Set(cfg.F.map(canonical))].sort(),'Install stores every public resource under its canonical URL');
+  installing=false;online=false;const installedCalls=networkCalls;
   const fetch=async(url,method='GET')=>{served=false;let response;handlers.fetch({request:{url,method},respondWith:p=>{served=true;response=p;}});return {served,response:response?await response:null};};
   let event=await fetch(scope+'content.js?v=cache-test');ok(event.served,'Public content query uses canonical cached URL');equal(await event.response.text(),'offline-cached','Cached response works when network throws');
+  equal(networkCalls,installedCalls,'Versioned offline request is served entirely from the installed cache');
+  for(const asset of cfg.F){const resource=await fetch(new URL(asset,scope).href);ok(resource.served,'Every installed dependency is intercepted offline');equal(await resource.response.text(),'offline-cached','Every installed dependency remains readable offline');}
+  const content=canonical('content.js');stored.delete(content);online=true;
+  event=await fetch(scope+'content.js?v=refill');equal(await event.response.text(),'offline-cached','An uncached public dependency can be fetched online');ok(stored.has(content),'Successful network response replenishes canonical cache');
+  online=false;event=await fetch(scope+'content.js?v=another-release');equal(await event.response.text(),'offline-cached','Replenished cache works with another release URL offline');
+  stored.delete(content);online=true;status=503;event=await fetch(scope+'content.js?v=unavailable');equal(event.response.status,503,'HTTP errors are returned honestly');ok(!stored.has(content),'HTTP error response never poisons the offline cache');
+  online=false;await assert.rejects(()=>fetch(scope+'content.js?v=missing'),/Network unavailable/,'An offline cache miss must fail, not fabricate a cached response');
+  online=true;installing=true;await assert.rejects(async()=>{handlers.install({waitUntil:p=>wait=p});await wait;},/install /,'A failed dependency rejects installation');equal(skipCalls,1,'A failed install cannot skip waiting');
   for(const [url,method] of [[scope+'private-progress.json','GET'],['https://other.test/abboud-math/g1/'+subject+'/content.js','GET'],[scope+'content.js','POST']])ok(!(await fetch(url,method)).served,'Private, foreign or mutable request is not intercepted');
   context.caches.keys=async()=>[cfg.V,cfg.PREFIX+'old',`unrelated-${subject}`];handlers.activate({waitUntil:p=>wait=p});await wait;equal(deleted,[cfg.PREFIX+'old'],'Only old caches of this subject removed');
 }

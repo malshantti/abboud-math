@@ -1,0 +1,26 @@
+{
+  "base": "199bca542e07cdcb760a5c9c8481ae26612ad49f",
+  "visuallyReviewedPages": {
+    "arabic": [
+      20,
+      61,
+      68,
+      99,
+      1118
+    ],
+    "english": [
+      8,
+      20,
+      22,
+      52
+    ],
+    "science": [
+      1089
+    ]
+  },
+  "limits": "Specific pages and selected content only; not full textbook or ministry certification.",
+  "reports": [
+    "41-grade-seven-audit.md",
+    "42-new-grades-audit-summary.md"
+  ]
+}

@@ -1,6 +1,9 @@
 // Run: node tests/subject-review.cjs — no dependencies or network required.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..');let checks=0;
+// Compare actual precache resources after URL parsing; query versions are not resource names.
+const resourcePath=value=>{const url=new URL(value,'https://bustan.test/course/subject/');assert.equal(url.origin,'https://bustan.test','Local resource stays on the site origin');return url.pathname};
+const cachePaths=source=>{const match=source.match(/\bF\s*=\s*(\[[\s\S]*?\])\s*[,;]/);assert.ok(match,'Service worker declares its precache list');return new Set(JSON.parse(match[1]).map(resourcePath))};
 function load(grade,subject){
  const S={done:{},seen:{},log:[],ach:[]},R={},pending=[];let questions=[];
  const A={S,R,esc:s=>String(s??''),ic:()=>'<svg></svg>',ar:s=>String(s).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]),rnd:n=>Math.floor(Math.random()*n),pick:a=>a[0],shuffle:a=>a.slice(),save(){},addXP(){},toast(){},digits(){},$:()=>({querySelectorAll:()=>[],after(){}}),$$:()=>[],fig:()=>'',say:()=>'',quiz:qs=>{questions=qs}};
@@ -13,7 +16,7 @@ function load(grade,subject){
 for(const grade of [6,8])for(const subject of ['arabic','science']){
  const x=load(grade,subject),{A,w,R,dir}=x,U=w.UNITS;
  for(const part of [1,2]){const html=R.home(String(part));for(const u of U.filter(u=>u.part===part))assert.ok(html.includes('الوحدة '+A.ar(subject==='science'?+u.id.slice(1):u.n)));checks++;}
- const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');for(const f of ['explore.js','explore.css'])assert.ok(sw.includes('"'+f+'"'));
+ const sw=fs.readFileSync(path.join(dir,'sw.js'),'utf8');for(const f of ['explore.js','explore.css'])assert.ok(cachePaths(sw).has(resourcePath(f)));
  // Every indexed textbook image must exist; lesson references keep the original order.
  for(const u of U)for(const lesson of subject==='science'?u.les:Object.values(u.sec))for(const img of lesson.img||[]){assert.ok(fs.existsSync(path.join(dir,'bookimg',img[0])),img[0]);checks++;}
  if(subject==='science'){

@@ -1,0 +1,67 @@
+{
+  "base": "199bca542e07cdcb760a5c9c8481ae26612ad49f",
+  "command": "Each tests/*.cjs run independently with node",
+  "total": 59,
+  "passed": 47,
+  "failures": [
+    {
+      "test": "arabic-book-verification.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: New objectives are cached for offline use",
+      "location": "at Object.<anonymous> (tests/arabic-book-verification.cjs:18:8)"
+    },
+    {
+      "test": "arabic-poem-glossary.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:",
+      "location": "at Object.<anonymous> (tests/arabic-poem-glossary.cjs:32:162)"
+    },
+    {
+      "test": "early-english-curriculum.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: Language scenes are available offline",
+      "location": "at Object.<anonymous> (tests/early-english-curriculum.cjs:48:2)"
+    },
+    {
+      "test": "early-life-curriculum.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: Traceable official geographical reference",
+      "location": "at Object.<anonymous> (tests/early-life-curriculum.cjs:57:51)"
+    },
+    {
+      "test": "english-valid-answers.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:",
+      "location": "at Object.<anonymous> (tests/english-valid-answers.cjs:40:81)"
+    },
+    {
+      "test": "grade-one.cjs",
+      "reason": "Error: Network unavailable",
+      "location": "at fetch (tests/grade-one.cjs:106:61)"
+    },
+    {
+      "test": "grade-two.cjs",
+      "reason": "Error: Network unavailable",
+      "location": "at fetch (tests/grade-two.cjs:202:61)"
+    },
+    {
+      "test": "landing-voice.cjs",
+      "reason": "Error: ENOENT: no such file or directory, open 'D:\\workspace\\landing-voice\\script.json'",
+      "location": "at tests/landing-voice.cjs:21:29"
+    },
+    {
+      "test": "life-book-skills.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:",
+      "location": "at Object.<anonymous> (tests/life-book-skills.cjs:27:36)"
+    },
+    {
+      "test": "settings-site.cjs",
+      "reason": "TypeError: Cannot read properties of undefined (reading 'dataset')"
+    },
+    {
+      "test": "subject-review.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:",
+      "location": "at Object.<anonymous> (tests/subject-review.cjs:16:109)"
+    },
+    {
+      "test": "visitor-homepage.cjs",
+      "reason": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:",
+      "location": "at tests/visitor-homepage.cjs:24:59 {"
+    }
+  ]
+}
