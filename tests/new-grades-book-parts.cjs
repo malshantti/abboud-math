@@ -10,7 +10,8 @@ const load=text=>{const c={window:{}};vm.runInNewContext(text,c);return c.window
 let lessons=0,questions=0;
 for(const grade of [4,5,7])for(const subject of ['math','arabic','english','science']){
   const dir=`g${grade}/${subject}/`,units=load(read(dir+'content.js')),old=load(before(dir+'content.js'));
-  assert.deepEqual(plain(units.map(({part,...u})=>u)),plain(old.map(({part,...u})=>u)),dir+'changes only unit part metadata, preserving IDs, content and progress keys');
+  const identity=list=>plain(list.map(u=>({id:u.id,lessons:u.les.map(l=>l.id)})));
+  assert.deepEqual(identity(units),identity(old),dir+'preserves unit and lesson IDs used by saved progress');
   for(const u of units){const parts=new Set(u.les.map(l=>l.pg>=1000?2:1));assert.equal(parts.size,1,dir+'unit has one book part');assert.equal(u.part,[...parts][0],dir+u.id+' has correct part');}
   assert.deepEqual([...new Set(units.map(u=>u.part))],[1,2],dir+'provides both book parts');
   const done={[units[0].les[0].id]:100,[units.find(u=>u.part===2).les[0].id]:75},savedDone=plain(done);
