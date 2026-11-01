@@ -54,7 +54,14 @@ for(const grade of [1,2]){
   assert(!lessons.find(l=>l.id==='l2-2-2').goal.includes('أرتّب'),'Existing recognition lesson does not claim sequence assessment');
   const map=lessons.find(l=>l.id==='l2-1-map');assert.equal(map.page,8);assert.equal(map.tasks[0].choices[map.tasks[0].answer].scene.life.kind,'map');
   assert(sw.includes('palestine-outline.svg'));
-  const svg=read('g2/life/palestine-outline.svg');assert(svg.includes('tw2-p1.pdf')&&svg.includes('printed 8'),'Traceable official geographical reference');assert(!/<image\b|https?:\/\/[^\s]+\.(png|jpg)/i.test(svg),'No remote raster needed offline');
+  // The source is now attached to the lesson through its book/page, not an SVG comment.
+  const reference=C.books.find(book=>book.id===map.book);
+  assert.ok(reference,'Map lesson resolves to an existing textbook');
+  assert.equal(reference.url,'https://elearn.azureedge.net/Books/c2/tw2-p1.pdf','Traceable official geographical reference');
+  assert.equal(map.page,8,'Printed source page remains attached to the map lesson');
+  const mapArt=window.G1_ART.scene({type:'symbol',value:'ألاحظ الرسم.',life:{kind:'map'}});
+  assert.ok(mapArt.includes('palestine-outline.svg'),'The sourced lesson renders the local map asset');
+  const svg=read('g2/life/palestine-outline.svg');assert(!/<image\b|https?:\/\/[^\s]+\.(png|jpg)/i.test(svg),'No remote raster needed offline');
   assert(lessons.find(l=>l.id==='l2-4-1').homeActivity.text.includes('الجزء الناقص'));
  }
 }
