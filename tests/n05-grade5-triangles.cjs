@@ -5,7 +5,7 @@ const path=require('node:path');
 const vm=require('node:vm');
 const {execFileSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
-const read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const read=file=>fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');
 let seed=20261101,sequence=[];
 const math=Object.create(Math);
 math.random=()=>sequence.length?sequence.shift():((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
@@ -62,7 +62,7 @@ assert.equal(lesson.bmc[9][1][lesson.bmc[9][2]],'متساوي الساقين','T
 assert.doesNotMatch(read('g5/math/lab.js'),/متطابق الأضلاع|متطابق الضلعين/,'The linked triangle lab uses the same textbook terminology');
 const version=text=>{const match=text.match(/\bconst V='([^']+)'/);assert.ok(match);return match[1];};
 const base=process.env.CACHE_BASE_REF||'origin/main';
-const previous=file=>execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+const previous=file=>execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']}).replace(/\r\n/g,'\n');
 const currentVersion=version(read('g5/math/sw.js'));
 if(['content.js','mgen.js','lab.js'].some(file=>read('g5/math/'+file)!==previous('g5/math/'+file)))assert.notEqual(currentVersion,version(previous('g5/math/sw.js')),'Subject modifications invalidate the cache without pinning its release name');
 console.log('PASS: '+checks+' triangle questions, all side boundaries, unique classifications, textbook terminology and cache update');
