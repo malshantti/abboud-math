@@ -23,5 +23,7 @@ assert.ok(fs.existsSync(path.join(root,'g3/arabic/audio/a3-story.mp3')),'The ori
 assert.equal(lessons.find(l=>l.id==='a2r').steps[0].say,'a2-story','Other lessons retain their narration');
 for(const l of lessons)for(const q of l.qs||[]){assert.ok(q.a>=0&&q.a<q.o.length);assert.equal(new Set(q.o).size,q.o.length)}
 const base=process.env.CACHE_BASE_REF||'origin/main',version=s=>s.match(/const V=['"]([^'"]+)/)[1];
-assert.notEqual(version(read('g3/arabic/sw.js')),version(cp.execFileSync('git',['show',base+':g3/arabic/sw.js'],{cwd:root,encoding:'utf8'})));
+const previous=file=>cp.execFileSync('git',['show',base+':'+file],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n');
+assert.ok(version(read('g3/arabic/sw.js')),'The subject declares a cache version');
+if(read('g3/arabic/content.js').replace(/\r\n/g,'\n')!==previous('g3/arabic/content.js'))assert.notEqual(version(read('g3/arabic/sw.js')),version(previous('g3/arabic/sw.js')),'Changed story receives a changed cache');
 console.log('PASS grade3-mouse-story: motive, event order, comprehension, lesson identity, audio preservation and cache');
