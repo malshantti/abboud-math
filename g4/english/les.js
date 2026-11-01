@@ -21,7 +21,7 @@ const PGL=(l,n)=>{const pages=String(n).match(/[0-9٠-٩]+/g)||[];return printed
 const FX=(l,s)=>String(s).replace(/(^|[\s(«>])ص\s*([0-9٠-٩]+(?:\s*[–-]\s*[0-9٠-٩]+)?)(?:\s*ج\s*([12١٢]))?(?=$|[\s).،؛!؟»<])/g,(_,before,pages,part)=>before+'ص '+PGL(part?{part:+pageDigits(part)}:l,pages));
 A.bookPage=PGL;A.bookText=FX;
 const ALLT=uniqT(LES.flatMap(l=>(l.terms||[]).map(t=>[t[0],FX(l,t[1])])));
-function bookQs(l){const E=(window.CFG||{}).subject==='english',W=t=>E?'<span class="ltr" dir="ltr">'+esc(t)+'</span>':esc(t);return (l.bmc||[]).map(b=>({img:b[4]||'',html:E?1:0,q:W(FX(l,b[0]))+'<br><small class="mut">من أسئلة كتاب الطالب ص '+PGL(l,b[3])+'</small>',o:E?b[1].map(t=>W(FX(l,t))):b[1].map(t=>FX(l,t)),a:b[2],keep:b[1].length<3?0:0,ex:'الإجابة: '+FX(l,b[1][b[2]])+' (كتاب الطالب ص '+PGL(l,b[3])+')'}))}
+function bookQs(l){const E=(window.CFG||{}).subject==='english',W=t=>E?'<span class="ltr" dir="ltr">'+esc(t)+'</span>':esc(t);return (l.bmc||[]).map(b=>({img:b[4]||'',context:b[5]||null,html:E?1:0,q:W(FX(l,b[0]))+'<br><small class="mut">من أسئلة كتاب الطالب ص '+PGL(l,b[3])+'</small>',o:E?b[1].map(t=>W(FX(l,t))):b[1].map(t=>FX(l,t)),a:b[2],keep:b[1].length<3?0:0,ex:(b[5]&&b[5].feedback)||'الإجابة: '+FX(l,b[1][b[2]])+' (كتاب الطالب ص '+PGL(l,b[3])+')'}))}
 function lesQs(l){if(l.bo&&(l.bmc||[]).length)return shuffle(bookQs(l)).slice(0,14);const g=gens(l).length,bk=shuffle(bookQs(l)),n=Math.max(10,Math.min(bk.length,14));const rest=shuffle(termQs(l,g?2:4).concat(factQs(l,g?2:4)).concat(genQs(l,g?6:0)));return shuffle(bk.concat(rest).slice(0,n))}
 A.gen={termQs,factQs,numQs:genQs,lesQs,bookQs,LES,NUM:Object.fromEntries(LES.map(l=>[l.id,gens(l)]))};
 R.home=function(){return ''};
