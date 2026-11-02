@@ -122,17 +122,16 @@ R.l=id=>{S.done['lab:'+id]=S.done['lab:'+id]||0;
     return '<a class="mut small" href="#/lab">← المختبر</a><h1>'+esc(t[0])+'</h1><p class="mut">'+t[1]+'</p><div class="row"><img src="img/zaytoun-think.webp" alt="" style="width:56px" onerror="this.remove()"><b>جرّب بنفسك!</b></div><div class="card lab">'+body+'</div>'+(it?'<div class="card"><b>مرتبط بـ</b><div class="chips">'+lesOf(it.les).map(l=>'<a class="tag" href="#/u/'+l.id+'">'+esc(l.t)+' · ص '+PG(l.pg)+'</a>').join(' ')+'</div></div>':'')}
   const a=LABS[id];if(!a)return oldL?oldL(id):R.lab();
   return back('#/lab','المختبر')+'<h2>'+a[0]+'</h2><p class="mut">'+a[1]+'</p><div class="lab card" id="lb"></div>'+NOTE};
-R.after_l=id=>{const it=(L.items||[]).find(x=>x.id===id);const root=A.$('#app');const mark=()=>{if(!S.done['lab:'+id]){S.done['lab:'+id]=100;sv();A.checkAch&&A.checkAch()}};
-  root.addEventListener('click',mark,{once:true});
+R.after_l=id=>{const it=(L.items||[]).find(x=>x.id===id);const root=A.$('#app');
   if(SUB==='science'&&it){const M=window.SIMS&&window.SIMS[it.sim];if(M&&M.init)M.init(A.$('#sim'));return}
   if(SUB==='math'&&it){T[it.k]&&T[it.k].init&&T[it.k].init(it,root);return}
   const box=A.$('#lb')||A.$('#rc');if(!box){oldAL&&oldAL(id);return}
   (LI[id]||(()=>{}))(box)};
 const LI={};
 // سباق (الأعداد / الكلمات): ٦٠ ثانية، ٥ متتالية = +٣ ث، خطأ = −٣ ث
-function race(box,gen){let t=60,sc=0,st=0,q,tm;const best='race';box.innerHTML='<div class="row"><b id="rt">⏱ ٦٠</b> · <b id="rs">النقاط: ٠</b> · <span class="mut">أفضل: '+AR(ST[best]||0)+'</span></div><div id="rq"></div><button class="btn" id="rg">ابدأ</button>';
-  const nx=()=>{q=gen();if(q){const r=q.o[q.a],o=shuffle(q.o.slice());q={q:q.q,o:o,a:o.indexOf(r)}}if(!q){A.$('#rq').innerHTML='لا أسئلة.';return}A.$('#rq').innerHTML='<p class="big">'+q.q+'</p><div class="chips">'+q.o.map((o,i)=>'<button class="chip" data-i="'+i+'">'+o+'</button>').join('')+'</div>';A.$$('#rq .chip').forEach(b=>b.onclick=()=>{if(t<=0)return;if(+b.dataset.i===q.a){sc++;st++;if(st%5===0){t+=3;A.toast&&A.toast('+٣ ثوانٍ!')}}else{st=0;t=Math.max(0,t-3)}A.$('#rs').textContent='النقاط: '+AR(sc);nx()})};
-  A.$('#rg').onclick=()=>{A.$('#rg').remove();nx();tm=setInterval(()=>{t--;const e=A.$('#rt');if(!e){clearInterval(tm);return}e.textContent='⏱ '+AR(Math.max(t,0));if(t<=0){clearInterval(tm);ST[best]=Math.max(ST[best]||0,sc);S.done['lab:race']=100;sv();A.addXP&&A.addXP(sc*2);A.$('#rq').innerHTML='<h3>انتهى الوقت! نقاطك: '+AR(sc)+'</h3><a class="btn" href="#/l/race">مرة أخرى</a>'}},1000)}}
+function race(box,gen){let t=60,sc=0,st=0,attempts=0,q,tm;const best='race';box.innerHTML='<div class="row"><b id="rt">⏱ ٦٠</b> · <b id="rs">النقاط: ٠</b> · <span class="mut">أفضل: '+AR(ST[best]||0)+'</span></div><div id="rq"></div><button class="btn" id="rg">ابدأ</button>';
+  const nx=()=>{q=gen();if(q){const r=q.o[q.a],o=shuffle(q.o.slice());q={q:q.q,o:o,a:o.indexOf(r)}}if(!q){A.$('#rq').innerHTML='لا أسئلة.';return}A.$('#rq').innerHTML='<p class="big">'+q.q+'</p><div class="chips">'+q.o.map((o,i)=>'<button class="chip" data-i="'+i+'">'+o+'</button>').join('')+'</div>';A.$$('#rq .chip').forEach(b=>b.onclick=()=>{if(t<=0)return;attempts++;if(+b.dataset.i===q.a){sc++;st++;if(st%5===0){t+=3;A.toast&&A.toast('+٣ ثوانٍ!')}}else{st=0;t=Math.max(0,t-3)}A.$('#rs').textContent='النقاط: '+AR(sc);nx()})};
+  A.$('#rg').onclick=()=>{A.$('#rg').remove();nx();tm=setInterval(()=>{t--;const e=A.$('#rt');if(!e){clearInterval(tm);return}e.textContent='⏱ '+AR(Math.max(t,0));if(t<=0){clearInterval(tm);ST[best]=Math.max(ST[best]||0,sc);fin('lab:race',attempts?Math.round(100*sc/attempts):0);A.addXP&&A.addXP(sc*2);A.$('#rq').innerHTML='<h3>انتهى الوقت! نقاطك: '+AR(sc)+'</h3><a class="btn" href="#/l/race">مرة أخرى</a>'}},1000)}}
 LI.race=box=>{if(SUB==='math')race(box,()=>{const l=pick(LES.filter(l=>(G.NUM&&G.NUM[l.id]||[]).length||(l.bmc||[]).length));return l?Object.assign({html:1},pool(l,1)[0]):null});
   else{const V=dat('cards');race(box,()=>{const v=pick(V);return {q:W(v[0]),o:[esc(v[1]),...[...new Set(V.filter(x=>x[1]!==v[1]).map(x=>x[1]))].sort(()=>Math.random()-.5).slice(0,3).map(esc)],a:0}})}};
 // العربية
@@ -152,7 +151,7 @@ LI.sarf=box=>{const V=D.verbs||[];let v=V[0];const draw=()=>{box.innerHTML='<p>�
 LI.khatt=box=>{const it=L.items.find(i=>i.k==='khatt');if(it&&T.khatt){box.innerHTML=T.khatt.html(it);T.khatt.init&&T.khatt.init(it,box)}};
 // الإنجليزية
 const say=t=>{try{const u=new SpeechSynthesisUtterance(t);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}};
-LI.sb=box=>{const it={k:'build',data:dat('build')};if(T.build){box.innerHTML=T.build.html(it);T.build.init&&T.build.init(it,box)}};
+LI.sb=box=>{const it={id:'sb',k:'build',data:dat('build')};if(T.build){box.innerHTML=T.build.html(it);T.build.init&&T.build.init(it,box)}};
 LI.tm=box=>{const V=D.tm||[];let v=0,t=0;const TT=['now','every day','yesterday','tomorrow'],TL=['الآن','كلّ يوم','أمس','غدًا (going to)'];
   const draw=()=>{const x=V[v];box.innerHTML='<div class="chips">'+V.map((y,i)=>'<button class="chip'+(i===v?' on':'')+'" data-v="'+i+'">'+W(y.base)+'</button>').join('')+'</div><input type="range" min="0" max="3" value="'+t+'" id="tr" style="width:100%"><div class="row" style="justify-content:space-between">'+TL.map(x=>'<small>'+x+'</small>').join('')+'</div><p class="big">'+W(x.s[t])+'</p><p class="mut small">'+TT[t]+' · الفعل من كتاب الطالب ص '+PG(x.pg)+'</p><button class="btn ghost" id="ts">🔊</button>';
     A.$$('#lb [data-v]').forEach(b=>b.onclick=()=>{v=+b.dataset.v;draw()});A.$('#tr').oninput=e=>{t=+e.target.value;draw()};A.$('#ts').onclick=()=>say(x.s[t])};if(V.length)draw()};

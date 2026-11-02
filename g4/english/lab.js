@@ -21,7 +21,7 @@ R.l=id=>{const it=byId(id);if(!it){CUR=null;return oldL?oldL(id):R.lab()}CUR=it;
 R.after_l=id=>{const it=byId(id);if(!it)return;const f=T[it.k];if(f&&f.init)f.init(it,A.$('#app'))};
 const $=s=>A.$(s),$$=s=>A.$$(s);
 const out=(sel,h)=>{const e=$(sel);if(e){e.innerHTML=h;A.digits&&A.digits(e)}};
-const done=(id,v)=>{S.done['lab:'+id]=Math.max(S.done['lab:'+id]||0,v||100);A.save()};
+const done=(id,v=100)=>{if(!id)return;S.done['lab:'+id]=Math.max(S.done['lab:'+id]||0,v);A.save()};
 const rng=(id,lab,min,max,val,step)=>'<label class="lrow">'+lab+' <input type="range" id="'+id+'" min="'+min+'" max="'+max+'" value="'+val+'" step="'+(step||1)+'"> <b id="'+id+'v"></b></label>';
 const num=(id,lab,val,w)=>'<label class="lrow">'+lab+' <input type="number" id="'+id+'" value="'+val+'" style="width:'+(w||110)+'px" class="ltr" inputmode="numeric"></label>';
 const v=id=>{const e=$('#'+id);return e?+String(e.value).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)):0};
