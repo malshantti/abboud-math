@@ -109,7 +109,8 @@ const conj=(v,p)=>v+p[1];
 const labTiles=()=>{
   if(SUB==='science')return items('sim').map(i=>({h:'#/l/'+i.id,ic:'flask',t:i.t,s:(LID(i.les[0])||{}).t||'',id:i.id}));
   if(SUB==='math')return items().map(i=>({h:'#/l/'+i.id,ic:'lab',t:i.t,s:'مرتبط بـ '+i.les.length+' دروس',id:i.id})).concat([{h:'#/l/race',ic:'bolt',t:LABS.race[0],s:LABS.race[1],id:'race'}]);
-  return Object.keys(LABS).map(k=>({h:'#/l/'+k,ic:LABS[k][2],t:LABS[k][0],s:LABS[k][1],id:k,cat:LABS[k][3]}))};
+  const tools=Object.keys(LABS).map(k=>({h:'#/l/'+k,ic:LABS[k][2],t:LABS[k][0],s:LABS[k][1],id:k,cat:LABS[k][3]}));
+  return SUB==='english'?items().map(i=>({h:'#/l/'+i.id,ic:i.ic||'book',t:i.t,s:i.s||'',id:i.id})).concat(tools):tools};
 R.lab=()=>{const ts=labTiles();const tried=ts.filter(t=>S.done['lab:'+t.id]).length;
   const p=SUB==='science'?'محاكاة لكلّ فكرة رئيسة في دروس الكتاب.':SUB==='math'?'أدوات تجرّب بها أفكار الكتاب بيديك. جرّبت '+AR(tried)+' من '+AR(ts.length)+'.':'أدوات تفاعليّة مبنيّة على دروس الكتاب.';
   return grid('المختبر',p,ts.map((t,i)=>tile(t.h,t.ic,t.t+(S.done['lab:'+t.id]?' ✓':''),esc(t.s),'c'+(i%6)+(t.cat?' cat-'+t.cat:''))))};
