@@ -30,7 +30,7 @@ R.u=function(id){const l=find(id);if(!l)return R.home();const u=l.u,ui=G.units.i
  h+='<div class="card hero"><img src="'+img('teacher')+'" alt="" width="80"><div><b>سأتعلّم في هذا الدرس</b><ul class="pts">'+l.goals.map(g=>'<li>'+esc(g)+'</li>').join('')+'</ul>'+bk(l.pg)+'</div></div>';
  h+='<a class="btn big" href="#/s/'+id+'/0">'+ic('play')+' ابدأ الدرس</a>';
  h+='<div class="grid g3-acts" style="margin-top:12px"><button class="tile c1" id="go"><span class="ti">'+ic('compass')+'</span><b>تدرّب</b><small>'+(sc!=null?'أفضل نتيجة: '+sc+'٪':'أسئلة مع زرّ «تحقّق»')+'</small></button>'+
-  (l.lab&&X.labs&&X.labs[l.lab]?'<a class="tile c2" href="#/l/'+l.lab+'"><span class="ti">'+ic('lab')+'</span><b>أجرّب</b><small>'+esc(X.labs[l.lab].t)+'</small></a>':'')+'</div>';
+  (l.lab&&X.labs&&X.labs[l.lab]?'<a class="tile c2" href="#/l/'+l.lab+(l.labMode?'/'+encodeURIComponent(l.labMode):'')+'"><span class="ti">'+ic('lab')+'</span><b>أجرّب</b><small>'+esc(X.labs[l.lab].t)+'</small></a>':'')+'</div>';
  return h};
 R.after_u=id=>{const l=find(id);const g=A.$('#go');if(g)g.onclick=()=>quiz(lesQs(l),{key:id,title:l.t,back:'#/u/'+id})};
 // خطوات الدرس: بطاقة واحدة في كلّ مرّة
@@ -85,6 +85,6 @@ R.after_adv=id=>{
    box.innerHTML='<div class="card end qz"><img src="'+img('celebrate')+'" alt="" width="110"><h2>انتهى الوقت!</h2><div class="big-n">'+ar(ok)+'</div><p>إجابة صحيحة</p><a class="btn" href="#/play">متابعة</a></div>'}},1000)}}};
 // ———— المختبر «أجرّب» ————
 R.lab=()=>{const L=X.labs||{};return '<h2>المختبر: أجرّب بنفسي</h2><div class="grid">'+Object.keys(L).map((k,i)=>'<a class="tile c'+(i%4)+'" href="#/l/'+k+'"><span class="ti">'+ic(L[k].ic||'lab')+'</span><b>'+esc(L[k].t)+'</b><small>'+esc(L[k].d)+'</small></a>').join('')+'</div>'};
-R.l=id=>{const L=(X.labs||{})[id];if(!L)return R.lab();S.seen['lab:'+id]=1;A.save();A.checkAch();return '<div class="mut small"><a href="#/lab">المختبر</a></div><h2>'+esc(L.t)+'</h2><p class="mut">'+esc(L.d)+'</p><div class="card g3-lab">'+L.html()+'</div>'};
-R.after_l=id=>{const L=(X.labs||{})[id];if(L&&L.init)L.init()};
+R.l=(id,mode)=>{const L=(X.labs||{})[id];if(!L)return R.lab();S.seen['lab:'+id]=1;A.save();A.checkAch();return '<div class="mut small"><a href="#/lab">المختبر</a></div><h2>'+esc(L.t)+'</h2><p class="mut">'+esc(L.d)+'</p><div class="card g3-lab">'+L.html(mode)+'</div>'};
+R.after_l=(id,mode)=>{const L=(X.labs||{})[id];if(L&&L.init)L.init(mode)};
 })();
