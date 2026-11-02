@@ -4,6 +4,7 @@ window.AR_AUDIO={"en1-lang": "en1-lang.mp3", "en1-words": "en1-words.mp3", "en2-
 const E=s=>'<span class="ltr en">'+s+'</span>';
 const tbl=r=>'<table class="ltr en">'+r.map(x=>'<tr><td>'+x[0]+'</td><td dir="rtl">'+x[1]+'</td></tr>').join('')+'</table>';
 const Q=(q,a,...w)=>({q,o:[a,...w],a:0,html:true});
+const P=(key,prompt,a,...w)=>Q(window.G3ART.picture(key)+'<span class="ltr en">'+prompt+'</span>',a,...w);
 const U=[
  ['All about me','كلّ شيء عنّي',4,
   [['Good morning','صباح الخير'],['Good afternoon','طاب يومك'],['How are you? — Fine, thanks.','كيف حالك؟ — بخير، شكرًا.'],['What\'s your name? — My name\'s Walid.','ما اسمك؟ — اسمي وليد.'],['How old are you? — I\'m nine.','كم عمرك؟ — عمري تسع سنوات.'],['Where are you from? — I\'m from Bethlehem.','من أين أنت؟ — أنا من بيت لحم.']],
@@ -15,11 +16,11 @@ const U=[
   'What\'s his/her job? He\'s/She\'s a …'],
  ['At the market','في السوق',16,
   [['apples','تفّاح'],['figs','تين'],['onions','بصل'],['melon','شمّام'],['oranges','برتقال'],['carrots','جزر'],['tomatoes','بندورة'],['bananas','موز'],['grapes','عنب'],['potatoes','بطاطا']],
-  [Q('🍌 = ?','bananas','grapes','figs'),Q('🥕 = ?','carrots','onions','potatoes'),Q('🍅 = ?','tomatoes','apples','oranges'),Q('I\'d like figs, please. — ___','Here you are.','I\'m fine.','My name\'s Ali.'),Q('That\'s 10 ___ .','dinars','apples','teachers'),Q('I ___ like carrots. (لا أحبّ)','don\'t','am','is'),Q('🍇 = ?','grapes','melon','bananas')],
+  [P('bananas','What is it?','bananas','grapes','figs'),P('carrots','What is it?','carrots','onions','potatoes'),P('tomatoes','What is it?','tomatoes','apples','oranges'),Q('I\'d like figs, please. — ___','Here you are.','I\'m fine.','My name\'s Ali.'),Q('That\'s 10 ___ .','dinars','apples','teachers'),Q('I ___ like carrots. (لا أحبّ)','don\'t','am','is'),P('grapes','What is it?','grapes','melon','bananas')],
   'I\'d like … please. / I don\'t like …'],
  ['At the zoo','في حديقة الحيوان',22,
   [['tiger','نمر'],['fox','ثعلب'],['giraffe','زرافة'],['elephant','فيل'],['snake','أفعى'],['monkey','قرد'],['grey / brown / orange','رماديّ / بنّيّ / برتقاليّ'],['It has no legs.','ليس له أرجل.']],
-  [Q('It has no legs. It\'s a ___ .','snake','monkey','tiger'),Q('It\'s big and grey. It\'s an ___ .','elephant','fox','snake'),Q('It has a long neck. It\'s a ___ .','giraffe','fox','monkey'),Q('🐒 = ?','monkey','tiger','giraffe'),Q('🦊 = ?','fox','elephant','snake'),Q('seven = ؟','7','6','9'),Q('The tiger is ___ and black.','orange','grey','blue')],
+  [Q('It has no legs. It\'s a ___ .','snake','monkey','tiger'),Q('It\'s big and grey. It\'s an ___ .','elephant','fox','snake'),Q('It has a long neck. It\'s a ___ .','giraffe','fox','monkey'),P('monkey','What is it?','monkey','tiger','giraffe'),P('fox','What is it?','fox','elephant','snake'),Q('seven = ؟','7','6','9'),Q('The tiger is ___ and black.','orange','grey','blue')],
   'It\'s … / It has …'],
  ['Revision','مراجعة الوحدات 1–4',28,null,null,null],
  ['I don\'t feel well','لا أشعر أنّي بخير',34,
@@ -32,7 +33,7 @@ const U=[
   'What do you do in the …? / When do you …?'],
  ['It\'s sunny','الجوّ مشمس',46,
   [['sunny','مشمس'],['rainy','ماطر'],['windy','عاصف'],['cloudy','غائم'],['hot / cold','حارّ / بارد'],['beach','شاطئ'],['park','حديقة عامّة'],['swimming pool','بركة سباحة'],['playground','ساحة لعب'],['zoo','حديقة الحيوان'],['river','نهر']],
-  [Q('☀️ What\'s the weather?','It\'s sunny.','It\'s rainy.','It\'s cloudy.'),Q('🌧️ What\'s the weather?','It\'s rainy.','It\'s hot.','It\'s windy.'),Q('☁️ = ?','cloudy','sunny','windy'),Q('Where are they? 🏖️','at the beach','at the zoo','at school'),Q('ماطر = ?','rainy','windy','cold'),Q('It\'s hot. Let\'s go to the ___ .','swimming pool','doctor','bed'),Q('They are ___ the park.','at','is','he')],
+  [P('sunny','What\'s the weather?','It\'s sunny.','It\'s rainy.','It\'s cloudy.'),P('rainy','What\'s the weather?','It\'s rainy.','It\'s hot.','It\'s windy.'),P('cloudy','What\'s the weather?','cloudy','sunny','windy'),P('beach','Where are they?','at the beach','at the zoo','at school'),Q('ماطر = ?','rainy','windy','cold'),Q('It\'s hot. Let\'s go to the ___ .','swimming pool','doctor','bed'),Q('They are ___ the park.','at','is','he')],
   'What\'s the weather? It\'s … / at the …'],
  ['Revision','مراجعة الوحدات 1–8',52,null,null,null]];
 const units=[],lev=[];
