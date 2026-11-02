@@ -4,14 +4,15 @@
 const A=window.APP,G=window.G3,{ar,rnd,shuffle,esc}=A;
 const r=(a,b)=>a+rnd(b-a+1);
 // خيارات فريدة: الصحيح أوّلًا
-function Q(q,good,bad,ex){const o=[String(good)];bad.map(String).forEach(b=>{if(!o.includes(b)&&o.length<4)o.push(b)});let k=1;while(o.length<3){const x=String((+good||0)+k*(k%2?1:-1)*(1+rnd(9)));if(!o.includes(x)&&+x>=0)o.push(x);k++}return{q,o,a:0,ex}}
+function Q(q,good,bad,ex,bounds){const lo=bounds?bounds[0]:0,hi=bounds?bounds[1]:Infinity,valid=x=>!Number.isFinite(+x)||(+x>=lo&&+x<=hi);const o=[String(good)];bad.map(String).forEach(b=>{if(valid(b)&&!o.includes(b)&&o.length<4)o.push(b)});let k=1;while(o.length<3){const x=String((+good||0)+k*(k%2?1:-1)*(1+rnd(9)));if(valid(x)&&!o.includes(x))o.push(x);k++}return{q,o,a:0,ex}}
 const PL=['آحاد','عشرات','مئات','آلاف','عشرات الآلاف'];
 const digitsOf=n=>String(n).split('').reverse().map(Number);
 function placeQ(n){const d=digitsOf(n);let i=rnd(d.length);while(d[i]===0)i=rnd(d.length);const v=d[i]*Math.pow(10,i);
  return Q('ما قيمة الرقم '+d[i]+' في العدد '+n+'؟',v,[d[i]*Math.pow(10,(i+1)%d.length),d[i]*Math.pow(10,Math.max(0,i-1)),d[i]],'الرقم '+d[i]+' في منزلة '+PL[i]+'، فقيمته '+v+'.')}
 function expQ(n){const d=digitsOf(n);const parts=d.map((x,i)=>x*Math.pow(10,i)).filter(x=>x).reverse();const sw=String(n).split('');const k=rnd(sw.length-1);[sw[k],sw[k+1]]=[sw[k+1],sw[k]];
  return Q(parts.join(' + ')+' = ؟',n,[+sw.join(''),n+Math.pow(10,rnd(d.length)),Math.max(1,n-Math.pow(10,rnd(d.length)))])}
-function cmpQ(lo,hi){let a=r(lo,hi),b=rnd(3)?a+(rnd(2)?1:-1)*Math.pow(10,rnd(String(a).length)):a;if(b<lo)b=a+1;const s=a>b?'>':a<b?'<':'=';return{q:'أيّ إشارة نضع؟ '+a+' ◯ '+b,o:['>','<','='],a:['>','<','='].indexOf(s),keep:1}}
+function comparison(lo,hi){const a=r(lo,hi),delta=rnd(3)?(rnd(2)?1:-1)*Math.pow(10,rnd(String(a).length)):0;let b=a+delta;if(b<lo||b>hi)b=a-delta;return[a,b]}
+function cmpQ(lo,hi){const [a,b]=comparison(lo,hi),s=a>b?'>':a<b?'<':'=';return{q:'أيّ إشارة نضع؟ '+a+' ◯ '+b,o:['>','<','='],a:['>','<','='].indexOf(s),keep:1}}
 const GEN={
  read4(){const t=rnd(4);if(t===0){const n=r(1000,9998);return Q('ما العدد التالي للعدد '+n+'؟',n+1,[n-1,n+10,n+100])}
   if(t===1){const n=r(1001,9999);return Q('ما العدد السابق للعدد '+n+'؟',n-1,[n+1,n-10,n-100])}
@@ -21,8 +22,8 @@ const GEN={
  place5(){return rnd(2)?placeQ(r(10000,99999)):expQ(r(10000,99999))},
  read5(){const t=rnd(3);if(t===0){const n=r(10000,99998);return Q('ما العدد التالي للعدد '+n+'؟',n+1,[n-1,n+10,n+1000])}
   if(t===1)return placeQ(r(10000,99999));const n=r(10000,99999),d=digitsOf(n);return Q('ما الرقم في منزلة عشرات الآلاف في العدد '+n+'؟',d[4],[d[3],d[0],d[2]])},
- cmp4(){if(rnd(4)===0){const a=shuffle([r(1000,9999),r(1000,9999),r(1000,9999)]);const s=a.slice().sort((x,y)=>x-y);return Q('أيّ الأعداد هو الأكبر؟ '+a.join(' ، '),s[2],[s[0],s[1]])}return cmpQ(1000,9999)},
- cmp5(){if(rnd(4)===0){const a=[r(10000,99999),r(10000,99999),r(1000,9999)];const s=a.slice().sort((x,y)=>x-y);return Q('أيّ الأعداد هو الأصغر؟ '+shuffle(a).join(' ، '),s[0],[s[1],s[2]])}return cmpQ(10000,99999)},
+ cmp4(){if(rnd(4)===0){const a=shuffle([r(1000,9999),r(1000,9999),r(1000,9999)]);const s=a.slice().sort((x,y)=>x-y);return Q('أيّ الأعداد هو الأكبر؟ '+a.join(' ، '),s[2],[s[0],s[1]],undefined,[1000,9999])}return cmpQ(1000,9999)},
+ cmp5(){if(rnd(4)===0){const a=[r(10000,99999),r(10000,99999),r(10000,99999)];const s=a.slice().sort((x,y)=>x-y);return Q('أيّ الأعداد هو الأصغر؟ '+shuffle(a).join(' ، '),s[0],[s[1],s[2]],undefined,[10000,99999])}return cmpQ(10000,99999)},
  round(){const t=rnd(3),p=[10,100,1000][t],n=t===0?r(11,999):t===1?r(101,9999):r(1001,9999);const lo=Math.floor(n/p)*p,res=n-lo>=p/2?lo+p:lo;
   return Q('قرّب العدد '+n+' لأقرب '+['عشرة','مئة','ألف'][t]+':',res,[res===lo?lo+p:lo,n,res+p],'يقع '+n+' بين '+lo+' و'+(lo+p)+'.')},
  addNo(){let a,b;do{a=r(1000,8999);b=r(1000,8999)}while(digitsOf(a).some((d,i)=>d+digitsOf(b)[i]>9));return Q(a+' + '+b+' = ؟',a+b,[a+b+10,a+b-100,a+b+1])},
@@ -47,9 +48,10 @@ const LAB={
     if(goal){const m=A.$('#bmsg');m.hidden=false;if(n===goal){m.textContent='أحسنت! بنيت العدد '+ar(goal)+'.';A.addXP(10);goal=0}else m.textContent='ابنِ العدد '+ar(goal)}};
    A.$$('[data-add]').forEach(b=>b.onclick=()=>{const v=+b.dataset.add;if(n+v<=9999){const d=Math.floor(n/v)%10;if(d<9){n+=v;draw()}else A.toast('عشرة من هذه المنزلة تساوي واحدًا من المنزلة التالية!')}});
    A.$('#bclr').onclick=()=>{n=0;draw()};A.$('#bgoal').onclick=()=>{goal=r(1000,9999);n=0;draw()};draw()}},
- compare:{t:'من الأكبر؟',d:'أختار الإشارة المناسبة بين عددين.',ic:'compass',html:()=>'<div class="readout" style="text-align:center;font-size:30px"><span id="ca"></span> ◯ <span id="cb"></span></div><div class="ctl">'+['>','<','='].map(s=>'<button class="chip big ltr" data-s="'+s+'">'+s+'</button>').join('')+'</div><div class="readout" id="cm" hidden></div><button class="btn alt" id="cn">عددان جديدان</button>',
-  init(){let a,b;const nw=()=>{a=r(1000,99999);b=rnd(2)?a+(rnd(2)?1:-1)*Math.pow(10,rnd(4)):r(1000,99999);A.$('#ca').textContent=ar(a);A.$('#cb').textContent=ar(b);A.$('#cm').hidden=true};
-   A.$$('[data-s]').forEach(x=>x.onclick=()=>{const s=a>b?'>':a<b?'<':'=';const m=A.$('#cm');m.hidden=false;if(x.dataset.s===s){m.textContent='صحيح!';A.addXP(5);setTimeout(nw,800)}else m.textContent='قارن من المنزلة الكبرى أوّلًا.'});A.$('#cn').onclick=nw;nw()}},
+ compare:{t:'من الأكبر؟',d:'أختار الإشارة المناسبة بين عددين.',ic:'compass',html:(mode)=>'<div class="ctl" role="group" aria-label="مجال الأعداد">'+[['4','أربعة أرقام'],['5','خمسة أرقام']].map(([v,t])=>'<button class="chip'+(v===(mode==='5'?'5':'4')?' on':'')+'" data-compare-digits="'+v+'" aria-pressed="'+(v===(mode==='5'?'5':'4'))+'">'+t+'</button>').join('')+'</div><p class="mut" id="crange"></p><div class="readout" style="text-align:center;font-size:30px"><span id="ca"></span> ◯ <span id="cb"></span></div><div class="ctl">'+['>','<','='].map(s=>'<button class="chip big ltr" data-s="'+s+'">'+s+'</button>').join('')+'</div><div class="readout" id="cm" hidden></div><button class="btn alt" id="cn">عددان جديدان</button>',
+  init(mode){let a,b,timer,digits=mode==='5'?5:4;A.stopSim=()=>clearTimeout(timer);const nw=()=>{const lo=digits===5?10000:1000,hi=digits===5?99999:9999;[a,b]=comparison(lo,hi);A.$('#ca').textContent=ar(a);A.$('#cb').textContent=ar(b);A.$('#crange').textContent='أقارن أعدادًا من '+(digits===5?'خمسة':'أربعة')+' أرقام، من '+ar(lo)+' إلى '+ar(hi)+'.';A.$('#cm').hidden=true};
+   A.$$('[data-compare-digits]').forEach(x=>x.onclick=()=>{digits=+x.dataset.compareDigits;A.$$('[data-compare-digits]').forEach(b=>{b.classList.toggle('on',b===x);b.setAttribute('aria-pressed',String(b===x))});nw()});
+   A.$$('[data-s]').forEach(x=>x.onclick=()=>{const s=a>b?'>':a<b?'<':'=';const m=A.$('#cm');m.hidden=false;if(x.dataset.s===s){m.textContent='صحيح!';A.addXP(5);clearTimeout(timer);timer=setTimeout(nw,800)}else m.textContent='قارن من المنزلة الكبرى أوّلًا.'});A.$('#cn').onclick=nw;nw()}},
  round:{t:'خطّ الأعداد والتقريب',d:'أحرّك العدد وأرى إلى أيّ عشرة أو مئة هو أقرب.',ic:'compass',html:()=>'<div class="ctl"><button class="chip on" data-p="10">لأقرب عشرة</button><button class="chip" data-p="100">لأقرب مئة</button><button class="chip" data-p="1000">لأقرب ألف</button></div><input type="range" id="rr" min="0" max="100" value="37" aria-label="العدد"><svg id="rsv" viewBox="0 0 340 70" width="100%" height="70"></svg><div class="readout" id="rt" style="text-align:center;font-size:24px"></div>',
   init(){let p=10;const base=()=>p===10?40:p===100?300:4000;const draw=()=>{const v=+A.$('#rr').value,lo=base(),n=lo+Math.round(v/100*p),res=n-lo>=p/2?lo+p:lo,x=20+300*(n-lo)/p;
     A.$('#rsv').innerHTML='<line x1="20" y1="35" x2="320" y2="35" stroke="#888" stroke-width="3"/><text x="20" y="65" text-anchor="middle" font-size="16">'+ar(lo)+'</text><text x="320" y="65" text-anchor="middle" font-size="16">'+ar(lo+p)+'</text><line x1="170" y1="25" x2="170" y2="45" stroke="#aaa" stroke-width="2"/><circle cx="'+x+'" cy="35" r="10" fill="#c98a2e"/><text x="'+x+'" y="18" text-anchor="middle" font-size="16" font-weight="800">'+ar(n)+'</text>';

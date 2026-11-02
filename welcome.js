@@ -6,7 +6,10 @@ let activeSession=null,activeOwner=null;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 function script(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.body.append(s)})}
 function showVisitor(message){visitor.hidden=false;student.hidden=true;activeSession=null;activeOwner=null;document.documentElement.dataset.entry='visitor';document.title='بستان التعلّم — كل فكرة تنمو معك';$('.skip').href='#visitor-main';if(message){$('#entry-message').hidden=false;$('#entry-message').textContent=message}}
-function stillOwns(){try{const profiles=JSON.parse(localStorage.getItem('bustan_profiles')||'[]');return activeSession===localStorage.getItem('bustan_session')&&activeOwner===localStorage.getItem('bustan_owner')&&Array.isArray(profiles)&&profiles.some(p=>p&&p.id===activeOwner)&&!localStorage.getItem('bustan_transition')&&!localStorage.getItem('bustan_restore')}catch(e){return false}}
+function stillOwns(){// يُطرد فقط إن فتح تبويب آخر طالبًا أو حسابًا مختلفًا؛ تجديد رمز الجلسة ومزامنة الطالب نفسه وحفظ المواد لا تُحسب
+ try{if(localStorage.getItem('bustan_transition')||localStorage.getItem('bustan_restore'))return true;// كتابة جارية: ننتظر انتهاءها
+  const s=JSON.parse(localStorage.getItem('bustan_session')||'null'),profiles=JSON.parse(localStorage.getItem('bustan_profiles')||'[]');
+  return !!s&&!s.pending&&s.id===activeOwner&&localStorage.getItem('bustan_owner')===activeOwner&&Array.isArray(profiles)&&profiles.some(p=>p&&p.id===activeOwner)}catch(e){return true}}
 function changed(){showVisitor('تغيّر ملف الطالب في تبويب آخر. افتح صفحة الدخول للمتابعة بملفك الصحيح.');window.scrollTo({top:0,behavior:'instant'})}
 document.addEventListener('click',e=>{if(!student.hidden&&!stillOwns()){e.preventDefault();e.stopImmediatePropagation();changed()}},true);
 window.addEventListener('storage',e=>{if(activeSession&&[null,'bustan_session','bustan_owner','bustan_profiles','bustan_transition','bustan_restore'].includes(e.key)&&!stillOwns())changed()});
