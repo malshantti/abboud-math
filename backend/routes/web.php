@@ -206,6 +206,8 @@ Route::prefix('s/{school}')->where(['school' => '[a-z0-9-]+'])->group(function (
     Route::get('panel/sections/{section}', [$c, 'section'])->whereNumber('section')->name('school.section');
     Route::post('panel/sections/{section}/students', [$c, 'storeStudents'])->whereNumber('section')->middleware('throttle:30,1')->name('school.students.store');
     Route::get('panel/sections/{section}/cards', [$c, 'cards'])->whereNumber('section')->name('school.cards');
+    Route::get('panel/sections/{section}/report', [$c, 'report'])->whereNumber('section')->name('school.report');
+    Route::get('panel/students/{student}', [$c, 'student'])->whereNumber('student')->name('school.student');
     Route::post('panel/sections/{section}/code', [$c, 'rotateCode'])->whereNumber('section')->name('school.code');
     Route::post('panel/students/{student}/kick', [$c, 'kick'])->whereNumber('student')->middleware('throttle:60,1')->name('school.kick');
     Route::post('panel/students/{student}/pin', [$c, 'resetPin'])->whereNumber('student')->middleware('throttle:60,1')->name('school.pin');

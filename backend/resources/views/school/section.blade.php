@@ -14,7 +14,8 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
 @endsection
 @section('content')
 <div class="top2"><h1>{{ $section->name }}</h1><span class="chip grey">{{ $ar::grade($section->grade) }}</span><span class="muted">{{ $ar::num($students->count()) }} طالبًا</span>
-  <a class="btn sun" style="margin-inline-start:auto" href="{{ route('school.cards', [$school, $section]) }}" target="_blank" rel="noopener">طباعة كل البطاقات</a></div>
+  <a class="btn" style="margin-inline-start:auto" href="{{ route('school.report', [$school, $section]) }}">لوحة المتابعة</a>
+  <a class="btn sun" href="{{ route('school.cards', [$school, $section]) }}" target="_blank" rel="noopener">طباعة كل البطاقات</a></div>
 <div class="cols">
   <section class="card">
     <h2 class="mt0">إضافة طلاب دفعة واحدة</h2>
@@ -41,7 +42,7 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
   <table class="st"><thead><tr><th>الاسم</th><th>الرقم السري</th><th>اسم المستخدم</th><th>آخر نشاط</th><th></th></tr></thead><tbody>
   @foreach ($students as $s)
     @php($last = collect([$s->last_synced_at, $s->user?->last_login_at, $s->user?->active_device_seen_at])->filter()->max())
-    <tr><td><b>{{ $s->name }}</b>@if($s->pin_locked_until && $s->pin_locked_until->isFuture()) <span class="chip bad">مقفل مؤقتًا</span>@endif</td>
+    <tr><td><a href="{{ route('school.student', [$school, $s]) }}"><b>{{ $s->name }}</b></a>@if($s->pin_locked_until && $s->pin_locked_until->isFuture()) <span class="chip bad">مقفل مؤقتًا</span>@endif</td>
       <td class="pinv">{{ \App\Support\Schools::plainPin($s) ?? '—' }}</td>
       <td dir="ltr" style="text-align:right">{{ $s->user?->username }}</td>
       <td class="muted">{{ $last ? $ar::date($last) : 'لم يدخل بعد' }}</td>
