@@ -33,6 +33,7 @@ a.nm{font-weight:800;text-decoration:none}
 <div class="top2"><h1>{{ $section->name }}</h1><span class="chip grey">{{ $ar::grade($section->grade) }}</span>
 @if ($school->is_test)<span class="tag t-idle3">بيانات تجريبية للاختبار</span>@endif</div>
 
+@include('school._nav', ['on' => 'report'])
 <div class="filters" role="navigation" aria-label="تصفية حسب المادة">
   <a href="{{ route('school.report', [$school, $section]) }}" class="{{ $d['subject'] ? '' : 'on' }}">كل المواد</a>
   @foreach ($d['subjects'] as $c => $x)<a href="{{ route('school.report', [$school, $section, 'subject' => $x['slug']]) }}" class="{{ $d['subject'] === $c ? 'on' : '' }}">{{ $x['name'] }}</a>@endforeach

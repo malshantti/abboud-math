@@ -211,4 +211,27 @@ Route::prefix('s/{school}')->where(['school' => '[a-z0-9-]+'])->group(function (
     Route::post('panel/sections/{section}/code', [$c, 'rotateCode'])->whereNumber('section')->name('school.code');
     Route::post('panel/students/{student}/kick', [$c, 'kick'])->whereNumber('student')->middleware('throttle:60,1')->name('school.kick');
     Route::post('panel/students/{student}/pin', [$c, 'resetPin'])->whereNumber('student')->middleware('throttle:60,1')->name('school.pin');
+    // Phase 3: homework, quizzes, manager overview, monthly reports.
+    $t = App\Http\Controllers\School\SchoolTaskController::class;
+    Route::get('panel/sections/{section}/tasks', [$t, 'tasks'])->whereNumber('section')->name('school.tasks');
+    Route::get('panel/sections/{section}/bank/{code}', [$t, 'bank'])->whereNumber('section')->where('code', 'g[1-8]-[a-z]+')->name('school.bank');
+    Route::post('panel/sections/{section}/homework', [$t, 'storeHomework'])->whereNumber('section')->middleware('throttle:30,1')->name('school.homework.store');
+    Route::get('panel/sections/{section}/homework/{hw}', [$t, 'homework'])->whereNumber(['section', 'hw'])->name('school.homework');
+    Route::post('panel/sections/{section}/homework/{hw}/delete', [$t, 'deleteHomework'])->whereNumber(['section', 'hw'])->name('school.homework.delete');
+    Route::get('panel/sections/{section}/quizzes/new', [$t, 'newQuiz'])->whereNumber('section')->name('school.quiz.new');
+    Route::post('panel/sections/{section}/quizzes', [$t, 'storeQuiz'])->whereNumber('section')->middleware('throttle:30,1')->name('school.quiz.store');
+    Route::get('panel/sections/{section}/quizzes/{quiz}', [$t, 'quiz'])->whereNumber(['section', 'quiz'])->name('school.quiz');
+    Route::get('panel/sections/{section}/quizzes/{quiz}/attempts/{attempt}', [$t, 'attempt'])->whereNumber(['section', 'quiz', 'attempt'])->name('school.attempt');
+    Route::post('panel/sections/{section}/quizzes/{quiz}/delete', [$t, 'deleteQuiz'])->whereNumber(['section', 'quiz'])->name('school.quiz.delete');
+    Route::get('panel/overview', [$t, 'overview'])->name('school.overview');
+    Route::get('panel/monthly', [$t, 'monthly'])->name('school.monthly');
+    Route::get('panel/students/{student}/family', [$t, 'family'])->whereNumber('student')->name('school.family');
+    Route::get('me', [$t, 'me'])->name('school.me');
+    Route::get('me.json', [$t, 'meJson'])->middleware('throttle:120,1')->name('school.me.json');
+    Route::get('me/quiz/{quiz}', [$t, 'take'])->whereNumber('quiz')->name('school.take');
+    Route::post('me/quiz/{quiz}/start', [$t, 'begin'])->whereNumber('quiz')->middleware('throttle:20,1')->name('school.begin');
+    Route::post('me/quiz/{quiz}/save', [$t, 'save'])->whereNumber('quiz')->middleware('throttle:240,1')->name('school.save');
+    Route::post('me/quiz/{quiz}/tab', [$t, 'tab'])->whereNumber('quiz')->middleware('throttle:120,1')->name('school.tab');
+    Route::post('me/quiz/{quiz}/submit', [$t, 'submit'])->whereNumber('quiz')->middleware('throttle:20,1')->name('school.submit');
+    Route::get('me/quiz/{quiz}/result', [$t, 'myAttempt'])->whereNumber('quiz')->name('school.result');
 });

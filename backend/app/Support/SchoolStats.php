@@ -110,6 +110,7 @@ class SchoolStats
                 'quiz_avg' => $p['quiz_avg'] ?? null, 'quiz_count' => $p['quiz_count'] ?? 0,
                 'answered' => $n, 'correct' => $ok, 'acc' => $n ? (int) round(100 * $ok / $n) : null,
                 'min' => (int) round($int($l['ms'] ?? 0) / 60000), 'lessons' => $lessons, 'wrong' => array_reverse($wrong),
+                'ids' => $done,
             ];
         }
         $lastSeen = $last->filter()->map(fn ($d) => Carbon::parse($d))->max();

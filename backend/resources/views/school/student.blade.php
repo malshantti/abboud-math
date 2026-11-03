@@ -1,6 +1,6 @@
 @extends('school.layout')
 @section('title', $r['name'])
-@section('head-end')<a class="btn ghost small" href="{{ route('school.report', [$school, $section]) }}">لوحة {{ $section->name }}</a>@endsection
+@section('head-end')<a class="btn ghost small" href="{{ route('school.report', [$school, $section]) }}">لوحة {{ $section->name }}</a><a class="btn small" href="{{ route('school.family', [$school, $r['id']]) }}">تقرير الأهل الشهري</a>@endsection
 @php($tz = \App\Support\SchoolStats::tz())
 @php($pc = fn ($v) => $v === null ? '—' : $ar::num($v).'٪')
 @section('css')
