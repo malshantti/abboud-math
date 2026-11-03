@@ -5,6 +5,7 @@
 <nav class="admin-nav" id="navigation" aria-label="أقسام لوحة الإدارة">
   <p class="nav-group">الإدارة</p>
   @can('manage-site')<a class="nav-item" href="{{ route('manage.dashboard') }}" @if($r==='manage.dashboard') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'home'])<span>لوحة المعلومات</span></a>@endcan
+  @can('manage-site')<a class="nav-item" href="{{ route('manage.live') }}" @if(str_starts_with($r,'manage.live')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>المتصلون الآن واليوم</span></a>@endcan
   <a class="nav-item" href="{{ route('manage.classes') }}" @if(str_starts_with($r,'manage.class')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'book'])<span>@can('manage-site')الصفوف والمعلّمون@else صفوفي@endcan</span></a>
   <a class="nav-item" href="{{ route('manage.students') }}" @if(str_starts_with($r,'manage.student')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'students'])<span>الطلاب والتقدّم</span></a>
   @can('manage-site')
