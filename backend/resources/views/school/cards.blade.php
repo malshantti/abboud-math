@@ -16,6 +16,7 @@ body{background:#fff}
 canvas{width:92px;height:92px}
 .ft{grid-column:1/-1;font-size:11px;color:var(--muted)}
 .test{color:#7a5200;font-weight:800}
+@media screen and (max-width:640px){.sheet{grid-template-columns:1fr}}
 @media print{.bar{display:none}.sheet{padding:0}}
 </style></head><body class="brand-font">
 <div class="bar"><b>{{ $ar::num($cards->count()) }} بطاقة — {{ $section->name }}</b><button class="btn small" onclick="print()">طباعة</button><span class="muted">قصّ البطاقات وسلّم كل طالب بطاقته.</span></div>

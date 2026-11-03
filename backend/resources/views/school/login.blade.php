@@ -60,7 +60,7 @@ h1{font-size:26px;margin:0 0 4px}
 var $=function(i){return document.getElementById(i)},names={},cur=null,
  NAMES=@json(route('school.names', ['school' => $school, 'section' => 0])).replace(/\/0\/names$/,'/'),
  pre=@json($pre ? ['id' => $pre->id, 'name' => $pre->name] : null), sec=@json($section ? ['id' => $section->id, 'name' => $section->name] : null);
-function step(id){['s1','s2','s3'].forEach(function(s){$(s).hidden=s!==id});var f=$(id).querySelector('button,input:not([type=hidden])');if(f)f.focus({preventScroll:true});}
+function step(id){['s1','s2','s3'].forEach(function(s){$(s).hidden=s!==id});var f=$(id).querySelector('input:not([type=hidden])')||$(id).querySelector('button');if(f)f.focus({preventScroll:true});}
 document.querySelectorAll('[role=tab]').forEach(function(t){t.onclick=function(){document.querySelectorAll('[role=tab]').forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);$(x.getAttribute('aria-controls')).hidden=!on;});};});
 document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){step(b.dataset.go)}});
 function esc(s){var d=document.createElement('i');d.textContent=s;return d.innerHTML}
