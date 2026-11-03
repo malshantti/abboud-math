@@ -70,6 +70,7 @@ class SchoolQuizMediaTest extends TestCase
         $this->actingAs($t2)->get('/s/one/media/'.$r['name'])->assertForbidden();
         $this->actingAs($t)->get('/s/one/media/'.$r['name'])->assertOk()->assertHeader('Content-Type', 'image/webp');
 
+        $this->actingAs($t)->get('/s/one/panel/sections/'.$sec->id.'/quizzes/new')->assertOk()->assertSee('school-math.js', false)->assertSee('quiz-media', false);
         $this->actingAs($t)->post('/s/one/panel/sections/'.$sec->id.'/quizzes', [
             'subject' => 'g4-math', 'title' => 'صور ومعادلات',
             'own' => [
