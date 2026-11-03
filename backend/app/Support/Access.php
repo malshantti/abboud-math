@@ -48,6 +48,10 @@ class Access
      */
     public static function state(User $user): array
     {
+        if ($user->role === 'school') {
+            // School accounts: the school licence opens every subject (phase 1; no family payments involved).
+            return ['access' => true, 'kind' => 'school', 'ends_at' => null, 'subjects' => null];
+        }
         if ($user->isStaff() || ! Setting::flag('gating_enabled')) {
             return ['access' => true, 'kind' => $user->isStaff() ? 'staff' : 'open', 'ends_at' => null, 'subjects' => null];
         }

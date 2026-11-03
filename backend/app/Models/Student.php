@@ -10,7 +10,7 @@ class Student extends Model
 {
     protected $fillable = ['name', 'grade', 'avatar', 'local_id'];
 
-    protected $hidden = ['pin_salt', 'pin_hash', 'report_token'];
+    protected $hidden = ['pin_salt', 'pin_hash', 'report_token', 'pin_enc'];
 
     /** Same lightweight format the site uses (profiles.js hash()): sha256 of «bustan:salt:pin». */
     public function setPin(?string $pin): void
@@ -20,6 +20,16 @@ class Student extends Model
         }
         $salt = bin2hex(random_bytes(8));
         $this->forceFill(['pin_salt' => $salt, 'pin_hash' => 'sha256:'.hash('sha256', 'bustan:'.$salt.':'.$pin)]);
+    }
+
+    public function checkPin(string $pin): bool
+    {
+        return $this->pin_hash && $this->pin_salt && hash_equals((string) $this->pin_hash, 'sha256:'.hash('sha256', 'bustan:'.$this->pin_salt.':'.$pin));
+    }
+
+    public function section(): BelongsTo
+    {
+        return $this->belongsTo(SchoolSection::class, 'school_section_id');
     }
 
     public function hasPin(): bool
@@ -45,7 +55,7 @@ class Student extends Model
 
     protected function casts(): array
     {
-        return ['grade' => 'integer', 'last_synced_at' => 'datetime'];
+        return ['grade' => 'integer', 'last_synced_at' => 'datetime', 'pin_locked_until' => 'datetime'];
     }
 
     public function user(): BelongsTo

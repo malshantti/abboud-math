@@ -16,6 +16,7 @@ RewriteRule ^ https://bustankids.com%{REQUEST_URI} [L,R=301]
 RewriteRule ^g([1-8])/?$ /?grade=$1#L-curriculum [L,R=302,NE]
 # روابط مختصرة للتسجيل والدخول
 RewriteRule ^(?:register|signup|sign-up)/?$ /admin-api/account/register [L,R=302]
+RewriteRule ^s/([a-z0-9-]+)/?$ /admin-api/s/$1 [L,R=302,QSA]
 RewriteRule ^(?:login|signin|sign-in)/?$ /admin-api/account/login [L,R=302]
 </IfModule>
 
