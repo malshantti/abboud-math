@@ -119,10 +119,10 @@ class SchoolMath
             if (isset(self::SYM[$name])) {
                 [$t, $v] = self::SYM[$name];
 
-                return "<$t>$v</$t>";
+                return $t === 'mi' ? '<mi mathvariant="normal">'.$v.'</mi>' : "<$t>$v</$t>";
             }
 
-            return '<mi>'.e($name).'</mi>';
+            return '<mi mathvariant="normal">'.e($name).'</mi>';
         }
         if (preg_match('/[0-9٠-٩]/u', $ch)) {
             $num = '';
@@ -142,7 +142,8 @@ class SchoolMath
         }
         $i++;
         if (preg_match('/[a-zA-Zπ∞]/u', $ch)) {
-            return '<mi>'.e($ch).'</mi>';
+            // mathvariant=normal avoids the Unicode math-italic code points (missing on many phones); CSS adds the italic.
+            return '<mi mathvariant="normal"'.(preg_match('/[a-zA-Z]/', $ch) ? ' class="v"' : '').'>'.e($ch).'</mi>';
         }
 
         return '<mo>'.e($ch).'</mo>';

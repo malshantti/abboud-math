@@ -39,7 +39,7 @@ class SchoolQuizMediaTest extends TestCase
     {
         $h = SchoolMath::html('احسب $\frac{3}{4} + x^{2} \le \sqrt{16}$ <script>');
         $this->assertStringContainsString('<mfrac><mrow><mn>3</mn></mrow><mrow><mn>4</mn></mrow></mfrac>', $h);
-        $this->assertStringContainsString('<msup><mi>x</mi>', $h);
+        $this->assertStringContainsString('<msup><mi mathvariant="normal" class="v">x</mi>', $h);
         $this->assertStringContainsString('<msqrt>', $h);
         $this->assertStringContainsString('&lt;script&gt;', $h);
         $this->assertStringNotContainsString('<script>', SchoolMath::html('$<script>$'));

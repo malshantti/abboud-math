@@ -39,7 +39,7 @@
 </form>
 @endsection
 @section('js')
-<script src="{{ asset('ui/school-math.js') }}?v=1"></script>
+<script src="{{ asset('ui/school-math.js') }}?v=2"></script>
 <script>
 (()=>{const subj=document.getElementById('subj'),bank=document.getElementById('bank'),own=document.getElementById('own'),cnt=document.getElementById('cnt'),base={!! json_encode(route('school.bank', [$school, $section, 'CODE'])) !!};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));const num=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);

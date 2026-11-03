@@ -10,10 +10,10 @@ function atom(c,p){var ch=c[p.i];if(ch==='{'){p.i++;return '<mrow>'+seq(c,p,'}')
  if(ch==='\\'){p.i++;var n='';while(p.i<c.length&&/[a-zA-Z]/.test(c[p.i]))n+=c[p.i++];if(!n&&p.i<c.length)n=c[p.i++];
   if(n==='frac'){var a=arg(c,p);return '<mfrac>'+a+arg(c,p)+'</mfrac>'}
   if(n==='sqrt'){if(c[p.i]==='['){p.i++;var x='<mrow>'+seq(c,p,']')+'</mrow>';return '<mroot>'+arg(c,p)+x+'</mroot>'}return '<msqrt>'+arg(c,p)+'</msqrt>'}
-  if(SYM[n])return '<'+SYM[n][0]+'>'+SYM[n][1]+'</'+SYM[n][0]+'>';return '<mi>'+e(n)+'</mi>'}
+  if(SYM[n])return SYM[n][0]==='mi'?'<mi mathvariant="normal">'+SYM[n][1]+'</mi>':'<mo>'+SYM[n][1]+'</mo>';return '<mi mathvariant="normal">'+e(n)+'</mi>'}
  if(/[0-9٠-٩]/.test(ch)){var m='';while(p.i<c.length&&/[0-9٠-٩.,٫]/.test(c[p.i]))m+=c[p.i++];var tail=/[.,٫]$/.test(m)?'<mo>'+e(m.slice(-1))+'</mo>':'';return '<mn>'+e(m.replace(/[.,٫]+$/,''))+'</mn>'+tail}
  if(/[\u0600-\u06FF]/.test(ch)&&!/[٠-٩٫]/.test(ch)){var wd='';while(p.i<c.length&&/[\u0600-\u06FF]/.test(c[p.i])&&!/[٠-٩٫]/.test(c[p.i]))wd+=c[p.i++];return '<mi mathvariant="normal">'+e(wd)+'</mi>'}
- p.i++;return /[a-zA-Zπ∞]/.test(ch)?'<mi>'+e(ch)+'</mi>':'<mo>'+e(ch)+'</mo>'}
+ p.i++;return /[a-zA-Zπ∞]/.test(ch)?'<mi mathvariant="normal"'+(/[a-zA-Z]/.test(ch)?' class="v"':'')+'>'+e(ch)+'</mi>':'<mo>'+e(ch)+'</mo>'}
 function html(s){return String(s||'').split(/(\$[^$]+\$)/).map(function(x){return x.length>2&&x[0]==='$'&&x[x.length-1]==='$'?math(x.slice(1,-1)):e(x)}).join('')}
 var BTN=[['كسر','\\frac{}{}',6],['أُس','^{}',2],['جذر','\\sqrt{}',6],['×','\\times ',7],['÷','\\div ',5],['≤','\\le ',4],['≥','\\ge ',4],['≠','\\ne ',4],['π','\\pi ',4]];
 function bar(inp,small){if(inp.dataset.eq)return;inp.dataset.eq=1;var b=document.createElement('div');b.className='eqbar';b.setAttribute('role','toolbar');b.setAttribute('aria-label','أدوات المعادلات');

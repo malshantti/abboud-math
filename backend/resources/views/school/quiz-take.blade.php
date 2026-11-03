@@ -26,7 +26,7 @@
 @endsection
 @section('js')
 @php($needMath = collect($q->questions)->contains(fn ($z) => ! empty($z['math']) && $z['type'] === 'fill'))
-@if($needMath)<script src="{{ asset('ui/school-math.js') }}?v=1"></script>@endif
+@if($needMath)<script src="{{ asset('ui/school-math.js') }}?v=2"></script>@endif
 <script>
 if(window.SchoolMath)document.querySelectorAll('[data-eq]').forEach(i=>SchoolMath.bar(i,1));
 
