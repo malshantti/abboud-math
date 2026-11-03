@@ -162,6 +162,8 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::get('settings', [Manage::class, 'settings'])->name('manage.settings');
         Route::put('settings', [Manage::class, 'updateSettings'])->name('manage.settings.update');
         Route::get('activity', [Manage::class, 'activity'])->name('manage.activity');
+        Route::get('live', [App\Http\Controllers\Admin\LiveController::class, 'index'])->name('manage.live');
+        Route::get('live/online', [App\Http\Controllers\Admin\LiveController::class, 'online'])->middleware('throttle:60,1')->name('manage.live.online');
         Route::get('funnel', [App\Http\Controllers\Admin\FunnelController::class, 'index'])->name('manage.funnel');
         Route::get('funnel/families/{user}', [App\Http\Controllers\Admin\FunnelController::class, 'family'])->whereNumber('user')->name('manage.funnel.family');
         Route::get('export/{type}', [Manage::class, 'export'])->name('manage.export');
