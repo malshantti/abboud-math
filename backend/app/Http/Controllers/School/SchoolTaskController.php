@@ -169,7 +169,7 @@ class SchoolTaskController extends Controller
             'starts' => ['required', 'date'], 'ends' => ['required', 'date', 'after:starts'], 'duration' => ['required', 'integer', 'between:1,180'],
             'attempts' => ['required', 'integer', 'between:1,5'], 'shuffle' => ['nullable', 'boolean'], 'show' => ['required', Rule::in(['now', 'after'])],
         ], ['title.required' => 'اكتب عنوان الاختبار.', 'ends.after' => 'وقت الإغلاق يجب أن يكون بعد وقت البدء.']);
-        $qs = SchoolTasks::buildQuestions($data['subject'], $data['picked'] ?? [], $data['own'] ?? []);
+        $qs = SchoolTasks::buildQuestions($data['subject'], $data['picked'] ?? [], $data['own'] ?? [], (int) $school->id);
         if (! $qs) {
             return back()->withInput()->withErrors(['picked' => 'أضف سؤالًا واحدًا على الأقل: من بنك الكتاب أو من إعدادك.']);
         }
@@ -179,6 +179,35 @@ class SchoolTaskController extends Controller
         ActivityLog::record('school.quiz', 'section:'.$section->id);
 
         return redirect()->route('school.tasks', [$school, $section])->with('status', 'نُشر الاختبار ('.\App\Support\Ar::num(count($qs)).' سؤالًا). يظهر للطلاب تنبيه «اختبار جديد».');
+    }
+
+    /** Teacher uploads a question/option image → resized WebP stored for this school only. */
+    public function uploadMedia(Request $request, School $school, SchoolSection $section): JsonResponse
+    {
+        $u = $this->guard($request, $school);
+        $this->sectionFor($u, $school, $section);
+        $v = \Illuminate\Support\Facades\Validator::make($request->all(), ['image' => ['required', 'file', 'max:6144', 'mimes:jpg,jpeg,png,webp,gif', 'mimetypes:image/jpeg,image/png,image/webp,image/gif']],
+            ['image.max' => 'الصورة أكبر من ٦ ميغابايت.', 'image.mimes' => 'الصيغ المقبولة: JPG أو PNG أو WebP أو GIF.', 'image.mimetypes' => 'الصيغ المقبولة: JPG أو PNG أو WebP أو GIF.', 'image.required' => 'اختر صورة.']);
+        if ($v->fails()) {
+            return response()->json(['error' => $v->errors()->first()], 422);
+        }
+        $r = \App\Support\SchoolMedia::store((int) $school->id, $request->file('image'));
+        if (isset($r['error'])) {
+            return response()->json($r, 422);
+        }
+        ActivityLog::record('school.media', 'section:'.$section->id);
+
+        return response()->json($r + ['url' => route('school.media', [$school, $r['name']])]);
+    }
+
+    /** Serve a quiz image — only to staff or students of the same school. */
+    public function media(Request $request, School $school, string $name)
+    {
+        abort_unless($this->staff($request, $school) || $this->child($request, $school), 403);
+        $path = \App\Support\SchoolMedia::path((int) $school->id, $name);
+        abort_unless($path, 404);
+
+        return response()->file($path, ['Content-Type' => 'image/webp', 'Cache-Control' => 'private, max-age=31536000, immutable', 'X-Content-Type-Options' => 'nosniff']);
     }
 
     public function quiz(Request $request, School $school, SchoolSection $section, int $quiz)

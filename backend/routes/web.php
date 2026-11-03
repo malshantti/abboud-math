@@ -220,6 +220,8 @@ Route::prefix('s/{school}')->where(['school' => '[a-z0-9-]+'])->group(function (
     Route::post('panel/sections/{section}/homework/{hw}/delete', [$t, 'deleteHomework'])->whereNumber(['section', 'hw'])->name('school.homework.delete');
     Route::get('panel/sections/{section}/quizzes/new', [$t, 'newQuiz'])->whereNumber('section')->name('school.quiz.new');
     Route::post('panel/sections/{section}/quizzes', [$t, 'storeQuiz'])->whereNumber('section')->middleware('throttle:30,1')->name('school.quiz.store');
+    Route::post('panel/sections/{section}/quiz-media', [$t, 'uploadMedia'])->whereNumber('section')->middleware('throttle:60,1')->name('school.media.upload');
+    Route::get('media/{name}', [$t, 'media'])->where('name', '[a-f0-9]{32}\\.webp')->name('school.media');
     Route::get('panel/sections/{section}/quizzes/{quiz}', [$t, 'quiz'])->whereNumber(['section', 'quiz'])->name('school.quiz');
     Route::get('panel/sections/{section}/quizzes/{quiz}/attempts/{attempt}', [$t, 'attempt'])->whereNumber(['section', 'quiz', 'attempt'])->name('school.attempt');
     Route::post('panel/sections/{section}/quizzes/{quiz}/delete', [$t, 'deleteQuiz'])->whereNumber(['section', 'quiz'])->name('school.quiz.delete');
