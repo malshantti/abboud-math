@@ -274,6 +274,62 @@ class SchoolController extends Controller
         return back()->with('status', 'رقم سري جديد لـ'.$student->name.': '.Ar::num(Schools::plainPin($student)));
     }
 
+    /** Detailed dashboard for one section: attendance, progress, hardest questions, CSV. */
+    public function report(Request $request, School $school, SchoolSection $section)
+    {
+        if (! $u = $this->staff($request, $school)) {
+            return redirect()->route('school.login', ['school' => $school, 'tab' => 'staff']);
+        }
+        $this->sectionFor($u, $school, $section);
+        $subject = preg_match('/^[a-z]{3,10}$/', (string) $request->query('subject')) ? (string) $request->query('subject') : null;
+        $d = \App\Support\SchoolStats::section($section, $subject);
+        if ($request->query('format') === 'csv') {
+            return $this->csv($school, $section, $d);
+        }
+
+        return view('school.report', ['school' => $school, 'section' => $section, 'me' => $u, 'd' => $d]);
+    }
+
+    private function csv(School $school, SchoolSection $section, array $d)
+    {
+        $tz = \App\Support\SchoolStats::tz();
+        $codes = array_keys($d['subjects']);
+        $head = ['الاسم', 'اسم المستخدم', 'آخر ظهور ('.$tz.')', 'أيام بلا دخول', 'أيام نشاط هذا الأسبوع', 'دقائق هذا الأسبوع', 'متوسط التقدّم %', 'الدروس المنجزة', 'إجابات', 'الصواب %'];
+        foreach ($codes as $c) {
+            $n = $d['subjects'][$c]['name'];
+            array_push($head, $n.' — دروس', $n.' — تقدّم %', $n.' — صواب %', $n.' — متوسط الاختبارات');
+        }
+        $name = 'section-'.$section->id.'-'.now($tz)->format('Y-m-d').($d['subject'] ? '-'.explode('-', $d['subject'])[1] : '').'.csv';
+
+        return response()->streamDownload(function () use ($d, $head, $codes, $tz) {
+            $o = fopen('php://output', 'w');
+            fwrite($o, "\xEF\xBB\xBF");
+            fputcsv($o, $head);
+            foreach ($d['rows']->sortBy('name') as $r) {
+                $line = [$r['name'], $r['username'], $r['last'] ? $r['last']->copy()->timezone($tz)->format('Y-m-d H:i') : '', $r['idle'] ?? '', $r['week_days'], $r['week_min'], $r['progress'] ?? '', $r['done'], $r['answered'], $r['acc'] ?? ''];
+                foreach ($codes as $c) {
+                    $x = $r['subjects'][$c];
+                    array_push($line, $x['done'], $x['pct'] ?? '', $x['acc'] ?? '', $x['quiz_avg'] ?? '');
+                }
+                fputcsv($o, $line);
+            }
+            fclose($o);
+        }, $name, ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'no-store, private']);
+    }
+
+    public function student(Request $request, School $school, Student $student): View|RedirectResponse
+    {
+        if (! $u = $this->staff($request, $school)) {
+            return redirect()->route('school.login', ['school' => $school, 'tab' => 'staff']);
+        }
+        abort_unless($student->section, 404);
+        $section = $this->sectionFor($u, $school, $student->section);
+        $student->load(['user:id,username,last_login_at,active_device_seen_at', 'progress']);
+        $r = \App\Support\SchoolStats::student($student, (int) $section->grade, $student->progress->keyBy('key'));
+
+        return view('school.student', ['school' => $school, 'section' => $section, 'me' => $u, 'r' => $r, 'student' => $student]);
+    }
+
     public function rotateCode(Request $request, School $school, SchoolSection $section): RedirectResponse
     {
         $u = $this->guard($request, $school);

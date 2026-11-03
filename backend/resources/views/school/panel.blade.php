@@ -30,7 +30,7 @@ h2{font-size:21px;margin:0 0 10px}
       <li><a class="name" href="{{ route('school.section', [$school, $s]) }}">{{ $s->name }}</a><span class="chip grey">{{ $ar::grade($s->grade) }}</span>
         <span class="muted">{{ $ar::num($s->students_count) }} طالبًا · دخل اليوم {{ $ar::num($active[$s->id] ?? 0) }}</span>
         @if ($s->teachers->count())<span class="muted">· {{ $s->teachers->pluck('name')->join('، ') }}</span>@endif
-        <span class="end"><a class="btn small" href="{{ route('school.section', [$school, $s]) }}">الطلاب</a><a class="btn ghost small" href="{{ route('school.cards', [$school, $s]) }}" target="_blank" rel="noopener">طباعة البطاقات</a></span></li>
+        <span class="end"><a class="btn small" href="{{ route('school.report', [$school, $s]) }}">لوحة المتابعة</a><a class="btn ghost small" href="{{ route('school.section', [$school, $s]) }}">الطلاب</a><a class="btn ghost small" href="{{ route('school.cards', [$school, $s]) }}" target="_blank" rel="noopener">طباعة البطاقات</a></span></li>
     @empty<li class="muted">{{ $me->school_role === 'manager' ? 'أضف أول شعبة من النموذج.' : 'لم تُسند إليك شعبة بعد. اطلب من مدير المدرسة.' }}</li>@endforelse
     </ul>
   </section>
