@@ -85,4 +85,87 @@ class SchoolDemo
 
         return $n;
     }
+
+    /** TEST homework, quizzes and attempts for a test school (replaces earlier test tasks of this section). */
+    public static function seedTasks(SchoolSection $section): array
+    {
+        $school = School::findOrFail($section->school_id);
+        abort_unless($school->is_test, 403, 'Test schools only');
+        $g = (int) $section->grade;
+        $teacher = $section->teachers()->value('users.id');
+        \App\Models\SchoolHomework::where('school_section_id', $section->id)->where('is_test', true)->delete();
+        \App\Models\SchoolQuiz::where('school_section_id', $section->id)->where('is_test', true)->delete();
+        $kids = $section->students()->orderBy('id')->get()->values();
+        $made = ['homework' => 0, 'quizzes' => 0, 'attempts' => 0];
+        $plan = [['math', 0, -9, [0.9, 0.8, 0.8, 0.6, 0.5, 0.3, 0.1, 0]], ['science', 0, -2, [0.9, 0.7, 0.8, 0.5, 0.3, 0.2, 0, 0]], ['math', 1, 3, [0.6, 0.4, 0.3, 0.2, 0, 0, 0, 0]], ['arabic', 0, 5, [0.3, 0.2, 0, 0, 0, 0, 0, 0]]];
+        mt_srand(777 + $section->id);
+        foreach ($plan as [$subj, $unit, $dueDays, $rate]) {
+            $code = 'g'.$g.'-'.$subj;
+            $u = SchoolTasks::bank($code)[$unit] ?? null;
+            if (! $u) {
+                continue;
+            }
+            $items = array_slice(array_column($u['les'], 'id'), 0, 3);
+            $hw = \App\Models\SchoolHomework::create(['school_id' => $school->id, 'school_section_id' => $section->id, 'teacher_id' => $teacher, 'subject' => $code,
+                'title' => '[تجريبي] '.SchoolStats::subjectName($code).': '.$u['t'], 'items' => $items, 'due_at' => now()->addDays($dueDays)->setTime(18, 0), 'is_test' => true]);
+            $hw->forceFill(['created_at' => now()->addDays($dueDays - 5)])->save();
+            $made['homework']++;
+            $key = $g === 8 && $subj === 'math' ? 'abboud_math_v1' : 'bustan_'.str_replace('-', '_', $code).'_v1';
+            foreach ($kids as $i => $k) {
+                $r = $rate[$i % count($rate)];
+                $n = $r >= 0.8 ? count($items) : (int) floor(count($items) * $r * 1.2);
+                if (! $n) {
+                    continue;
+                }
+                $row = $k->progress()->firstOrNew(['key' => $key]);
+                $blob = json_decode((string) $row->value, true) ?: ['xp' => 0, 'done' => [], 'test_data' => true];
+                foreach (array_slice($items, 0, $n) as $it) {
+                    $blob['done'][$it] = max(40, min(100, (int) round(100 * (0.45 + $r / 2) + mt_rand(-10, 10))));
+                }
+                $row->value = json_encode($blob, JSON_UNESCAPED_UNICODE);
+                $row->save();
+            }
+        }
+        foreach ([['math', 0, -6, -4, [92, 75, 83, 58, 40, null, null, null]], ['science', 0, -1, 2, [100, 67, null, 50, null, null, null, null]]] as [$subj, $unit, $startD, $endD, $scores]) {
+            $code = 'g'.$g.'-'.$subj;
+            $u = SchoolTasks::bank($code)[$unit] ?? null;
+            if (! $u) {
+                continue;
+            }
+            $picked = [];
+            foreach (array_slice($u['les'], 0, 3) as $l) {
+                foreach (array_slice(array_keys($l['q']), 0, 2) as $qi) {
+                    $picked[] = $l['id'].'|'.$qi;
+                }
+            }
+            $qs = SchoolTasks::buildQuestions($code, $picked, [['type' => 'tf', 'q' => '[تجريبي] سؤال من إعداد المعلّم: الماء يغلي عند ١٠٠ درجة.', 'a' => '1'], ['type' => 'fill', 'q' => '[تجريبي] أكمل: ٥ × ٤ = …', 'ans' => '٢٠|عشرون']]);
+            $quiz = \App\Models\SchoolQuiz::create(['school_id' => $school->id, 'school_section_id' => $section->id, 'teacher_id' => $teacher, 'subject' => $code,
+                'title' => '[تجريبي] اختبار '.SchoolStats::subjectName($code).': '.$u['t'], 'questions' => $qs, 'starts_at' => now()->addDays($startD)->setTime(8, 0),
+                'ends_at' => now()->addDays($endD)->setTime(20, 0), 'duration_min' => 15, 'attempts' => 1, 'shuffle' => true, 'show_results' => 'now', 'is_test' => true]);
+            $quiz->forceFill(['created_at' => now()->addDays($startD)->setTime(7, 0)])->save();
+            $made['quizzes']++;
+            foreach ($kids as $i => $k) {
+                $sc = $scores[$i % count($scores)];
+                if ($sc === null) {
+                    continue;
+                }
+                $n = count($qs);
+                $want = (int) round($n * $sc / 100);
+                $ans = [];
+                foreach ($qs as $qi => $q) {
+                    $right = $qi < $want;
+                    $ans[$qi] = $q['type'] === 'fill' ? ($right ? $q['ans'][0] : '٢٥') : (string) ($right ? $q['a'] : ($q['a'] + 1) % count($q['o']));
+                }
+                $start = now()->addDays(min(0, $endD) - 1)->setTime(16, 5 + $i * 3);
+                $a = \App\Models\SchoolQuizAttempt::create(['school_quiz_id' => $quiz->id, 'student_id' => $k->id, 'attempt' => 1, 'started_at' => $start,
+                    'deadline_at' => $start->copy()->addMinutes(15), 'layout' => array_map(fn ($qi) => [$qi, isset($qs[$qi]['o']) ? range(0, count($qs[$qi]['o']) - 1) : []], array_keys($qs)),
+                    'answers' => $ans, 'total' => $n, 'tab_switches' => $i === 4 ? 3 : ($i % 2)]);
+                SchoolTasks::submit($a, $quiz);
+                $a->forceFill(['submitted_at' => $start->copy()->addMinutes(6 + $i)])->save();
+                $made['attempts']++;
+            }
+        }
+
+        return $made;
+    }
 }

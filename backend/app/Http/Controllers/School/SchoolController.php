@@ -103,6 +103,13 @@ class SchoolController extends Controller
         Devices::claim($request, $user);
         \App\Support\Funnel::log('login', ['user_id' => $user->id, 'student_id' => $student->id, 'meta' => ['method' => 'school_pin', 'school' => $school->id]]);
         $to = MailCenter::siteUrl().'login.html?sync=1';
+        try { // Phase 3: open homework or quizzes → «واجباتي» first.
+            if (\App\Support\SchoolTasks::forStudent($student)['pending'] > 0) {
+                $to = route('school.me', $school);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return $request->expectsJson() ? response()->json(['ok' => true, 'to' => $to, 'name' => $student->name]) : redirect()->away($to);
     }

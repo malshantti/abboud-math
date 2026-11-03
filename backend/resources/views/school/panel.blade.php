@@ -1,6 +1,6 @@
 @extends('school.layout')
 @section('title', 'لوحة المدرسة')
-@section('head-end')<span class="muted">{{ $me->name }} · {{ $me->school_role === 'manager' ? 'مدير المدرسة' : 'معلّم' }}</span><form method="post" action="{{ route('school.logout', $school) }}">@csrf<button class="btn ghost small" type="submit">خروج</button></form>@endsection
+@section('head-end')@if($me->school_role === 'manager')<a class="btn small" href="{{ route('school.overview', $school) }}">لوحة المدير</a>@endif<a class="btn ghost small" href="{{ route('school.monthly', $school) }}">التقرير الشهري</a><span class="muted">{{ $me->name }} · {{ $me->school_role === 'manager' ? 'مدير المدرسة' : 'معلّم' }}</span><form method="post" action="{{ route('school.logout', $school) }}">@csrf<button class="btn ghost small" type="submit">خروج</button></form>@endsection
 @section('css')
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 18px}
 .kpi{background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px 16px}.kpi b{display:block;font:800 30px/1.2 Baloo,Cairo,sans-serif}.kpi span{color:var(--muted);font-weight:700}
@@ -30,7 +30,7 @@ h2{font-size:21px;margin:0 0 10px}
       <li><a class="name" href="{{ route('school.section', [$school, $s]) }}">{{ $s->name }}</a><span class="chip grey">{{ $ar::grade($s->grade) }}</span>
         <span class="muted">{{ $ar::num($s->students_count) }} طالبًا · دخل اليوم {{ $ar::num($active[$s->id] ?? 0) }}</span>
         @if ($s->teachers->count())<span class="muted">· {{ $s->teachers->pluck('name')->join('، ') }}</span>@endif
-        <span class="end"><a class="btn small" href="{{ route('school.report', [$school, $s]) }}">لوحة المتابعة</a><a class="btn ghost small" href="{{ route('school.section', [$school, $s]) }}">الطلاب</a><a class="btn ghost small" href="{{ route('school.cards', [$school, $s]) }}" target="_blank" rel="noopener">طباعة البطاقات</a></span></li>
+        <span class="end"><a class="btn small" href="{{ route('school.report', [$school, $s]) }}">لوحة المتابعة</a><a class="btn ghost small" href="{{ route('school.tasks', [$school, $s]) }}">الواجبات والاختبارات</a><a class="btn ghost small" href="{{ route('school.section', [$school, $s]) }}">الطلاب</a><a class="btn ghost small" href="{{ route('school.cards', [$school, $s]) }}" target="_blank" rel="noopener">طباعة البطاقات</a></span></li>
     @empty<li class="muted">{{ $me->school_role === 'manager' ? 'أضف أول شعبة من النموذج.' : 'لم تُسند إليك شعبة بعد. اطلب من مدير المدرسة.' }}</li>@endforelse
     </ul>
   </section>
