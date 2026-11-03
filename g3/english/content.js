@@ -1,8 +1,12 @@
 // English for Palestine 3A — الصفّ الثالث، الفصل الأوّل. الوحدات والكلمات والتراكيب كما في فهرس كتاب الطالب (ص 3).
-window.AR_AUDIO={"en1-lang": "en1-lang.mp3", "en1-words": "en1-words.mp3", "en2-lang": "en2-lang.mp3", "en2-words": "en2-words.mp3", "en3-lang": "en3-lang.mp3", "en3-words": "en3-words.mp3", "en4-lang": "en4-lang.mp3", "en4-words": "en4-words.mp3", "en6-lang": "en6-lang.mp3", "en7-lang": "en7-lang.mp3", "en7-words": "en7-words.mp3", "en8-lang": "en8-lang.mp3", "en8-words": "en8-words.mp3"};  // core.js plays audio/+value
+window.AR_AUDIO={"en1-lang": "en1-lang.mp3", "en1-words": "en1-words.mp3", "en2-lang": "en2-lang.mp3", "en2-words": "en2-words.mp3", "en3-lang": "en3-lang.mp3", "en3-words": "en3-words.mp3", "en4-lang": "en4-lang.mp3", "en4-words": "en4-words.mp3", "en6-lang": "en6-lang.mp3", "en6-words": "en6-words.mp3", "en7-lang": "en7-lang.mp3", "en7-words": "en7-words.mp3", "en8-lang": "en8-lang.mp3", "en8-words": "en8-words.mp3"};  // core.js plays audio/+value
 (function(){
 const E=s=>'<span class="ltr en">'+s+'</span>';
-const tbl=r=>'<table class="ltr en">'+r.map(x=>'<tr><td>'+x[0]+'</td><td dir="rtl">'+x[1]+'</td></tr>').join('')+'</table>';
+const SPK='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 010 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',SLW='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M3 17h13a4 4 0 004-4 5 5 0 00-10 0v4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="20" cy="9" r="1.6" fill="currentColor"/></svg>';
+const att=t=>String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const aub=t=>window.AU&&window.AU.has(t)?'<span class="au-row"><button type="button" class="au" data-en="'+att(t)+'" data-rate="1" aria-label="استمع" title="استمع">'+SPK+'</button><button type="button" class="au" data-en="'+att(t)+'" data-rate="0.75" aria-label="استمع ببطء" title="استمع ببطء">'+SLW+'</button></span>':'';
+const tbl=r=>'<table class="ltr en">'+r.map(x=>'<tr><td>'+x[0]+aub(x[0])+'</td><td dir="rtl">'+x[1]+'</td></tr>').join('')+'</table>';
+if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.au[data-en]');if(!b||!window.AU)return;e.preventDefault();e.stopPropagation();window.AU.play(b.dataset.en,{btn:b,rate:+b.dataset.rate})});
 const Q=(q,a,...w)=>({q,o:[a,...w],a:0,html:true});
 const P=(key,prompt,a,...w)=>Q(window.G3ART.picture(key)+'<span class="ltr en">'+prompt+'</span>',a,...w);
 const U=[
