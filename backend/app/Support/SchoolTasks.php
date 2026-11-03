@@ -107,7 +107,7 @@ class SchoolTasks
     // ---------- Quiz ----------
 
     /** Build the question snapshot from picked bank questions ("lesson|index") and teacher questions. */
-    public static function buildQuestions(string $code, array $picked, array $own): array
+    public static function buildQuestions(string $code, array $picked, array $own, int $schoolId = 0): array
     {
         $lessons = [];
         foreach (self::bank($code) as $u) {
@@ -123,35 +123,85 @@ class SchoolTasks
                 $qs[] = ['src' => 'bank', 'type' => 'mcq', 'lesson' => $lid, 'lt' => $lessons[$lid]['t'], 'pg' => $x[3], 'q' => $x[0], 'o' => array_values($x[1]), 'a' => (int) $x[2]];
             }
         }
+        $img = fn ($n) => $schoolId && SchoolMedia::valid($schoolId, $n) ? $n : null;
         foreach ($own as $o) {
             $type = $o['type'] ?? '';
-            $q = trim((string) ($o['q'] ?? ''));
-            if ($q === '') {
+            $q = mb_substr(trim((string) ($o['q'] ?? '')), 0, 600);
+            $qi = $img($o['img'] ?? null);
+            if ($q === '' && ! $qi) {
                 continue;
             }
-            $q = mb_substr($q, 0, 400);
+            $x = null;
             if ($type === 'mcq') {
-                $opts = array_values(array_filter(array_map(fn ($v) => mb_substr(trim((string) $v), 0, 160), (array) ($o['o'] ?? [])), fn ($v) => $v !== ''));
+                $opts = [];
+                $oimg = [];
+                $raw = (array) ($o['o'] ?? []);
+                $rimg = (array) ($o['oimg'] ?? []);
                 $a = (int) ($o['a'] ?? 0);
-                if (count($opts) >= 2 && $a >= 0 && $a < count($opts)) {
-                    $qs[] = ['src' => 'teacher', 'type' => 'mcq', 'q' => $q, 'o' => $opts, 'a' => $a];
+                $na = -1;
+                foreach ($raw as $j => $v) {
+                    $v = mb_substr(trim((string) $v), 0, 240);
+                    $im = $img($rimg[$j] ?? null);
+                    if ($v === '' && ! $im) {
+                        continue;
+                    }
+                    if ((int) $j === $a) {
+                        $na = count($opts);
+                    }
+                    $opts[] = $v;
+                    $oimg[] = $im;
+                }
+                if (count($opts) >= 2 && $na >= 0) {
+                    $x = ['src' => 'teacher', 'type' => 'mcq', 'q' => $q, 'o' => $opts, 'a' => $na];
+                    if (array_filter($oimg)) {
+                        $x['oi'] = $oimg;
+                    }
                 }
             } elseif ($type === 'tf') {
-                $qs[] = ['src' => 'teacher', 'type' => 'tf', 'q' => $q, 'o' => ['صح', 'خطأ'], 'a' => ($o['a'] ?? '1') === '0' || ($o['a'] ?? 1) === 0 ? 1 : 0];
+                $x = ['src' => 'teacher', 'type' => 'tf', 'q' => $q, 'o' => ['صح', 'خطأ'], 'a' => ($o['a'] ?? '1') === '0' || ($o['a'] ?? 1) === 0 ? 1 : 0];
             } elseif ($type === 'fill') {
-                $ans = array_values(array_filter(array_map(fn ($v) => mb_substr(trim($v), 0, 80), explode('|', (string) ($o['ans'] ?? ''))), fn ($v) => $v !== ''));
+                $ans = array_values(array_filter(array_map(fn ($v) => mb_substr(trim($v), 0, 120), self::splitAns((string) ($o['ans'] ?? ''))), fn ($v) => $v !== ''));
                 if ($ans) {
-                    $qs[] = ['src' => 'teacher', 'type' => 'fill', 'q' => $q, 'ans' => $ans];
+                    $x = ['src' => 'teacher', 'type' => 'fill', 'q' => $q, 'ans' => $ans];
                 }
+            }
+            if ($x) {
+                if ($qi) {
+                    $x['img'] = $qi;
+                }
+                if (SchoolMath::has($q) || ($x['type'] === 'mcq' && SchoolMath::has(implode(' ', $x['o']))) || ($x['type'] === 'fill' && SchoolMath::has(implode(' ', $x['ans'])))) {
+                    $x['math'] = 1;
+                }
+                $qs[] = $x;
             }
         }
 
         return $qs;
     }
 
+    /** Split accepted answers on | — but not inside $…$ equations. */
+    public static function splitAns(string $s): array
+    {
+        $out = [''];
+        $in = false;
+        foreach (mb_str_split($s) as $ch) {
+            if ($ch === '$') {
+                $in = ! $in;
+            }
+            if ($ch === '|' && ! $in) {
+                $out[] = '';
+            } else {
+                $out[count($out) - 1] .= $ch;
+            }
+        }
+
+        return $out;
+    }
+
     /** Arabic/English answer normaliser for fill-in questions. */
     public static function norm(string $v): string
     {
+        $v = str_replace(['*', ' '], ['×', ''], SchoolMath::plain($v));
         $v = strtr($v, ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه', '،' => ',']);
         $v = preg_replace('/[\x{064B}-\x{0652}\x{0640}]/u', '', $v);
 
@@ -309,15 +359,52 @@ class SchoolTasks
             return '—';
         }
         if ($q['type'] === 'fill') {
-            return (string) $v;
+            return SchoolMath::plain((string) $v);
         }
 
-        return (string) ($q['o'][(int) $v] ?? '—');
+        return self::optPlain($q, (int) $v);
     }
 
     public static function rightText(array $q): string
     {
-        return $q['type'] === 'fill' ? implode(' / ', $q['ans']) : (string) ($q['o'][$q['a']] ?? '');
+        return $q['type'] === 'fill' ? implode(' / ', array_map([SchoolMath::class, 'plain'], $q['ans'])) : self::optPlain($q, (int) $q['a']);
+    }
+
+    private static function optPlain(array $q, int $i): string
+    {
+        $t = SchoolMath::plain((string) ($q['o'][$i] ?? ''));
+
+        return ! empty($q['oi'][$i]) ? trim($t.' [صورة]') : ($t !== '' ? $t : '—');
+    }
+
+    /** Question text (with equations) + its image, as safe HTML. */
+    public static function qHtml(\App\Models\School $school, array $q): string
+    {
+        return SchoolMath::html($q['q'] ?? '').(! empty($q['img']) ? self::imgTag($school, $q['img'], 'qimg') : '');
+    }
+
+    public static function optHtml(\App\Models\School $school, array $q, int $i): string
+    {
+        return (! empty($q['oi'][$i]) ? self::imgTag($school, $q['oi'][$i], 'oimg') : '').SchoolMath::html((string) ($q['o'][$i] ?? ''));
+    }
+
+    public static function answerHtml(\App\Models\School $school, array $q, $v): string
+    {
+        if ($v === null || $v === '') {
+            return '—';
+        }
+
+        return $q['type'] === 'fill' ? SchoolMath::html(str_contains((string) $v, '\\') && ! str_contains((string) $v, '$') ? '$'.$v.'$' : (string) $v) : self::optHtml($school, $q, (int) $v);
+    }
+
+    public static function rightHtml(\App\Models\School $school, array $q): string
+    {
+        return $q['type'] === 'fill' ? implode(' / ', array_map([SchoolMath::class, 'html'], $q['ans'])) : self::optHtml($school, $q, (int) $q['a']);
+    }
+
+    public static function imgTag(\App\Models\School $school, string $name, string $cls): string
+    {
+        return '<img class="'.$cls.'" src="'.e(route('school.media', [$school, $name])).'" alt="صورة السؤال" loading="lazy" decoding="async">';
     }
 
     // ---------- Student side ----------

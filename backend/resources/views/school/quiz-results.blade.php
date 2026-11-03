@@ -6,6 +6,7 @@
 @php($s = $res['sum'])
 @section('css')
 @include('school._dash')
+@include('school._media')
 @endsection
 @section('content')
 <div class="top2"><h1>{{ $q->title }}</h1><span class="chip grey">{{ $section->name }}</span><span class="tag {{ ['open' => 't-done', 'soon' => 't-todo', 'closed' => 't-recent'][$q->state()] }}">{{ ['open' => 'مفتوح', 'soon' => 'لم يبدأ', 'closed' => 'مغلق'][$q->state()] }}</span></div>
@@ -30,7 +31,7 @@
 <section class="card"><h2>تحليل الأسئلة</h2><p class="sub">نسبة الإجابة الصحيحة لكل سؤال، وأكثر إجابة خاطئة.</p>
 <table><thead><tr><th>#</th><th>السؤال</th><th>الصواب</th><th class="hm">الإجابة الشائعة الخاطئة</th></tr></thead><tbody>
 @foreach ($res['questions'] as $i => $p)
-<tr><td>{{ $ar::num($i + 1) }}</td><td>{{ $p['q']['q'] }} @if($p['q']['src'] === 'teacher')<span class="tag mine">من إعداد المعلّم</span>@else<span class="tag bankt">الكتاب{{ ! empty($p['q']['pg']) ? ' ص '.$ar::num($p['q']['pg']) : '' }}</span>@endif<br><small class="muted">الصحيحة: <span class="ok">{{ \App\Support\SchoolTasks::rightText($p['q']) }}</span></small></td>
+<tr><td>{{ $ar::num($i + 1) }}</td><td>{!! \App\Support\SchoolTasks::qHtml($school, $p['q']) !!} @if($p['q']['src'] === 'teacher')<span class="tag mine">من إعداد المعلّم</span>@else<span class="tag bankt">الكتاب{{ ! empty($p['q']['pg']) ? ' ص '.$ar::num($p['q']['pg']) : '' }}</span>@endif<br><small class="muted">الصحيحة: <span class="ok">{!! \App\Support\SchoolTasks::rightHtml($school, $p['q']) !!}</span></small></td>
 <td><div class="cell"><div class="bar"><i style="width:{{ $p['pct'] ?? 0 }}%;background:{{ ($p['pct'] ?? 100) < 50 ? '#d9534f' : 'var(--g)' }}"></i></div><small>{{ $pc($p['pct']) }}</small></div></td>
 <td class="hm">@if($p['answers'])<span class="no">{{ array_key_first($p['answers']) }}</span> <small class="muted">({{ $ar::num(reset($p['answers'])) }})</small>@else — @endif</td></tr>
 @endforeach</tbody></table></section>
