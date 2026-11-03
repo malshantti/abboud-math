@@ -31,3 +31,7 @@
 @empty<p class="muted">لا واجبات الآن. أحسنت!</p>@endforelse
 <p style="text-align:center;margin-top:18px"><a class="btn" href="{{ $start }}">إلى دروسي</a></p>
 @endsection
+
+@section('js')
+<script>try{localStorage.setItem('bustan_school_kid',{!! json_encode($school->slug) !!})}catch(e){}</script>
+@endsection
