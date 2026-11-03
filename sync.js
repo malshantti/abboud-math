@@ -329,6 +329,15 @@ function warmUp(){try{
  document.body.appendChild(d);
 }catch(e){}}
 setTimeout(warmUp,900);
+// تنبيه مدرسة بستان: طالب مدرسة (سجّل الدخول برقم الصف) يرى شارة «واجباتي/اختبار جديد» في كل الصفحات. لا طلب شبكة لغير طلاب المدارس.
+async function schoolBadge(){try{const slug=localStorage.getItem('bustan_school_kid');if(!slug||!/^[a-z0-9-]+$/.test(slug)||/\/admin-api\//.test(location.pathname)||document.getElementById('bSchool'))return;
+ const r=await fetch(new URL('admin-api/s/'+slug+'/me.json',root).href,{credentials:'same-origin',cache:'no-store'});if(!r.ok)return;const j=await r.json();
+ if(!j.url){localStorage.removeItem('bustan_school_kid');return}if(!j.pending)return;
+ const n=x=>String(x).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);const a=document.createElement('a');a.id='bSchool';a.href=j.url;a.dir='rtl';
+ a.textContent=(j.soon?'⏰ اختبار يُغلق قريبًا':j.new?'📝 اختبار جديد':'📝 واجباتي')+' · '+n(j.pending);a.setAttribute('aria-label','واجباتي: '+n(j.pending)+' مهمّة');
+ a.style.cssText='position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));inset-inline-start:12px;z-index:9999;background:'+(j.soon?'#c2410c':'#1d5fa8')+';color:#fff;font:800 15px Cairo,sans-serif;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);text-decoration:none';
+ document.body.appendChild(a)}catch(e){}}
+setTimeout(schoolBadge,1500);
 window.BUSTAN_SYNC={run,enabled,daysText,pushPin,disable(){set(K.on,null);set(K.roster,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();

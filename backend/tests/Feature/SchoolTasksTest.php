@@ -76,7 +76,8 @@ class SchoolTasksTest extends TestCase
         $this->get('/s/demo/panel/sections/'.$sec2->id.'/tasks')->assertNotFound();
         $this->get('/s/demo/panel/sections/'.$sec2->id.'/homework/'.$hw->id)->assertNotFound();
         // the student sees it with a direct lesson link
-        $this->actingAs($kids[2]->user)->get('/s/demo/me')->assertOk()->assertSee('واجباتي')->assertSee(rawurlencode('g4/math/#/u/'.$l1), false);
+        $this->actingAs($kids[2]->user)->get('/s/demo/me')->assertOk()->assertSee('واجباتي')->assertSee(rawurlencode('g4/math/#/u/'.$l1), false)->assertSee('bustan_school_kid', false);
+        $this->getJson('/s/demo/me.json')->assertOk()->assertJsonStructure(['pending', 'new', 'soon', 'url']);
     }
 
     public function test_quiz_take_server_timer_attempts_and_results(): void
