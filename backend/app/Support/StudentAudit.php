@@ -27,6 +27,9 @@ class StudentAudit
 
                 continue;
             }
+            if ($s->role === 'school') {
+                continue; // school students are counted on the schools page, never as family or test rows
+            }
             if ($s->role !== 'parent' || (bool) $s->is_admin) {
                 $out['staff'][] = $s->id;
             }

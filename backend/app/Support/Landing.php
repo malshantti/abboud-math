@@ -16,6 +16,12 @@ class Landing
 
     public static function home(?User $user): string
     {
+        if ($user && $user->isSchoolStaff() && $user->school) {
+            return route('school.panel', $user->school->slug, absolute: false);
+        }
+        if ($user && $user->role === 'school') {
+            return MailCenter::siteUrl().'login.html?sync=1'; // a school student goes straight to the lessons
+        }
         return self::isStaff($user) ? route('manage.dashboard', absolute: false) : route('account.home', absolute: false);
     }
 

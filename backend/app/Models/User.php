@@ -20,6 +20,9 @@ class User extends Authenticatable
 
     public const ROLES = ['parent' => 'ولي أمر', 'teacher' => 'معلّم', 'admin' => 'مشرف'];
 
+    /** School accounts (manager, teacher, student holder): role «school», never offered in the admin role picker. */
+    public const SCHOOL_ROLE_LABELS = ['manager' => 'مدير مدرسة', 'teacher' => 'معلّم مدرسة', 'student' => 'طالب مدرسة'];
+
     public function students(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Student::class);
@@ -106,6 +109,22 @@ class User extends Authenticatable
         return $this->is_admin === true || $this->role === 'admin';
     }
 
+    public function school(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(School::class);
+    }
+
+    public function schoolSections(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(SchoolSection::class, 'school_section_teacher')->withPivot('subjects');
+    }
+
+    /** School manager or teacher (school panel only; never the site admin panel). */
+    public function isSchoolStaff(): bool
+    {
+        return $this->school_id !== null && in_array($this->school_role, ['manager', 'teacher'], true);
+    }
+
     public function isStaff(): bool
     {
         return $this->isAdminRole() || $this->role === 'teacher';
@@ -165,7 +184,7 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'disabled_at' => 'datetime',
             'last_login_at' => 'datetime', 'active_device_seen_at' => 'datetime',
-            'trial_ends_at' => 'datetime', 'gift_notice_seen_at' => 'datetime',
+            'trial_ends_at' => 'datetime', 'school_logout_at' => 'datetime', 'gift_notice_seen_at' => 'datetime',
             'push_reminders' => 'boolean',
             'last_reminder_on' => 'date',
             'password' => 'hashed',

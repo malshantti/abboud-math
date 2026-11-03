@@ -68,7 +68,7 @@ class ManageController extends Controller
     // ---- Users ----
     public function users(Request $request): View
     {
-        $q = User::query()->withCount('students');
+        $q = User::query()->withCount('students')->where('role', '!=', 'school'); // school accounts live on the schools page
         if ($s = trim((string) $request->query('q'))) {
             $q->where(fn ($w) => $w->where('name', 'like', "%$s%")->orWhere('email', 'like', "%$s%"));
         }
@@ -109,7 +109,7 @@ class ManageController extends Controller
         $user->email = strtolower(trim($data['email']));
         $user->setRole($data['role']);
         $user->save();
-        ActivityLog::record('user.update', $user->email, User::ROLES[$user->role]);
+        ActivityLog::record('user.update', $user->email, User::ROLES[$user->role] ?? $user->role);
 
         return back()->with('status', 'حُفظت بيانات الحساب.');
     }

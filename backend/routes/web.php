@@ -162,6 +162,9 @@ Route::prefix('admin/manage')->middleware(['auth', 'can:access-admin'])->group(f
         Route::get('settings', [Manage::class, 'settings'])->name('manage.settings');
         Route::put('settings', [Manage::class, 'updateSettings'])->name('manage.settings.update');
         Route::get('activity', [Manage::class, 'activity'])->name('manage.activity');
+        Route::get('schools', [App\Http\Controllers\Admin\SchoolAdminController::class, 'index'])->name('manage.schools');
+        Route::post('schools', [App\Http\Controllers\Admin\SchoolAdminController::class, 'store'])->name('manage.schools.store');
+        Route::post('schools/{school:id}', [App\Http\Controllers\Admin\SchoolAdminController::class, 'update'])->name('manage.schools.update');
         Route::get('live', [App\Http\Controllers\Admin\LiveController::class, 'index'])->name('manage.live');
         Route::get('live/online', [App\Http\Controllers\Admin\LiveController::class, 'online'])->middleware('throttle:60,1')->name('manage.live.online');
         Route::get('funnel', [App\Http\Controllers\Admin\FunnelController::class, 'index'])->name('manage.funnel');
@@ -186,4 +189,24 @@ Route::withoutMiddleware([
     Route::post('/setup/migrate', [App\Http\Controllers\SetupController::class, 'migrate']);
     Route::post('/setup/install', [App\Http\Controllers\SetupController::class, 'install']);
     Route::post('/setup/admin', [App\Http\Controllers\SetupController::class, 'admin']);
+});
+
+// ---- Schools (phase 1): branded login /s/{slug} + school panel. Strict isolation is enforced in the controller. ----
+Route::prefix('s/{school}')->where(['school' => '[a-z0-9-]+'])->group(function () {
+    $c = App\Http\Controllers\School\SchoolController::class;
+    Route::get('/', [$c, 'login'])->name('school.login');
+    Route::get('logo', [$c, 'logo'])->name('school.logo');
+    Route::get('sections/{section}/names', [$c, 'names'])->whereNumber('section')->middleware('throttle:60,1')->name('school.names');
+    Route::post('child', [$c, 'child'])->middleware('throttle:30,1')->name('school.child');
+    Route::post('staff', [$c, 'staffLogin'])->middleware('throttle:20,1')->name('school.staff');
+    Route::post('logout', [$c, 'logout'])->name('school.logout');
+    Route::get('panel', [$c, 'panel'])->name('school.panel');
+    Route::post('panel/sections', [$c, 'storeSection'])->name('school.sections.store');
+    Route::post('panel/teachers', [$c, 'storeTeacher'])->name('school.teachers.store');
+    Route::get('panel/sections/{section}', [$c, 'section'])->whereNumber('section')->name('school.section');
+    Route::post('panel/sections/{section}/students', [$c, 'storeStudents'])->whereNumber('section')->middleware('throttle:30,1')->name('school.students.store');
+    Route::get('panel/sections/{section}/cards', [$c, 'cards'])->whereNumber('section')->name('school.cards');
+    Route::post('panel/sections/{section}/code', [$c, 'rotateCode'])->whereNumber('section')->name('school.code');
+    Route::post('panel/students/{student}/kick', [$c, 'kick'])->whereNumber('student')->middleware('throttle:60,1')->name('school.kick');
+    Route::post('panel/students/{student}/pin', [$c, 'resetPin'])->whereNumber('student')->middleware('throttle:60,1')->name('school.pin');
 });

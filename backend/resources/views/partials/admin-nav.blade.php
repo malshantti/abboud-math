@@ -9,6 +9,7 @@
   <a class="nav-item" href="{{ route('manage.classes') }}" @if(str_starts_with($r,'manage.class')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'book'])<span>@can('manage-site')الصفوف والمعلّمون@else صفوفي@endcan</span></a>
   <a class="nav-item" href="{{ route('manage.students') }}" @if(str_starts_with($r,'manage.student')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'students'])<span>الطلاب والتقدّم</span></a>
   @can('manage-site')
+  <a class="nav-item" href="{{ route('manage.schools') }}" @if(str_starts_with($r,'manage.schools')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'book'])<span>المدارس</span></a>
   <a class="nav-item" href="{{ route('manage.users') }}" @if(str_starts_with($r,'manage.user')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'users'])<span>المستخدمون</span></a>
   <a class="nav-item" href="{{ route('manage.subscriptions') }}" @if(str_starts_with($r,'manage.subscription')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'card'])<span>الاشتراكات</span></a>
   <a class="nav-item" href="{{ route('manage.settings') }}" @if($r==='manage.settings') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'tag'])<span>الأسعار والإعدادات</span></a>
