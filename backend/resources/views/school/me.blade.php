@@ -14,6 +14,16 @@
 <div class="bn soon" role="alert">⏰ يُغلق قريبًا: {{ $x['quiz']->title }} — {{ $ar::date($x['quiz']->ends_at) }}<a class="btn small" href="{{ route('school.take', [$school, $x['quiz']->id]) }}">ادخل الآن</a></div>
 @endforeach
 
+@if (! empty($mo) && $mo['me'])
+<div class="task mo"><h3>⭐ نجومي هذا الأسبوع: {{ $ar::num($mo['me']['stars']) }}</h3>
+<div class="meta">{{ $ar::num($mo['me']['days']) }} أيام تعلّم · {{ $ar::num($mo['me']['min']) }} دقيقة · نجمة لكل يوم تتعلّم فيه، ولكل ربع ساعة، ونجمتان لكل واجب تُكمله.</div>
+@if (count($mo['titles']))<div class="it">🎉 أنت في لوحة الشرف: @foreach ($mo['titles'] as [$k, $tt])<span class="tag t-done">{{ $tt }}</span> @endforeach</div>
+@elseif (count($mo['board']))<div class="it">في لوحة الشرف هذا الأسبوع: {{ collect($mo['board'])->take(5)->pluck('name')->implode('، ') }}. يمكنك الانضمام إليهم!</div>@endif
+@foreach ($mo['challenges'] as $x)@php($mine = collect($x['st'])->first(fn ($r) => $r['sec']->id === $mo['section']->id))
+<div class="it">🏆 تحدّي «{{ $x['c']->title }}»: شعبتك في المركز {{ $ar::num($mine['rank'] ?? 0) }} من {{ $ar::num(count($x['st'])) }} — حتى {{ $ar::num($x['c']->ends_on->format('Y/m/d')) }}.</div>
+@endforeach</div>
+@endif
+
 <h2>الاختبارات</h2>
 @forelse ($t['quizzes'] as $x)@php($q = $x['quiz'])
 <div class="task"><h3>{{ $q->title }} @if($x['best'])<span class="tag t-done">أدّيته</span>@elseif($x['can'])<span class="tag t-new">مفتوح</span>@elseif($q->state() === 'soon')<span class="tag t-open">قريبًا</span>@else<span class="tag t-late">أُغلق</span>@endif</h3>

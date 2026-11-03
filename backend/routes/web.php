@@ -228,6 +228,13 @@ Route::prefix('s/{school}')->where(['school' => '[a-z0-9-]+'])->group(function (
     Route::get('panel/overview', [$t, 'overview'])->name('school.overview');
     Route::get('panel/monthly', [$t, 'monthly'])->name('school.monthly');
     Route::get('panel/students/{student}/family', [$t, 'family'])->whereNumber('student')->name('school.family');
+    // Phase 4: motivation (effort only).
+    $mo = App\Http\Controllers\School\SchoolMotivationController::class;
+    Route::get('panel/sections/{section}/honor', [$mo, 'honor'])->whereNumber('section')->name('school.honor');
+    Route::get('panel/sections/{section}/certificates', [$mo, 'certificates'])->whereNumber('section')->name('school.certs');
+    Route::get('panel/challenges', [$mo, 'challenges'])->name('school.challenges');
+    Route::post('panel/challenges', [$mo, 'storeChallenge'])->middleware('throttle:20,1')->name('school.challenges.store');
+    Route::post('panel/challenges/{challenge}/delete', [$mo, 'deleteChallenge'])->whereNumber('challenge')->name('school.challenges.delete');
     Route::get('me', [$t, 'me'])->name('school.me');
     Route::get('me.json', [$t, 'meJson'])->middleware('throttle:120,1')->name('school.me.json');
     Route::get('me/quiz/{quiz}', [$t, 'take'])->whereNumber('quiz')->name('school.take');

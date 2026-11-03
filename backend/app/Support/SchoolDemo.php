@@ -168,4 +168,23 @@ class SchoolDemo
 
         return $made;
     }
+
+    /** Phase 4 TEST data only: a second test section with test children + activity, and one live test challenge. */
+    public static function seedMotivation(School $school): array
+    {
+        abort_unless($school->is_test, 403, 'Test schools only');
+        $first = $school->sections()->orderBy('id')->firstOrFail();
+        $sec2 = $school->sections()->where('name', 'رابع ب (تجريبي)')->first()
+            ?? $school->sections()->create(['grade' => $first->grade, 'name' => 'رابع ب (تجريبي)', 'code' => SchoolSection::newCode()]);
+        if (! $sec2->students()->exists()) {
+            Schools::createStudents($sec2, ['سلمى (تجريبي)', 'آدم (تجريبي)', 'جود (تجريبي)', 'كريم (تجريبي)', 'ريم (تجريبي)', 'زين (تجريبي)']);
+        }
+        $n = self::seed($sec2);
+        $tz = SchoolStats::tz();
+        \App\Models\SchoolChallenge::where('school_id', $school->id)->where('is_test', true)->delete();
+        $c = \App\Models\SchoolChallenge::create(['school_id' => $school->id, 'title' => '[تجريبي] تحدّي المثابرة', 'metric' => 'stars',
+            'section_ids' => [$first->id, $sec2->id], 'starts_on' => now($tz)->subDays(6)->format('Y-m-d'), 'ends_on' => now($tz)->addDays(3)->format('Y-m-d'), 'is_test' => true]);
+
+        return ['section2' => $sec2->id, 'students' => $n, 'challenge' => $c->id];
+    }
 }
