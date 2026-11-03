@@ -283,7 +283,7 @@ class SchoolTaskController extends Controller
         $t = SchoolTasks::forStudent($s);
         $s->forceFill(['school_seen_at' => now()])->saveQuietly();
 
-        return view('school.me', ['school' => $school, 's' => $s, 't' => $t, 'start' => \App\Support\MailCenter::siteUrl().'login.html?sync=1']);
+        return view('school.me', ['school' => $school, 's' => $s, 't' => $t, 'mo' => \App\Support\SchoolMotivation::forStudent($s), 'start' => \App\Support\MailCenter::siteUrl().'login.html?sync=1']);
     }
 
     /** Small JSON for in-site badges: pending count, new quizzes, closing soon. */

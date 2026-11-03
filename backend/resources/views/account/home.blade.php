@@ -109,6 +109,8 @@
       <li class="kid">
         <div class="kid-h"><span class="av" aria-hidden="true">{{ mb_substr($s->name, 0, 1) }}</span><span class="nm"><b>{{ $s->name }}</b><span class="chip grey">{{ $ar::grade($s->grade) }}</span>@if ($pinOn)@if ($s->hasPin())<span class="chip">الرقم السري محدَّد</span>@else<span class="chip warn">لم يُحدَّد رقم سري</span>@endif @endif</span>
           <p class="sync">{{ $s->last_synced_at ? 'آخر مزامنة: '.$ar::date($s->last_synced_at) : 'لم يُزامَن بعد' }}</p>
+          @php($away = \App\Support\SchoolMotivation::idleDays($s))
+          @if ($away !== null && $away >= 3)<p class="away" role="status" style="margin:8px 0 0;background:#fff8e6;border:2px solid #f0c36d;border-radius:12px;padding:8px 10px;font-weight:700">🌱 اشتقنا لـ{{ $s->name }}! آخر تعلّم كان قبل {{ $ar::num($away) }} {{ $away <= 10 ? 'أيام' : 'يومًا' }}. درس قصير اليوم يكفي ليعود إلى عادته.</p>@endif
           <p style="margin:6px 0 0"><a class="btn small" href="{{ route('account.report', $s) }}" @if($loop->first) data-tour="report" @endif>تقرير التقدّم</a></p>
           @foreach ($s->classrooms as $cl)<p class="sync" style="margin:6px 0 0">في صف: <b>{{ $cl->name }}</b> <form method="post" action="{{ route('account.students.leave', [$s, $cl]) }}" style="display:inline" onsubmit="return confirm('مغادرة الصف؟ لن يرى المعلّم تقدّم الطالب بعدها.')">@csrf @method('delete')<button class="btn ghost small" type="submit">مغادرة</button></form></p>@endforeach
           <details style="margin:6px 0 0"@if($errors->has('code'.$s->id)) open @endif><summary style="cursor:pointer;font-weight:700">الانضمام إلى صف معلّم</summary>
