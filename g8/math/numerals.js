@@ -5,7 +5,7 @@
   const arabic = value => String(value).replace(/[0-9۰-۹]/g, ch => digits[ch >= '۰' ? ch.charCodeAt(0)-0x6f0 : Number(ch)]);
   const latin = value => String(value).replace(/[٠-٩۰-۹]/g, ch => String(ch.charCodeAt(0)-(ch >= '۰' ? 0x6f0 : 0x660)));
   const normalize = value => latin(value).replace(/[−–]/g,'-').replace(/٬/g,'').replace(/[٫,]/g,'.');
-  window.AR_NUM = {arabic, latin, normalize, number:value=>Number(normalize(value))};
+  window.AR_NUM = {arabic, latin, normalize, number:value=>{const n=window.BUSTAN_ANS?window.BUSTAN_ANS.value(value):NaN;return Number.isNaN(n)?Number(normalize(value)):n}};
   if (typeof document === 'undefined') return;
   const mathInput = el => el.matches('input.bl-in,input[inputmode="decimal"],input[inputmode="numeric"],input#prG') && !['range','number'].includes(el.type);
   function localizeInput(el) {

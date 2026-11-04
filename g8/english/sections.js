@@ -121,7 +121,7 @@ function step(){const {m,i}=MS;const s=m.steps[i];if(!s)return advDone();const t
  if(s.t==='order'){const line=[];const bl=$('#abl');const draw=()=>{bl.innerHTML=line.map((j,k)=>`<button class="tile-en in" type="button" data-k="${k}">${esc(s.o[j])}</button>`).join('');bl.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const j=line.splice(+b.dataset.k,1)[0];document.querySelector(`.tiles-en [data-t="${j}"]`).disabled=false;draw()})};
   document.querySelectorAll('.tiles-en [data-t]').forEach(b=>b.onclick=()=>{line.push(+b.dataset.t);b.disabled=true;draw()});
   $('#achk').onclick=()=>{if(line.length<s.o.length)return;ans(line.map(j=>s.o[j]).join(' ')===s.tiles.join(' '),null,s)}}
- if(s.t==='spell'){const inp=$('#asp');const f=()=>{const v=inp.value.trim();if(!v)return;ans(v.toLowerCase()===s.ans.toLowerCase(),null,s,v)};$('#achk').onclick=f;inp.onkeydown=e=>{if(e.key==='Enter')f()}}}
+ if(s.t==='spell'){const inp=$('#asp');const f=()=>{const v=inp.value.trim();if(!v)return;ans(window.BUSTAN_ANS?window.BUSTAN_ANS.match(v,s.ans):v.toLowerCase()===s.ans.toLowerCase(),null,s,v)};$('#achk').onclick=f;inp.onkeydown=e=>{if(e.key==='Enter')f()}}}
 function ans(ok,btn,s,given){if(s.done)return;s.done=1;MS.n++;if(ok)MS.ok++;AU.sfx(ok?'ok':'bad');
  document.querySelectorAll('.opt[data-j]').forEach(b=>{b.disabled=true;if(+b.dataset.j===s.a0)b.classList.add('ok')});if(btn&&!ok)btn.classList.add('bad');document.querySelectorAll('#achk,.tile-en,#asp').forEach(b=>b.disabled=true);
  const corr=s.t==='order'?s.full:s.t==='spell'?s.ans:s.t==='pic'?'':s.full||s.opts[s.a];const hear=s.full||(s.t==='order'||s.t==='spell'?s.say:null);
@@ -266,7 +266,7 @@ function sl(){const u=E.byId[SLu];const ws=u.vocab.map(w=>w).filter(w=>/^[a-z]+$
  inp.oninput=()=>paint(inp.value,false);
  $('#slh').onclick=()=>{hint=Math.min(w.en.length-1,hint+1);paint(inp.value,false)};
  $('#sln').onclick=()=>sl();$('#slu').onchange=e=>{SLu=e.target.value;sl()};
- const chk=()=>{const v=inp.value.trim();if(!v)return;const ok=v.toLowerCase()===w.en.toLowerCase();paint(v,true);SLs.n++;if(ok){SLs.ok++;labDone('sl')}C.addSkill('dictation',ok);save();AU.sfx(ok?'ok':'bad');
+ const chk=()=>{const v=inp.value.trim();if(!v)return;const ok=window.BUSTAN_ANS?window.BUSTAN_ANS.match(v,w.en):v.toLowerCase()===w.en.toLowerCase();paint(v,true);SLs.n++;if(ok){SLs.ok++;labDone('sl')}C.addSkill('dictation',ok);save();AU.sfx(ok?'ok':'bad');
   $('#slf').innerHTML=`<div class="fb-en ${ok?'ok':'bad'}" role="status"><b>${ok?'كتابة صحيحة':'الحروف الحمراء تحتاج تصحيحًا'}</b><p class="corr">${AUB(w.en)}<span dir="ltr" lang="en">${esc(w.en)}</span></p></div>`};
  $('#slc').onclick=chk;inp.onkeydown=e=>{if(e.key==='Enter')chk()}}
 /* سباق الكلمات */
