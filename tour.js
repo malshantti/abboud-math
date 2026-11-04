@@ -121,7 +121,8 @@ function boot(){
  var tries=0;(function wait(){if(!ready()){if(++tries<20)setTimeout(wait,500);return}
   build();if(!document.head.querySelector('style.bt-css')){}
   if(area!=='account')fab();
-  if(!st.off&&!st.seen[area])setTimeout(function(){if(!st.seen[area])start(false)},area==='lesson'?1500:600)})()}
+  if(!st.off&&!st.seen[area])setTimeout(function go(){if(st.seen[area])return;if(document.getElementById('bWarm')||(area==='lesson'&&warmPending()&&++wt<12)){setTimeout(go,500);return}start(false)},area==='lesson'?1500:600)})()}
+var wt=0;function warmPending(){try{var m=location.pathname.match(/\/g(\d)\/([a-z]+)\//);return !!(m&&!g('bustan_warm_g'+m[1]+'_'+m[2]))}catch(e){return false}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 }catch(e){}
 })();
