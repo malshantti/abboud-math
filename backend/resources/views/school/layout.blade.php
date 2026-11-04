@@ -25,6 +25,7 @@ main{max-width:1040px;margin:0 auto;padding:6px 18px 48px}
 .muted{color:var(--muted)}.mt0{margin-top:0}
 .foot{text-align:center;color:var(--muted);font-size:14px;padding:18px}
 .foot a{color:var(--muted)}
+@media(max-width:600px){.sh{flex-wrap:wrap;gap:8px 10px;padding:12px 14px}.sh>div:not(.end){flex:1 1 0;min-width:0}.sh b{font-size:18px;overflow-wrap:anywhere}.sh .end{flex-wrap:wrap;width:100%;margin-inline-start:0}.sh img,.sh .mono{width:46px;height:46px}main{padding:6px 12px 40px}}
 @yield('css')
 </style>
 </head>
