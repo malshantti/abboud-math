@@ -1,4 +1,4 @@
-/* Lesson narration autoplay: default on, waits for a first gesture if blocked, «إيقاف الصوت» remembers the choice,
+/* Lesson narration autoplay: default OFF (opt-in), waits for a first gesture if blocked, «إيقاف الصوت» remembers the choice,
    «استمع إلى الشرح» re-enables it, navigation stops it. Run: node tests/lesson-narration-autoplay.cjs */
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
@@ -14,6 +14,7 @@ const flush=async()=>{for(let i=0;i<5;i++)await new Promise(setImmediate)};
   getElementById:i=>i==='narr'?btn:i==='narr-stop'?stopEl:null,querySelector:()=>null,querySelectorAll:()=>[]};
  const ctx={document:doc,Audio,addEventListener:(t,f)=>W[t]=f,setTimeout:f=>f(),localStorage:{getItem:k=>ls.has(k)?ls.get(k):null,setItem:(k,v)=>ls.set(k,String(v))},MATH_NARR:{base:'narration/',L:{L1:['idea','r0']}}};ctx.window=ctx;
  vm.runInNewContext(src,ctx);const P=ctx.MATH_NARR_PLAYER;const fire=(t,e)=>(L[t]||[]).slice().forEach(f=>f(e));
+ assert.equal(P.auto,false,'autoplay off by default');P.autostart();assert.equal(P.state,'idle','no autoplay by default');assert.equal(auds.length,0);checks+=3;ls.set('math_narr_auto','1');
  assert.equal(P.auto,true);P.autostart();await flush();assert.equal(P.state,'waiting','blocked autoplay waits');assert.ok(stopEl&&!stopEl.hidden,'stop button visible');checks+=3;
  block=false;fire('pointerdown',{});await flush();assert.equal(P.state,'playing','first gesture starts');assert.equal(auds[0].src,'narration/L1/idea.mp3');assert.ok(auds[0].volume<=0.35);checks+=3;
  P.autostart();assert.equal(auds.length,1,'no double start');
