@@ -40,8 +40,9 @@ table{width:100%;border-collapse:collapse;font-size:15px}th,td{padding:7px 6px;b
 @if (! $x['opened'])<p class="muted">لم يفتح هذه المادة بعد.</p>@else
 <div class="bar"><i style="width:{{ $x['pct'] ?? 0 }}%"></i></div>
 <p style="margin:6px 0">{{ $ar::count($x['done'], 'درس') }} @if($x['total'])من {{ $ar::num($x['total']) }} ({{ $pc($x['pct']) }})@endif · الصواب {{ $pc($x['acc']) }} @if($x['quiz_count'])· الاختبارات {{ $pc($x['quiz_avg']) }}@endif · {{ $ar::count($x['min'], 'دقيقة') }}</p>
-@if ($x['lessons'])<table><thead><tr><th>الدرس</th><th>الصواب</th><th>آخر مرة</th></tr></thead><tbody>
-@foreach (array_slice($x['lessons'], 0, 12) as $l)<tr><td>{{ $l['name'] }}</td><td class="{{ $l['pct'] !== null && $l['pct'] < 60 ? 'no' : '' }}">{{ $l['answered'] ? $pc($l['pct']).' ('.$ar::num($l['answered']).')' : 'فُتح' }}</td><td class="muted">{{ $l['last'] ? $ar::date($l['last'], false) : '—' }}</td></tr>@endforeach
+@php($ls = array_values(array_filter($x['lessons'], fn ($l) => \App\Support\SchoolStats::isLessonName($l['name']))))
+@if ($ls)<table><thead><tr><th>الدرس</th><th>الصواب</th><th>آخر مرة</th></tr></thead><tbody>
+@foreach (array_slice($ls, 0, 12) as $l)<tr><td>{{ $l['name'] }}</td><td class="{{ $l['pct'] !== null && $l['pct'] < 60 ? 'no' : '' }}">{{ $l['answered'] ? $pc($l['pct']).' ('.$ar::num($l['answered']).')' : 'فُتح' }}</td><td class="muted">{{ $l['last'] ? $ar::date($l['last'], false) : '—' }}</td></tr>@endforeach
 </tbody></table>@endif
 @endif</div>
 @endforeach
