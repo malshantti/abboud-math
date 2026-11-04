@@ -10,7 +10,7 @@
 @endsection
 @section('content')
 <div class="top2"><h1>{{ $q->title }}</h1><span class="chip grey">{{ $section->name }}</span><span class="tag {{ ['open' => 't-done', 'soon' => 't-todo', 'closed' => 't-recent'][$q->state()] }}">{{ ['open' => 'مفتوح', 'soon' => 'لم يبدأ', 'closed' => 'مغلق'][$q->state()] }}</span></div>
-<p class="sub">{{ \App\Support\SchoolStats::subjectName($q->subject) }} · يفتح {{ $q->starts_at ? $ar::date($q->starts_at) : '—' }} · يغلق {{ $q->ends_at ? $ar::date($q->ends_at) : '—' }} · {{ $ar::num($q->duration_min) }} دقيقة · {{ $ar::num($q->attempts) }} {{ $q->attempts == 1 ? 'محاولة' : 'محاولات' }} · {{ $q->shuffle ? 'مخلوط' : 'دون خلط' }} · النتيجة {{ $q->show_results === 'now' ? 'فور التسليم' : 'بعد الإغلاق' }}</p>
+<p class="sub">{{ \App\Support\SchoolStats::subjectName($q->subject) }} · يفتح {{ $q->starts_at ? $ar::date($q->starts_at) : '—' }} · يغلق {{ $q->ends_at ? $ar::date($q->ends_at) : '—' }} · {{ $ar::count($q->duration_min, 'دقيقة') }} · {{ $ar::num($q->attempts) }} {{ $q->attempts == 1 ? 'محاولة' : 'محاولات' }} · {{ $q->shuffle ? 'مخلوط' : 'دون خلط' }} · النتيجة {{ $q->show_results === 'now' ? 'فور التسليم' : 'بعد الإغلاق' }}</p>
 <div class="filters"><a class="csv" href="{{ route('school.quiz', [$school, $section, $q->id, 'format' => 'csv']) }}">تنزيل CSV</a></div>
 <div class="kpis">
 <div class="kpi"><span class="ring" style="--p:{{ $s['pct'] }}"><i>{{ $ar::num($s['pct']) }}٪</i></span><b>{{ $ar::num($s['took']) }}<small class="muted" style="font-size:16px"> / {{ $ar::num($s['n']) }}</small></b><span>أدّوا الاختبار</span></div>

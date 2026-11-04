@@ -178,7 +178,7 @@ class SchoolTaskController extends Controller
             'duration_min' => (int) $data['duration'], 'attempts' => (int) $data['attempts'], 'shuffle' => $request->boolean('shuffle'), 'show_results' => $data['show'], 'is_test' => (bool) $school->is_test]);
         ActivityLog::record('school.quiz', 'section:'.$section->id);
 
-        return redirect()->route('school.tasks', [$school, $section])->with('status', 'نُشر الاختبار ('.\App\Support\Ar::num(count($qs)).' سؤالًا). يظهر للطلاب تنبيه «اختبار جديد».');
+        return redirect()->route('school.tasks', [$school, $section])->with('status', 'نُشر الاختبار ('.\App\Support\Ar::count(count($qs), 'سؤال').'). يظهر للطلاب تنبيه «اختبار جديد».');
     }
 
     /** Teacher uploads a question/option image → resized WebP stored for this school only. */

@@ -145,10 +145,10 @@ class SchoolMotivation
         $certs = [];
         foreach ($e as $x) {
             if ($maxStars >= 5 && $x['stars'] === $maxStars) {
-                $certs[] = $x + ['type' => 'star', 'title' => 'شهادة نجم الشهر', 'why' => 'لأنّه جمع أكثر نجوم الجهد في شعبته: '.Ar::num($x['stars']).' نجمة.'];
+                $certs[] = $x + ['type' => 'star', 'title' => 'شهادة نجم الشهر', 'why' => 'لأنّه جمع أكثر نجوم الجهد في شعبته: '.Ar::count($x['stars'], 'نجمة').'.'];
             }
             if ($x['days'] >= 8) {
-                $certs[] = $x + ['type' => 'days', 'title' => 'شهادة المثابرة', 'why' => 'لأنّه تعلّم '.Ar::num($x['days']).' يومًا هذا الشهر.'];
+                $certs[] = $x + ['type' => 'days', 'title' => 'شهادة المثابرة', 'why' => 'لأنّه تعلّم '.Ar::count($x['days'], 'يوم', true).' هذا الشهر.'];
             }
             if ($x['hw_n'] > 0 && $x['hw'] >= $x['hw_n']) {
                 $certs[] = $x + ['type' => 'hw', 'title' => 'شهادة إنجاز الواجبات', 'why' => 'لأنّه أنجز كل واجبات الشهر ('.Ar::num($x['hw_n']).').'];

@@ -34,7 +34,7 @@
 <section class="card"><h2>الاختبارات</h2>
 <table><thead><tr><th>الاختبار</th><th>الحالة</th><th class="hm">يفتح</th><th>يغلق</th><th>أدّوه</th><th>المتوسط</th></tr></thead><tbody>
 @forelse ($quizzes as $x)@php($q = $x['quiz'])@php($st = $q->state())
-<tr><td><a class="nm" href="{{ route('school.quiz', [$school, $section, $q->id]) }}">{{ $q->title }}</a><br><small class="muted">{{ \App\Support\SchoolStats::subjectName($q->subject) }} · {{ $ar::num(count($q->questions)) }} سؤالًا · {{ $ar::num($q->duration_min) }} دقيقة</small></td>
+<tr><td><a class="nm" href="{{ route('school.quiz', [$school, $section, $q->id]) }}">{{ $q->title }}</a><br><small class="muted">{{ \App\Support\SchoolStats::subjectName($q->subject) }} · {{ $ar::count(count($q->questions), 'سؤال') }} · {{ $ar::count($q->duration_min, 'دقيقة') }}</small></td>
 <td><span class="tag {{ ['open' => 't-done', 'soon' => 't-todo', 'closed' => 't-recent'][$st] }}">{{ ['open' => 'مفتوح', 'soon' => 'لم يبدأ', 'closed' => 'مغلق'][$st] }}</span></td>
 <td class="hm muted">{{ $dt($q->starts_at) }}</td><td class="muted">{{ $dt($q->ends_at) }}</td>
 <td>{{ $ar::num($x['sum']['took']) }} / {{ $ar::num($x['sum']['n']) }}</td><td>{{ $pc($x['sum']['avg']) }}</td></tr>

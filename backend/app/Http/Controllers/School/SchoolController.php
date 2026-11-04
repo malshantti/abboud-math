@@ -84,7 +84,7 @@ class SchoolController extends Controller
         // P1: the lock is per student + this device/IP, so wrong tries elsewhere never lock the child out on their own device.
         $lockKey = self::pinLockKey($request, $student);
         if (RateLimiter::tooManyAttempts($lockKey, self::PIN_TRIES)) {
-            return $fail('أُقفل الدخول مؤقتًا على هذا الجهاز بعد محاولات خاطئة. حاول بعد '.Ar::num((int) ceil(RateLimiter::availableIn($lockKey) / 60)).' دقائق أو اطلب المساعدة من معلّمك.');
+            return $fail('أُقفل الدخول مؤقتًا على هذا الجهاز بعد محاولات خاطئة. حاول بعد '.Ar::count((int) ceil(RateLimiter::availableIn($lockKey) / 60), 'دقيقة', true).' أو اطلب المساعدة من معلّمك.');
         }
         if (! preg_match('/^\d{4}$/', $pin) || ! $student->checkPin($pin)) {
             RateLimiter::hit($ipKey, 600);
@@ -95,7 +95,7 @@ class SchoolController extends Controller
             // pin_locked_until is now only a hint for the teacher panel (some device is locked); it does not block login.
             $student->forceFill($locked ? ['pin_fails' => 0, 'pin_locked_until' => now()->addMinutes(self::PIN_LOCK_MINUTES)] : ['pin_fails' => (int) $student->pin_fails + 1])->saveQuietly();
 
-            return $fail($locked ? 'أُقفل الدخول على هذا الجهاز ١٠ دقائق بعد ٥ محاولات خاطئة.' : 'الرقم السري غير صحيح. بقي '.Ar::num(self::PIN_TRIES - $fails).' محاولات.');
+            return $fail($locked ? 'أُقفل الدخول على هذا الجهاز ١٠ دقائق بعد ٥ محاولات خاطئة.' : 'الرقم السري غير صحيح. بقي '.Ar::count(self::PIN_TRIES - $fails, 'محاولة').'.');
         }
         RateLimiter::clear($lockKey);
         $student->forceFill(['pin_fails' => 0])->saveQuietly(); // keep pin_locked_until: another device may still be locked (teacher sees «فتح القفل»)
@@ -156,7 +156,7 @@ class SchoolController extends Controller
         $username = strtolower(trim($data['username']));
         $key = 'school-staff:'.hash('sha256', $username.'|'.$request->ip());
         if (RateLimiter::tooManyAttempts($key, 5)) {
-            return back()->withErrors(['username' => 'محاولات كثيرة. حاول بعد '.Ar::num(RateLimiter::availableIn($key)).' ثانية.'])->withInput(['username' => $username, 'tab' => 'staff']);
+            return back()->withErrors(['username' => 'محاولات كثيرة. حاول بعد '.Ar::count(RateLimiter::availableIn($key), 'ثانية', true).'.'])->withInput(['username' => $username, 'tab' => 'staff']);
         }
         $user = User::where('username', $username)->where('school_id', $school->id)->whereIn('school_role', ['manager', 'teacher'])->first();
         if (! $user || $user->isDisabled() || ! Auth::attempt(['id' => $user->id, 'password' => $data['password']], true)) {
@@ -297,7 +297,7 @@ class SchoolController extends Controller
         [$names, $renamed] = Schools::distinctNames(Student::where('school_section_id', $section->id)->pluck('name')->all(), $names);
         $made = Schools::createStudents($section, $names);
         ActivityLog::record('school.students', $section->name, (string) count($made));
-        $msg = 'أُضيف '.Ar::num(count($made)).' طالبًا مع أرقامهم السرية. اطبع البطاقات الآن.';
+        $msg = 'أُضيف '.Ar::count(count($made), 'طالب').' مع أرقامهم السرية. اطبع البطاقات الآن.';
         if ($renamed) {
             $msg .= ' تنبيه: أسماء مكرّرة أُضيف لها رقم للتمييز: '.implode('، ', array_map(fn ($r) => $r[0].' ← '.$r[1], $renamed)).'. إن كان التكرار خطأً (اسم أُضيف مرتين) فأخبر الإدارة لحذفه، أو عدّل الاسم ليكون أوضح.';
         }

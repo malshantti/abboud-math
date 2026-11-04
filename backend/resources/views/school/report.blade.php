@@ -62,10 +62,10 @@ a.nm{font-weight:800;text-decoration:none}
 <section class="card"><h2>الحضور</h2><p class="sub">آخر ظهور بتوقيت فلسطين ({{ $tz === 'Asia/Gaza' ? 'Asia/Hebron' : $tz }}). الأصفر: ٣ أيام فأكثر، الأحمر: ٧ أيام فأكثر.</p>
 <table><thead><tr><th>الطالب</th><th>الحالة</th><th>آخر ظهور</th><th class="hm">آخر ٧ أيام</th><th class="hm">دقائق الأسبوع</th></tr></thead><tbody>
 @foreach ($d['rows'] as $r)
-@php($lbl = ['today' => 'دخل اليوم', 'recent' => 'منذ '.$ar::num($r['idle']).' '.($r['idle'] == 1 ? 'يوم' : 'أيام'), 'idle3' => 'غائب '.$ar::num($r['idle']).' أيام', 'idle7' => 'غائب '.$ar::num($r['idle']).' '.($r['idle'] <= 10 ? 'أيام' : 'يومًا'), 'never' => 'لم يدخل بعد'][$r['status']])
+@php($lbl = ['today' => 'دخل اليوم', 'recent' => 'منذ '.$ar::count($r['idle'], 'يوم', true), 'idle3' => 'غائب '.$ar::count($r['idle'], 'يوم'), 'idle7' => 'غائب '.$ar::count($r['idle'], 'يوم'), 'never' => 'لم يدخل بعد'][$r['status']])
 <tr class="{{ $r['status'] }}"><td><a class="nm" href="{{ route('school.student', [$school, $r['id']]) }}">{{ $r['name'] }}</a></td><td><span class="tag t-{{ $r['status'] }}">{{ $lbl }}</span></td>
 <td class="muted">{{ $when($r['last']) }}</td>
-<td class="hm"><span class="days" aria-label="{{ $ar::num($r['week_days']) }} أيام نشاط">@for ($i = 6; $i >= 0; $i--)@php($dd = now($tz)->subDays($i)->format('Y-m-d'))<i class="{{ isset($r['days'][$dd]) || ($i === 0 && $r['today']) ? 'on' : '' }}" title="{{ $dd }}"></i>@endfor</span></td>
+<td class="hm"><span class="days" aria-label="{{ $ar::count($r['week_days'], 'يوم') }} نشاط">@for ($i = 6; $i >= 0; $i--)@php($dd = now($tz)->subDays($i)->format('Y-m-d'))<i class="{{ isset($r['days'][$dd]) || ($i === 0 && $r['today']) ? 'on' : '' }}" title="{{ $dd }}"></i>@endfor</span></td>
 <td class="hm">{{ $ar::num($r['week_min']) }}</td></tr>
 @endforeach</tbody></table></section>
 
@@ -81,7 +81,7 @@ a.nm{font-weight:800;text-decoration:none}
 <td class="{{ $x['acc'] !== null && $x['acc'] < 60 ? 'no' : '' }}">{{ $pc($x['acc']) }}</td><td class="hm">{{ $pc($x['quiz_avg']) }}</td><td class="hm muted">{{ $x['lessons'][0]['name'] ?? '—' }}</td>
 @else
 @foreach ($d['subjects'] as $c => $sx)@php($x = $r['subjects'][$c])
-<td><div class="cell">@if($x['opened'])<div class="bar"><i style="width:{{ $x['pct'] ?? 0 }}%"></i></div><small>{{ $ar::num($x['done']) }} درسًا · {{ $pc($x['pct']) }}</small>@else<small>لم يفتحها</small>@endif</div></td>
+<td><div class="cell">@if($x['opened'])<div class="bar"><i style="width:{{ $x['pct'] ?? 0 }}%"></i></div><small>{{ $ar::count($x['done'], 'درس') }} · {{ $pc($x['pct']) }}</small>@else<small>لم يفتحها</small>@endif</div></td>
 @endforeach<td class="{{ $r['acc'] !== null && $r['acc'] < 60 ? 'no' : '' }}">{{ $pc($r['acc']) }}</td>
 @endif</tr>
 @endforeach</tbody></table></section>
@@ -90,12 +90,12 @@ a.nm{font-weight:800;text-decoration:none}
 <section class="card"><h2>أصعب الأسئلة</h2><p class="sub">أكثر الأسئلة التي أخطأ فيها طلاب الشعبة (آخر ٤٠ خطأ محفوظًا لكل طالب في كل مادة).</p>
 <ul class="hq">@forelse ($d['questions'] as $h)
 <li><q>{{ $h['q'] }}</q><div class="meta">{{ $h['subject'] }}@if($h['lesson']) · {{ $h['lesson'] }}@endif</div>
-<div>أخطأ فيه <b>{{ $ar::num($h['n']) }}</b> {{ $h['n'] == 1 ? 'طالب' : 'طلاب' }} ({{ $ar::num($h['times']) }} مرة)@if($h['common']) · الإجابة الشائعة: <span class="no">{{ $h['common'] }}</span>@endif @if($h['c']) · الصحيحة: <span class="ok">{{ $h['c'] }}</span>@endif</div>
+<div>أخطأ فيه <b>{{ $ar::num($h['n']) }}</b> {{ $h['n'] == 1 ? 'طالب' : 'طلاب' }} ({{ $ar::count($h['times'], 'مرة') }})@if($h['common']) · الإجابة الشائعة: <span class="no">{{ $h['common'] }}</span>@endif @if($h['c']) · الصحيحة: <span class="ok">{{ $h['c'] }}</span>@endif</div>
 <div class="meta">{{ implode('، ', array_slice($h['students'], 0, 6)) }}</div></li>
 @empty<li class="muted">لا أخطاء مسجّلة بعد.</li>@endforelse</ul></section>
 <section class="card"><h2>أصعب الدروس</h2><p class="sub">أقل نسبة صواب (٥ إجابات فأكثر).</p>
 <table><thead><tr><th>الدرس</th><th>الصواب</th><th class="hm">طلاب</th></tr></thead><tbody>
-@forelse ($d['lessons'] as $l)<tr><td><b>{{ $l['lesson'] }}</b><br><small class="muted">{{ $l['subject'] }} · {{ $ar::num($l['answered']) }} إجابة</small></td>
+@forelse ($d['lessons'] as $l)<tr><td><b>{{ $l['lesson'] }}</b><br><small class="muted">{{ $l['subject'] }} · {{ $ar::count($l['answered'], 'إجابة') }}</small></td>
 <td><div class="cell"><div class="bar"><i style="width:{{ $l['acc'] }}%;background:{{ $l['acc'] < 60 ? '#d9534f' : 'var(--g)' }}"></i></div><small>{{ $ar::num($l['acc']) }}٪</small></div></td><td class="hm">{{ $ar::num($l['students']) }}</td></tr>
 @empty<tr><td colspan="3" class="muted">لا بيانات كافية بعد.</td></tr>@endforelse</tbody></table></section>
 </div>

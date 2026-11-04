@@ -8,7 +8,7 @@
 @endsection
 @section('content')
 <h1>{{ $q->title }}</h1>
-<p class="sub">{{ $a->student->name }} · العلامة <b>{{ $ar::num($a->score) }}٪</b> ({{ $ar::num($a->correct) }} من {{ $ar::num($a->total) }}) · {{ $ar::num((int) ceil(($a->seconds() ?? 0) / 60)) }} دقيقة @if($staff) · مغادرة الصفحة: {{ $ar::num($a->tab_switches) }}@if($a->auto_submitted) · سُلّم تلقائيًا عند انتهاء الوقت@endif @endif</p>
+<p class="sub">{{ $a->student->name }} · العلامة <b>{{ $ar::num($a->score) }}٪</b> ({{ $ar::num($a->correct) }} من {{ $ar::num($a->total) }}) · {{ $ar::count((int) ceil(($a->seconds() ?? 0) / 60), 'دقيقة') }} @if($staff) · مغادرة الصفحة: {{ $ar::num($a->tab_switches) }}@if($a->auto_submitted) · سُلّم تلقائيًا عند انتهاء الوقت@endif @endif</p>
 @foreach ($a->layout as $n => [$qi, $opts])@php($x = $q->questions[$qi])@php($v = $a->answers[$qi] ?? null)@php($ok = \App\Support\SchoolTasks::isRight($x, $v))
 <div class="rq {{ $ok ? 'y' : 'n' }}"><b>{{ $ar::num($n + 1) }}.</b> {!! \App\Support\SchoolTasks::qHtml($school, $x) !!} @if($x['src'] === 'teacher')<span class="tag mine">من إعداد المعلّم</span>@endif
 <div>إجابته: <span class="{{ $ok ? 'ok' : 'no' }}">{!! $v === null ? 'دون إجابة' : \App\Support\SchoolTasks::answerHtml($school, $x, $v) !!} {{ $ok ? '✓' : '✗' }}</span>@unless($ok) · الصحيحة: <span class="ok">{!! \App\Support\SchoolTasks::rightHtml($school, $x) !!}</span>@endunless</div></div>
