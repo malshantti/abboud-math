@@ -37,9 +37,9 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
   </section>
 </div>
 <section class="card" style="margin-top:18px">
-  <h2 class="mt0">الطلاب</h2>
+  <h2 class="mt0" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">الطلاب @unless($students->isEmpty())<button class="btn ghost small" type="button" id="pin-all" aria-pressed="false">إظهار كل الأرقام السرية</button>@endunless</h2>
   @if ($students->isEmpty())<p class="muted">لا طلاب بعد. الصق الأسماء أعلاه.</p>@else
-  <table class="st"><thead><tr><th>الاسم</th><th>الرقم السري <button class="btn ghost small" type="button" id="pin-all" aria-pressed="false">إظهار الكل</button></th><th>اسم المستخدم</th><th>آخر نشاط</th><th></th></tr></thead><tbody>
+  <table class="st"><thead><tr><th>الاسم</th><th>الرقم السري</th><th>اسم المستخدم</th><th>آخر نشاط</th><th></th></tr></thead><tbody>
   @foreach ($students as $s)
     @php($last = collect([$s->last_synced_at, $s->user?->last_login_at, $s->user?->active_device_seen_at])->filter()->max())
     <tr><td><a href="{{ route('school.student', [$school, $s]) }}"><b>{{ $s->name }}</b></a>@if($s->pin_locked_until && $s->pin_locked_until->isFuture()) <span class="chip bad">قُفل على جهاز مؤقتًا</span> <form method="post" action="{{ route('school.unlock', [$school, $s]) }}" style="display:inline">@csrf<button class="btn ghost" type="submit">فتح القفل</button></form>@endif</td>
@@ -76,7 +76,7 @@ addEventListener('DOMContentLoaded',function(){var url=@json($joinUrl),c=documen
  if(window.qrcode){var q=qrcode(0,'M');q.addData(url);q.make();var n=q.getModuleCount(),s=c.width/(n+2),x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#000';for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))x.fillRect(Math.floor((k+1)*s),Math.floor((r+1)*s),Math.ceil(s),Math.ceil(s));}
  function pinShow(b,on){var w=b.closest('.pinbox');w.querySelector('.pin-real').hidden=!on;w.querySelector('.pin-mask').hidden=on;b.textContent=on?'إخفاء':'إظهار';b.setAttribute('aria-pressed',on?'true':'false')}
  document.querySelectorAll('.pin-tog').forEach(function(b){b.onclick=function(){pinShow(b,b.getAttribute('aria-pressed')!=='true')}});
- var pa=document.getElementById('pin-all');if(pa)pa.onclick=function(){var on=pa.getAttribute('aria-pressed')!=='true';document.querySelectorAll('.pin-tog').forEach(function(b){pinShow(b,on)});pa.textContent=on?'إخفاء الكل':'إظهار الكل';pa.setAttribute('aria-pressed',on?'true':'false')};
+ var pa=document.getElementById('pin-all');if(pa)pa.onclick=function(){var on=pa.getAttribute('aria-pressed')!=='true';document.querySelectorAll('.pin-tog').forEach(function(b){pinShow(b,on)});pa.textContent=on?'إخفاء كل الأرقام السرية':'إظهار كل الأرقام السرية';pa.setAttribute('aria-pressed',on?'true':'false')};
  document.getElementById('copy').onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(url).then(()=>{this.textContent='نُسخ ✓'})};});
 </script>
 @endsection
