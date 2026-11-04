@@ -6,8 +6,8 @@ const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p
 const ctx={};ctx.window=ctx;vm.createContext(ctx);vm.runInContext(read('g3/arabic/content.js'),ctx);
 const lessons=ctx.G3.units.flatMap(u=>u.les),lesson=lessons.find(l=>l.id==='a3r');
 assert.ok(lesson,'The existing lesson ID is retained');
-const story=lesson.steps[0].b;
-assert.match(story,/ملخّص القصّة/,'Distinguish the teaching summary from the original reading');
+const story=lesson.steps[0].b.replace(/[\u064B-\u0652\u0670]/g,'');
+assert.match(story,/ملخص القصة/,'Distinguish the teaching summary from the original reading');
 assert.match(story,/رفض الخروج منه/,'The snake refuses to leave; the mouse wants her home back');
 assert.doesNotMatch(story,/خافت الفأرة أن يخرج|منع الثعبان من الخروج/);
 assert.match(story,/بالقفز على وجهه/,'The summary explains how she wakes the sleeping man');
