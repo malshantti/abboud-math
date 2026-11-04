@@ -314,21 +314,40 @@ async function pushPin(localId,plain){try{const P=window.PROFILES;if(!P)return f
  if(!p.pin||!/^sha256:/.test(p.pin))return false;
  if(!csrf){session=await api('session',{timeout:10000});csrf=session.csrf||''}
  const r=await api('students/'+st.sid+'/pin',{body:{salt:p.salt,hash:p.pin},timeout:10000});return !!(r&&r.saved)}catch(e){return false}}
-// سؤال الإحماء: أول زيارة لكل مادة تبدأ بسؤال سهل جدًا يمنح نجمة سريعة خلال أقل من دقيقة
+// سؤال الإحماء: أول زيارة لكل مادة (الصفحة الرئيسية للمادة فقط) — سؤال سهل من محتوى الصف نفسه، يمكن تخطّيه، نافذة حوارية بإمكانية وصول كاملة
+var WARM_Q={
+ 1:{math:['كم يساوي ٢ + ١ ؟',['٣','٥','٩'],0],arabic:['أيّ كلمة تبدأ بحرف الباء؟',['قمر','بيت','شمس'],1],english:['What colour is the sun?',['yellow','blue','green'],0],life:['بماذا نغسل أيدينا؟',['بالماء والصابون','بالرمل','بالحبر'],0]},
+ 2:{math:['كم يساوي ١٠ + ٥ ؟',['١٥','٥','١٠٥'],0],arabic:['ما جمع كلمة «كتاب»؟',['كُتُب','كاتب','مكتبة'],0],english:['Which one is an animal?',['cat','book','pen'],0],life:['أيّ هذه من وسائل النقل؟',['الحافلة','التفاحة','القلم'],0]},
+ 3:{math:['ما قيمة الرقم ٤ في العدد ٤٢٥؟',['٤٠٠','٤٠','٤'],0],arabic:['ما ضدّ كلمة «طويل»؟',['قصير','كبير','سريع'],0],english:['How many days are in a week?',['seven','three','ten'],0],science:['أيّ جزء من النبات يمتصّ الماء من التربة؟',['الجذر','الزهرة','الثمرة'],0]},
+ 4:{math:['أيّ عدد أكبر؟',['٩٠٠٠٠','٩٠٠٠','٩٠٠'],0],arabic:['ما مفرد كلمة «أشجار»؟',['شجرة','شجر','مشجّر'],0],english:['Choose the correct sentence:',['She is my friend.','She are my friend.','She am my friend.'],0],science:['أيّ غذاء يُعدّ من مجموعة الفواكه؟',['التفاح','الخبز','الجبن'],0]},
+ 5:{math:['أيّ عدد من هذه عدد زوجي؟',['١٤','١٥','١٧'],0],arabic:['ما الفعل في جملة «كتبَ الطالبُ الدرسَ»؟',['كتبَ','الطالبُ','الدرسَ'],0],english:['Choose the past of «play»:',['played','plaid','playing'],0],science:['ما العضو الذي يضخّ الدم في الجسم؟',['القلب','المعدة','الرئة'],0]},
+ 6:{math:['كم يساوي ٢ + ٣ × ٤ ؟',['١٤','٢٠','٢٤'],0],arabic:['ما نوع كلمة «في»؟',['حرف','فعل','اسم'],0],english:['I went to the beach ___ summer.',['last','next','tomorrow'],0],science:['أيّ ممّا يلي كائن حيّ؟',['شجرة الزيتون','الحجر','الماء'],0]},
+ 7:{math:['كم يساوي −٣ + ٥ ؟',['٢','−٨','٨'],0],arabic:['ما المبتدأ في جملة «السماءُ صافيةٌ»؟',['السماءُ','صافيةٌ','لا يوجد'],0],english:['Choose the greeting:',['Hello!','Goodbye pen','Table'],0],science:['أيّ ممّا يلي من خصائص الكائنات الحيّة؟',['النمو','الصدأ','الذوبان'],0]},
+ 8:{math:['أيّ عدد من هذه عدد نسبي؟',['٣ / ٤','√٢','π'],0],arabic:['ما إعراب «الطالبُ» في «نجحَ الطالبُ»؟',['فاعل مرفوع','مفعول به منصوب','مبتدأ مجرور'],0],english:['Choose the correct sentence:',['There are four people in my family.','There is four people in my family.','There am four people in my family.'],0],science:['ما الوحدة الأساسية لبناء الكائن الحي؟',['الخلية','النسيج','العضو'],0]}};
 function warmUp(){try{
  const m=location.pathname.match(/\/g(\d)\/([a-z]+)\//);if(!m||document.getElementById('bWarm'))return;
+ const h=location.hash||'';if(h&&!/^#\/?(home(\/\d+)?)?$/.test(h))return; // لا يحجب الروابط المباشرة للدروس
  const k='bustan_warm_g'+m[1]+'_'+m[2];if(localStorage.getItem(k))return;
- const Q={math:['كم يساوي ١ + ١ ؟',['٢','٥','٩'],0],arabic:['أيّ كلمة تبدأ بحرف الباء؟',['قمر','بيت','شمس'],1],english:['ما معنى «قطّة» بالإنجليزية؟',['dog','cat','fish'],1],science:['أين تعيش السمكة؟',['في الماء','في الصحراء','على الشجرة'],0],islamic:['كم عدد أيام الأسبوع؟',['٣','٧','١٢'],1]};
- const q=Q[m[2]]||Q.math;const d=document.createElement('div');d.id='bWarm';d.dir='rtl';
+ const G=WARM_Q[m[1]]||WARM_Q[1],q=G[m[2]]||G.math||WARM_Q[1].math;const en=m[2]==='english';
+ const prev=document.activeElement;const d=document.createElement('div');d.id='bWarm';d.dir='rtl';
  d.style.cssText='position:fixed;inset:0;z-index:2147483000;background:rgba(15,40,25,.55);display:grid;place-items:center;font-family:Cairo,sans-serif;padding:16px';
- d.innerHTML='<div style="background:#fff;border-radius:22px;max-width:360px;width:100%;padding:22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)"><div style="font-size:15px;color:#2f6b3a;font-weight:700">سؤال الإحماء</div><div style="font-size:22px;font-weight:800;margin:12px 0 16px">'+q[0]+'</div><div id="bWarmO" style="display:grid;gap:10px"></div><div id="bWarmM" style="margin-top:12px;min-height:24px;font-weight:700"></div></div>';
- const o=d.querySelector('#bWarmO');q[1].forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.lang=m[2]==='english'?'en':'ar';
-  b.style.cssText='font:700 20px Cairo,sans-serif;padding:12px;border-radius:14px;border:2px solid #cfe3d3;background:#f3faf4;cursor:pointer';
-  b.onclick=()=>{const M=d.querySelector('#bWarmM');if(i!==q[2]){b.style.borderColor='#f59e0b';M.textContent='قريب! جرّب مرة ثانية';return}
+ d.innerHTML='<div role="dialog" aria-modal="true" aria-labelledby="bWarmT" aria-describedby="bWarmQ" style="position:relative;background:#fff;color:#1d2b20;border-radius:22px;max-width:360px;width:100%;padding:22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)"><button type="button" id="bWarmX" aria-label="إغلاق سؤال الإحماء" style="position:absolute;top:8px;inset-inline-start:8px;width:48px;height:48px;border:0;border-radius:50%;background:#eef5ef;color:#1d2b20;font:800 24px/1 Cairo,sans-serif;cursor:pointer">×</button><div id="bWarmT" style="font-size:16px;color:#2f6b3a;font-weight:700">سؤال الإحماء</div><div id="bWarmQ" style="font-size:22px;font-weight:800;margin:12px 0 16px"'+(en?' lang="en" dir="auto"':'')+'></div><div id="bWarmO" style="display:grid;gap:10px"></div><div id="bWarmM" role="status" aria-live="polite" style="margin-top:12px;min-height:24px;font-weight:700"></div><button type="button" id="bWarmS" style="margin-top:6px;min-height:48px;padding:8px 18px;border:2px solid #cfe3d3;border-radius:14px;background:#fff;color:#2f6b3a;font:700 17px Cairo,sans-serif;cursor:pointer">تخطَّ إلى الدروس</button></div>';
+ d.querySelector('#bWarmQ').textContent=q[0];
+ const close=()=>{document.removeEventListener('keydown',key,true);d.remove();try{prev&&prev.focus&&prev.focus()}catch(e){}};
+ const skip=()=>{localStorage.setItem(k,'skip');close()};
+ const key=e=>{if(!document.getElementById('bWarm'))return;if(e.key==='Escape'){e.preventDefault();skip();return}
+  if(e.key==='Tab'){const f=[...d.querySelectorAll('button:not([disabled])')];if(!f.length)return;const a=f[0],z=f[f.length-1];
+   if(e.shiftKey&&(document.activeElement===a||!d.contains(document.activeElement))){e.preventDefault();z.focus()}else if(!e.shiftKey&&(document.activeElement===z||!d.contains(document.activeElement))){e.preventDefault();a.focus()}}};
+ d.querySelector('#bWarmX').onclick=skip;d.querySelector('#bWarmS').onclick=skip;
+ const o=d.querySelector('#bWarmO');q[1].forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.lang=en?'en':'ar';if(en)b.dir='ltr';
+  b.style.cssText='font:700 20px Cairo,sans-serif;min-height:52px;padding:12px;border-radius:14px;border:2px solid #cfe3d3;background:#f3faf4;color:#1d2b20;cursor:pointer';
+  b.onclick=()=>{const M=d.querySelector('#bWarmM');if(i!==q[2]){b.style.borderColor='#f59e0b';b.setAttribute('aria-disabled','true');M.textContent='ليست هذه الإجابة. فكّر مرة أخرى وجرّب خيارًا آخر';return}
    b.style.background='#d9f7df';b.style.borderColor='#22c55e';localStorage.setItem(k,String(Date.now()));
    localStorage.setItem('bustan_quick_stars',String((+localStorage.getItem('bustan_quick_stars')||0)+1));
-   M.innerHTML='<svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path fill="#f5b301" d="M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21.1l1.4-7L2 9.3l7-.8z"/></svg><br>أحسنت! ربحت أول نجمة. هيّا إلى الدرس';setTimeout(()=>d.remove(),1600)};o.appendChild(b)});
- document.body.appendChild(d);
+   M.innerHTML='<svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path fill="#f5b301" d="M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21.1l1.4-7L2 9.3l7-.8z"/></svg><br>أحسنت! ربحت أول نجمة. هيّا إلى الدرس';setTimeout(close,1600)};o.appendChild(b)});
+ // ترتيب عشوائي للخيارات حتى لا تكون الإجابة الأولى دائمًا
+ [...o.children].sort(()=>Math.random()-.5).forEach(c=>o.appendChild(c));
+ document.addEventListener('keydown',key,true);document.body.appendChild(d);setTimeout(()=>{try{o.firstChild.focus()}catch(e){}},50);
 }catch(e){}}
 setTimeout(warmUp,900);
 // تنبيه مدرسة بستان: طالب مدرسة (سجّل الدخول برقم الصف) يرى شارة «واجباتي/اختبار جديد» في كل الصفحات. لا طلب شبكة لغير طلاب المدارس.
