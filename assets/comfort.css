@@ -16,3 +16,7 @@
 header .pill[title]{cursor:help}
 /* جولة الصفحة الرئيسية على الحاسوب: زر صغير في الزاوية لا يغطي البطاقات */
 @media(min-width:900px){.L-voice{bottom:16px!important}.L-voice-play span{display:none}}
+/* أهداف لمس ٤٤ بكسل: أزرار الاستماع وأزرار الرأس الصغيرة */
+button.say,button.au,header .mini,header #theme,header .themebtn{min-width:44px!important;min-height:44px!important}
+header a.brand{min-height:44px;display:inline-flex;align-items:center}
+.bk-logout{min-height:44px!important}
