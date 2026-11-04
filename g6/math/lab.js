@@ -93,7 +93,7 @@ T.circ={title:'عجلة الدائرة',icon:'target',skills:['S2-7-5','S2-7-6',
   root.querySelector('#ciroll').onclick=()=>{let t=0;const st=()=>{t+=0.04;roll=Math.min(1,t);draw();if(t<1)requestAnimationFrame(st)};st()};
   const nw=()=>{const n=R(1,7),k=R(0,1);tk={n,k,a:k?3.14*n*n:2*3.14*n};root.querySelector('#ciT').textContent=k?`احسب مساحة دائرة نصف قطرها ${n} سم (π = 3,14).`:`احسب محيط دائرة نصف قطرها ${n} سم (π = 3,14).`;root.querySelector('#ciIn').value='';root.querySelector('.lab-fb').className='lab-fb'};
   root.querySelector('#cin').onclick=nw;
-  root.querySelector('#ciGo').onclick=()=>{const v=parseFloat(root.querySelector('#ciIn').value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace('٫',',').replace(',','.'));
+  root.querySelector('#ciGo').onclick=()=>{const raw=root.querySelector('#ciIn').value,v=window.BUSTAN_ANS?window.BUSTAN_ANS.value(raw):parseFloat(raw.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace('٫',',').replace(',','.'));
    if(Math.abs(v-tk.a)<0.011){fb(root,true,`صحيح: ${D(tk.a)} ${tk.k?'سم²':'سم'}.`);ctx.reward(10,root.querySelector('#cisvg'))}
    else{const m=tk.k?(Math.abs(v-2*3.14*tk.n)<0.011?'خلطت بين المحيط والمساحة.':Math.abs(v-3.14*4*tk.n*tk.n)<0.011?'استخدم نصف القطر لا القطر.':''):(Math.abs(v-3.14*tk.n)<0.011?'المحيط = 2 π نق؛ لا تنس 2.':Math.abs(v-3.14*tk.n*tk.n)<0.011?'خلطت بين المحيط والمساحة.':'');ctx.miss(tk.k?'S2-7-7':'S2-7-6',m);fb(root,false,(m||'راجع القانون.')+' اضبط المؤشر على '+tk.n+' وانظر إلى الحساب.')}};nw();draw()}};
 // ===== زوايا المثلث وأضلاعه =====
