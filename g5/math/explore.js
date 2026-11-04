@@ -16,7 +16,7 @@ const partName=p=>p===1?'الجزء الأول':'الجزء الثاني';
 const unitName=u=>'الوحدة '+ar(science?+u.id.slice(1):u.n)+' · '+partName(u.part);
 A.scopeUnits=id=>id==='all'?U:U.filter(u=>u.id===(id||U[0].id));
 const scopeSelect=(id,route)=>'<div class="scope"><label for="unit-scope">اختر الوحدة</label><select id="unit-scope" data-route="'+route+'">'+U.map(u=>'<option value="'+u.id+'"'+(u.id===id?' selected':'')+'>'+esc(unitName(u)+' — '+title(u))+'</option>').join('')+'<option value="all"'+(id==='all'?' selected':'')+'>جميع الوحدات — مراجعة شاملة</option></select></div>';
-const banner=(tag,h,description,image)=>'<header class="explore-hero"><div><span class="eyebrow">'+tag+'</span><h1>'+esc(h)+'</h1><p>'+description+'</p></div><img src="img/'+image+'.webp" alt="" width="148" height="148" decoding="async"></header>';
+const banner=(tag,h,description,image)=>'<header class="explore-hero"><div><span class="eyebrow">'+tag+'</span><h1>'+esc(h)+'</h1><p>'+description+'</p></div><img src="img/'+image+'.webp?v=sp1" alt="" width="148" height="148" decoding="async"></header>';
 R.home=function(part){
  const p=part==='2'?2:1,units=U.filter(u=>u.part===p),list=units.flatMap(items),done=list.filter(i=>(S.done[i.key]||0)>=70).length;
  const next=list.find(i=>(S.done[i.key]||0)<70)||list[0],nextUnit=units.find(u=>items(u).some(i=>i.key===next.key));
@@ -37,7 +37,7 @@ function cards(html,kind,scope){
   const href=tile.getAttribute('href'),id=href.split('/').pop(),heading=tile.querySelector('b');
   if(kind==='play'){
    const visual=tile.querySelector('.ti');const poses={match:'read',tf:'teacher',calc:'think',review:'encourage',verses:'read',irab:'think',mixed:'celebrate'};
-   visual.innerHTML='<img src="img/zaytoun-'+(poses[id]||'think')+'.webp" alt="" width="104" height="128" loading="lazy">';
+   visual.innerHTML='<img src="img/zaytoun-'+(poses[id]||'think')+'.webp?v=sp1" alt="" width="104" height="128" loading="lazy">';
   }
   if(kind==='play'){
    tile.href=href+'/'+scope;
