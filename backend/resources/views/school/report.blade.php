@@ -28,6 +28,7 @@ tr.idle3{background:#fff8e6}tr.idle7,tr.never{background:#fff1ef}
 .days{display:flex;gap:3px}.days i{width:12px;height:12px;border-radius:3px;background:var(--line)}.days i.on{background:var(--g)}
 a.nm{font-weight:800;text-decoration:none}
 @media(max-width:600px){h1{font-size:23px}.kpi b{font-size:25px}th.hm,td.hm{display:none}}
+@media(max-width:600px){table{font-size:13px}th,td{padding:5px 2px}th{white-space:normal}.bar{min-width:30px}.cell{min-width:44px}.tag{white-space:normal}.top2,.tabs{flex-wrap:wrap;min-width:0}.top2>*,.tabs>*{min-width:0}}
 @endsection
 @section('content')
 <div class="top2"><h1>{{ $section->name }}</h1><span class="chip grey">{{ $ar::grade($section->grade) }}</span>
