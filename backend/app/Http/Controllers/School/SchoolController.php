@@ -98,7 +98,7 @@ class SchoolController extends Controller
             return $fail($locked ? 'أُقفل الدخول على هذا الجهاز ١٠ دقائق بعد ٥ محاولات خاطئة.' : 'الرقم السري غير صحيح. بقي '.Ar::num(self::PIN_TRIES - $fails).' محاولات.');
         }
         RateLimiter::clear($lockKey);
-        $student->forceFill(['pin_fails' => 0, 'pin_locked_until' => null])->saveQuietly();
+        $student->forceFill(['pin_fails' => 0])->saveQuietly(); // keep pin_locked_until: another device may still be locked (teacher sees «فتح القفل»)
         $user = $student->user;
         $known = Devices::allows($user, (string) $request->cookie(Devices::COOKIE, ''));
         Auth::login($user, true);
