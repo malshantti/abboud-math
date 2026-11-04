@@ -1,0 +1,9 @@
+# أداء: ملفات JS/CSS التي تُطلب برقم إصدار (?v=) لا تتغيّر أبدًا تحت الرقم نفسه، فتُخزَّن ثلاثين يومًا.
+# الملفات بلا رقم إصدار تبقى على قاعدة الجذر (ساعة واحدة). sw.js بلا رقم إصدار فلا يتأثر.
+<IfModule mod_headers.c>
+<FilesMatch "\.(?:css|js)$">
+<If "%{QUERY_STRING} =~ /(^|&)v=/">
+Header set Cache-Control "public, max-age=2592000, immutable"
+</If>
+</FilesMatch>
+</IfModule>
