@@ -210,6 +210,7 @@ Route::prefix('s/{school}')->where(['school' => '[a-z0-9-]+'])->group(function (
     Route::get('panel/students/{student}', [$c, 'student'])->whereNumber('student')->name('school.student');
     Route::post('panel/sections/{section}/code', [$c, 'rotateCode'])->whereNumber('section')->name('school.code');
     Route::post('panel/students/{student}/kick', [$c, 'kick'])->whereNumber('student')->middleware('throttle:60,1')->name('school.kick');
+    Route::post('panel/students/{student}/unlock', [$c, 'unlock'])->whereNumber('student')->middleware('throttle:60,1')->name('school.unlock');
     Route::post('panel/students/{student}/pin', [$c, 'resetPin'])->whereNumber('student')->middleware('throttle:60,1')->name('school.pin');
     // Phase 3: homework, quizzes, manager overview, monthly reports.
     $t = App\Http\Controllers\School\SchoolTaskController::class;

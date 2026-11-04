@@ -69,6 +69,24 @@ class SchoolsTest extends TestCase
         $this->postJson('/s/beta/child', ['student' => $kid->id, 'pin' => $pin])->assertStatus(422);
         $this->assertGuest();
         $this->assertNotNull($kid->fresh()->pin_locked_until);
+        // another device/IP is not locked out
+        $this->withServerVariables(['REMOTE_ADDR' => '10.9.9.9'])->postJson('/s/beta/child', ['student' => $kid->id, 'pin' => $pin])->assertOk();
+    }
+
+    public function test_teacher_unlock_frees_locked_device(): void
+    {
+        [, , $t, $sec] = $this->school('zeta');
+        $kid = $sec->students()->first();
+        $pin = Schools::plainPin($kid);
+        $bad = $pin === '9999' ? '1111' : '9999';
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/s/zeta/child', ['student' => $kid->id, 'pin' => $bad]);
+        }
+        $this->postJson('/s/zeta/child', ['student' => $kid->id, 'pin' => $pin])->assertStatus(422);
+        $this->actingAs($t)->post('/s/zeta/panel/students/'.$kid->id.'/unlock')->assertRedirect();
+        $this->assertNull($kid->fresh()->pin_locked_until);
+        auth()->logout();
+        $this->postJson('/s/zeta/child', ['student' => $kid->id, 'pin' => $pin])->assertOk();
     }
 
     public function test_isolation_between_schools_and_teacher_sections(): void
