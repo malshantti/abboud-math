@@ -60,4 +60,31 @@ function g6english() {
   }
   write('g6-english', units);
 }
-g6math(); g6arabic(); g6english();
+
+// Science g6/g8: term ↔ definition questions, only for terms whose name is found in the textbook text
+// (/workspace/arsci/books/sc{g}-p{1,2}.txt, pdftotext). Lesson structure from g{g}/science/content.js.
+function science(g) {
+  const U = load('g' + g + '/science/content.js').UNITS;
+  const N = (s) => String(s).replace(/[\u064B-\u0652\u0640\s]/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
+  const bookDir = process.env.BOOKS || '/workspace/arsci/books';
+  const B = N(['p1', 'p2'].map((p) => { try { return fs.readFileSync(path.join(bookDir, 'sc' + g + '-' + p + '.txt'), 'utf8'); } catch (e) { return ''; } }).join(' '));
+  if (B.length < 1000) { console.log('g' + g + '-science: textbook text not found, skipped'); return; }
+  const units = U.map((u) => {
+    const all = u.les.flatMap((l) => (l.terms || []).filter((x) => B.includes(N(x[0]))));
+    const names = all.map((x) => x[0]), defs = all.map((x) => x[1]);
+    return { id: u.id, t: u.t, les: u.les.map((l) => {
+      const T = (l.terms || []).filter((x) => B.includes(N(x[0]))), q = [];
+      T.forEach((x, k) => {
+        const d1 = pick(defs, x[1], 3, k), d2 = pick(names, x[0], 3, k + 1);
+        if (d1.length >= 2) q.push(['ما المقصود بـ«' + x[0] + '»؟', [x[1], ...d1], 0, l.pg]);
+        if (d2.length >= 2) q.push(['«' + x[1].replace(/[.。]$/, '') + '». ما المصطلح العلمي الدال على العبارة؟', [x[0], ...d2], 0, l.pg]);
+      });
+      return { id: l.id, t: l.t, q };
+    }) };
+  });
+  write('g' + g + '-science', units);
+}
+const only = process.argv[2];
+if (!only || only === 'g6') { g6math(); g6arabic(); g6english(); }
+if (!only || only === 'sci') { science(6); science(8); }
+
