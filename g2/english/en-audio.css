@@ -1,0 +1,7 @@
+.au-row{display:inline-flex;gap:6px;margin-inline-start:8px;vertical-align:middle}
+.au{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0;border-radius:50%;border:2px solid var(--line,#d9dccf);background:var(--card,#fff);color:var(--pri,#647b43);cursor:pointer;flex:none;transition:.15s}
+.au:hover,.au:focus-visible{border-color:var(--pri,#647b43)}
+.au.playing{background:var(--pri,#647b43);color:#fff;border-color:var(--pri,#647b43);animation:aupulse 1s infinite}
+@keyframes aupulse{50%{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.au.playing{animation:none}}
+#audio-status{font-size:14px;color:var(--mut,#666)}
