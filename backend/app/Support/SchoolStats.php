@@ -44,6 +44,14 @@ class SchoolStats
         return $out;
     }
 
+    /** Old logs used the page title («العلوم — الصف الرابع — بستان التعلّم») when no lesson heading was visible: not a lesson name. */
+    public static function isLessonName(string $name): bool
+    {
+        $name = trim($name);
+
+        return $name !== '' && $name !== 'عام' && ! str_contains($name, 'بستان');
+    }
+
     public static function subjectName(string $code): string
     {
         return self::SUBJECTS[explode('-', $code, 2)[1] ?? ''] ?? $code;
@@ -179,7 +187,7 @@ class SchoolStats
                     }
                 }
                 foreach ($x['lessons'] as $l) {
-                    if (! $l['answered']) {
+                    if (! $l['answered'] || ! self::isLessonName($l['name'])) {
                         continue;
                     }
                     $k = $code.'|'.$l['name'];
