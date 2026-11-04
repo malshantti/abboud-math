@@ -35,7 +35,7 @@
 </div>
 <p class="sub" style="margin-top:8px">المؤقّت يُحسب على الخادم: يُسلَّم الاختبار تلقائيًا عند انتهاء الوقت، ولا تُقبل إجابات بعده. تُسجَّل مرات مغادرة صفحة الاختبار.</p></section>
 
-<div class="sticky"><b id="cnt">٠ سؤال</b><button class="btn">نشر الاختبار للشعبة</button></div>
+<div class="sticky"><b id="cnt">٠ سؤال</b><span id="dst" class="muted" role="status" aria-live="polite"></span><button type="button" class="btn ghost" id="draft">حفظ كمسودة</button><button type="submit" class="btn ghost" formaction="{{ route('school.quiz.preview', [$school, $section]) }}" formtarget="_blank" formnovalidate>معاينة كطالب</button><button class="btn" id="pub">نشر الاختبار للشعبة</button></div>
 </form>
 @endsection
 @section('js')
@@ -58,6 +58,24 @@ document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()
 d.innerHTML=`<div class="row"><span class="tag mine">${({mcq:'اختيار من متعدد',tf:'صح أو خطأ',fill:'أكمل الفراغ'})[t]} — من إعداد المعلّم</span><button type="button" class="btn ghost small" data-del style="margin-inline-start:auto">حذف</button></div><input type="hidden" name="own[${i}][type]" value="${t}">
 <input type="text" class="qt" name="own[${i}][q]" maxlength="600" placeholder="نص السؤال (يمكن تركه فارغًا إذا أضفت صورة)" style="width:100%"><div class="row">${pic(`own[${i}][img]`,'صورة للسؤال')}</div>`+(t==='mcq'?[0,1,2,3].map(j=>`<div class="opt"><div class="row"><input type="radio" name="own[${i}][a]" value="${j}" ${j?'':'checked'} aria-label="الإجابة الصحيحة"><input type="text" class="qt" name="own[${i}][o][${j}]" maxlength="240" placeholder="الخيار ${num(j+1)}${j<2?'':' (اختياري)'}"></div><div class="row">${pic(`own[${i}][oimg][${j}]`,'صورة للخيار')}</div></div>`).join('')+'<small class="muted">اختر الدائرة بجانب الإجابة الصحيحة. الخيار يكفيه نص أو صورة.</small>':t==='tf'?`<div class="row"><label class="chk"><input type="radio" name="own[${i}][a]" value="1" checked> صح</label><label class="chk"><input type="radio" name="own[${i}][a]" value="0"> خطأ</label></div>`:`<input type="text" class="qt" name="own[${i}][ans]" required placeholder="الإجابات المقبولة: ٢٥ | خمسة وعشرون" style="width:100%">`);
 d.querySelector('[data-del]').onclick=()=>{d.remove();count()};own.appendChild(d);d.querySelectorAll('input.qt').forEach(x=>SchoolMath.bar(x));d.querySelector('input.qt').focus();count()}));
-document.getElementById('qf').addEventListener('submit',e=>{for(const o of own.children){const q=o.querySelector('[name$="[q]"]').value.trim(),im=o.querySelector('[name$="[img]"]').value;if(!q&&!im){e.preventDefault();alert('كل سؤال يحتاج نصًا أو صورة.');o.scrollIntoView({block:'center'});return}}});})();
+document.getElementById('qf').addEventListener('submit',e=>{for(const o of own.children){const q=o.querySelector('[name$="[q]"]').value.trim(),im=o.querySelector('[name$="[img]"]').value;if(!q&&!im){e.preventDefault();alert('كل سؤال يحتاج نصًا أو صورة.');o.scrollIntoView({block:'center'});return}}});
+/* مسودة على هذا الجهاز: تُحفظ تلقائيًا وبزر «حفظ كمسودة»، وتُستعاد عند العودة، وتُمسح بعد النشر. */
+const DK='bustan_quiz_draft_{{ $school->id }}_{{ $section->id }}',form=document.getElementById('qf'),dst=document.getElementById('dst');let pk=null,dt;
+function snap(){const d={f:{},picked:[...bank.querySelectorAll('input:checked')].map(i=>i.value),own:[]};
+ for(const el of form.elements){if(!el.name||el.name==='_token'||el.name.startsWith('own[')||el.name.startsWith('picked')||el.type==='file')continue;if((el.type==='radio'||el.type==='checkbox')&&!el.checked)continue;d.f[el.name]=el.value}
+ for(const o of own.children){const t=o.querySelector('[name$="[type]"]').value,v={};o.querySelectorAll('input,textarea,select').forEach(x=>{if(!x.name||x.type==='file')return;const k=x.name.replace(/^own\[\d+\]/,'');if(x.type==='radio'||x.type==='checkbox'){if(x.checked)v[k+'='+x.value]=1}else v[k]=x.value});d.own.push({t,v})}return d}
+function saveDraft(msg){try{localStorage.setItem(DK,JSON.stringify(snap()));dst.textContent=msg||'حُفظت المسودة على هذا الجهاز ✓'}catch(e){dst.textContent='تعذّر حفظ المسودة'}}
+document.getElementById('draft').onclick=()=>saveDraft();
+form.addEventListener('input',()=>{clearTimeout(dt);dt=setTimeout(()=>saveDraft('حُفظت تلقائيًا ✓'),1500)});form.addEventListener('change',()=>{clearTimeout(dt);dt=setTimeout(()=>saveDraft('حُفظت تلقائيًا ✓'),800)});
+document.getElementById('pub').addEventListener('click',()=>{form.addEventListener('submit',e=>{if(!e.defaultPrevented)try{localStorage.removeItem(DK)}catch(x){}},{once:true})});
+new MutationObserver(()=>{if(!pk)return;const want=new Set(pk);let hit=0;bank.querySelectorAll('input').forEach(i=>{if(want.has(i.value)){i.checked=true;hit++}});if(hit){pk=null;count()}}).observe(bank,{childList:true,subtree:true});
+try{const d=JSON.parse(localStorage.getItem(DK)||'null');if(d&&!document.querySelector('.err,.errors')){
+ for(const [n,v] of Object.entries(d.f||{})){const els=form.querySelectorAll(`[name="${CSS.escape(n)}"]`);els.forEach(el=>{if(el.type==='radio'||el.type==='checkbox')el.checked=el.value===v;else el.value=v})}
+ if(d.f&&d.f.subject&&subj.value!==d.f.subject){subj.value=d.f.subject;load()}pk=d.picked||[];
+ for(const q of d.own||[]){const b=document.querySelector(`[data-add="${CSS.escape(q.t)}"]`);if(!b)continue;b.click();const o=own.lastElementChild;
+  for(const [k,v] of Object.entries(q.v)){if(k.includes('=')){const [kk,vv]=k.split('=');const x=[...o.querySelectorAll('input')].find(x=>x.name.endsWith(kk)&&x.value===vv);if(x)x.checked=true}else{const x=[...o.querySelectorAll('input,textarea,select')].find(x=>x.name&&x.name.replace(/^own\[\d+\]/,'')===k&&x.type!=='radio'&&x.type!=='checkbox');if(x)x.value=v}}
+  o.querySelectorAll('input[type=hidden][name$="img]"]').forEach(h=>{if(h.value&&h.nextElementSibling)h.nextElementSibling.textContent='صورة مرفوعة ✓'})}
+ count();dst.textContent='استُعيدت مسودتك المحفوظة على هذا الجهاز.'}}catch(e){}
+})();
 </script>
 @endsection
