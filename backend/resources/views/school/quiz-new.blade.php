@@ -31,7 +31,7 @@
 <label>المدة (دقائق)<input type="number" name="duration" min="1" max="180" required value="{{ old('duration', 15) }}"></label>
 <label>عدد المحاولات<input type="number" name="attempts" min="1" max="5" required value="{{ old('attempts', 1) }}"></label>
 <label>إظهار النتيجة<select name="show"><option value="now">فور التسليم</option><option value="after" @selected(old('show') === 'after')>بعد إغلاق الاختبار</option></select></label>
-<label class="chk" style="align-self:end"><input type="hidden" name="shuffle" value="0"><input type="checkbox" name="shuffle" value="1" checked> <span>خلط الأسئلة والخيارات</span></label>
+<label class="chk" style="align-self:end"><input type="hidden" name="shuffle" value="0"><input type="checkbox" name="shuffle" value="1" checked> <span>خلط ترتيب الأسئلة</span> <small class="mut">(الخيارات تُخلط دائمًا)</small></label>
 </div>
 <p class="sub" style="margin-top:8px">المؤقّت يُحسب على الخادم: يُسلَّم الاختبار تلقائيًا عند انتهاء الوقت، ولا تُقبل إجابات بعده. تُسجَّل مرات مغادرة صفحة الاختبار.</p></section>
 
