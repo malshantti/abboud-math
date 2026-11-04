@@ -24,7 +24,7 @@ const out=(sel,h)=>{const e=$(sel);if(e){e.innerHTML=h;A.digits&&A.digits(e)}};
 const done=(id,v)=>{S.done['lab:'+id]=Math.max(S.done['lab:'+id]||0,v||100);A.save()};
 const rng=(id,lab,min,max,val,step)=>'<label class="lrow">'+lab+' <input type="range" id="'+id+'" min="'+min+'" max="'+max+'" value="'+val+'" step="'+(step||1)+'"> <b id="'+id+'v"></b></label>';
 const num=(id,lab,val,w)=>'<label class="lrow">'+lab+' <input type="number" id="'+id+'" value="'+val+'" style="width:'+(w||110)+'px" class="ltr" inputmode="numeric"></label>';
-const v=id=>{const e=$('#'+id);return e?+String(e.value).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)):0};
+const v=id=>{const e=$('#'+id);if(!e)return 0;const x=window.BUSTAN_ANS?window.BUSTAN_ANS.value(e.value):NaN;return isNaN(x)?+String(e.value).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)):x};
 const bind=(ids,fn)=>{ids.forEach(i=>{const e=$('#'+i);if(e)e.oninput=fn});fn()};
 const shw=(i,t)=>{const e=$('#'+i+'v');if(e)e.textContent=AR(t)};
 const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a};
