@@ -133,6 +133,30 @@ class Schools
         return $out;
     }
 
+    /**
+     * Same-name children in a section are kept: the 2nd, 3rd… get « ٢», « ٣»… so the teacher, cards and picker can tell them apart.
+     * Returns [final names, [[original, new], …]].
+     */
+    public static function distinctNames(array $existing, array $names): array
+    {
+        $taken = array_map(fn ($n) => mb_strtolower(trim((string) $n)), $existing);
+        $out = [];
+        $renamed = [];
+        foreach ($names as $n) {
+            $final = $n;
+            for ($i = 2; in_array(mb_strtolower($final), $taken, true); $i++) {
+                $final = $n.' '.Ar::num($i);
+            }
+            $taken[] = mb_strtolower($final);
+            $out[] = $final;
+            if ($final !== $n) {
+                $renamed[] = [$n, $final];
+            }
+        }
+
+        return [$out, $renamed];
+    }
+
     public static function parseNames(?string $text, ?\Illuminate\Http\UploadedFile $file = null): array
     {
         $rows = [];
@@ -154,7 +178,7 @@ class Schools
             $out[] = $r;
         }
 
-        return array_slice(array_values(array_unique($out)), 0, 200);
+        return array_slice(array_values($out), 0, 200); // P1: same-name children are kept (distinguished later), never silently dropped
     }
 
     private static function csvFirstColumn(string $path): array
