@@ -174,5 +174,7 @@ class SchoolTasksTest extends TestCase
         $this->assertTrue(\App\Support\SchoolStats::isLessonName('الأعداد ضمن ٩٩٩٩٩٩'));
         $this->actingAs($t)->get('/s/demo/panel/monthly')->assertOk()
             ->assertSee('دروس تحتاج مراجعة')->assertSee('درس ضعيف للاختبار')->assertDontSee($title);
+        $kid = $sec->students()->first();
+        $this->get('/s/demo/panel/students/'.$kid->id)->assertOk()->assertSee('درس ضعيف للاختبار')->assertDontSee($title);
     }
 }
