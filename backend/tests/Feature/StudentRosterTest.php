@@ -26,7 +26,15 @@ class StudentRosterTest extends TestCase
         $this->assertContains('الرياضيات', array_column($s[0]['subjects'], 'name'));
         $this->assertSame([1], array_unique(array_map(fn ($c) => (int) substr($c['code'], 1), $s[0]['subjects'])));
         $pin = $s[0]['pin'];
-        $this->assertSame('sha256:'.hash('sha256', 'bustan:'.$pin['salt'].':1234'), $pin['hash']);
+        $this->assertTrue($pin['set']);
+        $this->assertArrayNotHasKey('hash', $pin);
+        $this->assertArrayNotHasKey('salt', $pin);
+        $sid = $s[0]['id'];
+        $this->postJson("/api/students/{$sid}/pin/verify", ['pin' => '9999'])->assertOk()->assertJson(['ok' => false]);
+        $this->postJson("/api/students/{$sid}/pin/verify", ['pin' => '١٢٣٤'])->assertOk()->assertJson(['ok' => true]);
+        $other = User::factory()->create();
+        $this->actingAs($other)->postJson("/api/students/{$sid}/pin/verify", ['pin' => '1234'])->assertNotFound();
+        $this->actingAs($u);
         $this->assertNull($s[1]['pin']);
         $this->assertArrayNotHasKey('pin_hash', $u->students()->first()->toArray());
     }

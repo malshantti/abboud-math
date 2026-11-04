@@ -4,7 +4,7 @@
    الرقم السري قفل خفيف لمنع الخلط بين الإخوة على الجهاز نفسه، وليس حماية أمنية: يُخزَّن مُجزّأً (SHA-256 مع ملح) في المتصفح. */
 (function(){
 'use strict';
-const LS=window.localStorage;
+const LS=window.localStorage,ROOT=new URL('./',document.currentScript&&document.currentScript.src||location.href);
 const PER=['abboud_math_v1','bustan_g8_english_v1','bustan_g6_math_v1','bustan_g6_english_v1','bustan_g6_arabic_v1','bustan_g6_science_v1','bustan_g8_arabic_v1','bustan_g8_science_v1','en_rate','en_sfx','en_zay','abboud_coach_cfg','bustan_last','bustan_grade','bustan_student_name','bustan_g1_math_v1','bustan_g1_arabic_v1','bustan_g1_english_v1','bustan_g1_life_v1','bustan_g2_math_v1','bustan_g2_arabic_v1','bustan_g2_english_v1','bustan_g2_life_v1','bustan_g3_math_v1','bustan_g3_arabic_v1','bustan_g3_english_v1','bustan_g3_science_v1','bustan_report_v1','bustan_g4_math_v1','bustan_g5_math_v1','bustan_g7_math_v1','bustan_g4_arabic_v1','bustan_g5_arabic_v1','bustan_g7_arabic_v1','bustan_g4_english_v1','bustan_g5_english_v1','bustan_g7_english_v1','bustan_g4_science_v1','bustan_g5_science_v1','bustan_g7_science_v1'];// مفاتيح خاصة بكل طالب؛ تُحفظ مفاتيح الصف الأول أيضًا عند جمع طلبي الصفين.
 const K={list:'bustan_profiles',session:'bustan_session',owner:'bustan_owner',fails:'bustan_pin_fails',transition:'bustan_transition',restore:'bustan_restore'};
 const slot=(id,k)=>`bustan_p_${id}__${k}`;
@@ -69,6 +69,13 @@ function stash(){
   const o=get(K.owner);if(!o)return true;
   try{PER.forEach(k=>{const w=LS.getItem(k);if(!canonical(o)||!PROGRESS.includes(k)||(w!=null&&w!==LS.getItem(slot(o,k))))required(slot(o,k),w)});required(storeKey(o),'1');return true}catch(e){return storageError()}
 }
+// رقم الأهل/المدرسة يُتحقّق منه في الخادم فقط (لا يصل الـhash إلى المتصفح). يحتاج اتصالًا بالإنترنت.
+async function serverCheck(id,pin){
+  const st=P.accountStudent(id),API=window.BUSTAN_API||new URL('admin-api/api/',ROOT).href;if(!st||!st.sid){P.lastCheck='offline';return false}
+  try{const h={Accept:'application/json'};const ss=await fetch(API+'session',{credentials:'same-origin',cache:'no-store',headers:h});const j=ss.ok?await ss.json():{};
+    const r=await fetch(API+'students/'+st.sid+'/pin/verify',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{...h,'Content-Type':'application/json','X-CSRF-TOKEN':j.csrf||''},body:JSON.stringify({pin:String(pin)})});
+    const d=await r.json().catch(()=>({}));if(r.status===429){P.lastCheck='locked';return false}if(!r.ok){P.lastCheck='offline';return false}return d.ok===true}
+  catch(e){P.lastCheck='offline';return false}}
 async function hash(pin,salt){
   const msg=`bustan:${salt}:${pin}`;
   if(window.crypto&&crypto.subtle&&window.isSecureContext){
@@ -119,7 +126,9 @@ const P={
     return locked(()=>{if(!migrate())throw Error(lastError);const a=list();a.push(p);if(!switchProfile(id,p.name,a))throw Error(lastError);return p});
   },
   async setPin(id,pin){const salt=newSalt(),value=await hash(pin,salt);return locked(()=>{const a=list(),p=a.find(x=>x.id===id);if(!p)return false;p.salt=salt;p.pin=value;delete p.migrated;if(!saveList(a))return storageError();return true})},
-  async check(id,pin){const p=this.find(id);if(!p||!p.pin)return false;return (await hash(pin,p.salt))===p.pin},
+  async check(id,pin){const p=this.find(id);P.lastCheck='';if(!p||!p.pin)return false;
+    if(/^srv:/.test(p.pin))return serverCheck(id,pin);
+    return (await hash(pin,p.salt))===p.pin},
   lockedFor(id){const f=J(K.fails,{})[id];if(!f||f.n<5)return 0;const left=f.t+30000-Date.now();return left>0?left:0},
   fail(id){const all=J(K.fails,{});const f=all[id]||{n:0,t:0};if(Date.now()-f.t>30000&&f.n>=5)f.n=0;f.n++;f.t=Date.now();all[id]=f;set(K.fails,JSON.stringify(all));return f.n},
   clearFails(id){const all=J(K.fails,{});delete all[id];set(K.fails,JSON.stringify(all))},

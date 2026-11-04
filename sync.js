@@ -251,7 +251,7 @@ async function sync(){
    }
    const gKeys=[];if(!have&&gData&&!gUsed){gUsed=true;Object.entries(gData).forEach(([k,v])=>{if(data[k]==null){data[k]=v;gKeys.push(k)}})}
    if(s.grade)data.bustan_grade=String(s.grade);
-   const cur=P.find(id)||{},pin=s.pin&&s.pin.hash?{pin:s.pin.hash,salt:s.pin.salt}:{pin:cur.pin||null,salt:cur.salt||null};// الرقم السري الذي حدّده الأهل هو المرجع
+   const cur=P.find(id)||{},pin=s.pin&&s.pin.set?{pin:'srv:'+s.pin.v,salt:null}:{pin:cur.pin||null,salt:cur.salt||null};// الرقم السري الذي حدّده الأهل هو المرجع، ويُتحقّق منه في الخادم فقط (لا يصل الـhash إلى المتصفح)// الرقم السري الذي حدّده الأهل هو المرجع
    if(!have||cur.name!==s.name||cur.pin!==pin.pin||(s.grade&&String(P.dataOf(id,'bustan_grade'))!==data.bustan_grade))
     await P.restore({app:'bustan-backup-v1',profiles:[{id,name:s.name,avatar:s.avatar||cur.avatar,created:cur.created,...pin}],data:{[id]:data}});
    if(!have){st.map[id]=s.id;st.base[id]={};Object.entries(data).forEach(([k,v])=>{if(!gKeys.includes(k))st.base[id][k]=fnv(v)})}// مفاتيح الضيف تُرفع للخادم في الخطوة ٣
@@ -309,7 +309,9 @@ async function start(){
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')run()});
 }
 // رقم سري اختاره الطفل على هذا الجهاز: يُحفظ في الحساب ليعمل على أي جهاز (لا يستبدل رقمًا حدّده الأهل).
-async function pushPin(localId){try{const P=window.PROFILES;if(!P)return false;const p=P.find(localId),st=P.accountStudent(localId);if(!p||!p.pin||!st||!st.sid||!/^sha256:/.test(p.pin))return false;
+async function pushPin(localId,plain){try{const P=window.PROFILES;if(!P)return false;const p=P.find(localId),st=P.accountStudent(localId);if(!p||!st||!st.sid)return false;
+ if(plain&&/^\d{4}$/.test(plain)){if(!csrf){session=await api('session',{timeout:10000});csrf=session.csrf||''}const r=await api('students/'+st.sid+'/pin',{body:{pin:plain},timeout:10000});return !!(r&&r.saved)}
+ if(!p.pin||!/^sha256:/.test(p.pin))return false;
  if(!csrf){session=await api('session',{timeout:10000});csrf=session.csrf||''}
  const r=await api('students/'+st.sid+'/pin',{body:{salt:p.salt,hash:p.pin},timeout:10000});return !!(r&&r.saved)}catch(e){return false}}
 // سؤال الإحماء: أول زيارة لكل مادة تبدأ بسؤال سهل جدًا يمنح نجمة سريعة خلال أقل من دقيقة

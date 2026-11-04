@@ -94,7 +94,7 @@ function enter(p){
   <div class="actions"><button type="button" class="btn ghost" id="back">${svg('back',18)} ملف آخر</button></div>`,'#pinIn input');
  const wrap=$('#pinIn'),msg=$('#msg');
  const inp=bindPin(wrap,async v=>{const lock=P.lockedFor(p.id);if(lock){msg.className='msg err';msg.textContent=`محاولات كثيرة. انتظر ${AR(Math.ceil(lock/1000))} ثانية.`;inp.value='';return}
-  if(await P.check(p.id,v)){inp.blur();done(p)}else{const n=P.fail(p.id);wrap.classList.add('bad');inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'));msg.className='msg err';msg.textContent=n>=5?'محاولات كثيرة. انتظر ٣٠ ثانية ثم حاول.':'الرقم غير صحيح، حاول مرة أخرى.';inp.blur();oops('لا بأس، جرّب مرة أخرى!');if(!RM){wrap.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:380})}}});
+  if(await P.check(p.id,v)){inp.blur();done(p)}else if(P.lastCheck==='offline'||P.lastCheck==='locked'){msg.className='msg err';msg.textContent=P.lastCheck==='offline'?'تحقّق من الاتصال بالإنترنت ثم أعد المحاولة.':'محاولات كثيرة. انتظر خمس دقائق ثم حاول.';inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'))}else{const n=P.fail(p.id);wrap.classList.add('bad');inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'));msg.className='msg err';msg.textContent=n>=5?'محاولات كثيرة. انتظر ٣٠ ثانية ثم حاول.':'الرقم غير صحيح، حاول مرة أخرى.';inp.blur();oops('لا بأس، جرّب مرة أخرى!');if(!RM){wrap.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:380})}}});
  $('#back').onclick=()=>pick();
  const fb=$('#forgot'),fp=$('#forgotPanel'),tg=o=>{fp.hidden=!o;fb.setAttribute('aria-expanded',o);if(o){say('اطلب المساعدة من أهلك');fp.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'})}else fb.focus()};
  fb.onclick=()=>tg(fp.hidden);$('#forgotX').onclick=()=>tg(false)}
@@ -112,7 +112,7 @@ function twoPins(title,sub,extra,onOk){
  if($('#back'))$('#back').onclick=()=>pick()}
 function setpin(p){
  say(`أهلًا ${p.name}! تقدّمك محفوظ، اختر رقمًا سريًا`);setPose('idle');
- twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'لم يحدّد الأهل رقمًا سريًا لك بعد. اختر أربعة أرقام تتذكّرها، وستكتبها في كل دخول.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');if(window.BUSTAN_SYNC&&BUSTAN_SYNC.pushPin)await Promise.race([BUSTAN_SYNC.pushPin(p.id),new Promise(r=>setTimeout(r,6000))]);return done(P.find(p.id))})}
+ twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'لم يحدّد الأهل رقمًا سريًا لك بعد. اختر أربعة أرقام تتذكّرها، وستكتبها في كل دخول.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');if(window.BUSTAN_SYNC&&BUSTAN_SYNC.pushPin)await Promise.race([BUSTAN_SYNC.pushPin(p.id,pin),new Promise(r=>setTimeout(r,6000))]);return done(P.find(p.id))})}
 
 // ---------- البداية ----------
 const tb=$('#theme');const paint=()=>{tb.innerHTML=svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',22)};paint();
