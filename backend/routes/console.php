@@ -220,3 +220,51 @@ Artisan::command('gift:mail {--send} {--only=} {--to=} {--sleep=2}', function ()
         sleep(max(0, (int) $this->option('sleep')));
     }
 })->purpose('Gift month email: preview or send');
+
+// P1: daily DB backup (cPanel cron runs it once a day). gzip'd mysqldump in storage/app/private/backups/daily (not web-reachable); keeps --keep days.
+Artisan::command('db:backup {--keep=14}', function () {
+    $c = config('database.connections.'.config('database.default'));
+    if (($c['driver'] ?? '') !== 'mysql' && ($c['driver'] ?? '') !== 'mariadb') {
+        $this->error('db:backup supports mysql/mariadb only');
+
+        return 1;
+    }
+    $dir = storage_path('app/private/backups/daily');
+    @mkdir($dir, 0700, true);
+    $file = $dir.'/db-'.now('UTC')->format('Ymd-His').'.sql.gz';
+    $bin = is_executable('/usr/bin/mysqldump') ? '/usr/bin/mysqldump' : 'mysqldump';
+    $p = new \Symfony\Component\Process\Process([$bin, '--single-transaction', '--quick', '--no-tablespaces', '--routines', '-h', (string) ($c['host'] ?? 'localhost'), '-P', (string) ($c['port'] ?? 3306), '-u', (string) $c['username'], (string) $c['database']], null, ['MYSQL_PWD' => (string) $c['password']], null, 1800);
+    $gz = gzopen($file.'.part', 'wb6');
+    $p->run(function ($type, $buf) use ($gz) {
+        if ($type === \Symfony\Component\Process\Process::OUT) {
+            gzwrite($gz, $buf);
+        }
+    });
+    gzclose($gz);
+    $tail = '';
+    if ($p->isSuccessful() && ($h = gzopen($file.'.part', 'rb'))) { // a complete dump ends with «-- Dump completed»
+        while (! gzeof($h)) {
+            $tail = substr($tail.gzread($h, 65536), -200);
+        }
+        gzclose($h);
+    }
+    if (! $p->isSuccessful() || ! str_contains($tail, 'Dump completed')) {
+        @unlink($file.'.part');
+        \Illuminate\Support\Facades\Log::error('db:backup failed', ['err' => \Illuminate\Support\Str::limit($p->getErrorOutput(), 300)]);
+        $this->error('backup failed');
+
+        return 1;
+    }
+    rename($file.'.part', $file);
+    @chmod($file, 0600);
+    $keep = max(1, (int) $this->option('keep'));
+    $old = 0;
+    foreach (glob($dir.'/db-*.sql.gz') ?: [] as $f) {
+        if ($f !== $file && filemtime($f) < now()->subDays($keep)->getTimestamp()) {
+            @unlink($f) && $old++;
+        }
+    }
+    $this->info('ok '.basename($file).' '.filesize($file).' bytes; pruned '.$old);
+
+    return 0;
+})->purpose('Daily gzip DB backup into storage/app/private/backups/daily, keep N days');
