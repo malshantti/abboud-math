@@ -236,7 +236,7 @@ class SchoolTaskController extends Controller
             foreach ($q->questions as $i => $x) {
                 $head[] = 'س'.($i + 1).($x['src'] === 'teacher' ? ' (معلّم)' : '');
             }
-            fputcsv($o, $head);
+            \App\Support\CsvSafe::put($o, $head);
             foreach ($res['rows'] as $r) {
                 $b = $r['best'];
                 $line = [$r['name'], $r['attempts'], $b?->score ?? '', $b?->correct ?? '', $b?->total ?? '', $b ? round($b->seconds() / 60, 1) : '',
@@ -245,7 +245,7 @@ class SchoolTaskController extends Controller
                 foreach ($q->questions as $i => $x) {
                     $line[] = $b ? SchoolTasks::answerText($x, $b->answers[$i] ?? null).(SchoolTasks::isRight($x, $b->answers[$i] ?? null) ? ' ✓' : ' ✗') : '';
                 }
-                fputcsv($o, $line);
+                \App\Support\CsvSafe::put($o, $line);
             }
             fclose($o);
         }, 'quiz-'.$q->id.'-'.now($tz)->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'no-store, private']);
