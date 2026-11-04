@@ -1,12 +1,12 @@
 /* «استمع إلى الشرح»: ملفات صوتية مسجّلة مسبقًا فقط (لا توليد كلام في المتصفح). مقطع لكل جملة مع تظليلها.
-   يبدأ تلقائيًا عند فتح الدرس (أو عند أول لمسة إن منع المتصفح التشغيل)، ما لم يوقفه المستخدم؛ ويُحفظ اختياره على الجهاز. */
+   لا يبدأ تلقائيًا إلا إذا فعّل الطفل «تشغيل تلقائي» بنفسه؛ ويُحفظ اختياره على الجهاز. */
 (function(){'use strict';
 const KEY='math_narr_auto';
 let au=null,q=[],i=0,id=null,state='idle',fails=0,armed=null,autoDone=null;
 const N=()=>window.MATH_NARR,btn=()=>document.getElementById('narr'),st=()=>document.getElementById('narr-st');
 const icon=n=>window.ICON?window.ICON(n):'';
 const store=()=>{try{return window.localStorage}catch(e){return null}};
-const auto=()=>{const s=store();return !s||s.getItem(KEY)!=='0'};
+const auto=()=>{const s=store();return !!s&&s.getItem(KEY)==='1'};
 const setAuto=on=>{const s=store();try{s&&s.setItem(KEY,on?'1':'0')}catch(e){}const c=document.getElementById('narr-auto');if(c)c.checked=on};
 function stopBar(){let b=document.getElementById('narr-stop');const on=state==='playing'||state==='paused'||state==='waiting';
  if(on&&!b&&document.createElement&&document.body){b=document.createElement('button');b.type='button';b.id='narr-stop';b.className='narr-stop';b.innerHTML=icon('x')+' إيقاف الصوت';document.body.appendChild(b)}
