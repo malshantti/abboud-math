@@ -7,7 +7,7 @@
 textarea{min-height:170px;font-size:18px;line-height:1.7}
 .share{display:grid;grid-template-columns:132px 1fr;gap:14px;align-items:center}.share #qr{width:132px;height:132px}
 .code{font:800 30px/1.2 monospace;letter-spacing:4px;direction:ltr;color:var(--gd)}
-.pinv{font:800 20px monospace;direction:ltr;letter-spacing:2px}
+.pinv{font:800 20px monospace;direction:ltr;letter-spacing:2px}.pinbox{display:inline-flex;gap:8px;align-items:center;white-space:nowrap}th .btn{min-height:30px;padding:2px 10px;font-size:13px}
 td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
 .alerts{list-style:none;margin:0;padding:0;font-size:15px}.alerts li{padding:6px 0;border-bottom:1px solid var(--line)}.alerts .bad{color:#8a2a24;font-weight:800}
 @media(max-width:600px){table.st thead{display:none}table.st tr{display:grid;grid-template-columns:1fr auto;padding:8px 0;border-bottom:1px solid var(--line)}table.st td{border:0;padding:2px 4px}}
@@ -39,11 +39,12 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
 <section class="card" style="margin-top:18px">
   <h2 class="mt0">الطلاب</h2>
   @if ($students->isEmpty())<p class="muted">لا طلاب بعد. الصق الأسماء أعلاه.</p>@else
-  <table class="st"><thead><tr><th>الاسم</th><th>الرقم السري</th><th>اسم المستخدم</th><th>آخر نشاط</th><th></th></tr></thead><tbody>
+  <table class="st"><thead><tr><th>الاسم</th><th>الرقم السري <button class="btn ghost small" type="button" id="pin-all" aria-pressed="false">إظهار الكل</button></th><th>اسم المستخدم</th><th>آخر نشاط</th><th></th></tr></thead><tbody>
   @foreach ($students as $s)
     @php($last = collect([$s->last_synced_at, $s->user?->last_login_at, $s->user?->active_device_seen_at])->filter()->max())
     <tr><td><a href="{{ route('school.student', [$school, $s]) }}"><b>{{ $s->name }}</b></a>@if($s->pin_locked_until && $s->pin_locked_until->isFuture()) <span class="chip bad">قُفل على جهاز مؤقتًا</span> <form method="post" action="{{ route('school.unlock', [$school, $s]) }}" style="display:inline">@csrf<button class="btn ghost" type="submit">فتح القفل</button></form>@endif</td>
-      <td class="pinv">{{ \App\Support\Schools::plainPin($s) ?? '—' }}</td>
+      @php($pin = \App\Support\Schools::plainPin($s))
+      <td>@if($pin)<span class="pinbox"><span class="pinv pin-mask" aria-hidden="true">••••</span><span class="pinv pin-real" hidden>{{ $pin }}</span> <button class="btn ghost small pin-tog" type="button" aria-pressed="false">إظهار</button></span>@else<span class="pinv">—</span>@endif</td>
       <td dir="ltr" style="text-align:right">{{ $s->user?->username }}</td>
       <td class="muted">{{ $last ? $ar::date($last) : 'لم يدخل بعد' }}</td>
       <td><a class="btn ghost" href="{{ route('school.cards', [$school, $section, 's' => $s->id]) }}" target="_blank" rel="noopener">بطاقة</a>
@@ -73,6 +74,9 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
 <script>
 addEventListener('DOMContentLoaded',function(){var url=@json($joinUrl),c=document.getElementById('qr');
  if(window.qrcode){var q=qrcode(0,'M');q.addData(url);q.make();var n=q.getModuleCount(),s=c.width/(n+2),x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#000';for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))x.fillRect(Math.floor((k+1)*s),Math.floor((r+1)*s),Math.ceil(s),Math.ceil(s));}
+ function pinShow(b,on){var w=b.closest('.pinbox');w.querySelector('.pin-real').hidden=!on;w.querySelector('.pin-mask').hidden=on;b.textContent=on?'إخفاء':'إظهار';b.setAttribute('aria-pressed',on?'true':'false')}
+ document.querySelectorAll('.pin-tog').forEach(function(b){b.onclick=function(){pinShow(b,b.getAttribute('aria-pressed')!=='true')}});
+ var pa=document.getElementById('pin-all');if(pa)pa.onclick=function(){var on=pa.getAttribute('aria-pressed')!=='true';document.querySelectorAll('.pin-tog').forEach(function(b){pinShow(b,on)});pa.textContent=on?'إخفاء الكل':'إظهار الكل';pa.setAttribute('aria-pressed',on?'true':'false')};
  document.getElementById('copy').onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(url).then(()=>{this.textContent='نُسخ ✓'})};});
 </script>
 @endsection
