@@ -9,3 +9,10 @@
 .bar,.progress,.pbar{min-height:8px;border-radius:999px;overflow:hidden}
 .bar>i,.bar>span,.bar>div,.progress>span,.progress>div,.pbar>span,.pbar>div{border-radius:inherit}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+/* تبويبات أقسام الدرس: مؤشّر تمرير على الهاتف */
+@media(max-width:600px){nav.tabsec,.tabsec{scrollbar-width:thin;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 28px);mask-image:linear-gradient(to right,transparent 0,#000 28px);padding-left:24px}}
+/* عدّادات الرأس: تسمية مرئية على الشاشات الواسعة */
+@media(min-width:1000px){header .pill[title]::after{content:attr(title);font-size:14px;font-weight:700;margin-inline-start:4px;opacity:.8}}
+header .pill[title]{cursor:help}
+/* جولة الصفحة الرئيسية على الحاسوب: زر صغير في الزاوية لا يغطي البطاقات */
+@media(min-width:900px){.L-voice{bottom:16px!important}.L-voice-play span{display:none}}

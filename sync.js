@@ -173,6 +173,7 @@ const btn=(href,t,main)=>`<a href="${href}" style="display:inline-block;margin:6
 function guestWall(){guestBox('bustan-guest-wall','<h2 style="margin:0 0 6px;font-size:22px">أحسنت! جرّبت الدرسين المجانيين</h2><p style="margin:0 0 10px">أنشئ حسابًا مجانيًا لتكمل كل الدروس وتحفظ نجومك. البستان مجاني بالكامل حتى ٢٨/١١، بدون دفع.</p>'+btn(regUrl(),'سجّل مجانًا',1)+btn(loginUrl(),'عندي حساب'),true)}
 function guestMode(){
  set(GUEST,'1');reveal();
+ try{if(subject&&!LS.getItem('bustan_guest_note')){const n=guestBox('bustan-guest-note','<p style="margin:0 0 6px">أنت تتصفّح كضيف: درسان مجانيان في كل مادة، والتقدّم محفوظ على هذا الجهاز فقط.</p>'+btn(regUrl(),'أنشئ حسابًا مجانيًا لحفظه',1)+'<button type="button" id="bgn-x" style="margin:6px 4px 0;min-height:44px;padding:10px 18px;border-radius:14px;border:0;background:#eef3e6;color:#29392b;font:800 15px inherit">حسنًا</button>');if(n)n.style.bottom='calc(84px + env(safe-area-inset-bottom,0px))';const x=n&&n.querySelector('#bgn-x');if(x)x.onclick=()=>{LS.setItem('bustan_guest_note','1');n.remove()}}}catch(e){}
  const rec=J(GL,{}),mine=Array.isArray(rec[subject])?rec[subject]:(rec[subject]=[]);const base=J(GL+'_xp0',{});
  if(base[subject]==null){base[subject]=guestStars();set(GL+'_xp0',JSON.stringify(base))}
  const check=()=>{const m=(location.hash||'').match(LESSON_RE);
@@ -389,6 +390,10 @@ function early(){try{const g=+((location.pathname.match(/\/g(\d)\//)||[])[1]||0)
   const nav=h2.nextElementSibling&&h2.nextElementSibling.matches('nav')?h2.nextElementSibling:h2;nav.after(box)};
  let t=0;const q=()=>{clearTimeout(t);t=setTimeout(run,250)};new MutationObserver(q).observe(document.body,{childList:true,subtree:true});addEventListener('hashchange',q);q()}catch(e){}}
 setTimeout(early,400);
+/* عدّادات الرأس (أيام متتالية، نقاط، قلوب): اسم مقروء ونصّ يظهر عند اللمس. */
+function pills(){try{const lab=()=>{for(const p of document.querySelectorAll('header .pill[title]')){const v=p.textContent.trim();const l=p.getAttribute('title')+': '+v;if(p.getAttribute('aria-label')!==l){p.setAttribute('aria-label',l);p.setAttribute('role','img')}if(!p.dataset.tip){p.dataset.tip='1';p.addEventListener('click',()=>{let t=document.getElementById('bustan-tip');if(!t){t=document.createElement('div');t.id='bustan-tip';t.setAttribute('role','status');t.style.cssText='position:fixed;top:64px;inset-inline:0;margin:auto;width:max-content;max-width:90vw;z-index:10003;background:#29392b;color:#fff;font:800 15px Cairo,sans-serif;padding:8px 14px;border-radius:12px';document.body.appendChild(t)}t.textContent=p.getAttribute('aria-label');t.hidden=false;clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,2200)})}}};
+ lab();let pend=0;new MutationObserver(()=>{if(pend)return;pend=1;setTimeout(()=>{pend=0;lab()},400)}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}}
+setTimeout(pills,500);
 window.BUSTAN_SYNC={run,enabled,daysText,pushPin,disable(){set(K.on,null);set(K.roster,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();
