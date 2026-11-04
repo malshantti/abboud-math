@@ -73,10 +73,11 @@ function banner(site){
  const b=document.createElement('div');b.id='bustan-banner';b.setAttribute('role','note');
  b.style.cssText='position:relative;z-index:9998;background:'+(col(c.bg)||'#fff4d6')+';border-bottom:2px solid '+(col(c.line)||'#f0d58a')+';color:'+(col(c.ink)||'#5a4000')+';padding:10px 56px 10px 16px;text-align:center;font:700 16px/1.7 inherit;direction:rtl';
  const t=document.createElement('span');t.textContent=text;b.append(t);
- if(/^https?:\/\//i.test(site.announcement_link||'')){const a=document.createElement('a');a.href=site.announcement_link;a.rel='noopener';a.textContent='التفاصيل';a.style.cssText='color:inherit;font-weight:800;margin-inline-start:8px;text-decoration:underline';b.append(' ',a)}
+ if(/^https?:\/\//i.test(site.announcement_link||'')){const a=document.createElement('a');a.href=site.announcement_link;a.rel='noopener';a.textContent='التفاصيل';a.style.cssText='color:inherit;font-weight:800;margin-inline-start:8px;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px;padding:0 8px';b.append(' ',a)}
  const x=document.createElement('button');x.type='button';x.setAttribute('aria-label','إخفاء الإعلان');x.textContent='×';
  x.style.cssText='position:absolute;inset-inline-start:8px;top:50%;transform:translateY(-50%);min-width:44px;min-height:44px;border:0;background:none;font-size:24px;color:inherit;cursor:pointer';
  x.onclick=()=>{set(K.dismiss,fnv(text));b.remove()};b.append(x);
+ const home=()=>{const h=location.hash;b.hidden=!(h===''||h==='#'||h==='#/'||h==='#/home')};home();addEventListener('hashchange',home);
  document.body.prepend(b);
 }
 
