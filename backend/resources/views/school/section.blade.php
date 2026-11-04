@@ -13,7 +13,7 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
 @media(max-width:600px){table.st thead{display:none}table.st tr{display:grid;grid-template-columns:1fr auto;padding:8px 0;border-bottom:1px solid var(--line)}table.st td{border:0;padding:2px 4px}}
 @endsection
 @section('content')
-<div class="top2"><h1>{{ $section->name }}</h1><span class="chip grey">{{ $ar::grade($section->grade) }}</span><span class="muted">{{ $ar::num($students->count()) }} طالبًا</span>
+<div class="top2"><h1>{{ $section->name }}</h1><span class="chip grey">{{ $ar::grade($section->grade) }}</span><span class="muted">{{ $ar::count($students->count(), 'طالب') }}</span>
   <a class="btn" style="margin-inline-start:auto" href="{{ route('school.report', [$school, $section]) }}">لوحة المتابعة</a>
   <a class="btn sun" href="{{ route('school.cards', [$school, $section]) }}" target="_blank" rel="noopener">طباعة كل البطاقات</a></div>
 <div class="cols">

@@ -27,9 +27,9 @@
 @endif
 @foreach ($sections as $x)
 <section class="card" style="break-before:{{ $loop->first ? 'auto' : 'page' }}"><h2>{{ $x['sec']->name }} · {{ $ar::grade($x['sec']->grade) }}</h2>
-<p class="sub">تعلّم {{ $ar::num($x['active']) }} من {{ $ar::num($x['n']) }} · {{ $ar::num($x['min']) }} دقيقة · متوسط التقدّم {{ $pc($x['progress']) }} · الصواب {{ $pc($x['acc']) }}</p>
+<p class="sub">تعلّم {{ $ar::num($x['active']) }} من {{ $ar::num($x['n']) }} · {{ $ar::count($x['min'], 'دقيقة') }} · متوسط التقدّم {{ $pc($x['progress']) }} · الصواب {{ $pc($x['acc']) }}</p>
 <div class="cols">
-<div><h3>الأكثر اجتهادًا</h3><ol>@forelse ($x['top'] as $t)<li><b>{{ $t['name'] }}</b> — {{ $ar::num($t['days']) }} أيام، {{ $ar::num($t['min']) }} دقيقة</li>@empty<li class="muted">لا نشاط مسجّل هذا الشهر.</li>@endforelse</ol></div>
+<div><h3>الأكثر اجتهادًا</h3><ol>@forelse ($x['top'] as $t)<li><b>{{ $t['name'] }}</b> — {{ $ar::count($t['days'], 'يوم') }}، {{ $ar::count($t['min'], 'دقيقة') }}</li>@empty<li class="muted">لا نشاط مسجّل هذا الشهر.</li>@endforelse</ol></div>
 <div><h3>دروس تحتاج مراجعة</h3><ul>@forelse (array_slice($x['weak'], 0, 4) as $l)<li>{{ $l['lesson'] }} <small class="muted">({{ $l['subject'] }} · {{ $ar::num($l['acc']) }}٪)</small></li>@empty<li class="muted">لا بيانات كافية.</li>@endforelse</ul></div>
 </div>
 <h3>الواجبات</h3>

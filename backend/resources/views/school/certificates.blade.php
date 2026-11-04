@@ -24,7 +24,7 @@ body{background:#eee;margin:0;font-family:Cairo,sans-serif;color:#2b2b2b}
 </style></head><body>
 <form class="bar" method="get"><b>شهادات {{ $section->name }}</b>
 <select name="m" onchange="this.form.submit()">@for ($i = 0; $i < 6; $i++)@php($mm = now(\App\Support\SchoolStats::tz())->startOfMonth()->subMonths($i))<option value="{{ $mm->format('Y-m') }}" @selected($mm->format('Y-m') === $m)>{{ $months[(int) $mm->format('n')] }} {{ $ar::num($mm->format('Y')) }}</option>@endfor</select>
-<span>{{ $ar::num(count($certs)) }} شهادة</span>
+<span>{{ $ar::count(count($certs), 'شهادة') }}</span>
 <button class="btn small" type="button" onclick="print()">طباعة / حفظ PDF</button><a class="btn ghost small" href="{{ route('school.honor', [$school, $section]) }}">لوحة الشرف</a></form>
 @forelse ($certs as $c)
 <div class="cert">@if ($school->is_test)<span class="test">نموذج تجريبي</span>@endif

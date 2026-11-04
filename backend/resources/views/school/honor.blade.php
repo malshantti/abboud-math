@@ -27,5 +27,5 @@
 <section class="card"><h2>نجوم الجميع</h2><table><thead><tr><th>الطالب</th><th>النجوم</th><th>أيام التعلّم</th><th class="hm">دقائق</th><th class="hm">واجبات أُنجزت</th><th class="hm">اختبارات أُدّيت</th></tr></thead><tbody>
 @foreach ($h['rows'] as $x)<tr><td><b>{{ $x['name'] }}</b></td><td>⭐ {{ $ar::num($x['stars']) }}</td><td>{{ $ar::num($x['days']) }}</td><td class="hm">{{ $ar::num($x['min']) }}</td><td class="hm">{{ $ar::num($x['hw']) }}/{{ $ar::num($x['hw_n']) }}</td><td class="hm">{{ $ar::num($x['quiz']) }}</td></tr>@endforeach
 </tbody></table>
-<p class="how">كيف تُحسب النجوم: نجمة لكل يوم تعلّم، ونجمة لكل {{ $ar::num(\App\Support\SchoolMotivation::MIN_PER_STAR) }} دقيقة (حتى ٨ في الأسبوع)، ونجمتان لكل واجب مكتمل، ونجمة لكل اختبار أدّاه الطالب — مهما كانت علامته.</p></section>
+<p class="how">كيف تُحسب النجوم: نجمة لكل يوم تعلّم، ونجمة لكل {{ $ar::count(\App\Support\SchoolMotivation::MIN_PER_STAR, 'دقيقة') }} (حتى ٨ في الأسبوع)، ونجمتان لكل واجب مكتمل، ونجمة لكل اختبار أدّاه الطالب — مهما كانت علامته.</p></section>
 @endsection
