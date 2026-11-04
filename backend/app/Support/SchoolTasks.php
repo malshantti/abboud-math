@@ -210,10 +210,143 @@ class SchoolTasks
     public static function norm(string $v): string
     {
         $v = str_replace(['*', ' '], ['×', ''], SchoolMath::plain($v));
-        $v = strtr($v, ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه', '،' => ',']);
-        $v = preg_replace('/[\x{064B}-\x{0652}\x{0640}]/u', '', $v);
+        $v = self::letters($v);
 
         return mb_strtolower(trim(preg_replace('/\s+/u', ' ', $v)));
+    }
+
+    /** Digits, letter variants, tashkeel and invisible marks. Keeps spaces. */
+    private static function letters(string $v): string
+    {
+        $v = strtr($v, ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ٱ' => 'ا', 'ى' => 'ي', 'ة' => 'ه', '،' => ',', '٫' => '.', '−' => '-', '–' => '-', ' ' => ' ']);
+
+        return preg_replace('/[\x{064B}-\x{065F}\x{0670}\x{0640}\x{200B}-\x{200F}\x{061C}\x{FEFF}]/u', '', $v);
+    }
+
+    /**
+     * Does a typed answer match one accepted answer? Conservative: exact match after normalisation,
+     * the same number written another way (0.5 = ½ = 1/2 = ٠٫٥), or the same Arabic words with an optional «ال».
+     */
+    public static function answerMatches(string $given, string $accepted): bool
+    {
+        $g = self::norm($given);
+        $a = self::norm($accepted);
+        if (preg_match('/\d/', $g.$a)) {
+            // Keep a space only between two digits, so «1 1/2» never equals «11/2».
+            $sp = fn ($v) => mb_strtolower(trim(preg_replace(['/\s+/u', '/(?<=\D) | (?=\D)/u'], [' ', ''], self::letters(str_replace('*', '×', SchoolMath::plain($v))))));
+            $g = $sp($given);
+            $a = $sp($accepted);
+        }
+        if ($g === '' || $a === '') {
+            return false;
+        }
+        if ($g === $a || self::trimPunct($g) === self::trimPunct($a)) {
+            return true;
+        }
+        $gn = self::number($given);
+        $an = self::number($accepted);
+        if ($gn !== null && $an !== null) {
+            return $gn[0] * $an[1] === $an[0] * $gn[1];
+        }
+        if ($gn !== null || $an !== null || preg_match('/\d/', $g.$a)) {
+            return false;
+        }
+
+        return self::words($given) === self::words($accepted) && self::words($given) !== '';
+    }
+
+    private static function trimPunct(string $v): string
+    {
+        return preg_replace('/^[\s«»"\']+|[\s.,،!?؟؛;:«»"\']+$/u', '', $v);
+    }
+
+    /** Arabic words without «ال» (only when ≥2 letters remain), punctuation stripped. */
+    private static function words(string $v): string
+    {
+        $v = mb_strtolower(self::trimPunct(trim(preg_replace('/\s+/u', ' ', self::letters($v)))));
+        if (! preg_match('/^[\p{Arabic} ]+$/u', $v)) {
+            return '';
+        }
+        $out = [];
+        foreach (explode(' ', $v) as $w) {
+            if (mb_substr($w, 0, 2) === 'ال' && mb_strlen($w) >= 4) {
+                $w = mb_substr($w, 2);
+            }
+            $out[] = $w;
+        }
+
+        return implode(' ', $out);
+    }
+
+    /** A plain number as a reduced fraction [num, den], or null. Accepts 3, -2, 0.5, 1,500, 0,5, 1/2, 1 1/2, ½, \frac{1}{2}. */
+    public static function number(string $v): ?array
+    {
+        $v = strtr(SchoolMath::plain($v), ['½' => '1/2', '¼' => '1/4', '¾' => '3/4', '⅓' => '1/3', '⅔' => '2/3', '÷' => '/', '⁄' => '/', '∕' => '/']);
+        $v = self::trimPunct(trim(preg_replace('/\s+/u', ' ', self::letters($v))));
+        $v = preg_replace('/\s*\/\s*/', '/', $v);
+        $v = preg_replace('/^\((.*)\)$/', '$1', $v);
+        $dec = function (string $t): ?array {
+            if (preg_match('/^\d{1,3}(,\d{3})+$/', $t)) {
+                $t = str_replace(',', '', $t);
+            } elseif (preg_match('/^\d+,\d+$/', $t)) {
+                $t = str_replace(',', '.', $t);
+            }
+            if (! preg_match('/^(\d+)(?:\.(\d+))?$|^\.(\d+)$/', $t, $m)) {
+                return null;
+            }
+            $int = $m[1] ?? '';
+            $frac = ($m[2] ?? '') !== '' ? $m[2] : ($m[3] ?? '');
+            $frac = rtrim($frac, '0');
+            $int = ltrim($int, '0');
+            if (strlen($int) + strlen($frac) > 9) {
+                return null;
+            }
+
+            return [(int) ($int.$frac), 10 ** strlen($frac)];
+        };
+        $sign = 1;
+        if (preg_match('/^[-+]/', $v)) {
+            $sign = $v[0] === '-' ? -1 : 1;
+            $v = ltrim(substr($v, 1));
+        }
+        if (preg_match('/^(\d+) (\d+)\/(\d+)$/', $v, $m)) {
+            [$w, $n, $d] = [(int) $m[1], (int) $m[2], (int) $m[3]];
+            if ($d === 0 || strlen($m[1].$m[2].$m[3]) > 12 || $n >= $d) {
+                return null;
+            }
+            $r = [$w * $d + $n, $d];
+        } elseif (str_contains($v, '/')) {
+            $parts = explode('/', $v);
+            if (count($parts) !== 2) {
+                return null;
+            }
+            [$n, $d] = [$dec($parts[0]), $dec($parts[1])];
+            if (! $n || ! $d || $d[0] === 0) {
+                return null;
+            }
+            $r = [$n[0] * $d[1], $n[1] * $d[0]];
+        } else {
+            $r = $dec($v);
+            if (! $r) {
+                return null;
+            }
+        }
+        $g = self::gcd($r[0], $r[1]) ?: 1;
+
+        return [$sign * intdiv($r[0], $g), intdiv($r[1], $g)];
+    }
+
+    private static function gcd(int $a, int $b): int
+    {
+        $a = abs($a);
+        $b = abs($b);
+        while ($b) {
+            [$a, $b] = [$b, $a % $b];
+        }
+
+        return $a;
     }
 
     /** Start (or resume) an attempt. Server decides the deadline: min(start + duration, quiz end). */
@@ -237,7 +370,9 @@ class SchoolTasks
         foreach (range(0, $n - 1) as $qi) {
             $q = $quiz->questions[$qi];
             $opts = isset($q['o']) ? range(0, count($q['o']) - 1) : [];
-            if ($quiz->shuffle && $q['type'] === 'mcq') {
+            // MCQ options are always shown in a random order (fixed for this attempt); grading uses original indexes.
+            // The teacher's «خلط» setting controls the question order only.
+            if ($q['type'] === 'mcq' && count($opts) > 1) {
                 shuffle($opts);
             }
             $layout[] = [$qi, $opts];
@@ -300,9 +435,13 @@ class SchoolTasks
             return false;
         }
         if ($q['type'] === 'fill') {
-            $v = self::norm((string) $ans);
+            foreach ($q['ans'] as $acc) {
+                if (self::answerMatches((string) $ans, (string) $acc)) {
+                    return true;
+                }
+            }
 
-            return in_array($v, array_map([self::class, 'norm'], $q['ans']), true);
+            return false;
         }
 
         return ctype_digit((string) $ans) && (int) $ans === (int) $q['a'];
