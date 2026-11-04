@@ -363,9 +363,11 @@ setTimeout(schoolBadge,1500);
 /* قراءة ولمس مريحان للأطفال: حد أدنى ١٤ بكسل للنص و٤٤ بكسل لأهداف اللمس في كل الصفوف. */
 function comfort(){try{
  if(!document.getElementById('bustan-comfort')){const st=document.createElement('style');st.id='bustan-comfort';
-  st.textContent='.skip-link:focus,.semester-tabs button,.hero-footnote a,a.text-link,.seg button,[role=tablist] button,button.active,summary{min-height:44px}a.text-link,.hero-footnote a{display:inline-flex;align-items:center}summary{display:flex;align-items:center}input[type=search],input[id$=course-search]{min-height:44px}';
+  st.textContent='.skip-link:focus,.semester-tabs button,.hero-footnote a,a.text-link,.seg button,[role=tablist] button,button.active,summary{min-height:44px}a.text-link,.hero-footnote a{display:inline-flex;align-items:center}summary{display:flex;align-items:center}input[type=search],input[id$=course-search]{min-height:44px}.bc-has-lbl{display:inline-flex!important;align-items:center;gap:4px;width:auto!important;padding-inline:8px!important}.bc-lbl{font-size:14px;font-weight:800;line-height:1;white-space:nowrap}@media(max-width:430px){header.top .top-row{flex-wrap:wrap!important;row-gap:6px!important}header.top .brand{flex:1 0 auto!important;overflow:visible!important}}@media(max-width:600px){.bc-has-lbl{flex-direction:column;gap:2px;padding:3px 6px!important;min-width:44px;height:auto!important;min-height:44px}.bc-lbl{font-size:14px}}';
   document.head.appendChild(st)}
- let pend=false;const scan=()=>{pend=false;const els=document.body.querySelectorAll('span,b,small,p,i,em,strong,bdi,a,button,label,figcaption,div,li,td,th,h6,footer');
+ const LB={'تبديل المستخدم':'الطفل','تغيير الصف أو المادة':'الصف'};
+ const labels=()=>{for(const a of document.querySelectorAll('a.switch-mini,a.mini,button.switch-mini,button.mini')){const t=LB[a.getAttribute('aria-label')];if(!t||a.querySelector('.bc-lbl'))continue;const sp=document.createElement('span');sp.className='bc-lbl';sp.setAttribute('aria-hidden','true');sp.textContent=t;a.appendChild(sp);a.classList.add('bc-has-lbl')}};
+ let pend=false;const scan=()=>{pend=false;labels();const els=document.body.querySelectorAll('span,b,small,p,i,em,strong,bdi,a,button,label,figcaption,div,li,td,th,h6,footer');
   for(const e of els){if(e.dataset.bc)continue;const own=[].some.call(e.childNodes,n=>n.nodeType===3&&n.textContent.trim());if(!own)continue;
    if(e.closest('svg,.sr-only,.visually-hidden,.g1-sr,[aria-hidden="true"]'))continue;const fs=parseFloat(getComputedStyle(e).fontSize);
    if(fs>0&&fs<14){e.style.setProperty('font-size','14px','important');e.dataset.bc='1'}}};
