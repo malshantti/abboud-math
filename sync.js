@@ -360,6 +360,18 @@ async function schoolBadge(){try{const slug=localStorage.getItem('bustan_school_
  a.style.cssText='position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));inset-inline-start:12px;z-index:9999;background:'+(j.soon?'#c2410c':'#1d5fa8')+';color:#fff;font:800 15px Cairo,sans-serif;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);text-decoration:none';
  document.body.appendChild(a)}catch(e){}}
 setTimeout(schoolBadge,1500);
+/* قراءة ولمس مريحان للأطفال: حد أدنى ١٤ بكسل للنص و٤٤ بكسل لأهداف اللمس في كل الصفوف. */
+function comfort(){try{
+ if(!document.getElementById('bustan-comfort')){const st=document.createElement('style');st.id='bustan-comfort';
+  st.textContent='.skip-link:focus,.semester-tabs button,.hero-footnote a,a.text-link,.seg button,[role=tablist] button,button.active,summary{min-height:44px}a.text-link,.hero-footnote a{display:inline-flex;align-items:center}summary{display:flex;align-items:center}input[type=search],input[id$=course-search]{min-height:44px}';
+  document.head.appendChild(st)}
+ let pend=false;const scan=()=>{pend=false;const els=document.body.querySelectorAll('span,b,small,p,i,em,strong,bdi,a,button,label,figcaption,div,li,td,th,h6,footer');
+  for(const e of els){if(e.dataset.bc)continue;const own=[].some.call(e.childNodes,n=>n.nodeType===3&&n.textContent.trim());if(!own)continue;
+   if(e.closest('svg,.sr-only,.visually-hidden,.g1-sr,[aria-hidden="true"]'))continue;const fs=parseFloat(getComputedStyle(e).fontSize);
+   if(fs>0&&fs<14){e.style.setProperty('font-size','14px','important');e.dataset.bc='1'}}};
+ const q=()=>{if(pend)return;pend=true;(window.requestIdleCallback||setTimeout)(scan,{timeout:600})};
+ q();new MutationObserver(q).observe(document.body,{childList:true,subtree:true});addEventListener('resize',q)}catch(e){}}
+setTimeout(comfort,300);
 window.BUSTAN_SYNC={run,enabled,daysText,pushPin,disable(){set(K.on,null);set(K.roster,null);set(K.state,null);set(K.access,null);set(K.account,null)}};
 document.readyState==='loading'?addEventListener('DOMContentLoaded',start):start();
 })();
