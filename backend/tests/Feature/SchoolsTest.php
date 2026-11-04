@@ -89,6 +89,17 @@ class SchoolsTest extends TestCase
         $this->postJson('/s/zeta/child', ['student' => $kid->id, 'pin' => $pin])->assertOk();
     }
 
+    public function test_section_page_hides_pins_behind_toggle_and_cards_still_print_them(): void
+    {
+        [$s, , $t, $sec, , $kids] = $this->school('pinhide');
+        $this->actingAs($t);
+        $pin = Schools::plainPin($sec->students()->first());
+        $html = $this->get('/s/pinhide/panel/sections/'.$sec->id)->assertOk()->assertSee('إظهار الكل')->assertSee('pin-mask', false)->getContent();
+        $this->assertMatchesRegularExpression('/<span class="pinv pin-real" hidden>'.$pin.'<\/span>/', $html);
+        $this->assertDoesNotMatchRegularExpression('/<td class="pinv">\d{4}<\/td>/', $html);
+        $this->get('/s/pinhide/panel/sections/'.$sec->id.'/cards')->assertOk()->assertSee($pin);
+    }
+
     public function test_isolation_between_schools_and_teacher_sections(): void
     {
         [$a, $mgrA, $tA, $secA, $secA2] = $this->school('gamma');
