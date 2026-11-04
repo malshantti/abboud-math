@@ -7,7 +7,7 @@
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));margin-bottom:18px">
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'link'])رمز الانضمام</h2>
   <p style="font:800 34px/1.3 Baloo,monospace;letter-spacing:6px;margin:4px 0" dir="ltr">{{ $c->code }}</p>
-  <p class="hint">يكتبه وليّ الأمر في صفحة «حسابي» تحت اسم طفله ← «الانضمام إلى صف».@unless($c->join_open) <b>الانضمام بالرمز مغلق حاليًا.</b>@endunless</p>
+  <p class="hint">يكتبه الأهل في صفحة «حسابي» تحت اسم طفله ← «الانضمام إلى صف».@unless($c->join_open) <b>الانضمام بالرمز مغلق حاليًا.</b>@endunless</p>
   @if ($admin)<form method="post" action="{{ route('manage.class.code', $c) }}" onsubmit="return confirm('إنشاء رمز جديد؟ الرمز القديم سيتوقف.')">@csrf<button class="btn ghost small" type="submit">رمز جديد</button></form>@endif
 </section>
 @if ($admin)
@@ -29,16 +29,16 @@
 
 <h2>الطلاب ({{ $ar::num($c->students->count()) }})</h2>
 <div class="table-wrap stack"><table>
-<thead><tr><th>الطالب</th><th>الصف</th><th>وليّ الأمر</th><th>آخر مزامنة</th><th></th></tr></thead><tbody>
+<thead><tr><th>الطالب</th><th>الصف</th><th>الأهل</th><th>آخر مزامنة</th><th></th></tr></thead><tbody>
 @forelse ($c->students as $s)
-<tr><td data-label="الطالب"><b>{{ $s->name }}</b></td><td data-label="الصف">{{ $ar::grade($s->grade) }}</td><td data-label="وليّ الأمر">{{ $s->user?->name }}@if($admin)<br><small dir="ltr">{{ $s->user?->email }}</small>@endif</td><td data-label="آخر مزامنة">{{ $ar::when($s->last_synced_at) }}</td>
+<tr><td data-label="الطالب"><b>{{ $s->name }}</b></td><td data-label="الصف">{{ $ar::grade($s->grade) }}</td><td data-label="الأهل">{{ $s->user?->name }}@if($admin)<br><small dir="ltr">{{ $s->user?->email }}</small>@endif</td><td data-label="آخر مزامنة">{{ $ar::when($s->last_synced_at) }}</td>
 <td class="actions"><a class="btn ghost small" href="{{ route('manage.student.report', $s) }}">التقرير</a>@if($admin) <form method="post" action="{{ route('manage.class.students.remove', [$c, $s]) }}" style="display:inline">@csrf @method('delete')<button class="btn ghost small" type="submit">إزالة</button></form>@endif</td></tr>
 @empty<tr><td colspan="5" class="empty">لا طلاب في هذا الصف بعد.</td></tr>@endforelse
 </tbody></table></div>
 
 @if ($admin)
 <section class="card" style="margin-top:18px"><h2>@include('partials.admin-icon',['name'=>'plus'])إضافة طلاب</h2>
-<form method="get" class="filters" style="margin:0"><div><label for="q">ابحث عن طالب</label><input id="q" name="q" value="{{ request('q') }}" placeholder="اسم الطالب أو ولي الأمر أو البريد"></div><div class="go"><button class="btn small" type="submit">@include('partials.admin-icon',['name'=>'search'])بحث</button></div></form>
+<form method="get" class="filters" style="margin:0"><div><label for="q">ابحث عن طالب</label><input id="q" name="q" value="{{ request('q') }}" placeholder="اسم الطالب أو الأهل أو البريد"></div><div class="go"><button class="btn small" type="submit">@include('partials.admin-icon',['name'=>'search'])بحث</button></div></form>
 @if ($candidates->isNotEmpty())
 <form method="post" action="{{ route('manage.class.students.add', $c) }}">@csrf
 <div class="table-wrap"><table><tbody>

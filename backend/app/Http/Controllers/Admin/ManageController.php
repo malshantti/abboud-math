@@ -558,13 +558,13 @@ class ManageController extends Controller
                 $row(['id', 'الاسم', 'البريد', 'الدور', 'الحالة', 'عدد الطلاب', 'نهاية التجربة', 'آخر دخول', 'تاريخ التسجيل']);
                 User::withCount('students')->orderBy('id')->chunk(500, fn ($c) => $c->each(fn ($u) => $row([$u->id, $u->name, $u->email, User::ROLES[$u->role] ?? $u->role, $u->disabled_at ? 'معطّل' : 'فعّال', $u->students_count, $u->trial_ends_at, $u->last_login_at, $u->created_at])));
             } elseif ($type === 'students') {
-                $row(['id', 'الطالب', 'الصف', 'ولي الأمر', 'البريد', 'آخر مزامنة', 'تاريخ الإضافة']);
+                $row(['id', 'الطالب', 'الصف', 'الأهل', 'البريد', 'آخر مزامنة', 'تاريخ الإضافة']);
                 Student::with('user')->orderBy('id')->chunk(500, fn ($c) => $c->each(fn ($s) => $row([$s->id, $s->name, Ar::grade($s->grade), $s->user?->name, $s->user?->email, $s->last_synced_at, $s->created_at])));
             } elseif ($type === 'progress') {
                 $row(['student_id', 'الطالب', 'الصف', 'المادة', 'المفتاح', 'آخر تحديث', 'الحجم بالبايت']);
                 StudentProgress::with('student')->orderBy('student_id')->chunk(500, fn ($c) => $c->each(fn ($p) => $row([$p->student_id, $p->student?->name, isset(Ar::KEYS[$p->key]) ? Ar::grade(Ar::KEYS[$p->key][0]) : '', Ar::KEYS[$p->key][1] ?? '', $p->key, $p->client_updated_at ? date('c', intdiv($p->client_updated_at, 1000)) : '', strlen((string) $p->value)])));
             } else {
-                $row(['رمز الطلب', 'ولي الأمر', 'البريد', 'الطالب', 'المادة', 'السعر', 'العملة', 'الأيام', 'الحالة', 'البداية', 'النهاية', 'تاريخ الطلب']);
+                $row(['رمز الطلب', 'الأهل', 'البريد', 'الطالب', 'المادة', 'السعر', 'العملة', 'الأيام', 'الحالة', 'البداية', 'النهاية', 'تاريخ الطلب']);
                 Subscription::with(['user', 'student'])->orderBy('id')->chunk(500, fn ($c) => $c->each(fn ($s) => $row([$s->code, $s->user?->name, $s->user?->email, $s->student?->name, $s->plan_name, $s->price, $s->currency, $s->days, $s->statusLabel(), $s->starts_at, $s->ends_at, $s->created_at])));
             }
             fclose($out);

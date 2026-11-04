@@ -236,7 +236,7 @@
 
 {{-- ===== 3) Payment ===== --}}
 <section class="panel" id="p-payment" role="tabpanel" aria-labelledby="t-payment" @if($tab!=='payment') hidden @endif>
-  <header><span class="pi">@include('partials.admin-icon',['name'=>'wallet'])</span><div><h2>الدفع وواتساب</h2><p>يرسل ولي الأمر طلبه برسالة واتساب جاهزة، ثم تفعّل المواد من «الاشتراكات».</p></div></header>
+  <header><span class="pi">@include('partials.admin-icon',['name'=>'wallet'])</span><div><h2>الدفع وواتساب</h2><p>يرسل الأهل طلبه برسالة واتساب جاهزة، ثم تفعّل المواد من «الاشتراكات».</p></div></header>
   <div class="stack">
   <div class="card"><div class="fg">
     <div class="field"><label for="whatsapp_number">رقم واتساب لاستقبال الطلبات</label><input id="whatsapp_number" name="whatsapp_number" dir="ltr" inputmode="tel" value="{{ $v('whatsapp_number') }}" placeholder="970599000000" class="@error('whatsapp_number') is-bad @enderror"><p class="hint">بالصيغة الدولية دون علامة + أو أصفار بادئة.</p>{!! $err('whatsapp_number') !!}</div>
@@ -305,7 +305,7 @@
     <label class="sw"><span><b>جهازان لكل حساب</b><small>يبقى الحساب مفتوحًا على آخر جهازين سجّلا الدخول، وعند الدخول من جهاز ثالث تُغلق الجلسة على أقدم جهاز. المشرفون مستثنون.</small></span><span class="tg"><input type="checkbox" name="single_device" value="1" @checked($on('single_device'))><i></i></span></label>
   </div>
   <div class="card"><div class="fg">
-    <div class="field"><label for="max_students">الحد الأقصى للطلاب في حساب ولي الأمر</label><input id="max_students" name="max_students" inputmode="numeric" data-num value="{{ $n('max_students') }}" class="@error('max_students') is-bad @enderror">{!! $err('max_students') !!}</div>
+    <div class="field"><label for="max_students">الحد الأقصى للطلاب في حساب الأهل</label><input id="max_students" name="max_students" inputmode="numeric" data-num value="{{ $n('max_students') }}" class="@error('max_students') is-bad @enderror">{!! $err('max_students') !!}</div>
     <div class="field"><label for="session_minutes">مدة الجلسة دون نشاط</label><div class="unit"><input id="session_minutes" name="session_minutes" inputmode="numeric" data-num value="{{ $n('session_minutes') }}" placeholder="{{ $ar::num($serverSession) }}" class="@error('session_minutes') is-bad @enderror"><span>دقيقة</span></div><p class="hint">فارغ يعني إعداد الخادم ({{ $ar::num($serverSession) }} دقيقة). الحد الأدنى ربع ساعة. خيار «تذكّرني» يبقي الدخول أطول.</p>{!! $err('session_minutes') !!}</div>
   </div></div>
   </div>
