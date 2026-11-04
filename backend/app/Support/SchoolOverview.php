@@ -70,7 +70,7 @@ class SchoolOverview
             foreach ($x['d']['rows'] as $r) {
                 foreach ($r['subjects'] as $code => $s) {
                     foreach ($s['lessons'] as $l) {
-                        if (! $l['answered']) {
+                        if (! $l['answered'] || ! SchoolStats::isLessonName($l['name'])) {
                             continue;
                         }
                         $k = $code.'|'.$l['name'];

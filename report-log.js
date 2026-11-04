@@ -19,10 +19,13 @@ function trim(s){
  if(s.wrong.length>40)s.wrong=s.wrong.slice(-40);
 }
 // اسم الدرس الظاهر الآن: أول عنوان مرئي داخل التطبيق.
+// عنوان الصفحة أو اسم المادة ليس اسم درس؛ نتذكّر آخر درس ظهر في هذه الصفحة بدلًا منه.
+let lastLesson='';
+function pageTitle(t){const d=document.title||'',subj=d.split(/\s+[—–-]\s+/)[0];return /بستان/.test(t)||t===clip(d,60)||(subj&&t.startsWith(subj+' —'))||t===subj}
 function lesson(){
- const hs=document.querySelectorAll('#app h1,#app h2,main h1,main h2,.lesson h2,.lesson-title,h1,h2');
- for(const h of hs){if(h.closest('#bustan-banner,#bustan-trial,#bustan-locked,dialog'))continue;const r=h.getBoundingClientRect();if(r.width&&r.height){const t=clip(h.textContent,60);if(t)return t}}
- return clip(document.title,60)||'عام';
+ const hs=document.querySelectorAll('[data-lesson-title],.lesson-title,.lesson h2,#app h1,#app h2,main h1,main h2,h1,h2');
+ for(const h of hs){if(h.closest('#bustan-banner,#bustan-trial,#bustan-locked,dialog'))continue;const r=h.getBoundingClientRect();if(r.width&&r.height){const t=clip(h.getAttribute('data-lesson-title')||h.textContent,60);if(t&&!pageTitle(t))return lastLesson=t}}
+ return lastLesson||'عام';
 }
 // نص السؤال: أقرب عنصر سؤال حول الزر، وإلا أول سطر نصي في الحاوية دون الأزرار.
 function question(btn){

@@ -156,4 +156,23 @@ class SchoolTasksTest extends TestCase
         $this->actingAs($t)->get('/s/demo/panel/monthly?section='.$sec2->id)->assertNotFound();
         $this->get('/s/demo/panel/students/'.$sec2->students()->first()->id.'/family')->assertNotFound();
     }
+
+    public function test_monthly_review_lessons_show_lesson_names_not_page_titles(): void
+    {
+        [$s, , $t, $sec] = $this->setupSchool();
+        SchoolDemo::seed($sec);
+        $title = 'العلوم — الصف الرابع — بستان التعلّم';
+        foreach ($sec->students()->get() as $kid) {
+            $row = $kid->progress()->where('key', \App\Support\Report::LOG_KEY)->first();
+            $log = json_decode($row->value, true);
+            $code = array_key_first($log['subj']);
+            $log['subj'][$code]['lessons'][$title] = ['ms' => 60000, 'n' => 40, 'ok' => 2, 'last' => 1];
+            $log['subj'][$code]['lessons']['درس ضعيف للاختبار'] = ['ms' => 60000, 'n' => 40, 'ok' => 1, 'last' => 1];
+            $row->update(['value' => json_encode($log, JSON_UNESCAPED_UNICODE)]);
+        }
+        $this->assertFalse(\App\Support\SchoolStats::isLessonName($title));
+        $this->assertTrue(\App\Support\SchoolStats::isLessonName('الأعداد ضمن ٩٩٩٩٩٩'));
+        $this->actingAs($t)->get('/s/demo/panel/monthly')->assertOk()
+            ->assertSee('دروس تحتاج مراجعة')->assertSee('درس ضعيف للاختبار')->assertDontSee($title);
+    }
 }
