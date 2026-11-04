@@ -29,6 +29,7 @@
 <script>(function(){try{var s=JSON.parse(localStorage.getItem('bustan_session')||'null');if(!s||s.pending||localStorage.getItem('bustan_owner')!==s.id){location.replace('../../login.html?next='+encodeURIComponent('g4/science/'+location.hash));}}catch(e){}})();</script>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('abboud_theme')||'light';localStorage.setItem('bustan_last',JSON.stringify({grade:4,subject:'science',path:'g4/science/',t:Date.now()}))}catch(e){}</script>
 <script>window.CFG={grade:4,subject:'science',key:'bustan_g4_science_v1',ap:'g4sc',title:'العلوم — الصّفّ الرّابع',audio:false,lesmode:true};</script>
+<link rel="stylesheet" href="../../assets/comfort.css?v=cc1">
 </head>
 <body>
 <a class="skip-link" href="#app">انتقل إلى المحتوى</a>
@@ -39,7 +40,7 @@
    <span class="pill" title="أيّام متتالية"><span data-ic="flame"></span><b id="hstreak">0</b></span>
    <span class="pill" title="نقاط الخبرة"><span data-ic="star"></span><b id="hpts">0</b></span>
    <span class="pill" title="القلوب"><span data-ic="heart"></span><b id="hhearts">5</b></span>
-   <a class="mini" href="../../login.html?switch=1" aria-label="تبديل المستخدم" title="تبديل المستخدم"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.5-3.5 3-5.5 6-5.5s5.5 2 6 5.5M16 7h5M19 4l2 3-2 3"/></svg></a><a class="mini" href="../../?change=1" aria-label="تغيير الصف أو المادة" title="تغيير الصف أو المادة"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></a><button class="mini" id="theme" aria-label="تبديل الوضع الليلي" data-ic="moon"></button>
+   <a class="mini bc-has-lbl" href="../../login.html?switch=1" aria-label="تبديل المستخدم" title="تبديل المستخدم"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.5-3.5 3-5.5 6-5.5s5.5 2 6 5.5M16 7h5M19 4l2 3-2 3"/></svg><span class="bc-lbl" aria-hidden="true">الطفل</span></a><a class="mini bc-has-lbl" href="../../?change=1" aria-label="تغيير الصف أو المادة" title="تغيير الصف أو المادة"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg><span class="bc-lbl" aria-hidden="true">الصف</span></a><button class="mini" id="theme" aria-label="تبديل الوضع الليلي" data-ic="moon"></button>
   </div>
  </div>
  <div class="xpbar"><span><span id="hlvlname"></span> <b id="hlvl">1</b></span><div class="track"><div class="fill" id="hxp" style="width:0"></div></div><span id="hxpt"></span></div>
@@ -55,7 +56,7 @@
  <a href="#/report" data-t="report" data-ic="chart"><span>التقرير</span></a>
 </nav>
 <script src="../../answer-match.js?v=1"></script>
-<script src="../../profiles.js?v=dt1"></script>
+<script src="../../profiles.js?v=cc1"></script>
 <script src="content.js?v=q10sc4"></script>
 <script src="core.js?v=20261029a4p2"></script>
 <script src="mgen.js?v=20261104imp1"></script>
