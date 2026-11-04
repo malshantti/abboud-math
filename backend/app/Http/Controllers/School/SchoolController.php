@@ -441,9 +441,9 @@ class SchoolController extends Controller
         $only = $request->query('s');
         $students = $section->students()->with('user:id,username')->when($only, fn ($q) => $q->whereKey((int) $only))->get();
 
-        return view('school.cards', ['school' => $school, 'section' => $section, 'cards' => $students->map(fn ($s) => [
+        return response()->view('school.cards', ['school' => $school, 'section' => $section, 'cards' => $students->map(fn ($s) => [
             'name' => $s->name, 'pin' => Schools::plainPin($s), 'username' => $s->user?->username,
             'url' => route('school.login', ['school' => $school, 'c' => $section->code, 'u' => $s->user?->username]),
-        ])]);
+        ])])->header('Cache-Control', 'no-store, private')->header('X-Robots-Tag', 'noindex');
     }
 }

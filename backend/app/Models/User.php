@@ -18,7 +18,7 @@ class User extends Authenticatable
         'role' => 'parent',
     ];
 
-    public const ROLES = ['parent' => 'ولي أمر', 'teacher' => 'معلّم', 'admin' => 'مشرف'];
+    public const ROLES = ['parent' => 'الأهل', 'teacher' => 'معلّم', 'admin' => 'مشرف'];
 
     /** School accounts (manager, teacher, student holder): role «school», never offered in the admin role picker. */
     public const SCHOOL_ROLE_LABELS = ['manager' => 'مدير مدرسة', 'teacher' => 'معلّم مدرسة', 'student' => 'طالب مدرسة'];

@@ -18,7 +18,7 @@ class WhatsAppGateway implements PaymentGateway
         return preg_replace('/\D+/', '', Setting::get('whatsapp_number'));
     }
 
-    public const PLACEHOLDERS = ['{student}' => 'اسم الطالب', '{subjects}' => 'قائمة المواد وأسعارها', '{total}' => 'المجموع مع العملة', '{code}' => 'رمز الطلب', '{parent}' => 'اسم ولي الأمر', '{email}' => 'بريد ولي الأمر', '{site}' => 'اسم الموقع'];
+    public const PLACEHOLDERS = ['{student}' => 'اسم الطالب', '{subjects}' => 'قائمة المواد وأسعارها', '{total}' => 'المجموع مع العملة', '{code}' => 'رمز الطلب', '{parent}' => 'اسم الأهل', '{email}' => 'بريد الأهل', '{site}' => 'اسم الموقع'];
 
     public function message(Subscription $s): string
     {
