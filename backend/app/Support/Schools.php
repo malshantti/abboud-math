@@ -110,6 +110,29 @@ class Schools
     }
 
     /** Names from pasted text or an uploaded CSV / XLSX (first non-empty cell of each row). Header-like rows are dropped. */
+    /** Picker labels: first name + initial of the next name («أحمد م.»); longer only where needed to tell two children apart. */
+    public static function shortNames(\Illuminate\Support\Collection $students): array
+    {
+        $words = $students->mapWithKeys(fn ($s) => [$s->id => preg_split('/\s+/u', trim((string) $s->name)) ?: ['']]);
+        $label = function (array $w, int $level): string {
+            if ($level === 0) {
+                return $w[0].(isset($w[1]) ? ' '.mb_substr($w[1], 0, 1).'.' : '');
+            }
+
+            return implode(' ', array_slice($w, 0, $level + 1));
+        };
+        $out = [];
+        foreach ($words as $id => $w) {
+            $level = 0;
+            while ($level < count($w) - 1 && $words->filter(fn ($o, $oid) => $oid !== $id && $label($o, $level) === $label($w, $level))->isNotEmpty()) {
+                $level++;
+            }
+            $out[] = ['id' => $id, 'name' => $label($w, $level)];
+        }
+
+        return $out;
+    }
+
     public static function parseNames(?string $text, ?\Illuminate\Http\UploadedFile $file = null): array
     {
         $rows = [];
