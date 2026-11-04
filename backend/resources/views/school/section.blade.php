@@ -48,9 +48,20 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
       <td class="muted">{{ $last ? $ar::date($last) : 'لم يدخل بعد' }}</td>
       <td><a class="btn ghost" href="{{ route('school.cards', [$school, $section, 's' => $s->id]) }}" target="_blank" rel="noopener">بطاقة</a>
         <form method="post" action="{{ route('school.pin', [$school, $s]) }}">@csrf<button class="btn ghost" type="submit">رقم جديد</button></form>
-        <form method="post" action="{{ route('school.kick', [$school, $s]) }}" onsubmit="return confirm('إخراج {{ $s->name }} من كل الأجهزة وإعطاؤه رقمًا جديدًا؟')">@csrf<button class="btn danger" type="submit">إخراج + رقم جديد</button></form></td></tr>
+        <form method="post" action="{{ route('school.kick', [$school, $s]) }}" onsubmit="return confirm('إخراج {{ $s->name }} من كل الأجهزة وإعطاؤه رقمًا جديدًا؟')">@csrf<button class="btn danger" type="submit">إخراج + رقم جديد</button></form>
+        <form method="post" action="{{ route('school.archive', [$school, $s]) }}" data-msg="إزالة «{{ $s->name }}» من الشعبة؟ سيختفي من القوائم والبطاقات والتقارير ولن يستطيع الدخول. تقدّمه يبقى محفوظًا ويمكن استعادته من «الطلاب المؤرشفون»." onsubmit="return confirm(this.dataset.msg)">@csrf<button class="btn danger" type="submit" data-archive="{{ $s->id }}">إزالة من الشعبة</button></form></td></tr>
   @endforeach
   </tbody></table>@endif
+  @if ($archived->isNotEmpty())
+  <details class="archived" id="archived"><summary><b>الطلاب المؤرشفون ({{ $ar::num($archived->count()) }})</b></summary>
+    <p class="muted">لا يظهرون في القوائم ولا يستطيعون الدخول. تقدّمهم محفوظ.</p>
+    <table class="st"><tbody>
+    @foreach ($archived as $s)
+      <tr><td><b>{{ $s->name }}</b></td><td class="muted">أُرشف {{ $ar::date($s->archived_at) }}</td>
+        <td><form method="post" action="{{ route('school.restore', [$school, $s]) }}">@csrf<button class="btn ghost" type="submit" data-restore="{{ $s->id }}">استعادة</button></form></td></tr>
+    @endforeach
+    </tbody></table></details>
+  @endif
 </section>
 <section class="card" style="margin-top:18px">
   <h2 class="mt0">تنبيهات الأمان (آخر ٧ أيام)</h2>

@@ -23,7 +23,13 @@ class SchoolSection extends Model
 
     public function students(): HasMany
     {
-        return $this->hasMany(Student::class)->orderBy('name');
+        return $this->hasMany(Student::class)->whereNull('students.archived_at')->orderBy('name');
+    }
+
+    /** Archived (removed by a teacher) students: hidden everywhere, progress kept, restorable. */
+    public function archivedStudents(): HasMany
+    {
+        return $this->hasMany(Student::class)->whereNotNull('students.archived_at')->orderBy('name');
     }
 
     public function teachers(): BelongsToMany

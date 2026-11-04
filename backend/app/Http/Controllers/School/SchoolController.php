@@ -38,7 +38,7 @@ class SchoolController extends Controller
         $pre = null;
         $stale = $code !== '' && ! $section;
         if ($section && ($u = (string) $request->query('u', '')) !== '') {
-            $pre = Student::where('school_section_id', $section->id)->whereHas('user', fn ($q) => $q->where('username', $u)->where('school_id', $school->id))->first(['id', 'name']);
+            $pre = Student::where('school_section_id', $section->id)->whereNull('archived_at')->whereHas('user', fn ($q) => $q->where('username', $u)->where('school_id', $school->id))->first(['id', 'name']);
         }
 
         return view('school.login', [
@@ -76,7 +76,7 @@ class SchoolController extends Controller
             return $fail('محاولات كثيرة من هذا الجهاز. انتظر قليلًا ثم حاول مجددًا.');
         }
         $student = Student::with('user', 'section')->find($data['student']);
-        if (! $student || ! $student->section || $student->section->school_id !== $school->id || ! $student->user || $student->user->school_id !== $school->id || $student->user->isDisabled()) {
+        if (! $student || $student->archived_at || ! $student->section || $student->section->school_id !== $school->id || ! $student->user || $student->user->school_id !== $school->id || $student->user->isDisabled()) {
             RateLimiter::hit($ipKey, 600);
 
             return $fail('اختر اسمك من القائمة.');
@@ -221,7 +221,7 @@ class SchoolController extends Controller
         $today = self::today();
         $sections = Schools::sectionsFor($u)->withCount('students')->with('teachers:id,name')->get();
         $ids = $sections->pluck('id');
-        $active = Student::whereIn('school_section_id', $ids)->where(fn ($q) => $q->where('last_synced_at', '>=', $today)
+        $active = Student::whereIn('school_section_id', $ids)->whereNull('archived_at')->where(fn ($q) => $q->where('last_synced_at', '>=', $today)
             ->orWhereHas('user', fn ($w) => $w->where('last_login_at', '>=', $today)->orWhere('active_device_seen_at', '>=', $today)))
             ->selectRaw('school_section_id, count(*) n')->groupBy('school_section_id')->pluck('n', 'school_section_id');
 
@@ -278,6 +278,7 @@ class SchoolController extends Controller
 
         return view('school.section', [
             'school' => $school, 'me' => $u, 'section' => $section->load('teachers:id,name'), 'students' => $students, 'alerts' => $alerts,
+            'archived' => $section->archivedStudents()->get(['id', 'name', 'archived_at']),
             'joinUrl' => route('school.login', ['school' => $school, 'c' => $section->code]),
         ]);
     }
@@ -293,7 +294,7 @@ class SchoolController extends Controller
         if (! $names) {
             return back()->withErrors(['names' => 'لم نجد أسماء. الصق اسمًا في كل سطر أو ارفع ملف Excel فيه الأسماء في العمود الأول.']);
         }
-        [$names, $renamed] = Schools::distinctNames($section->students()->pluck('name')->all(), $names);
+        [$names, $renamed] = Schools::distinctNames(Student::where('school_section_id', $section->id)->pluck('name')->all(), $names);
         $made = Schools::createStudents($section, $names);
         ActivityLog::record('school.students', $section->name, (string) count($made));
         $msg = 'أُضيف '.Ar::num(count($made)).' طالبًا مع أرقامهم السرية. اطبع البطاقات الآن.';
@@ -380,6 +381,37 @@ class SchoolController extends Controller
         ActivityLog::record('school.rotate', 'section:'.$section->id);
 
         return back()->with('status', 'تغيّر رمز الشعبة ورابطها. الرمز القديم والبطاقات القديمة لم تعد تفتح القائمة مباشرة؛ اطبع البطاقات من جديد.');
+    }
+
+    /** Soft removal: hide the student from the section and block login. Progress and attempts are kept. */
+    public function archive(Request $request, School $school, Student $student): RedirectResponse
+    {
+        $u = $this->guard($request, $school);
+        abort_unless($student->section, 404);
+        $this->sectionFor($u, $school, $student->section);
+        if (! $student->archived_at) {
+            if ($holder = $student->user) {
+                $holder->setRememberToken(\Illuminate\Support\Str::random(60));
+                $holder->forceFill(['school_logout_at' => now(), 'device_tokens' => null, 'active_device_token' => null])->save();
+            }
+            $student->forceFill(['archived_at' => now()])->save();
+            ActivityLog::record('school.archive', 'student:'.$student->id);
+        }
+
+        return back()->with('status', 'أُزيل '.$student->name.' من الشعبة ونُقل إلى «الطلاب المؤرشفون». تقدّمه محفوظ ويمكن استعادته.');
+    }
+
+    public function restore(Request $request, School $school, Student $student): RedirectResponse
+    {
+        $u = $this->guard($request, $school);
+        abort_unless($student->section, 404);
+        $this->sectionFor($u, $school, $student->section);
+        if ($student->archived_at) {
+            $student->forceFill(['archived_at' => null])->save();
+            ActivityLog::record('school.restore', 'student:'.$student->id);
+        }
+
+        return back()->with('status', 'استُعيد '.$student->name.' إلى الشعبة. يدخل بنفس رقمه السري.');
     }
 
     /** One click: sign the student out on every device and give a new PIN. */
