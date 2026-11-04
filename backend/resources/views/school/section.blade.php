@@ -42,7 +42,7 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
   <table class="st"><thead><tr><th>الاسم</th><th>الرقم السري</th><th>اسم المستخدم</th><th>آخر نشاط</th><th></th></tr></thead><tbody>
   @foreach ($students as $s)
     @php($last = collect([$s->last_synced_at, $s->user?->last_login_at, $s->user?->active_device_seen_at])->filter()->max())
-    <tr><td><a href="{{ route('school.student', [$school, $s]) }}"><b>{{ $s->name }}</b></a>@if($s->pin_locked_until && $s->pin_locked_until->isFuture()) <span class="chip bad">مقفل مؤقتًا</span>@endif</td>
+    <tr><td><a href="{{ route('school.student', [$school, $s]) }}"><b>{{ $s->name }}</b></a>@if($s->pin_locked_until && $s->pin_locked_until->isFuture()) <span class="chip bad">قُفل على جهاز مؤقتًا</span> <form method="post" action="{{ route('school.unlock', [$school, $s]) }}" style="display:inline">@csrf<button class="btn ghost" type="submit">فتح القفل</button></form>@endif</td>
       <td class="pinv">{{ \App\Support\Schools::plainPin($s) ?? '—' }}</td>
       <td dir="ltr" style="text-align:right">{{ $s->user?->username }}</td>
       <td class="muted">{{ $last ? $ar::date($last) : 'لم يدخل بعد' }}</td>

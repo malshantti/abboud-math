@@ -81,17 +81,23 @@ class SchoolController extends Controller
 
             return $fail('اختر اسمك من القائمة.');
         }
-        if ($student->pin_locked_until && $student->pin_locked_until->isFuture()) {
-            return $fail('أُقفل الدخول مؤقتًا بعد محاولات خاطئة. حاول بعد '.Ar::num((int) ceil(now()->diffInSeconds($student->pin_locked_until, true) / 60)).' دقائق أو اطلب المساعدة من معلّمك.');
+        // P1: the lock is per student + this device/IP, so wrong tries elsewhere never lock the child out on their own device.
+        $lockKey = self::pinLockKey($request, $student);
+        if (RateLimiter::tooManyAttempts($lockKey, self::PIN_TRIES)) {
+            return $fail('أُقفل الدخول مؤقتًا على هذا الجهاز بعد محاولات خاطئة. حاول بعد '.Ar::num((int) ceil(RateLimiter::availableIn($lockKey) / 60)).' دقائق أو اطلب المساعدة من معلّمك.');
         }
         if (! preg_match('/^\d{4}$/', $pin) || ! $student->checkPin($pin)) {
             RateLimiter::hit($ipKey, 600);
-            $fails = (int) $student->pin_fails + 1;
-            ActivityLog::record('school.pin_fail', 'student:'.$student->id, $fails >= self::PIN_TRIES ? 'lock' : (string) $fails, $student->user);
-            $student->forceFill($fails >= self::PIN_TRIES ? ['pin_fails' => 0, 'pin_locked_until' => now()->addMinutes(self::PIN_LOCK_MINUTES)] : ['pin_fails' => $fails])->saveQuietly();
+            RateLimiter::hit($lockKey, self::PIN_LOCK_MINUTES * 60);
+            $fails = RateLimiter::attempts($lockKey);
+            $locked = $fails >= self::PIN_TRIES;
+            ActivityLog::record('school.pin_fail', 'student:'.$student->id, $locked ? 'lock' : (string) $fails, $student->user);
+            // pin_locked_until is now only a hint for the teacher panel (some device is locked); it does not block login.
+            $student->forceFill($locked ? ['pin_fails' => 0, 'pin_locked_until' => now()->addMinutes(self::PIN_LOCK_MINUTES)] : ['pin_fails' => (int) $student->pin_fails + 1])->saveQuietly();
 
-            return $fail($fails >= self::PIN_TRIES ? 'أُقفل الدخول ١٠ دقائق بعد ٥ محاولات خاطئة.' : 'الرقم السري غير صحيح. بقي '.Ar::num(self::PIN_TRIES - $fails).' محاولات.');
+            return $fail($locked ? 'أُقفل الدخول على هذا الجهاز ١٠ دقائق بعد ٥ محاولات خاطئة.' : 'الرقم السري غير صحيح. بقي '.Ar::num(self::PIN_TRIES - $fails).' محاولات.');
         }
+        RateLimiter::clear($lockKey);
         $student->forceFill(['pin_fails' => 0, 'pin_locked_until' => null])->saveQuietly();
         $user = $student->user;
         $known = Devices::allows($user, (string) $request->cookie(Devices::COOKIE, ''));
@@ -114,6 +120,32 @@ class SchoolController extends Controller
         }
 
         return $request->expectsJson() ? response()->json(['ok' => true, 'to' => $to, 'name' => $student->name]) : redirect()->away($to);
+    }
+
+    /** Lock bucket: student + IP + device cookie; the teacher's unlock bumps the generation so every device is freed. */
+    public static function pinLockKey(Request $request, Student $student): string
+    {
+        $gen = (int) \Illuminate\Support\Facades\Cache::get('school-pin-gen:'.$student->id, 0);
+
+        return 'school-pin:'.$student->id.':'.$gen.':'.hash('sha256', $request->ip().'|'.(string) $request->cookie(Devices::COOKIE, ''));
+    }
+
+    public static function unlockPin(Student $student): void
+    {
+        \Illuminate\Support\Facades\Cache::forever('school-pin-gen:'.$student->id, (int) \Illuminate\Support\Facades\Cache::get('school-pin-gen:'.$student->id, 0) + 1);
+        $student->forceFill(['pin_fails' => 0, 'pin_locked_until' => null]);
+    }
+
+    public function unlock(Request $request, School $school, Student $student): RedirectResponse
+    {
+        $u = $this->guard($request, $school);
+        abort_unless($student->section, 404);
+        $this->sectionFor($u, $school, $student->section);
+        self::unlockPin($student);
+        $student->save();
+        ActivityLog::record('school.unlock', 'student:'.$student->id);
+
+        return back()->with('status', 'فُتح الدخول لـ'.$student->name.' على كل الأجهزة.');
     }
 
     public function staffLogin(Request $request, School $school): RedirectResponse
@@ -278,6 +310,7 @@ class SchoolController extends Controller
         abort_unless($student->section, 404);
         $this->sectionFor($u, $school, $student->section);
         Schools::assignPin($student, Schools::pin());
+        self::unlockPin($student);
         $student->save();
 
         return back()->with('status', 'رقم سري جديد لـ'.$student->name.': '.Ar::num(Schools::plainPin($student)));
@@ -360,6 +393,7 @@ class SchoolController extends Controller
             $holder->forceFill(['school_logout_at' => now(), 'device_tokens' => null, 'active_device_token' => null])->save();
         }
         Schools::assignPin($student, Schools::pin());
+        self::unlockPin($student);
         $student->save();
         ActivityLog::record('school.kick', 'student:'.$student->id);
 
