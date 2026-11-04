@@ -181,6 +181,22 @@ class SchoolTaskController extends Controller
         return redirect()->route('school.tasks', [$school, $section])->with('status', 'نُشر الاختبار ('.\App\Support\Ar::count(count($qs), 'سؤال').'). يظهر للطلاب تنبيه «اختبار جديد».');
     }
 
+    /** «معاينة كطالب»: يعرض الأسئلة كما يراها الطالب دون حفظ شيء. */
+    public function previewQuiz(Request $request, School $school, SchoolSection $section)
+    {
+        $u = $this->guard($request, $school);
+        $this->sectionFor($u, $school, $section);
+        $courses = SchoolTasks::courses((int) $section->grade);
+        $data = $request->validate([
+            'subject' => ['required', Rule::in(array_keys($courses))], 'title' => ['nullable', 'string', 'max:120'],
+            'picked' => ['array', 'max:60'], 'picked.*' => ['string', 'max:30'], 'own' => ['array', 'max:30'], 'own.*' => ['array'],
+        ]);
+        $qs = SchoolTasks::buildQuestions($data['subject'], $data['picked'] ?? [], $data['own'] ?? [], (int) $school->id);
+
+        return response()->view('school.quiz-preview', ['school' => $school, 'title' => trim((string) ($data['title'] ?? '')) ?: 'اختبار بلا عنوان', 'questions' => $qs ?: []])
+            ->header('Cache-Control', 'no-store, private')->header('X-Robots-Tag', 'noindex');
+    }
+
     /** Teacher uploads a question/option image → resized WebP stored for this school only. */
     public function uploadMedia(Request $request, School $school, SchoolSection $section): JsonResponse
     {
