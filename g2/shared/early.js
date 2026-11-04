@@ -22,10 +22,10 @@
   const C=window.G1_COURSE,P=window.PROFILES,A=window.G1_ART,app=document.getElementById('app');
   if(!C||!P||!A){app.innerHTML='<p class="g1-notice" role="alert">تعذّر تحميل النشاط. أعد فتح الصفحة.</p>';return;}
   const curriculum=C.units.flatMap(unit=>unit.lessons.map(lesson=>({...lesson,unit:unit.title,term:unit.term})));
-  const foundations=(C.foundations||[]).map(lesson=>({...lesson,unit:'أساسياتي'}));
+  const foundations=(C.foundations||[]).map(lesson=>({...lesson,unit:'الأساسيات'}));
   const lessons=[...curriculum,...foundations],ids=lessons.map(lesson=>lesson.id);
-  const routeNames={home:'رحلتي',basics:'أساسياتي',play:'مغامراتي',lab:'أجرّب',report:'للأهل'};
-  const shortNames={home:'رحلتي',basics:'الأساس',play:'ألعب',lab:'أجرّب',report:'للأهل'};
+  const routeNames={home:'رحلتي',basics:'الأساسيات',play:'المغامرات',lab:'المختبر',report:'تقرير التعلّم'};
+  const shortNames={home:'رحلتي',basics:'الأساسيات',play:'المغامرات',lab:'المختبر',report:'التقرير'};
   const routes={home:'home',basics:'seed',play:'map',lab:'lab',report:'report'};
   const icon=name=>A.icon(name),scene=value=>value?A.scene(value):'';
   const query=selector=>app.querySelector(selector);
@@ -60,7 +60,7 @@
     return '<section class="j-basics-hero"><div class="g1-hero-copy"><span class="g1-kicker">على مهل</span><h1>نبني الأساس</h1><p>خطوات صغيرة نعود إليها متى احتجنا.</p></div>'+coverImage('j-hero-image','')+'</section><div class="g1-path">'+(foundations.length?foundations:curriculum.slice(0,3)).map(lessonButton).join('')+'</div>';
   }
   function play() {
-    return '<section class="j-page-intro"><div><span class="g1-kicker">نلعب بالفكرة</span><h1>مغامراتي</h1><p>جولة قصيرة من الأسئلة. اختر مغامرتك.</p></div>'+coverImage('j-intro-image','')+'</section><div class="j-play-terms">'+termPicker()+'</div><div class="j-adventure-grid">'+C.units.filter(unit=>unit.term===term&&unit.lessons.some(l=>l.tasks.length)).map((unit,index)=>'<article class="g1-card j-adventure-card"><div class="j-adventure-image" aria-hidden="true">'+unitScene(unit)+'</div><span class="g1-kicker">مغامرة '+ar(index+1)+'</span><h2>'+shown(unit.title)+'</h2>'+button('ألعب الآن '+icon('arrow'),'adventure','g1-primary','data-unit="'+esc(unit.id)+'"')+'</article>').join('')+'</div>';
+    return '<section class="j-page-intro"><div><span class="g1-kicker">نلعب بالفكرة</span><h1>المغامرات</h1><p>جولة قصيرة من الأسئلة. اختر مغامرتك.</p></div>'+coverImage('j-intro-image','')+'</section><div class="j-play-terms">'+termPicker()+'</div><div class="j-adventure-grid">'+C.units.filter(unit=>unit.term===term&&unit.lessons.some(l=>l.tasks.length)).map((unit,index)=>'<article class="g1-card j-adventure-card"><div class="j-adventure-image" aria-hidden="true">'+unitScene(unit)+'</div><span class="g1-kicker">مغامرة '+ar(index+1)+'</span><h2>'+shown(unit.title)+'</h2>'+button('ألعب الآن '+icon('arrow'),'adventure','g1-primary','data-unit="'+esc(unit.id)+'"')+'</article>').join('')+'</div>';
   }
   function mathLab(){
     const names={hundreds:'مئات',tens:'عشرات',ones:'آحاد'};
