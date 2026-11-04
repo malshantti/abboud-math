@@ -84,7 +84,35 @@ function science(g) {
   });
   write('g' + g + '-science', units);
 }
+
+// Grades 1 and 3: the site's own lesson questions, kept ONLY when the correct answer text is found in the
+// textbook text (pdftotext of the ministry book) and the question works without a picture or audio.
+const NB = (s) => String(s).replace(/<[^>]+>/g, '').replace(/[\u064B-\u0652\u0640\s\u200b-\u200f]/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').toLowerCase();
+const txt = (s) => String(s).replace(/<[^>]+>/g, '').replace(/[\u200b-\u200f]/g, '').replace(/\s+/g, ' ').trim();
+const bookText = (files) => NB(files.map((f) => { try { return fs.readFileSync(f, 'utf8'); } catch (e) { return ''; } }).join(' '));
+const inBook = (B, a) => { const n = NB(a); return n.length >= 3 && !/^[\d٠-٩.,+\-×÷=]+$/.test(n) && B.includes(n); };
+const loadSite = (d) => { const w = {}; w.window = w; w.document = {}; const html = fs.readFileSync(path.join(ROOT, d, 'index.html'), 'utf8');
+  for (const m of html.matchAll(/src="([^"]+\.js)[^"]*"/g)) { const f = path.join(ROOT, d, m[1]); if (!/^https?:/.test(m[1]) && fs.existsSync(f)) try { vm.runInNewContext(fs.readFileSync(f, 'utf8'), w); } catch (e) {} } return w; };
+const mcq = (q, opts, a, pg) => { const o = opts.map(txt); return [txt(q), [o[a], ...o.filter((_, k) => k !== a)], 0, pg || null]; };
+function g3(sub, file) {
+  const B = bookText([path.join(process.env.G3BOOKS || '/workspace/g3src', file)]); if (B.length < 1000) return console.log('g3-' + sub + ': no book text, skipped');
+  const G = loadSite('g3/' + sub).G3, seen = new Set();
+  const units = G.units.map((u) => ({ id: u.id, t: txt(u.t), les: u.les.map((l) => ({ id: l.id, t: txt(l.t), q: [...(l.qs || []), ...(l.steps || []).map((s) => s.ck).filter(Boolean)]
+    .filter((q) => q && Array.isArray(q.o) && q.o[q.a] != null && inBook(B, q.o[q.a]) && !seen.has(txt(q.q) + q.o[q.a]) && seen.add(txt(q.q) + q.o[q.a]))
+    .map((q) => mcq(q.q, q.o, q.a, l.pg)) })).filter((l) => l.q.length) })).filter((u) => u.les.length);
+  write('g3-' + sub, units);
+}
+function g1(sub, files) {
+  const B = bookText(files.map((f) => path.join(process.env.G1BOOKS || '/workspace/grade1/books', f))); if (B.length < 1000) return console.log('g1-' + sub + ': no book text, skipped');
+  const G = loadSite('g1/' + sub).G1_COURSE, seen = new Set();
+  const units = G.units.map((u) => ({ id: u.id, t: txt(u.title), les: u.lessons.map((l) => ({ id: l.id, t: txt(l.title), q: (l.tasks || [])
+    .filter((t) => !t.scene && !t.listen && Array.isArray(t.choices) && t.choices.every((c) => c.label && String(c.label).trim()) && t.choices[t.answer] && inBook(B, t.choices[t.answer].label))
+    .filter((t) => { const k = txt(t.prompt) + t.choices[t.answer].label; return !seen.has(k) && seen.add(k); })
+    .map((t) => mcq(t.prompt, t.choices.map((c) => c.label), t.answer, l.page)) })).filter((l) => l.q.length) })).filter((u) => u.les.length);
+  write('g1-' + sub, units);
+}
 const only = process.argv[2];
+if (!only || only === 'g13') { g3('arabic', 'ar3-p1.txt'); g3('english', 'en3-p1.txt'); g3('science', 'sc3-p1.txt'); g1('arabic', ['ar1-p1.txt', 'ar1-p2.txt']); g1('english', ['en1-p1.txt', 'en1-p2.txt']); }
 if (!only || only === 'g6') { g6math(); g6arabic(); g6english(); }
 if (!only || only === 'sci') { science(6); science(8); }
 
