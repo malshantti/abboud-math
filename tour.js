@@ -70,6 +70,7 @@ var css='.bt-ov{position:fixed;inset:0;z-index:2147483000;pointer-events:none}.b
 '.bt-off{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:16px;color:#4a5544;cursor:pointer}.bt-off input{width:22px;height:22px;margin:0}'+
 '.bt-fab{position:fixed;z-index:2147482000;bottom:14px;left:14px;min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid #cfe3a8;background:#fff;color:#2f5d1e;font:800 15px Cairo,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.15);cursor:pointer}'+
 '.linkbtn{background:none;border:0;padding:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;color:#2f6f9e}'+
+'body:has(.fb.show) .bt-fab,body:has(.fb.show) #bSchool{display:none!important}'+
 '@media (max-width:600px){.bt-card{left:12px!important;right:12px!important;top:auto!important;bottom:12px!important;width:auto}.bt-card p{font-size:18px}.bt-fab{bottom:10px;left:10px}}'+
 '@media (prefers-reduced-motion:reduce){.bt-hole{transition:none}}';
 function track(e,x){try{x=x||{};x.p=page;x.m={area:area,step:x.step};delete x.step;
