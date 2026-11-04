@@ -101,7 +101,7 @@
   function exportReport() {
     const rows=[['بيانات تجريبية فقط — بستان التعلم'],['الطالب','الصف','المادة','الدروس المكتملة','مجموع الدروس','نتيجة تدريب تجريبية']];
     data.students.forEach(s=>s.subjects.forEach(x=>rows.push([s.name,grade(s.grade),x.name,n(x.completed),n(x.total),n(x.assessment)+'٪'])));
-    const csv='\uFEFF'+rows.map(row=>row.map(cell=>'"'+String(cell).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+    const csv='\uFEFF'+rows.map(row=>row.map(cell=>{let v=String(cell);if(typeof cell==='string'&&/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'}).join(',')).join('\r\n');
     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='bustan-demo-report.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('تم تصدير نموذج التقرير ببيانات تجريبية.');
   }
   function closeMenu() {const inside=document.getElementById('sidebar').contains(document.activeElement);document.body.classList.remove('menu-open');document.getElementById('main-content').inert=false;document.getElementById('menu-toggle').setAttribute('aria-expanded','false');document.getElementById('menu-backdrop').hidden=true;if(inside)document.getElementById('menu-toggle').focus();}

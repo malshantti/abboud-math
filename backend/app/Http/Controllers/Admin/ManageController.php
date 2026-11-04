@@ -553,7 +553,7 @@ class ManageController extends Controller
         return response()->stream(function () use ($type) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            $row = fn (array $r) => fputcsv($out, array_map(fn ($v) => is_string($v) && preg_match('/^[=+\-@\t\r]/', $v) ? "'".$v : $v, $r));
+            $row = fn (array $r) => \App\Support\CsvSafe::put($out, $r);
             if ($type === 'users') {
                 $row(['id', 'الاسم', 'البريد', 'الدور', 'الحالة', 'عدد الطلاب', 'نهاية التجربة', 'آخر دخول', 'تاريخ التسجيل']);
                 User::withCount('students')->orderBy('id')->chunk(500, fn ($c) => $c->each(fn ($u) => $row([$u->id, $u->name, $u->email, User::ROLES[$u->role] ?? $u->role, $u->disabled_at ? 'معطّل' : 'فعّال', $u->students_count, $u->trial_ends_at, $u->last_login_at, $u->created_at])));

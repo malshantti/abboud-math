@@ -346,14 +346,14 @@ class SchoolController extends Controller
         return response()->streamDownload(function () use ($d, $head, $codes, $tz) {
             $o = fopen('php://output', 'w');
             fwrite($o, "\xEF\xBB\xBF");
-            fputcsv($o, $head);
+            \App\Support\CsvSafe::put($o, $head);
             foreach ($d['rows']->sortBy('name') as $r) {
                 $line = [$r['name'], $r['username'], $r['last'] ? $r['last']->copy()->timezone($tz)->format('Y-m-d H:i') : '', $r['idle'] ?? '', $r['week_days'], $r['week_min'], $r['progress'] ?? '', $r['done'], $r['answered'], $r['acc'] ?? ''];
                 foreach ($codes as $c) {
                     $x = $r['subjects'][$c];
                     array_push($line, $x['done'], $x['pct'] ?? '', $x['acc'] ?? '', $x['quiz_avg'] ?? '');
                 }
-                fputcsv($o, $line);
+                \App\Support\CsvSafe::put($o, $line);
             }
             fclose($o);
         }, $name, ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'no-store, private']);
