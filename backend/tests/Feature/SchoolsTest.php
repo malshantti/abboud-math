@@ -118,11 +118,12 @@ class SchoolsTest extends TestCase
     {
         [$s, $mgr, $t, $sec] = $this->school('eps');
         $this->actingAs($mgr);
-        $this->post('/s/eps/panel/sections/'.$sec->id.'/students', ['names' => "1. خالد\nسارة\nخالد\n\nمنى"])->assertRedirect();
-        $this->assertSame(5, $sec->students()->count());
+        $this->post('/s/eps/panel/sections/'.$sec->id.'/students', ['names' => "1. خالد\nسارة\nخالد\n\nمنى"])->assertRedirect()->assertSessionHas('status', fn ($m) => str_contains($m, 'خالد ← خالد ٢') && str_contains($m, 'سارة ← سارة ٢'));
+        $this->assertSame(7, $sec->students()->count());
+        $this->assertEqualsCanonicalizing(['أحمد', 'سارة', 'ليلى', 'خالد', 'سارة ٢', 'خالد ٢', 'منى'], $sec->students()->pluck('name')->all());
         $csv = UploadedFile::fake()->createWithContent('n.csv', "\xEF\xBB\xBFالاسم,الصف\nيوسف,4\nريم,4\n");
         $this->post('/s/eps/panel/sections/'.$sec->id.'/students', ['file' => $csv])->assertRedirect();
-        $this->assertSame(7, $sec->students()->count());
+        $this->assertSame(9, $sec->students()->count());
         $zipPath = tempnam(sys_get_temp_dir(), 'x').'.xlsx';
         $z = new \ZipArchive; $z->open($zipPath, \ZipArchive::CREATE);
         $z->addFromString('xl/sharedStrings.xml', '<?xml version="1.0"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><si><t>نور</t></si><si><t>هادي</t></si></sst>');
@@ -130,7 +131,7 @@ class SchoolsTest extends TestCase
         $z->close();
         $x = new UploadedFile($zipPath, 'n.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
         $this->post('/s/eps/panel/sections/'.$sec->id.'/students', ['file' => $x])->assertRedirect();
-        $this->assertSame(9, $sec->students()->count());
+        $this->assertSame(11, $sec->students()->count());
 
         // one-form teacher creation shows credentials once
         $this->post('/s/eps/panel/teachers', ['name' => 'معلمة جديدة', 'sections' => [$sec->id], 'subjects' => ['math']])->assertSessionHas('credentials');

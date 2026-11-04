@@ -293,15 +293,15 @@ class SchoolController extends Controller
         if (! $names) {
             return back()->withErrors(['names' => 'لم نجد أسماء. الصق اسمًا في كل سطر أو ارفع ملف Excel فيه الأسماء في العمود الأول.']);
         }
-        $existing = $section->students()->pluck('name')->map(fn ($n) => mb_strtolower($n))->all();
-        $names = array_values(array_filter($names, fn ($n) => ! in_array(mb_strtolower($n), $existing, true)));
-        if (! $names) {
-            return back()->with('status', 'كل هذه الأسماء موجودة في الشعبة مسبقًا.');
-        }
+        [$names, $renamed] = Schools::distinctNames($section->students()->pluck('name')->all(), $names);
         $made = Schools::createStudents($section, $names);
         ActivityLog::record('school.students', $section->name, (string) count($made));
+        $msg = 'أُضيف '.Ar::num(count($made)).' طالبًا مع أرقامهم السرية. اطبع البطاقات الآن.';
+        if ($renamed) {
+            $msg .= ' تنبيه: أسماء مكرّرة أُضيف لها رقم للتمييز: '.implode('، ', array_map(fn ($r) => $r[0].' ← '.$r[1], $renamed)).'. إن كان التكرار خطأً (اسم أُضيف مرتين) فأخبر الإدارة لحذفه، أو عدّل الاسم ليكون أوضح.';
+        }
 
-        return redirect()->route('school.section', [$school, $section])->with('status', 'أُضيف '.Ar::num(count($made)).' طالبًا مع أرقامهم السرية. اطبع البطاقات الآن.');
+        return redirect()->route('school.section', [$school, $section])->with('status', $msg);
     }
 
     public function resetPin(Request $request, School $school, Student $student): RedirectResponse
