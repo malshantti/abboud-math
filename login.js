@@ -1,6 +1,15 @@
 /* الدخول: اختيار ملف الطالب من أبناء الحساب، رقم سري من ٤ أرقام، وزيتون يتفاعل */
 (function(){
 'use strict';
+// رقم الأهل/المدرسة يُتحقّق منه في الخادم فقط (لا يصل الـhash إلى المتصفح؛ sync.js يحفظ علامة srv:). يحتاج اتصالًا بالإنترنت.
+let lastCheck='';
+async function pinCheck(p,pin){const P=window.PROFILES;lastCheck='';if(!/^srv:/.test(p&&p.pin||''))return P.check(p.id,pin);
+ const st=P.accountStudent(p.id),API=window.BUSTAN_API||new URL('admin-api/api/',location.href).href;if(!st||!st.sid){lastCheck='offline';return false}
+ try{const h={Accept:'application/json'};const ss=await fetch(API+'session',{credentials:'same-origin',cache:'no-store',headers:h});const j=ss.ok?await ss.json():{};
+  const r=await fetch(API+'students/'+st.sid+'/pin/verify',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{...h,'Content-Type':'application/json','X-CSRF-TOKEN':j.csrf||''},body:JSON.stringify({pin:String(pin)})});
+  const d=await r.json().catch(()=>({}));if(r.status===429){lastCheck='locked';return false}if(!r.ok){lastCheck='offline';return false}return d.ok===true}
+ catch(e){lastCheck='offline';return false}}
+
 const P=window.PROFILES,$=s=>document.querySelector(s),view=$('#view'),zt=$('#zt'),bubble=$('#bubble');
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -94,7 +103,7 @@ function enter(p){
   <div class="actions"><button type="button" class="btn ghost" id="back">${svg('back',18)} ملف آخر</button></div>`,'#pinIn input');
  const wrap=$('#pinIn'),msg=$('#msg');
  const inp=bindPin(wrap,async v=>{const lock=P.lockedFor(p.id);if(lock){msg.className='msg err';msg.textContent=`محاولات كثيرة. انتظر ${AR(Math.ceil(lock/1000))} ثانية.`;inp.value='';return}
-  if(await P.check(p.id,v)){inp.blur();done(p)}else{const n=P.fail(p.id);wrap.classList.add('bad');inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'));msg.className='msg err';msg.textContent=n>=5?'محاولات كثيرة. انتظر ٣٠ ثانية ثم حاول.':'الرقم غير صحيح، حاول مرة أخرى.';inp.blur();oops('لا بأس، جرّب مرة أخرى!');if(!RM){wrap.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:380})}}});
+  if(await pinCheck(p,v)){inp.blur();done(p)}else if(lastCheck==='offline'||lastCheck==='locked'){msg.className='msg err';msg.textContent=lastCheck==='offline'?'تحقّق من الاتصال بالإنترنت ثم أعد المحاولة.':'محاولات كثيرة. انتظر خمس دقائق ثم حاول.';inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'))}else{const n=P.fail(p.id);wrap.classList.add('bad');inp.value='';wrap.querySelectorAll('.cell').forEach(c=>c.classList.remove('on'));msg.className='msg err';msg.textContent=n>=5?'محاولات كثيرة. انتظر ٣٠ ثانية ثم حاول.':'الرقم غير صحيح، حاول مرة أخرى.';inp.blur();oops('لا بأس، جرّب مرة أخرى!');if(!RM){wrap.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:380})}}});
  $('#back').onclick=()=>pick();
  const fb=$('#forgot'),fp=$('#forgotPanel'),tg=o=>{fp.hidden=!o;fb.setAttribute('aria-expanded',o);if(o){say('اطلب المساعدة من أهلك');fp.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'})}else fb.focus()};
  fb.onclick=()=>tg(fp.hidden);$('#forgotX').onclick=()=>tg(false)}
@@ -112,7 +121,7 @@ function twoPins(title,sub,extra,onOk){
  if($('#back'))$('#back').onclick=()=>pick()}
 function setpin(p){
  say(`أهلًا ${p.name}! تقدّمك محفوظ، اختر رقمًا سريًا`);setPose('idle');
- twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'لم يحدّد الأهل رقمًا سريًا لك بعد. اختر أربعة أرقام تتذكّرها، وستكتبها في كل دخول.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');if(window.BUSTAN_SYNC&&BUSTAN_SYNC.pushPin)await Promise.race([BUSTAN_SYNC.pushPin(p.id),new Promise(r=>setTimeout(r,6000))]);return done(P.find(p.id))})}
+ twoPins(`<div class="who"><img src="${P.avatarSrc(p.avatar)}" alt="" width="58" height="58"><div><h1>${esc(p.name)}</h1></div></div>`,'لم يحدّد الأهل رقمًا سريًا لك بعد. اختر أربعة أرقام تتذكّرها، وستكتبها في كل دخول.','',async pin=>{if(!await P.setPin(p.id,pin))throw Error('storage');if(window.BUSTAN_SYNC&&BUSTAN_SYNC.pushPin)await Promise.race([BUSTAN_SYNC.pushPin(p.id,pin),new Promise(r=>setTimeout(r,6000))]);return done(P.find(p.id))})}
 
 // ---------- البداية ----------
 const tb=$('#theme');const paint=()=>{tb.innerHTML=svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',22)};paint();

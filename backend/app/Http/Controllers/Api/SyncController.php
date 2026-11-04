@@ -80,14 +80,50 @@ class SyncController extends Controller
     {
         $this->own($request, $student);
         $data = $request->validate([
-            'salt' => ['required', 'string', 'regex:/^[0-9a-f]{16}$/'],
-            'hash' => ['required', 'string', 'regex:/^sha256:[0-9a-f]{64}$/'],
+            'pin' => ['nullable', 'string', 'regex:/^\d{4}$/'],
+            // legacy clients still send their locally computed hash (browser → server only)
+            'salt' => ['required_without:pin', 'nullable', 'string', 'regex:/^[0-9a-f]{16}$/'],
+            'hash' => ['required_without:pin', 'nullable', 'string', 'regex:/^sha256:[0-9a-f]{64}$/'],
         ]);
+        $saved = false;
         if (! $student->hasPin()) {
-            $student->forceFill(['pin_salt' => $data['salt'], 'pin_hash' => $data['hash']])->save();
+            if (! empty($data['pin'])) {
+                $student->setPin($data['pin']);
+            } else {
+                $student->forceFill(['pin_salt' => $data['salt'], 'pin_hash' => $data['hash']]);
+            }
+            $student->save();
+            $saved = true;
+        } elseif (! empty($data['pin'])) {
+            $saved = $student->checkPin($data['pin']);
+        } else {
+            $saved = $student->pin_hash === $data['hash'];
         }
 
-        return response()->json(['student' => $student->fresh()->toApi(), 'saved' => $student->pin_hash === $data['hash']]);
+        return response()->json(['student' => $student->fresh()->toApi(), 'saved' => $saved]);
+    }
+
+    /** P1: the child's PIN is checked here, never in the browser. 5 wrong tries lock this device (user+IP) for that student for 5 minutes. */
+    public function verifyPin(Request $request, Student $student): JsonResponse
+    {
+        $this->own($request, $student);
+        $data = $request->validate(['pin' => ['required', 'string', 'max:8']]);
+        $key = 'site-pin:'.$student->id.':'.hash('sha256', $request->user()->id.'|'.$request->ip());
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 5)) {
+            return response()->json(['ok' => false, 'locked' => \Illuminate\Support\Facades\RateLimiter::availableIn($key)], 429);
+        }
+        $pin = strtr($data['pin'], ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']);
+        if (! $student->hasPin()) {
+            return response()->json(['ok' => false, 'nopin' => true]);
+        }
+        if (preg_match('/^\d{4}$/', $pin) && $student->checkPin($pin)) {
+            \Illuminate\Support\Facades\RateLimiter::clear($key);
+
+            return response()->json(['ok' => true]);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 300);
+
+        return response()->json(['ok' => false]);
     }
 
     public function storeStudent(Request $request): JsonResponse

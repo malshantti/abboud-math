@@ -94,7 +94,8 @@ class Student extends Model
     public function toApi(?array $access = null): array
     {
         $out = ['id' => $this->id, 'name' => $this->name, 'grade' => $this->grade, 'grade_name' => $this->grade ? \App\Support\Ar::grade($this->grade) : null, 'avatar' => $this->avatar, 'local_id' => $this->local_id,
-            'pin' => $this->pin_hash ? ['salt' => $this->pin_salt, 'hash' => $this->pin_hash] : null,
+            // P1: never send the PIN hash/salt to the browser — only that a PIN exists + an opaque version (changes when the PIN changes).
+            'pin' => $this->pin_hash ? ['set' => true, 'v' => substr(hash_hmac('sha256', (string) $this->pin_hash, (string) config('app.key')), 0, 12)] : null,
             'streak' => $this->currentStreak(), 'streak_best' => (int) ($this->streak_best ?? 0)];
         if ($access !== null) {
             $out['subjects'] = $this->subjectsFor($access);

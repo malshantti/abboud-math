@@ -99,6 +99,7 @@ Route::prefix('api')->middleware('throttle:api-sync')->group(function () {
         Route::put('students/{student}/progress', [SyncController::class, 'update']);
         Route::post('students/{student}/import', [SyncController::class, 'import']);
         Route::post('students/{student}/pin', [SyncController::class, 'storePin'])->middleware('throttle:10,1');
+        Route::post('students/{student}/pin/verify', [SyncController::class, 'verifyPin'])->middleware('throttle:30,1');
     });
 });
 
