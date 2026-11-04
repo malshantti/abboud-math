@@ -13,6 +13,7 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
 @media(max-width:600px){table.st thead{display:none}table.st tr{display:grid;grid-template-columns:1fr auto;padding:8px 0;border-bottom:1px solid var(--line)}table.st td{border:0;padding:2px 4px}}
 @endsection
 @section('content')
+<style>.more-acts{display:inline-block;position:relative}.more-acts>summary{list-style:none;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;padding:0 12px;border:1px solid #cbd5e1;border-radius:10px;font-weight:800}.more-acts>summary::-webkit-details-marker{display:none}.more-menu{position:absolute;inset-inline-end:0;z-index:20;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.15);padding:8px;display:grid;gap:6px;min-width:200px}.more-menu form{margin:0}.more-menu .btn{width:100%}</style>
 <div class="top2"><h1>{{ $section->name }}</h1><span class="chip grey">{{ $ar::grade($section->grade) }}</span><span class="muted">{{ $ar::count($students->count(), 'طالب') }}</span>
   <a class="btn" style="margin-inline-start:auto" href="{{ route('school.report', [$school, $section]) }}">لوحة المتابعة</a>
   <a class="btn sun" href="{{ route('school.cards', [$school, $section]) }}" target="_blank" rel="noopener">طباعة كل البطاقات</a></div>
@@ -48,9 +49,9 @@ td form{display:inline}td .btn{min-height:38px;padding:4px 12px;font-size:14px}
       <td dir="ltr" style="text-align:right">{{ $s->user?->username }}</td>
       <td class="muted">{{ $last ? $ar::date($last) : 'لم يدخل بعد' }}</td>
       <td><a class="btn ghost" href="{{ route('school.cards', [$school, $section, 's' => $s->id]) }}" target="_blank" rel="noopener">بطاقة</a>
-        <form method="post" action="{{ route('school.pin', [$school, $s]) }}">@csrf<button class="btn ghost" type="submit">رقم جديد</button></form>
+        <details class="more-acts"><summary aria-label="مزيد من الإجراءات للطالب {{ $s->name }}">… المزيد</summary><div class="more-menu"><form method="post" action="{{ route('school.pin', [$school, $s]) }}">@csrf<button class="btn ghost" type="submit">رقم جديد</button></form>
         <form method="post" action="{{ route('school.kick', [$school, $s]) }}" onsubmit="return confirm('إخراج {{ $s->name }} من كل الأجهزة وإعطاؤه رقمًا جديدًا؟')">@csrf<button class="btn danger" type="submit">إخراج + رقم جديد</button></form>
-        <form method="post" action="{{ route('school.archive', [$school, $s]) }}" data-msg="إزالة «{{ $s->name }}» من الشعبة؟ سيختفي من القوائم والبطاقات والتقارير ولن يستطيع الدخول. تقدّمه يبقى محفوظًا ويمكن استعادته من «الطلاب المؤرشفون»." onsubmit="return confirm(this.dataset.msg)">@csrf<button class="btn danger" type="submit" data-archive="{{ $s->id }}">إزالة من الشعبة</button></form></td></tr>
+        <form method="post" action="{{ route('school.archive', [$school, $s]) }}" data-msg="إزالة «{{ $s->name }}» من الشعبة؟ سيختفي من القوائم والبطاقات والتقارير ولن يستطيع الدخول. تقدّمه يبقى محفوظًا ويمكن استعادته من «الطلاب المؤرشفون»." onsubmit="return confirm(this.dataset.msg)">@csrf<button class="btn danger" type="submit" data-archive="{{ $s->id }}">إزالة من الشعبة</button></form></div></details></td></tr>
   @endforeach
   </tbody></table>@endif
   @if ($archived->isNotEmpty())
