@@ -66,7 +66,15 @@ class SchoolTasks
     public static function link(string $code, string $item): string
     {
         [$g, $s] = explode('-', $code, 2);
-        $hash = str_starts_with($item, 'T:') ? '#/test/'.substr($item, 2) : '#/u/'.$item;
+        if (str_starts_with($item, 'T:')) {
+            $hash = '#/test/'.substr($item, 2);
+        } elseif ($code === 'g6-math') {
+            $hash = '#/lesson/'.$item;              // g6 math routes lessons as #/lesson/S1-1-1
+        } elseif ($code === 'g6-arabic' || $code === 'g6-english') {
+            $hash = '#/u/'.preg_replace('/L\d+$/', '', $item); // bank lesson P1U1L1 / U3L1 → unit page #/u/P1U1 / #/u/U3
+        } else {
+            $hash = '#/u/'.$item;
+        }
 
         return MailCenter::siteUrl().'login.html?sync=1&next='.rawurlencode($g.'/'.$s.'/'.$hash);
     }
