@@ -16,7 +16,7 @@
     el.value = next;
     if (start != null) el.setSelectionRange(start,end);
   }
-  const skipped = el => el.closest('script,style,code,pre,[data-latin-digits]');
+  const skipped = el => el.closest('script,style,code,pre,[data-latin-digits],[data-no-frac],#bustan-banner');
   // كسور رأسية كما في الكتاب: البسط فوق خط الكسر والمقام تحته
   const T='(?:[٠-٩]+(?:,[٠-٩]+)?|π|[\u0621-\u064a]ـ?){1,3}[²³]?';
   const FR=new RegExp('(?<![\u0621-\u064a\u0640٠-٩/])('+T+')/('+T+')(?![\u0621-\u064a\u0640٠-٩/])','g');
