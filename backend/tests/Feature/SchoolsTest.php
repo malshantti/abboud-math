@@ -94,7 +94,7 @@ class SchoolsTest extends TestCase
         [$s, , $t, $sec, , $kids] = $this->school('pinhide');
         $this->actingAs($t);
         $pin = Schools::plainPin($sec->students()->first());
-        $html = $this->get('/s/pinhide/panel/sections/'.$sec->id)->assertOk()->assertSee('إظهار الكل')->assertSee('pin-mask', false)->getContent();
+        $html = $this->get('/s/pinhide/panel/sections/'.$sec->id)->assertOk()->assertSee('إظهار كل الأرقام السرية')->assertSee('pin-mask', false)->getContent();
         $this->assertMatchesRegularExpression('/<span class="pinv pin-real" hidden>'.$pin.'<\/span>/', $html);
         $this->assertDoesNotMatchRegularExpression('/<td class="pinv">\d{4}<\/td>/', $html);
         $this->get('/s/pinhide/panel/sections/'.$sec->id.'/cards')->assertOk()->assertSee($pin);
