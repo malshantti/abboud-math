@@ -43,7 +43,7 @@ class SchoolController extends Controller
 
         return view('school.login', [
             'school' => $school,
-            'sections' => $school->sections()->get(['id', 'grade', 'name']),
+            // P1: no public list of sections/names — the child opens the section QR/link or types the section code.
             'section' => $section, 'pre' => $pre, 'stale' => $stale, 'tab' => $request->query('tab') === 'staff' ? 'staff' : 'child',
         ]);
     }
@@ -55,13 +55,15 @@ class SchoolController extends Controller
         return response()->file($p, ['Cache-Control' => 'public, max-age=31536000, immutable']);
     }
 
-    /** Names of one section (for the child picker). Only within this school. */
-    public function names(School $school, int $section): JsonResponse
+    /** Names of one section (for the child picker). Only within this school, and only with the section code (QR/link/card). Short names only. */
+    public function names(Request $request, School $school, int $section): JsonResponse
     {
         $sec = SchoolSection::where('school_id', $school->id)->findOrFail($section);
+        $code = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string) $request->query('c', '')));
+        abort_unless($code !== '' && hash_equals((string) $sec->code, $code), 404);
 
-        return response()->json(['names' => $sec->students()->get(['id', 'name'])->map(fn ($s) => ['id' => $s->id, 'name' => $s->name])])
-            ->header('Cache-Control', 'private, max-age=60');
+        return response()->json(['names' => Schools::shortNames($sec->students()->get(['id', 'name']))])
+            ->header('Cache-Control', 'private, no-store');
     }
 
     public function child(Request $request, School $school): RedirectResponse|JsonResponse

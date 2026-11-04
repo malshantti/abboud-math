@@ -19,19 +19,21 @@ h1{font-size:26px;margin:0 0 4px}
 [hidden]{display:none!important}
 @endsection
 @section('content')
-@if ($stale)<div class="alert err" role="alert" style="max-width:560px;margin:8px auto">هذا الرابط أو الرمز قديم. اطلب البطاقة أو الرابط الجديد من معلّمك، أو اختر شعبتك من القائمة.</div>@endif
+@if ($stale)<div class="alert err" role="alert" style="max-width:560px;margin:8px auto">هذا الرابط أو الرمز قديم. اطلب البطاقة أو الرابط الجديد من معلّمك، أو اكتب رمز الشعبة الجديد.</div>@endif
 <section class="card box">
   <div class="tabs" role="tablist" aria-label="نوع الدخول">
     <button type="button" role="tab" id="t-child" aria-controls="p-child" aria-selected="{{ $tab === 'child' ? 'true' : 'false' }}">أنا طالب</button>
     <button type="button" role="tab" id="t-staff" aria-controls="p-staff" aria-selected="{{ $tab === 'staff' ? 'true' : 'false' }}">المعلّمون والإدارة</button>
   </div>
   <div id="p-child" role="tabpanel" aria-labelledby="t-child" @if($tab==='staff') hidden @endif>
-    <div id="s1" @if($section) hidden @endif>
-      <h1>أهلًا بك! اختر شعبتك</h1>
-      <ul class="pick">@forelse ($sections as $s)<li><button type="button" data-sec="{{ $s->id }}" data-label="{{ $s->name }}">{{ $s->name }}<small>{{ \App\Support\Ar::grade($s->grade) }}</small></button></li>@empty<li class="muted">لم تُضف شعب بعد.</li>@endforelse</ul>
-    </div>
+    <form id="s1" method="get" action="{{ route('school.login', $school) }}" @if($section) hidden @endif>
+      <h1>أهلًا بك! امسح رمز QR من بطاقتك</h1>
+      <p class="muted" style="text-align:center">أو اكتب رمز الشعبة (٦ أحرف) المكتوب على بطاقتك:</p>
+      <div class="pin"><input id="sc" name="c" dir="ltr" autocapitalize="characters" autocomplete="off" maxlength="6" aria-label="رمز الشعبة" style="width:220px;letter-spacing:10px;text-transform:uppercase" required></div>
+      <button class="btn wide" type="submit">التالي</button>
+    </form>
     <div id="s2" hidden>
-      <p class="step-h"><button type="button" class="back" data-go="s1">→ رجوع</button><b id="s2-title"></b></p>
+      <p class="step-h"><a class="back" href="{{ route('school.login', $school) }}">→ رجوع</a><b id="s2-title"></b></p>
       <h1>اختر اسمك</h1>
       <ul class="pick" id="names" aria-live="polite"></ul>
     </div>
@@ -59,7 +61,7 @@ h1{font-size:26px;margin:0 0 4px}
 (function(){
 var $=function(i){return document.getElementById(i)},names={},cur=null,
  NAMES=@json(route('school.names', ['school' => $school, 'section' => 0])).replace(/\/0\/names$/,'/'),
- pre=@json($pre ? ['id' => $pre->id, 'name' => $pre->name] : null), sec=@json($section ? ['id' => $section->id, 'name' => $section->name] : null);
+ pre=@json($pre ? ['id' => $pre->id, 'name' => $pre->name] : null), sec=@json($section ? ['id' => $section->id, 'name' => $section->name, 'c' => $section->code] : null);
 function step(id){['s1','s2','s3'].forEach(function(s){$(s).hidden=s!==id});var f=$(id).querySelector('input:not([type=hidden])')||$(id).querySelector('button');if(f)f.focus({preventScroll:true});}
 document.querySelectorAll('[role=tab]').forEach(function(t){t.onclick=function(){document.querySelectorAll('[role=tab]').forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);$(x.getAttribute('aria-controls')).hidden=!on;});};});
 document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){step(b.dataset.go)}});
@@ -67,8 +69,7 @@ function esc(s){var d=document.createElement('i');d.textContent=s;return d.inner
 function openSec(id,label){cur=id;$('s2-title').textContent=label;$('names').innerHTML='<li class="muted">لحظة…</li>';step('s2');
  var go=function(list){$('names').innerHTML=list.length?list.map(function(n){return '<li><button type="button" data-id="'+n.id+'">'+esc(n.name)+'</button></li>'}).join(''):'<li class="muted">لا أسماء في هذه الشعبة بعد.</li>';};
  if(names[id])return go(names[id]);
- fetch(NAMES+id+'/names',{headers:{Accept:'application/json'}}).then(function(r){return r.json()}).then(function(d){names[id]=d.names;go(d.names)}).catch(function(){$('names').innerHTML='<li class="muted">تعذّر التحميل، أعد المحاولة.</li>'});}
-document.querySelectorAll('[data-sec]').forEach(function(b){b.onclick=function(){openSec(b.dataset.sec,b.dataset.label)}});
+ fetch(NAMES+id+'/names?c='+encodeURIComponent(sec?sec.c:''),{headers:{Accept:'application/json'}}).then(function(r){return r.json()}).then(function(d){names[id]=d.names;go(d.names)}).catch(function(){$('names').innerHTML='<li class="muted">تعذّر التحميل، أعد المحاولة.</li>'});}
 $('names').onclick=function(e){var b=e.target.closest('button');if(!b)return;$('sid').value=b.dataset.id;$('who').textContent=b.textContent;$('pin').value='';$('msg').textContent='';step('s3');};
 $('pin').oninput=function(){this.value=this.value.replace(/[٠-٩]/g,function(c){return c.charCodeAt(0)-1632}).replace(/\D/g,'').slice(0,4);if(this.value.length===4)$('s3').requestSubmit();};
 $('s3').onsubmit=function(e){e.preventDefault();var m=$('msg');m.className='msg';m.textContent='لحظة…';

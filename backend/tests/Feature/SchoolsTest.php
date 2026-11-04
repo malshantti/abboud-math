@@ -33,10 +33,12 @@ class SchoolsTest extends TestCase
     public function test_pages_render_and_child_pin_login_works(): void
     {
         [$s, $mgr, $t, $sec] = $this->school('alpha');
-        $this->get('/s/alpha')->assertOk()->assertSee('مدرسة alpha')->assertSee('رابع أ')->assertSee('للاختبار');
-        $this->get('/s/alpha?c='.$sec->code)->assertOk();
+        $this->get('/s/alpha')->assertOk()->assertSee('مدرسة alpha')->assertDontSee('رابع أ')->assertSee('رمز الشعبة');
+        $this->get('/s/alpha?c='.$sec->code)->assertOk()->assertSee($sec->code);
         $this->get('/s/alpha?c=ZZZZZZ')->assertOk()->assertSee('قديم');
-        $this->getJson('/s/alpha/sections/'.$sec->id.'/names')->assertOk()->assertJsonCount(3, 'names');
+        $this->getJson('/s/alpha/sections/'.$sec->id.'/names')->assertNotFound();
+        $this->getJson('/s/alpha/sections/'.$sec->id.'/names?c=ZZZZZZ')->assertNotFound();
+        $this->getJson('/s/alpha/sections/'.$sec->id.'/names?c='.strtolower($sec->code))->assertOk()->assertJsonCount(3, 'names');
         $kid = $sec->students()->first();
         $pin = Schools::plainPin($kid);
         $this->assertMatchesRegularExpression('/^\d{4}$/', $pin);
@@ -47,6 +49,12 @@ class SchoolsTest extends TestCase
         $this->assertAuthenticatedAs($kid->user);
         $this->assertTrue(ActivityLog::where('action', 'school.pin_fail')->exists());
         $this->assertTrue(ActivityLog::where('action', 'school.new_device')->exists());
+    }
+
+    public function test_picker_shows_short_names_and_tells_twins_apart(): void
+    {
+        $rows = collect([(object) ['id' => 1, 'name' => 'أحمد محمد علي'], (object) ['id' => 2, 'name' => 'أحمد محمود سالم'], (object) ['id' => 3, 'name' => 'سارة خالد يوسف'], (object) ['id' => 4, 'name' => 'منى']]);
+        $this->assertSame(['أحمد محمد', 'أحمد محمود', 'سارة خ.', 'منى'], array_column(Schools::shortNames($rows), 'name'));
     }
 
     public function test_pin_lockout_after_five_failures(): void
@@ -70,7 +78,7 @@ class SchoolsTest extends TestCase
         $kidB = $secB->students()->first();
         // student of B cannot log in via A
         $this->postJson('/s/gamma/child', ['student' => $kidB->id, 'pin' => Schools::plainPin($kidB)])->assertStatus(422);
-        $this->getJson('/s/gamma/sections/'.$secB->id.'/names')->assertNotFound();
+        $this->getJson('/s/gamma/sections/'.$secB->id.'/names?c='.$secB->code)->assertNotFound();
 
         $this->actingAs($mgrA);
         $this->get('/s/gamma/panel')->assertOk()->assertSee('رابع أ')->assertSee('خامس ب');
