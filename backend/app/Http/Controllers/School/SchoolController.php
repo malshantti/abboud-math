@@ -432,7 +432,7 @@ class SchoolController extends Controller
         return back()->with('status', 'أُخرج '.$student->name.' من كل الأجهزة. رقمه السري الجديد: '.Ar::num(Schools::plainPin($student)));
     }
 
-    public function cards(Request $request, School $school, SchoolSection $section): View|RedirectResponse
+    public function cards(Request $request, School $school, SchoolSection $section): \Symfony\Component\HttpFoundation\Response
     {
         if (! $u = $this->staff($request, $school)) {
             return redirect()->route('school.login', ['school' => $school, 'tab' => 'staff']);
