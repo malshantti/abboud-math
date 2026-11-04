@@ -50,6 +50,6 @@ table{width:100%;border-collapse:collapse;font-size:15px}th,td{padding:7px 6px;b
 @php($wrong = collect($r['subjects'])->flatMap(fn ($x) => collect($x['wrong'])->map(fn ($w) => $w + ['s' => $x['name']]))->sortByDesc(fn ($w) => $w['at']?->getTimestamp() ?? 0)->take(20))
 <section class="card" style="margin-top:18px"><h2>آخر الأخطاء</h2>
 <table><thead><tr><th>السؤال</th><th>إجابته</th><th>الصحيحة</th><th>متى</th></tr></thead><tbody>
-@forelse ($wrong as $w)<tr><td><b>{{ $w['q'] }}</b><br><small class="muted">{{ $w['s'] }}@if($w['lesson']) · {{ $w['lesson'] }}@endif</small></td><td class="no">{{ $w['a'] ?: '—' }}</td><td class="ok">{{ $w['c'] ?: '—' }}</td><td class="muted">{{ $w['at'] ? $ar::date($w['at']) : '—' }}</td></tr>
+@forelse ($wrong as $w)<tr><td><b>{{ $w['q'] }}</b><br><small class="muted">{{ $w['s'] }}@if($w['lesson'] && \App\Support\SchoolStats::isLessonName($w['lesson'])) · {{ $w['lesson'] }}@endif</small></td><td class="no">{{ $w['a'] ?: '—' }}</td><td class="ok">{{ $w['c'] ?: '—' }}</td><td class="muted">{{ $w['at'] ? $ar::date($w['at']) : '—' }}</td></tr>
 @empty<tr><td colspan="4" class="muted">لا أخطاء مسجّلة.</td></tr>@endforelse</tbody></table></section>
 @endsection
