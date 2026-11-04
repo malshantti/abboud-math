@@ -4,6 +4,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,'g6/math',p),'utf8');
 const ctx=vm.createContext({console,document:{addEventListener(){}}});ctx.window=ctx;
+vm.runInContext(fs.readFileSync(path.join(root,'ar-count.js'),'utf8'),ctx,{filename:'ar-count.js'});
 for(const f of ['content.js','content5.js','gen.js','gen5.js'])vm.runInContext(read(f),ctx,{filename:f});
 const cf=s=>s===''?1:+s;const TM=(a,v)=>(a===1?'':a)+v;
 function check(id,s,seen){const q=s.q,a=s.a,wrong=s.choices.filter(c=>!c.ok).map(c=>c.t);let m;
@@ -14,7 +15,7 @@ function check(id,s,seen){const q=s.q,a=s.a,wrong=s.choices.filter(c=>!c.ok).map
  else if(m=q.match(/^ما القيمة العددية للحد (\d*)س ص عندما س = (\d+)، ص = (\d+)؟$/)){seen.add('val2');assert.equal(+a,cf(m[1])*m[2]*m[3])}
  else if(q==='أي الصيغ الآتية حد جبري؟'){seen.add('isTerm');assert.match(a,/^\d+[سصع]$/);wrong.forEach(w=>assert.match(w,/[+−]/))}
  else if(m=q.match(/^ما المتغير في الحد الجبري (\d+)([سصع])؟$/)){seen.add('vari');assert.equal(a,m[2])}
- else if(m=q.match(/^يربح لاعب (\d+) نقاط.*فاز ([سصع]) مرة/)){seen.add('word');assert.equal(a,m[1]+m[2])}
+ else if(m=q.match(/^يربح لاعب (\d+) (?:نقاط|نقطتان).*فاز ([سصع]) مرة/)){seen.add('word');assert.equal(a,m[1]+m[2])}
  else if(m=q.match(/^ما القيمة العددية للمقدار (\d+)س ([+−]) (\d+)ص عندما س = (\d+)، ص = (\d+)؟$/)){seen.add('eval2');assert.equal(+a,m[1]*m[4]+(m[2]==='+'?1:-1)*m[3]*m[5])}
  else if(m=q.match(/^ما القيمة العددية للمقدار (\d+)س \+ (\d+) عندما س = (\d+)؟$/)){seen.add('evalC');assert.equal(+a,m[1]*m[3]+ +m[2])}
  else if(m=q.match(/^ما عدد الحدود في المقدار الجبري (.+)؟$/)){seen.add('count');assert.equal(+a,m[1].split(/ [+−] /).length)}
@@ -23,13 +24,13 @@ function check(id,s,seen){const q=s.q,a=s.a,wrong=s.choices.filter(c=>!c.ok).map
   else if(m=p.match(/^عدد ما مضافًا إليه (\d+)$/))e=`س + ${m[1]}`;else if(m=p.match(/^عدد ما مضروبًا بـ (\d+)$/))e=`${m[1]}س`;
   else if(m=p.match(/^ضعفا عدد مضافًا إلى (\d+)$/))e=`2س + ${m[1]}`;else if(m=p.match(/^باقي طرح ص من (\d+) أمثال س$/))e=`${m[1]}س − ص`;else assert.fail(p);assert.equal(a,e)}
  else if(m=q.match(/س = (\d+) م، ص = (\d+) م، فما محيطه/)){seen.add('perim2');assert.equal(a,`${2*m[1]+2*m[2]} م`)}
- else if(m=q.match(/وبعد (\d+) يومًا دفع (\d+) دينارًا/)){seen.add('driver');assert.equal(a,`${m[1]}س − ${m[2]}`)}
+ else if(m=q.match(/وبعد (\d+) (?:يومًا|أيام) دفع (\d+) (?:دينارًا|دينار|دنانير)/)){seen.add('driver');assert.equal(a,`${m[1]}س − ${m[2]}`)}
  else if(m=q.match(/^أي الحدود الآتية يشبه الحد (\d+)([سصع])؟$/)){seen.add('like');assert.match(a,new RegExp('^\\d+'+m[2]+'$'));wrong.forEach(w=>assert.notEqual(w.replace(/^\d+/,''),m[2]))}
  else if(m=q.match(/^(\d+)([سصع]) ([+−]) (\d+)\2 = ؟$/)){seen.add('add');assert.equal(a,TM(m[3]==='+'?+m[1]+ +m[4]:m[1]-m[4],m[2]))}
  else if(m=q.match(/^أبسّط: (\d+)س \+ (\d+)ص \+ (\d+)س$/)){seen.add('mixed');assert.equal(a,`${+m[1]+ +m[3]}س + ${m[2]}ص`)}
  else if(m=q.match(/^أبسّط: (\d+)س \+ (\d*)ص \+ (\d+)ص − (\d*)س$/)){seen.add('four');assert.equal(a,`${TM(m[1]-cf(m[4]),'س')} + ${TM(cf(m[2])+ +m[3],'ص')}`)}
  else if(m=q.match(/^مستطيل طوله (\d+)س سم وعرضه (\d*)س سم/)){seen.add('perim3');assert.equal(a,`${2*(+m[1]+cf(m[2]))}س سم`)}
- else if(m=q.match(/عمل (\d+) أيام في الأسبوع الأول و (\d+) أيام/)){seen.add('wage');assert.equal(a,`${+m[1]+ +m[2]}س`)}
+ else if(m=q.match(/عمل (\d+) (?:أيام|يومين) في الأسبوع الأول و (\d+) (?:أيام|يومين)/)){seen.add('wage');assert.equal(a,`${+m[1]+ +m[2]}س`)}
  else if(m=q.match(/^(\d+)([سصع]) × (\d+)([سصع]) = ؟$/)){seen.add('mul');assert.equal(a,`${m[1]*m[3]}${m[2]} ${m[4]}`)}
  else if(m=q.match(/^(\d+)\(س ([+−]) (\d+)\) = ؟$/)){seen.add('dist');assert.equal(a,`${m[1]}س ${m[2]} ${m[1]*m[3]}`)}
  else if(m=q.match(/^(\d+)س\((\d+) \+ (\d+)ص\) = ؟$/)){seen.add('distT');assert.equal(a,`${m[1]*m[2]}س + ${m[1]*m[3]}س ص`)}
@@ -39,7 +40,7 @@ function check(id,s,seen){const q=s.q,a=s.a,wrong=s.choices.filter(c=>!c.ok).map
  else if(m=q.match(/^أكمل: ⬜\((\d+) \+ (\d+)ك\) = (\d+)ل \+ (\d+)ل ك$/)){seen.add('fill');const k=m[3]/m[1];assert.equal(k,m[4]/m[2]);assert.equal(a,`${k}ل`)}
  else if(m=q.match(/^\((\d+)س \+ (\d+)ص\)\((\d+)ع \+ (\d+)ل\) = ؟$/)){seen.add('prod');const [A,B,C,D]=m.slice(1).map(Number);assert.equal(a,`${A*C}س ع + ${A*D}س ل + ${B*C}ص ع + ${B*D}ص ل`)}
  else if(m=q.match(/يصبح لديه 2س − (\d+) دينار\. كم يصبح لديه إذا وضع (\d+) دينار/)){seen.add('trader');assert.equal(a,`${2*m[2]-m[1]} دينار`)}
- else if(m=q.match(/^يبيع مصنع س حذاء رجاليًا بسعر (\d+) دينارًا، و ص حذاء ولاديًا بسعر (\d+)/)){seen.add('shoes');assert.equal(a,`${m[1]}س + ${m[2]}ص`)}
+ else if(m=q.match(/^يبيع مصنع س حذاء رجاليًا بسعر (\d+) (?:دينارًا|دنانير)، و ص حذاء ولاديًا بسعر (\d+)/)){seen.add('shoes');assert.equal(a,`${m[1]}س + ${m[2]}ص`)}
  else assert.fail(id+' unknown question: '+q)}
 const want={'S1-3-1':['coef','val','val2','isTerm','vari','word'],'S1-3-2':['eval2','evalC','count','words','perim2','driver'],'S1-3-3':['like','add','mixed','four','perim3','wage'],
  'S1-3-4':['mul','dist','distT','gcf','gcf2','area','fill'],'S1-3-5':['prod','trader','shoes','coef','dist','add','words']};
