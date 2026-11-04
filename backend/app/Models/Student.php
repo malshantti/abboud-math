@@ -55,7 +55,7 @@ class Student extends Model
 
     protected function casts(): array
     {
-        return ['grade' => 'integer', 'last_synced_at' => 'datetime', 'pin_locked_until' => 'datetime', 'school_seen_at' => 'datetime'];
+        return ['grade' => 'integer', 'last_synced_at' => 'datetime', 'pin_locked_until' => 'datetime', 'school_seen_at' => 'datetime', 'archived_at' => 'datetime'];
     }
 
     public function user(): BelongsTo

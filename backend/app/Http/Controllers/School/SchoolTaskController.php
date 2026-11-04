@@ -63,7 +63,7 @@ class SchoolTaskController extends Controller
         }
         $s = Student::with('section')->where('user_id', $u->id)->first();
 
-        return $s && $s->section && (int) $s->section->school_id === (int) $school->id ? $s : null;
+        return $s && ! $s->archived_at && $s->section && (int) $s->section->school_id === (int) $school->id ? $s : null;
     }
 
     private function quizOf(SchoolSection $section, int $id): SchoolQuiz
