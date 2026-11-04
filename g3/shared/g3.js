@@ -4,7 +4,7 @@
 'use strict';
 const A=window.APP,G=window.G3,X=window.G3X||{},C=window.CFG,R=A.R,S=A.S;
 const {esc,ic,quiz,shuffle,pick,ar}=A;
-const ORD=['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة','الحادية عشرة','الثانية عشرة','الثالثة عشرة','الرابعة عشرة','الخامسة عشرة'];
+const ORD=['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة','الحادية عشرة','الثانية عشرة','الثالثة عشرة','الرابعة عشرة','الخامسة عشرة','السادسة عشرة','السابعة عشرة','الثامنة عشرة','التاسعة عشرة','العشرون','الحادية والعشرون','الثانية والعشرون','الثالثة والعشرون','الرابعة والعشرون','الخامسة والعشرون','السادسة والعشرون','السابعة والعشرون','الثامنة والعشرون','التاسعة والعشرون','الثلاثون'];
 const LES=[];G.units.forEach(u=>u.les.forEach(l=>{l.u=u;LES.push(l)}));
 const find=id=>LES.find(l=>l.id===id);
 const img=n=>'../shared/img/zaytoun-'+n+'.webp';
@@ -19,7 +19,7 @@ R.home=function(){const m=A.mastery(S.done);
  if(!S.seen.place)h+='<a class="card g3-place" href="#/place"><img src="'+img('think')+'" alt="" width="64"><div><b>اختبار قصير لتحديد البداية</b><small class="mut">اختياريّ: أسئلة قليلة تخبرك من أين تبدأ.</small></div>'+ic('arrow')+'</a>';
  else if(S.seen.place!=='skip'){const u=G.units.find(x=>x.id===S.seen.place);if(u)h+='<div class="card g3-tip">'+ic('compass')+' <span>نقترح أن تبدأ من <b>الوحدة '+ORD[G.units.indexOf(u)]+': '+esc(u.t)+'</b>. <a href="#/place">أعد الاختبار</a></span></div>'}
  h+='<div class="part-h">'+esc(G.term)+'</div>';
- G.units.forEach((u,ui)=>{const d=u.les.filter(l=>(S.done[l.id]||0)>=70).length;
+ G.units.forEach((u,ui)=>{if(u.part)h+='<div class="part-h">'+esc(u.part)+'</div>';const d=u.les.filter(l=>(S.done[l.id]||0)>=70).length;
   h+='<div class="unit-band b'+(ui%4)+'" id="unit-'+u.id+'"><div><small>الوحدة '+ORD[ui]+' · '+d+'/'+u.les.length+'</small><b>'+esc(u.t)+'</b></div><a href="#/u/'+u.les[0].id+'">افتح</a></div><div class="path">';
   u.les.forEach(l=>{const sc=S.done[l.id];h+='<div class="node-w"><a class="node '+(sc>=70?'done':'')+'" href="#/u/'+l.id+'" aria-label="'+esc(l.t)+'">'+ic(sc>=70?'check':l.lab?'lab':'book')+'</a>'+esc(l.t)+'</div>'});
   h+='<div class="node-w"><a class="node '+((S.done['T:'+u.id]||0)>=70?'done':'')+'" href="#/test/'+u.id+'" style="border-radius:18px" aria-label="اختبار الوحدة">'+ic('trophy')+'</a>اختبار الوحدة</div></div>'});
