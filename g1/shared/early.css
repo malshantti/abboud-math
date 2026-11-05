@@ -51,3 +51,7 @@
 .g1-build-bar{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}.g1-choice-caption{display:block;font-size:18px;font-weight:700;color:var(--muted)}
 .g1-choice-big{flex-direction:column}.g1-choice-big bdi{font-size:64px!important;line-height:1;font-family:G1Baloo,Arial,sans-serif}
 @media(max-width:600px){.g1-tick{font-size:17px}.g1-tick i{width:20px;height:20px}.g1-line::before{top:31px}.g1-build-item{width:50px;height:50px}.g1-build-item .g1-icon{width:38px;height:38px}}
+/* crd1: align cards with grades 4–8 (white card, 2px line + 4px base, shared radius), keep subject tint + larger kid sizes */
+.g1-card,.g1-unit,.g1-lab,.g1-lesson{background:#fff;border-bottom-width:4px;border-radius:22px}
+.g1-card,.g1-unit,.g1-lab{box-shadow:none}
+.g1-node,.g1-switch,.g1-close{border-bottom-width:4px}
