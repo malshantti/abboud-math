@@ -157,7 +157,7 @@ function showDone(box,o){box.innerHTML=`<div class="done-screen">${FX.MASCOT(o.p
  ${(o.extra||[]).map(([h,t])=>`<a class="btn sec wide" style="margin-top:14px" href="${h}">${t}</a>`).join('')}</div>`;
  const bar=getBar();bar.className='checkbar';bar.innerHTML=`<div class="in"><a class="btn wide" id="chk" href="${o.next}">متابعة</a></div>`;setBar(1,1);document.querySelectorAll('.xp-pop,.toast').forEach(e=>e.remove());if(o.party)setTimeout(()=>FX.confetti(innerWidth/2,120,36,5),200)}
 // ---------- الصفحات ----------
-const V={};
+const V={};V.basics=a=>window.BASICS_VIEW?window.BASICS_VIEW(a):"";
 function nextStep(){for(const i of C.diagnostic_order)if(['weak','learning'].includes(sk(i).status))return i;
  for(const i of C.diagnostic_order)if(sk(i).status==='untested'&&S.diag)return i;
  for(const i of ALLSK)if(LES[i]&&!['mastered','locked'].includes(status(i)))return i;return null}
@@ -385,7 +385,7 @@ ${(()=>{const nx=ALLSK.find(i=>!S.skills[i]||!(S.skills[i].att||S.skills[i].best
    $('#rst').onclick=()=>{if(!confirm('هل تريد مسح كل تقدّم «'+S.name+'»؟'))return;const t=prompt('للتأكيد اكتب اسم الطالب كما هو: '+S.name);if(t===null)return;if(t.trim()!==S.name.trim()){alert('الاسم غير مطابق، لم يُمسح شيء.');return}const nm=S.name;S=fresh();S.name=nm;norm();LOADH.forEach(f=>f());save();route();FX.toast('مُسح التقدّم')}};
   locked()})};
 // ---------- التوجيه ----------
-const TABS={home:'home',map:'home',unit:'home',lesson:'home',practice:'home',quiz:'home',daily:'home',review:'home',diag:'diag',lab:'lab',game:'lab',ach:'ach',report:'report'};
+const TABS={basics:'basics',home:'home',map:'home',unit:'home',lesson:'home',practice:'home',quiz:'home',daily:'home',review:'home',diag:'diag',lab:'lab',game:'lab',ach:'ach',report:'report'};
 function route(){const [_,v,arg]=(location.hash||'#/home').split('/');const f=V[v]||V.home;cur=null;leave.forEach(fn=>{try{fn()}catch(e){}});leave=[];
  document.body.dataset.route=v;
  if(v!=='diag'){V.diag.go=false;V.diag.intro=false}
