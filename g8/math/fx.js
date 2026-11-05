@@ -4,7 +4,7 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)');const reduced=()=>RM.mat
 const POSE={welcome:'welcome',happy:'celebrate',celebrate:'celebrate',think:'think',sad:'encourage',encourage:'encourage',teacher:'teacher',read:'read',idle:'idle',pencil:'pencil'};
 const img=p=>`img/zaytoun-${POSE[p]||p}.webp`;
 // صور الشخصية مُحمّلة مسبقاً لتبديل الوضعيات بسلاسة
-Object.values(POSE).forEach(p=>{const i=new Image();i.src=img(p)});
+addEventListener('load',()=>setTimeout(()=>Object.values(POSE).forEach(p=>{const i=new Image();i.src=img(p)}),4000));
 const MASCOT=(pose,cls)=>`<img class="zay ${cls||''}" src="${img(pose||'welcome')}" alt="زيتون" width="170" height="200" decoding="async">`;
 const HAPPY=['أحسنت!','ممتاز!','عبقري!','رائع!','ما شاء الله!','عمل متقن!'];
 const SAD=['لا بأس، جرّب مرة أخرى','قريب جداً! ركّز','الخطأ جزء من التعلّم','خذ نفساً وحاول مجدداً'];
