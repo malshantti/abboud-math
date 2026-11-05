@@ -50,7 +50,7 @@ function render(){if(window.APP&&window.APP.stopSim)window.APP.stopSim();const h
  const t={home:'home',u:'home',basics:'basics',b:'basics',play:'play',adv:'play',lab:'lab',l:'lab',ach:'ach',report:'report',quiz:''}[r];
  $$('.tabs a[data-t]').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
  $('#page-label').textContent=({home:'رحلتي',basics:'الأساسيات',play:'المغامرات',lab:'المختبر',ach:'إنجازاتي',report:'تقرير التعلّم'})[t]||'';
- if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',offline());if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',nextGoal());digits(app);if(R['after_'+r])R['after_'+r](...a.map(decodeURIComponent));digits(app);if(r!=='quiz')scrollTo(0,0);app.focus({preventScroll:true})}
+ if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',offline());if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',nextGoal());try{app.querySelectorAll('details a[href]:not([aria-label])').forEach(x=>{const t=x.textContent.replace(/\s+/g,' ').trim();if(t)x.setAttribute('aria-label',t)});}catch(e){}digits(app);if(R['after_'+r])R['after_'+r](...a.map(decodeURIComponent));digits(app);if(r!=='quiz')scrollTo(0,0);app.focus({preventScroll:true})}
 addEventListener('hashchange',render);
 function offline(){return '<div class="card row" style="justify-content:space-between"><div><b>العمل دون اتّصال</b><div class="mut small">يمكن فتح الدروس المحفوظة على الجهاز دون إنترنت. نزّل صفحات الكتاب كلّها'+(C.audio?' والتّسجيلات':'')+'، ثمّ انتظر تأكيد اكتمال التنزيل.</div><div id="offstatus" class="small" role="status" aria-live="polite"></div></div><button class="btn alt" id="offbtn">'+ic('check')+' احفظ الكتاب على الجهاز</button></div>'}
 let downloading=false;
