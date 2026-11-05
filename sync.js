@@ -357,7 +357,7 @@ async function schoolBadge(){try{const slug=localStorage.getItem('bustan_school_
  const r=await fetch(new URL('admin-api/s/'+slug+'/me.json',root).href,{credentials:'same-origin',cache:'no-store'});if(!r.ok)return;const j=await r.json();
  if(!j.url){localStorage.removeItem('bustan_school_kid');return}if(!j.pending)return;
  const n=x=>String(x).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);const a=document.createElement('a');a.id='bSchool';a.href=j.url;a.dir='rtl';
- a.textContent=(j.soon?'⏰ اختبار يُغلق قريبًا':j.new?'📝 اختبار جديد':'📝 واجباتي')+' · '+n(j.pending);a.setAttribute('aria-label','واجباتي: '+n(j.pending)+' مهمّة');
+ a.textContent=(j.soon?'اختبار يُغلق قريبًا':j.new?'اختبار جديد':'واجباتي')+' · '+n(j.pending);a.setAttribute('aria-label','واجباتي: '+n(j.pending)+' مهمّة');
  a.style.cssText='position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));inset-inline-start:12px;z-index:9999;background:'+(j.soon?'#c2410c':'#1d5fa8')+';color:#fff;font:800 15px Cairo,sans-serif;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);text-decoration:none';
  document.body.appendChild(a)}catch(e){}}
 setTimeout(schoolBadge,1500);
@@ -383,7 +383,7 @@ function early(){try{const g=+((location.pathname.match(/\/g(\d)\//)||[])[1]||0)
   let bq=null;for(const c of document.querySelectorAll('#app .card, main .card')){const b=c.querySelector('b');if(b&&/^تمرين/.test(b.textContent.trim())&&c.querySelector('details')&&c.querySelector('.tag')){bq=c;break}}
   const box=document.createElement('section');box.id='bustan-early';box.className='card';box.setAttribute('aria-label','ابدأ بسؤال');
   box.style.cssText='border:2px solid #1d5fa8;border-radius:14px;padding:12px;margin:10px 0;background:#f2f7fd';
-  box.innerHTML='<b style="display:block;margin-bottom:6px">'+(bq?'ابدأ بسؤال من كتابك ✋':'جاهز؟ ابدأ بأسئلة الدرس ✋')+'</b>';
+  box.innerHTML='<b style="display:block;margin-bottom:6px">'+(bq?'ابدأ بسؤال من كتابك':'جاهز؟ ابدأ بأسئلة الدرس')+'</b>';
   if(bq){const cl=bq.cloneNode(true);cl.removeAttribute('id');cl.style.cssText='margin:6px 0;box-shadow:none';box.appendChild(cl)}
   const act=[...document.querySelectorAll('h3')].find(x=>x.textContent.trim()==='نشاط');if(!bq&&act){const j=document.createElement('button');j.type='button';j.className='btn ghost';j.textContent='جرّب نشاط الكتاب';j.style.cssText='min-height:44px;margin:6px 0 0 8px';j.onclick=()=>act.scrollIntoView({behavior:'smooth',block:'start'});box.appendChild(j)}
   const bt=document.createElement('button');bt.type='button';bt.className='btn';bt.textContent='تمرّن على الدرس الآن';bt.style.cssText='min-height:44px;margin-top:6px';bt.onclick=()=>go.click();box.appendChild(bt);
