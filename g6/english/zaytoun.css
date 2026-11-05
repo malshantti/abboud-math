@@ -36,3 +36,5 @@ body[data-route=unit] .banner,body[data-route=lesson] .banner{background:var(--g
 
 /* Navigation uses the same local SVG stroke and direction throughout the interface. */
 .nav-arrow{display:inline-flex;align-items:center;vertical-align:middle;flex:none}.nav-arrow .ic,.course-arrow .ic,.round-arrow .ic,.lesson-row-arrow .ic,.activity-arrow .ic{width:20px;height:20px;vertical-align:middle}
+
+@media(max-width:899px){.tabs a.report-nav{display:flex!important}}
