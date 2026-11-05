@@ -257,7 +257,7 @@ function runSet(qs,o){if(!qs||!qs.length){page(o.label||'تدريب',`<a class="
 const SEC=window.EN_SEC({E,esc,I,ICS,AUB,EN,page,save,hdr,U,unitStatus,go,S:()=>S,day,GEN,addSkill,runSet,
  zayWelcome:()=>{if(!window.__zw){window.__zw=1;setTimeout(()=>AU.zay(0),500)}}});
 const TK=window.EN_TASKUI({E,esc,I,ICS,AUB,page,save,U,addSkill,toggleSeq});
-const home=SEC.home,found=SEC.found;window.EN_SEC_TABS=SEC.tabs;
+const home=()=>{const h=SEC.home();try{const a=document.getElementById('app');if(window.EN_NG&&a&&!a.querySelector('.ng-card'))a.insertAdjacentHTML('beforeend',window.EN_NG())}catch(e){}return h},found=SEC.found;window.EN_SEC_TABS=SEC.tabs;
 /* ---------- التوجيه ---------- */
 function go(h){location.hash=h}
 function route(){AU.stop();const h=(location.hash||'#/home').replace(/\?.*$/,'');const p=h.slice(2).split('/');

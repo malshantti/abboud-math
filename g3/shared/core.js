@@ -45,7 +45,7 @@ function digits(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEX
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),2200)}
 const R={};let curRoute='';
 function render(){if(window.APP&&window.APP.stopSim)window.APP.stopSim();const h=location.hash.replace(/^#\/?/,'')||'home';const [r,...a]=h.split('/');curRoute=r;
- const app=$('#app');const f=R[r]||R.home;const html=f(...a.map(decodeURIComponent));
+ const app=$('#app');const f=R[r]||R.home;let html=f(...a.map(decodeURIComponent));if(f===R.home&&typeof html==='string')html+=nextGoal();
  if(html!=null){app.innerHTML='<div class="page">'+html+'</div>'}
  const t={home:'home',u:'home',s:'home',test:'home',place:'home',basics:'basics',b:'basics',play:'play',adv:'play',lab:'lab',l:'lab',ach:'ach',report:'report',quiz:''}[r];
  $$('.tabs a[data-t]').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
@@ -98,6 +98,9 @@ function finish(){const n=Q.qs.length,pc=Math.round(Q.ok/n*100),xp=Q.ok*10+(pc==
 // نتائج الأنشطة تبقى محفوظة، ويُقاس إتقان المنهاج من أقسامه وحدها.
 function mastery(done){const keys=new Set(C.sections().map(i=>i.key));return{total:keys.size,lessons:[...keys].filter(k=>(done||{})[k]>=70).length,extra:Object.keys(done||{}).filter(k=>!keys.has(k)&&done[k]>=70).length}}
 // الإنجازات
+function nextGoal(){try{const got=new Set(S.ach||[]);const n=ACH.find(a=>!got.has(a[0])&&!a[3]());const st=S.streak||0;const today=S.last===(d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate())(new Date());
+const msg=st>0?(today?'أحسنت! سلسلتك '+st+' يوم — عُد غداً لتكبر.':'سلسلتك '+st+' يوم — تمرين واحد اليوم يحافظ عليها.'):'ابدأ سلسلتك اليوم بتمرين واحد.';
+return '<a class="ng-card" href="#/ach" style="display:block;margin:14px 0;padding:14px 16px;border-radius:16px;background:var(--card,#fff);border:2px solid var(--line,#e5e7eb);color:inherit;text-decoration:none;min-height:44px"><b style="display:block;font-size:16px">هدفك التالي'+(n?': '+n[1]:'')+'</b><span style="font-size:15px">'+(n?n[2]+' · ':'')+msg+'</span></a>'}catch(e){return''}}
 const ACH=[['first','أوّل خطوة','أنهِ أوّل تمرين',()=>S.log.length>0,'leaf'],['x100','مئة نقطة','اجمع ١٠٠ نقطة',()=>S.xp>=100,'star'],['x1000','ألف نقطة','اجمع ١٠٠٠ نقطة',()=>S.xp>=1000,'trophy'],['st3','ثلاثة أيّام','واظب ٣ أيّام',()=>S.streak>=3,'flame'],['st7','أسبوع كامل','واظب ٧ أيّام',()=>S.streak>=7,'flame'],['p100','علامة كاملة','أنهِ تمرينًا دون خطأ',()=>S.log.some(l=>l.pc===100),'target'],['u5','خمس محطّات','أتقن ٥ أقسام',()=>mastery(S.done).lessons>=5,'book'],['u20','عشرون محطّة','أتقن ٢٠ قسمًا',()=>mastery(S.done).lessons>=20,'book'],['lab','مجرّب','جرّب ٣ أنشطة في المختبر',()=>Object.keys(S.seen).filter(k=>k.startsWith('lab:')).length>=3,'lab'],['q200','مثابر','أجب عن ٢٠٠ سؤال',()=>S.qs>=200,'bolt']];
 function checkAch(){ACH.forEach(a=>{if(!S.ach.includes(a[0])&&a[3]()){S.ach.push(a[0]);toast('إنجاز جديد: '+a[1])}});save()}
 // سلّم المستويات (مشترك بين المواد؛ الأنماط في shell.css)
