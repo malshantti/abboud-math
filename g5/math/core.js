@@ -50,7 +50,7 @@ function render(){if(window.APP&&window.APP.stopSim)window.APP.stopSim();const h
  const t={home:'home',u:'home',basics:'basics',b:'basics',play:'play',adv:'play',lab:'lab',l:'lab',ach:'ach',report:'report',quiz:''}[r];
  $$('.tabs a[data-t]').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
  $('#page-label').textContent=({home:'رحلتي',basics:'الأساسيات',play:'المغامرات',lab:'المختبر',ach:'إنجازاتي',report:'تقرير التعلّم'})[t]||'';
- if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',offline());digits(app);if(R['after_'+r])R['after_'+r](...a.map(decodeURIComponent));digits(app);if(r!=='quiz')scrollTo(0,0);app.focus({preventScroll:true})}
+ if(r==='home'&&html!=null)app.firstChild.insertAdjacentHTML('beforeend',nextGoal()+offline());digits(app);if(R['after_'+r])R['after_'+r](...a.map(decodeURIComponent));digits(app);if(r!=='quiz')scrollTo(0,0);app.focus({preventScroll:true})}
 addEventListener('hashchange',render);
 function offline(){return '<div class="card row" style="justify-content:space-between"><div><b>العمل دون اتّصال</b><div class="mut small">يمكن فتح الدروس المحفوظة على الجهاز دون إنترنت. نزّل صفحات الكتاب كلّها'+(C.audio?' والتّسجيلات':'')+'، ثمّ انتظر تأكيد اكتمال التنزيل.</div><div id="offstatus" class="small" role="status" aria-live="polite"></div></div><button class="btn alt" id="offbtn">'+ic('check')+' احفظ الكتاب على الجهاز</button></div>'}
 let downloading=false;
@@ -105,6 +105,9 @@ function finish(){const n=Q.qs.length,pc=Math.round(Q.ok/n*100),xp=Q.ok*10+(pc==
 // نتائج الأنشطة تبقى محفوظة، ويُقاس إتقان المنهاج من أقسامه وحدها.
 function mastery(done){const keys=new Set(C.sections().map(i=>i.key));return{total:keys.size,lessons:[...keys].filter(k=>(done||{})[k]>=70).length,extra:Object.keys(done||{}).filter(k=>!keys.has(k)&&done[k]>=70).length}}
 // الإنجازات
+function nextGoal(){try{const got=new Set(S.ach||[]);const n=ACH.find(a=>!got.has(a[0])&&!a[3]());const st=S.streak||0;const today=S.last===(d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate())(new Date());
+const msg=st>0?(today?'أحسنت! سلسلتك '+st+' يوم — عُد غداً لتكبر.':'سلسلتك '+st+' يوم — تمرين واحد اليوم يحافظ عليها.'):'ابدأ سلسلتك اليوم بتمرين واحد.';
+return '<a class="ng-card" href="#/ach" style="display:block;margin:14px 0;padding:14px 16px;border-radius:16px;background:var(--card,#fff);border:2px solid var(--line,#e5e7eb);color:inherit;text-decoration:none;min-height:44px"><b style="display:block;font-size:16px">هدفك التالي'+(n?': '+n[1]:'')+'</b><span style="font-size:15px">'+(n?n[2]+' · ':'')+msg+'</span></a>'}catch(e){return''}}
 const ACH=[['first','أوّل خطوة','أنهِ أوّل تمرين',()=>S.log.length>0,'leaf'],['x100','مئة نقطة','اجمع ١٠٠ نقطة',()=>S.xp>=100,'star'],['x1000','ألف نقطة','اجمع ١٠٠٠ نقطة',()=>S.xp>=1000,'trophy'],['st3','ثلاثة أيّام','واظب ٣ أيّام',()=>S.streak>=3,'flame'],['st7','أسبوع كامل','واظب ٧ أيّام',()=>S.streak>=7,'flame'],['p100','علامة كاملة','أنهِ تمرينًا دون خطأ',()=>S.log.some(l=>l.pc===100),'target'],['u5','خمس محطّات','أتقن ٥ أقسام',()=>mastery(S.done).lessons>=5,'book'],['u20','عشرون محطّة','أتقن ٢٠ قسمًا',()=>mastery(S.done).lessons>=20,'book'],['lab','مجرّب','جرّب ٣ أنشطة في المختبر',()=>Object.keys(S.seen).filter(k=>k.startsWith('lab:')).length>=3,'lab'],['q200','مثابر','أجب عن ٢٠٠ سؤال',()=>S.qs>=200,'bolt']];
 function checkAch(){ACH.forEach(a=>{if(!S.ach.includes(a[0])&&a[3]()){S.ach.push(a[0]);toast('إنجاز جديد: '+a[1])}});save()}
 // سلّم المستويات (مشترك بين المواد؛ الأنماط في shell.css)
@@ -144,3 +147,4 @@ $$('[data-ic]').forEach(e=>e.insertAdjacentHTML('afterbegin',ic(e.dataset.ic)));
 window.APP={$,$$,esc,ar,rnd,pick,shuffle,ic,S,save,addXP,quiz,R,render,say,fig,toast,digits,checkAch,hdr};
 addEventListener('DOMContentLoaded',()=>{hdr();render()});
 })();
+
