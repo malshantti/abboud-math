@@ -326,3 +326,4 @@ html[data-entry=student] .L-voice,html[data-entry=student] .L-voice-cap{display:
 
 .L-split{margin:2px 0 6px;font-size:.88rem;font-weight:700;color:#5b6b52}.L-split[hidden]{display:none}
 .L-pay-contact{margin:12px 0 0;text-align:center;font-size:16px;color:#4c5a43}.L-pay-contact a{color:#137a43;font-weight:700}
+@media(max-width:600px){.L-voice-play span{display:none}.L-voice-play{padding:6px 10px}}
