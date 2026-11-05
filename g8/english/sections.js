@@ -15,7 +15,7 @@ const dailyCorrect=()=>{const s=S();return(s.log||[]).filter(l=>l.d===today()).r
 const bumpDay=n=>{const s=st();if(!s.dayx||s.dayx.d!==today())s.dayx={d:today(),n:0};s.dayx.n+=n;save()};
 const totalCorrect=()=>Object.values(S().skills||{}).reduce((a,v)=>a+(v.ok||0),0);
 const level=()=>1+Math.floor((S().xp||0)/200);
-const LVN=['بذرة','برعم','غرسة','شتلة','مجتهد','غصن قوي','شجرة صغيرة','شجرة مثمرة','زيتونة معمّرة'];
+const LVN=['بذرة','برعم','شتلة','غصن','شجيرة','شجرة','زيتونة','بستان','بستان مثمر'];
 const lvName=l=>LVN[Math.min(LVN.length,l)-1];
 const myName=()=>{try{const c=window.PROFILES&&PROFILES.current&&PROFILES.current();return c&&c.name||''}catch(e){return''}};
 /* ---------- خطوات كل وحدة في المسار ---------- */
