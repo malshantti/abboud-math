@@ -28,7 +28,7 @@ function card(){
  const id='bk-menu-'+(++uid),n=name()||'الطالب';
  const w=document.createElement('div');w.className='bk-student';
  w.innerHTML='<button type="button" class="bk-card" aria-haspopup="menu" aria-expanded="false" aria-controls="'+id+'"><span class="bk-avatar" aria-hidden="true">'+esc(Array.from(n)[0])+'</span><span class="bk-who"><b>'+esc(n)+'</b><small>'+esc(label)+'</small></span><span class="bk-chev">'+ico.chev+'</span></button>'+
- '<div class="bk-menu" id="'+id+'" role="menu" aria-label="خيارات الطالب" hidden><a role="menuitem" href="'+root+'login.html?switch=1">'+ico.user+'<span>تبديل الطالب</span></a><a role="menuitem" href="'+root+'?change=1">'+ico.swap+'<span>تغيير المادة</span></a><a role="menuitem" class="bk-danger" href="'+root+'login.html?logout=1">'+ico.out+'<span>خروج</span></a></div>';
+ '<div class="bk-menu" id="'+id+'" role="menu" aria-label="خيارات الطالب" hidden><a role="menuitem" href="'+root+'login.html?switch=1">'+ico.user+'<span>تبديل الطالب</span></a><a role="menuitem" href="'+root+'?change=1">'+ico.swap+'<span>تغيير الصف أو المادة</span></a><a role="menuitem" class="bk-danger" href="'+root+'login.html?logout=1">'+ico.out+'<span>خروج</span></a></div>';
  const b=w.querySelector('.bk-card'),menu=w.querySelector('.bk-menu'),items=()=>[...menu.querySelectorAll('a')];
  const open=f=>{menu.hidden=false;b.setAttribute('aria-expanded','true');w.classList.add('open');if(f)items()[0].focus()};
  const close=f=>{menu.hidden=true;b.setAttribute('aria-expanded','false');w.classList.remove('open');if(f)b.focus()};
@@ -57,7 +57,8 @@ function earlyTop(){const t=document.querySelector('.g1-topbar');if(!t||t.datase
  const acts=t.querySelector('.g1-actions')||t;acts.querySelectorAll('.g1-switch').forEach(x=>x.remove());
  const con=acts.querySelector('.g1-connection');if(con&&navigator.onLine)con.hidden=true;
  const me2=document.createElement('a');me2.className='bk-me';me2.href=root+'login.html?switch=1';me2.setAttribute('aria-label','تبديل الطالب');me2.title='تبديل الطالب';me2.textContent=Array.from(name()||'ط')[0];
- acts.append(themeBtn(),me2)}
+ const gr=document.createElement('a');gr.className='bk-me bk-grade';gr.href=root+'?change=1';gr.setAttribute('aria-label','تغيير الصف أو المادة');gr.title='تغيير الصف أو المادة';gr.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>';
+ acts.append(gr,themeBtn(),me2)}
 function apply(){
  earlyTop();
  // صفحات الصف السادس والثامن: الشريط الجانبي .tabs .side-brand
