@@ -47,6 +47,31 @@ class ManageDashboardLayoutTest extends TestCase
         $this->actingAs($admin)->get('/admin/manage/students?owner=review')->assertOk()->assertSee('تجربة')->assertSee('قديم');
     }
 
+    public function test_grade_and_subject_breakdowns_match_the_student_count_and_are_ordered(): void
+    {
+        $admin = $this->admin();
+        $admin->students()->create(['name' => 'تجربة', 'grade' => 4])
+            ->progress()->create(['key' => 'bustan_g4_math_v1', 'value' => '{}', 'client_updated_at' => 1]);
+        $parent = User::factory()->create();
+        $g6 = $parent->students()->create(['name' => 'سندس', 'grade' => 6]);
+        $g1 = $parent->students()->create(['name' => 'ليان', 'grade' => 1]);
+        $g6->progress()->create(['key' => 'bustan_g6_science_v1', 'value' => '{}', 'client_updated_at' => 1]);
+        $g6->progress()->create(['key' => 'bustan_g6_math_v1', 'value' => '{}', 'client_updated_at' => 1]);
+        $g1->progress()->create(['key' => 'bustan_g1_arabic_v1', 'value' => '{}', 'client_updated_at' => 1]);
+
+        $html = $this->actingAs($admin)->get('/admin/manage')->assertOk()->getContent();
+        preg_match_all('/<div class="meter-row"><span>(.*?)<\/span><b>(.*?)<\/b>/s', $html, $m);
+        $grades = array_combine($m[1], array_map('strip_tags', $m[2]));
+        $this->assertSame('٠', $grades['الصف الرابع'], 'Staff test student is not in the grade chart');
+        $this->assertSame(['١', '١'], [$grades['الصف الأول'], $grades['الصف السادس']]);
+        $this->assertStringNotContainsString('الرياضيات — الصف الرابع', $html);
+        $this->assertMatchesRegularExpression('/العربية — الصف الأول.*الرياضيات — الصف السادس.*العلوم — الصف السادس/s', $html);
+
+        // A new student shows up right away even though the audit summary is cached.
+        $parent->students()->create(['name' => 'سندس', 'grade' => 6]);
+        $this->get('/admin/manage')->assertOk()->assertSee('مراجعتها');
+    }
+
     public function test_export_buttons_are_one_menu_and_zero_is_readable(): void
     {
         $page = $this->actingAs($this->admin())->get('/admin/manage')->assertOk();

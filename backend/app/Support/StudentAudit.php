@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Student;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\DB;
  */
 class StudentAudit
 {
+    private const CACHE_KEY = 'student_audit_summary';
+
     public static function rows(): array
     {
         $out = ['orphan' => [], 'staff' => [], 'duplicate' => [], 'legacy' => []];
@@ -55,6 +58,20 @@ class StudentAudit
         $rows = static::rows();
 
         return array_map('count', $rows) + ['ids' => static::reviewIds($rows)];
+    }
+
+    /**
+     * summary() for the dashboard: it reads every student row, so keep it for a short while.
+     * Student and owner changes call forget(); bulk query-builder writes wait out the TTL.
+     */
+    public static function cachedSummary(): array
+    {
+        return Cache::remember(self::CACHE_KEY, 300, fn () => static::summary());
+    }
+
+    public static function forget(): void
+    {
+        Cache::forget(self::CACHE_KEY);
     }
 
     public static function reviewIds(?array $rows = null): array

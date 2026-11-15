@@ -172,6 +172,17 @@ class User extends Authenticatable
         'remember_token', 'active_device_token', 'device_tokens',
     ];
 
+    protected static function booted(): void
+    {
+        // A role change moves the account's students between family, staff and school in the dashboard audit.
+        static::saved(function (User $u) {
+            if ($u->wasChanged(['role', 'is_admin'])) {
+                \App\Support\StudentAudit::forget();
+            }
+        });
+        static::deleted(fn () => \App\Support\StudentAudit::forget());
+    }
+
     /**
      * Get the attributes that should be cast.
      *
