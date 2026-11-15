@@ -78,7 +78,7 @@ details pre{white-space:pre-wrap;word-break:break-all;max-height:260px;overflow:
 .stat .txt b{font-variant-numeric:tabular-nums}
 .stat .txt small{display:block;color:var(--gd);font:700 13px/1.45 Cairo,sans-serif;margin-top:2px}
 .note{display:flex;gap:10px;align-items:flex-start;margin:16px 0 0;padding:12px 16px;background:var(--yl);border:2px dashed #f0d98a;border-radius:16px;font-weight:600}.note .ico{color:#9a6b00;margin-top:3px}.note p{margin:0;line-height:1.7}
-.grid.dash{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));margin-top:22px}
+.grid.dash{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));align-items:start;margin-top:22px}
 .meter{margin:10px 0}.meter-row{display:flex;align-items:baseline;justify-content:flex-start;gap:10px;margin-bottom:4px}.meter-row b{margin-inline-start:auto;font:800 18px/1.3 Baloo,Cairo,sans-serif}.meter-row b small{font:700 14px/1 Cairo,sans-serif;color:var(--muted)}
 .list.act li{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;align-items:stretch}
 .act-top{display:flex;align-items:center;gap:8px;min-width:0}

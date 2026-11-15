@@ -21,3 +21,19 @@ button.say,button.au,header .mini,header #theme,header .themebtn{min-width:44px!
 header a.brand{min-height:44px;display:inline-flex;align-items:center}
 .bk-logout{min-height:44px!important}
 .skip-link{min-height:44px;display:inline-flex;align-items:center;box-sizing:border-box}
+
+/* شريط التنقّل السفلي (الصفوف ٣–٨، ستة أزرار): sync.js يفرض حدًا أدنى ١٤px للنص، فتتزاحم الكلمات
+   على الهاتف وتلتصق ببعضها. نحافظ على ١٤px ونوسّع المساحة: هوامش أصغر، أيقونات أصغر،
+   عرض كل زر حسب كلمته، و«تقرير التعلّم» على سطرين داخل زرّه */
+@media(max-width:899px){
+ nav.tabs{left:4px;right:4px;padding:3px;gap:2px}
+ nav.tabs>a{flex:1 1 auto;padding:0 2px}
+ nav.tabs>a>span{text-align:center;line-height:1.1}
+ nav.tabs>a svg{width:22px;height:22px;flex:none}
+}
+/* أصغر الهواتف (٣٦٠px فأقل): لا تتّسع ست كلمات بحجم ١٤px، فنعرض اسم التبويب المفتوح فقط
+   ونبقي أسماء الباقي مقروءة لقارئ الشاشة */
+@media(max-width:360px){
+ nav.tabs>a:not(.on)>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+ nav.tabs>a svg{width:26px;height:26px}
+}

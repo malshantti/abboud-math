@@ -33,13 +33,15 @@ class ManageController extends Controller
         }
         Subscription::sweep();
         $since = now()->subDays(7);
-        $audit = \App\Support\StudentAudit::summary();
+        $audit = \App\Support\StudentAudit::cachedSummary();
+        // Real students belong to parent accounts; staff test students and legacy rows are counted apart.
+        // The grade and subject breakdowns use the same set, so they add up to the students card.
+        $real = fn () => Student::whereHas('user', fn ($u) => $u->parents()->real())->whereNotIn('students.id', $audit['ids']);
         $stats = [
             'parents' => User::parents()->real()->count(),
             'test_accounts' => User::parents()->test()->count(),
             'staff' => User::whereIn('role', ['admin', 'teacher'])->orWhere('is_admin', true)->count(),
-            // Real students belong to parent accounts; staff test students and legacy rows are counted apart.
-            'students' => Student::whereHas('user', fn ($u) => $u->parents()->real())->whereNotIn('id', $audit['ids'])->count(),
+            'students' => $real()->count(),
             'families' => User::parents()->real()->whereHas('students', fn ($q) => $q->whereNotIn('id', $audit['ids']))->count(),
             'students_all' => Student::count(),
             'new_week' => User::real()->where('created_at', '>=', $since)->count(),
@@ -50,11 +52,14 @@ class ManageController extends Controller
             'disabled' => User::whereNotNull('disabled_at')->count(),
             'drafts' => Schema::hasTable('authoring_documents') ? AuthoringDocument::query()->count() : 0,
         ];
-        $byGrade = Student::selectRaw('grade, count(*) as n')->groupBy('grade')->pluck('n', 'grade');
-        $bySubject = [];
-        foreach (StudentProgress::selectRaw('`key`, count(*) as n')->whereIn('key', array_keys(Ar::KEYS))->groupBy('key')->get() as $r) {
-            $bySubject[$r->key] = $r->n;
-        }
+        $byGrade = $real()->selectRaw('grade, count(*) as n')->groupBy('grade')->pluck('n', 'grade');
+        $counts = StudentProgress::selectRaw('`key`, count(*) as n')->whereIn('key', array_keys(Ar::KEYS))
+            ->whereIn('student_id', $real()->select('students.id'))->groupBy('key')->pluck('n', 'key');
+        // Grade first, then the same subject order on every grade.
+        $order = ['الرياضيات', 'العربية', 'الإنجليزية', 'العلوم', 'التربية الحياتية'];
+        $bySubject = collect(Ar::KEYS)->filter(fn ($v, $key) => isset($counts[$key]))
+            ->sortBy(fn ($v) => [$v[0], array_search($v[1], $order, true)])
+            ->map(fn ($v, $key) => [$v[0], $v[1], (int) $counts[$key]])->values()->all();
 
         return view('manage.dashboard', [
             'stats' => $stats, 'byGrade' => $byGrade, 'bySubject' => $bySubject,

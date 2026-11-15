@@ -12,6 +12,17 @@ class Student extends Model
 
     protected $hidden = ['pin_salt', 'pin_hash', 'report_token', 'pin_enc'];
 
+    protected static function booted(): void
+    {
+        // Name, grade, owner or deletion can change which students the dashboard audit flags.
+        static::saved(function (Student $s) {
+            if ($s->wasRecentlyCreated || $s->wasChanged(['name', 'grade', 'user_id', 'local_id'])) {
+                \App\Support\StudentAudit::forget();
+            }
+        });
+        static::deleted(fn () => \App\Support\StudentAudit::forget());
+    }
+
     /** Same lightweight format the site uses (profiles.js hash()): sha256 of «bustan:salt:pin». */
     public function setPin(?string $pin): void
     {

@@ -28,8 +28,8 @@
   </section>
   <section class="card"><h2>@include('partials.admin-icon',['name'=>'book'])طلاب لديهم تقدّم في كل مادة</h2>
     <ul class="list">
-    @foreach ($ar::KEYS as $key => [$g, $subj])
-      @if (isset($bySubject[$key]))<li><span>{{ $subj }} — {{ $ar::grade($g) }}</span><span class="chip" style="margin-inline-start:auto">{{ $ar::html($bySubject[$key]) }}</span></li>@endif
+    @foreach ($bySubject as [$g, $subj, $n])
+      <li><span>{{ $subj }} — {{ $ar::grade($g) }}</span><span class="chip" style="margin-inline-start:auto">{{ $ar::html($n) }}</span></li>
     @endforeach
     @if (empty($bySubject))<li class="hint">لا يوجد تقدّم متزامن بعد.</li>@endif
     </ul>
