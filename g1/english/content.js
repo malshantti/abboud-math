@@ -268,6 +268,8 @@
   extraLetters.title='تدريب إضافي: صورتا الحرف';
   extraLetters.referenceLabel='تدريب إضافي على الصغير والكبير؛ لا ينقل ورقة من الكتاب. مرجع الأبجدية:';
   extraLetters.references=[{book:'p1',page:62,pdfPage:62}];
+  /* خطوة «أرسم الحرف بإصبعي» فيها مساحة رسم فوق الحرف الصغير a. */
+  if(extraLetters.steps[1])extraLetters.steps[1].trace='a';
   const fruit=supplement(16,'book-one-many','أسأل عن ثمرة وعن ثمار',[
     {text:'عن ثمرة واحدة أسأل: What’s this? وأجيب: It’s an orange.',scene:{type:'count',icon:'orange',count:1}},
     {text:'عن أكثر من ثمرة أسأل: What are these? وأجيب: They’re oranges.',scene:{type:'count',icon:'orange',count:3}}
