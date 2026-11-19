@@ -109,7 +109,7 @@
   function addReviews(number,sourceNumbers){
     const pool=sourceNumbers.flatMap(n=>getUnit(n).lessons.filter(lesson=>!lesson.id.includes('-book-')).map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
     for(let start=0;start<pool.length;start+=4){
-      const rows=pool.slice(start,start+4),review=supplement(number,'mixed-review-'+(start/4+1),'أراجع كلمات ومواقف',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(c=>({...c}))})));
+      const rows=pool.slice(start,start+4),review=supplement(number,'mixed-review-'+(start/4+1),'أراجع كلمات ومواقف '+indic(start/4+1),rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(c=>({...c}))})));
       review.reviewOf=rows.map(({lesson})=>lesson.id);
     }
   }
@@ -303,7 +303,7 @@
   function addBookReviews(number,sources){
     const pool=sources.flatMap(n=>getUnit(n).lessons.filter(l=>l.id.includes('-book-')&&!l.reviewOf).map(lesson=>({lesson,task:lesson.tasks[lesson.tasks.length-1]})));
     for(let start=0;start<pool.length;start+=4){
-      const rows=pool.slice(start,start+4),L=supplement(number,'book-review-'+(start/4+1),'أراجع مهارات الكتاب',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(choice=>({...choice}))})));
+      const rows=pool.slice(start,start+4),L=supplement(number,'book-review-'+(start/4+1),'أراجع مهارات الكتاب '+indic(start/4+1),rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{})})),rows.map(({task})=>({...task,choices:task.choices.map(choice=>({...choice}))})));
       L.reviewOf=rows.map(({lesson})=>lesson.id);L.referenceLabel='مراجعة أصلية للمهارات المضافة؛ صفحات مرجعية:';
       const seen=new Set();L.references=rows.flatMap(({lesson})=>lesson.references||[{book:lesson.book,page:lesson.page}]).filter(ref=>{const key=ref.book+':'+ref.page;if(seen.has(key))return false;seen.add(key);return true;});
     }
@@ -337,7 +337,7 @@
   for(const [number,sources] of [[5,[1,2,3,4]],[9,[6,7,8]],[14,[10,11,12,13]],[18,[15,16,17]]]){
     const pool=sources.flatMap(n=>getUnit(n).lessons.filter(isSkill).map(lesson=>({lesson,task:lesson.tasks[0]})));
     for(let start=0;start<pool.length;start+=4){
-      const rows=pool.slice(start,start+4),L=supplement(number,'skills-review-'+(start/4+1),'أستمع وأراجع',rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{}),say:task.say,lang:'en'})),rows.map(({task})=>({...task,choices:task.choices.map(c=>({...c}))})));
+      const rows=pool.slice(start,start+4),L=supplement(number,'skills-review-'+(start/4+1),'أستمع وأراجع '+indic(start/4+1),rows.map(({task})=>({text:task.explain,...(task.scene?{scene:task.scene}:{}),say:task.say,lang:'en'})),rows.map(({task})=>({...task,choices:task.choices.map(c=>({...c}))})));
       L.reviewOf=rows.map(({lesson})=>lesson.id);
     }
   }

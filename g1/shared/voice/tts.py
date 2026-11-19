@@ -18,7 +18,7 @@ async def one(sem, job, fails):
                 await asyncio.sleep(2 + a * 3)
         fails.append(job['text'])
 async def main():
-    jobs = json.load(open(sys.argv[1])); sem = asyncio.Semaphore(6); fails = []
+    jobs = json.load(open(sys.argv[1], encoding='utf-8')); sem = asyncio.Semaphore(6); fails = []
     await asyncio.gather(*(one(sem, j, fails) for j in jobs))
     for t in fails: print('FAIL', t, file=sys.stderr)
     sys.exit(1 if fails else 0)

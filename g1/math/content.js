@@ -415,7 +415,7 @@ const bank={
 };
 for(const u of C.units){const k=Number(u.id.slice(3)),qs=bank[k];if(!qs)continue;const tmpl=u.lessons.find(l=>l.id===`m-book-review-${k}-1`);if(!tmpl)continue;
  for(let part=1;part<=2;part++){const id=`m-book-review-${k}-${part}`;let l=u.lessons.find(x=>x.id===id);if(!l){l={...tmpl,id,title:'مراجعة متدرجة — الجزء '+n(part)};u.lessons.splice(u.lessons.indexOf(tmpl)+1,0,l);}
-  l.title='مراجعة متدرجة — الجزء '+n(part);l.steps=[S('أجيب عن أسئلة الوحدة.','أُجِيبُ عَنْ أَسْئِلَةِ الْوَحْدَةِ.',qs[0].scene||null)].map(s=>s.scene?s:{text:s.text,say:s.say,scene:sym('؟')});l.tasks=qs.slice((part-1)*5,part*5);
+  l.title='مراجعة متدرجة — الجزء '+n(part);l.optional=true;l.steps=[S('أجيب عن أسئلة الوحدة.','أُجِيبُ عَنْ أَسْئِلَةِ الْوَحْدَةِ.',qs[0].scene||null)].map(s=>s.scene?s:{text:s.text,say:s.say,scene:sym('؟')});l.tasks=qs.slice((part-1)*5,part*5);
   l.references=[...new Set(l.tasks.map(t=>t.bookPage))].sort((a,b)=>a-b).slice(0,3).map(page=>({book:l.book,page}));}
 }
 for(const l of C.units.flatMap(u=>u.lessons))for(const t of l.tasks)delete t.bookPage;
