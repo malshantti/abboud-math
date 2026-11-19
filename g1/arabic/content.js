@@ -70,7 +70,7 @@
     const [like1,like2]=lookAlike[letter],[word,icon,sentence,parts]=support[letter],F=formsOf(letter),sound=letter==='أ'?'أَ':letter+'َ';
     const lessons=[];
     lessons.push({id:`${unitId}-letter-v2`,title:`حرف ${name}`,goal:'أعرف الحرف، وأسمع صوته.',book,page,
-      steps:[step(`هذا حرف ${name}.`,symbol(letter),`هَذَا حَرْفُ ${spoken[letter]}. ${sound}`),step('أرسمه بإصبعي.',symbol(F.join('  ')),'أَرْسُمُ الْحَرْفَ بِإِصْبَعِي.')],
+      steps:[step(`هذا حرف ${name}.`,symbol(letter),`هَذَا حَرْفُ ${spoken[letter]}. ${sound}`),{...step('أرسمه بإصبعي.',symbol(F.join('  ')),'أَرْسُمُ الْحَرْفَ بِإِصْبَعِي.'),trace:letter}],
       tasks:[
         listen(sound,letter,[like1,like2],`صوت حرف ${name}: ${sound}`,'أَسْتَمِعُ، وَأَخْتَارُ الْحَرْفَ.'),
         ask('أختار الحرف نفسه.',letter,[like1],`الحرف نفسه: ${letter}. أنتبه إلى النقاط.`,{scene:symbol(letter),say:'أَخْتَارُ الْحَرْفَ نَفْسَهُ.'}),
