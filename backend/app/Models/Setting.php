@@ -125,7 +125,30 @@ class Setting extends Model
         ['q' => 'على أي جهاز يعمل؟', 'a' => 'على الهاتف والجهاز اللوحي والحاسوب، من المتصفح مباشرة ودون تثبيت تطبيق.'],
     ];
 
+    /** Container keys for the per-request copies (the cache store is the database in production: one query per read). */
+    private const MEMO = 'settings.memo';
+
+    private const MEMO_CATALOG = 'settings.memo.catalog';
+
     public static function all_(): array
+    {
+        $app = app();
+        if ($app->bound(self::MEMO)) {
+            return $app->make(self::MEMO);
+        }
+        $all = static::loadStored();
+        $app->instance(self::MEMO, $all);
+
+        return $all;
+    }
+
+    public static function forgetMemo(): void
+    {
+        app()->forgetInstance(self::MEMO);
+        app()->forgetInstance(self::MEMO_CATALOG);
+    }
+
+    private static function loadStored(): array
     {
         return Cache::remember('site_settings', 60, function () {
             try {
@@ -164,12 +187,27 @@ class Setting extends Model
             }
         }
         Cache::forget('site_settings');
+        static::forgetMemo();
 
         return $changed;
     }
 
     /** Subscription units: built-in subjects (with content) plus admin-added ones. code => [grade, subject, builtin]. */
     public static function catalog(): array
+    {
+        // Called once per subscription row on the admin pages: build it once per request and settings version.
+        $app = app();
+        $key = static::get('catalog_extra');
+        if ($app->bound(self::MEMO_CATALOG) && ($m = $app->make(self::MEMO_CATALOG))[0] === $key) {
+            return $m[1];
+        }
+        $out = static::buildCatalog();
+        $app->instance(self::MEMO_CATALOG, [$key, $out]);
+
+        return $out;
+    }
+
+    private static function buildCatalog(): array
     {
         $out = [];
         foreach (\App\Support\Ar::SUBJECTS as $code => [$g, $subj]) {

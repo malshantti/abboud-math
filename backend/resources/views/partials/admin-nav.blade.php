@@ -5,11 +5,11 @@
 <nav class="admin-nav" id="navigation" aria-label="أقسام لوحة الإدارة">
   <p class="nav-group">الإدارة</p>
   @can('manage-site')<a class="nav-item" href="{{ route('manage.dashboard') }}" @if($r==='manage.dashboard') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'home'])<span>لوحة المعلومات</span></a>@endcan
-  @can('manage-site')<a class="nav-item" href="{{ route('manage.live') }}" @if(str_starts_with($r,'manage.live')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>المتصلون الآن واليوم</span></a>@endcan
+  @can('manage-site')<a class="nav-item" href="{{ route('manage.live') }}" @if(str_starts_with($r,'manage.live')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'online'])<span>المتصلون الآن واليوم</span></a>@endcan
   <a class="nav-item" href="{{ route('manage.classes') }}" @if(str_starts_with($r,'manage.class')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'book'])<span>@can('manage-site')الصفوف والمعلّمون@else صفوفي@endcan</span></a>
   <a class="nav-item" href="{{ route('manage.students') }}" @if(str_starts_with($r,'manage.student')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'students'])<span>الطلاب والتقدّم</span></a>
   @can('manage-site')
-  <a class="nav-item" href="{{ route('manage.schools') }}" @if(str_starts_with($r,'manage.schools')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'book'])<span>المدارس</span></a>
+  <a class="nav-item" href="{{ route('manage.schools') }}" @if(str_starts_with($r,'manage.schools')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'school'])<span>المدارس</span></a>
   <a class="nav-item" href="{{ route('manage.users') }}" @if(str_starts_with($r,'manage.user')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'users'])<span>المستخدمون</span></a>
   <a class="nav-item" href="{{ route('manage.subscriptions') }}" @if(str_starts_with($r,'manage.subscription')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'card'])<span>الاشتراكات</span></a>
   <a class="nav-item" href="{{ route('manage.settings') }}" @if($r==='manage.settings') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'tag'])<span>الأسعار والإعدادات</span></a>
@@ -17,15 +17,15 @@
   <a class="nav-item" href="{{ route('manage.seo') }}" @if($r==='manage.seo') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'search'])<span>عناوين جوجل (SEO)</span></a>
   <a class="nav-item" href="{{ route('manage.media') }}" @if($r==='manage.media') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'image'])<span>مكتبة الوسائط</span></a>
   <a class="nav-item" href="{{ route('manage.questions') }}" @if($r==='manage.questions') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'quiz'])<span>بنك الأسئلة</span></a>
-  <a class="nav-item" href="{{ route('manage.funnel') }}" @if(str_starts_with($r,'manage.funnel')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>رحلة العائلات</span></a>
-  <a class="nav-item" href="{{ route('manage.activity') }}" @if($r==='manage.activity') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'activity'])<span>سجل النشاط</span></a>
+  <a class="nav-item" href="{{ route('manage.funnel') }}" @if(str_starts_with($r,'manage.funnel')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'funnel'])<span>رحلة العائلات</span></a>
+  <a class="nav-item" href="{{ route('manage.activity') }}" @if($r==='manage.activity') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'list'])<span>سجل النشاط</span></a>
   @endcan
   <p class="nav-group">المحتوى والاختبارات</p>
   <a class="nav-item" href="{{ $w('overview') }}" @if($spa) data-view="overview" @endif>@include('partials.admin-icon',['name'=>'grid'])<span>نظرة على المحتوى</span></a>
-  <a class="nav-item" href="{{ $w('library') }}" @if($spa) data-view="library" @endif>@include('partials.admin-icon',['name'=>'book'])<span>مكتبة المحتوى</span></a>
+  <a class="nav-item" href="{{ $w('library') }}" @if($spa) data-view="library" @endif>@include('partials.admin-icon',['name'=>'layers'])<span>مكتبة المحتوى</span></a>
   <a class="nav-item" href="{{ $w('content-builder') }}" @if($spa) data-view="content-builder" @endif>@include('partials.admin-icon',['name'=>'plus'])<span>منشئ المحتوى</span></a>
   <a class="nav-item" href="{{ $w('quiz-builder') }}" @if($spa) data-view="quiz-builder" @endif>@include('partials.admin-icon',['name'=>'quiz'])<span>مصمم الاختبارات</span></a>
-  <a class="nav-item" href="{{ $w('courses') }}" @if($spa) data-view="courses" @endif>@include('partials.admin-icon',['name'=>'book'])<span>مواد الموقع</span></a>
+  <a class="nav-item" href="{{ $w('courses') }}" @if($spa) data-view="courses" @endif>@include('partials.admin-icon',['name'=>'globe'])<span>مواد الموقع</span></a>
   <a class="nav-item" href="{{ $w('students') }}" @if($spa) data-view="students" @endif>@include('partials.admin-icon',['name'=>'star'])<span>تقدّم الطلاب في المحتوى</span></a>
   <a class="nav-item" href="{{ $w('accounts') }}" @if($spa) data-view="accounts" @endif>@include('partials.admin-icon',['name'=>'shield'])<span>المشرفون</span></a>
 </nav>

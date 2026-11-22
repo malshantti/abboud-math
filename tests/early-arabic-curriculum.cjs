@@ -37,7 +37,7 @@ for(const unit of first.units.filter(u=>/^ar-p[12]-\d+$/.test(u.id))){
   const known=new Set([...order.slice(0,pos+1),'ا','و','ي','ى','ة',' ','.','؟','،']);
   const tanween=/[\u064b-\u064d]/,shadda=/\u0651/,sukoon=/\u0652/;
   if(unit.term===1)for(const L of unit.lessons)for(const text of [...L.steps.map(s=>s.scene?.value||''),...L.tasks.flatMap(t=>t.choices.map(c=>c.label))].filter(t=>/[\u0621-\u064a]/.test(t)&&!(L.bookWord&&clean(t)===clean(L.bookWord)))){
-    for(const ch of clean(text))if(/[\u0621-\u064a]/.test(ch)&&!known.has(ch)&&!(L.id.endsWith('-letter-v2')||L.id.includes('phonics')||L.id.includes('book-practice')||L.id.includes('dictation')))assert.fail('Book one uses an untaught letter '+ch+' in '+L.id+': '+text);
+    for(const ch of clean(text))if(/[\u0621-\u064a]/.test(ch)&&!known.has(ch)&&!(L.id.endsWith('-letter-v2')||L.id.includes('phonics')||L.id.includes('book-practice')))assert.fail('Book one uses an untaught letter '+ch+' in '+L.id+': '+text);
     assert.ok(!tanween.test(text)&&!shadda.test(text),'No tanween or shadda before taught: '+L.id+' '+text);
     if(pos<order.indexOf('ح'))assert.ok(!sukoon.test(text),'No sukoon before taught: '+L.id+' '+text);
   }
@@ -46,7 +46,7 @@ for(const unit of first.units.filter(u=>/^ar-p[12]-\d+$/.test(u.id))){
   const group=pairs.find(g=>g.includes(letter));
   if(group)assert.ok(first0.choices.some(c=>c.label!==letter&&group.includes(c.label)),'Distractor is a look-alike letter: '+letter);
   assert.ok(!first0.choices.some(c=>c.label==='ل')||['ك','ل'].includes(letter),'No lam fallback distractor: '+letter);
-  assert.ok(unit.lessons.some(l=>l.id.endsWith('-dictation-v2')&&l.tasks.every(t=>t.listen)),'Dictation by listening: '+unit.id);
+  assert.ok(unit.lessons.some(l=>l.id.endsWith('-dictation-v3')&&l.tasks.every(t=>t.listen)),'Dictation by listening: '+unit.id);
   if(letter!=='ر'){
     assert.ok(word,'Connected reading: '+unit.id);
     assert.ok(clean(word.tasks[0].choices[word.tasks[0].answer].label).startsWith(letter),'The answer really starts with the target letter');
@@ -73,7 +73,7 @@ for(const id of ['ar-help','ar-country','ar-water','ar-butterfly','ar-monkey']){
   for(const s of reading.steps){assert.match(s.text,/[\u064e-\u0650]/);assert.equal(s.say,s.text,'Sentence audio matches the text');assert.ok(s.text.split(' ').length<=8,'Child-level sentence: '+s.text);}
   assert.ok(!reading.steps.some(s=>/ملخص|مشاهد دعم/.test(s.text)),'No summary disclaimer');
 }
-const cause=first.units.find(u=>u.id==='ar-butterfly').lessons.find(l=>l.id.endsWith('-cause-v2'));
+const cause=first.units.find(u=>u.id==='ar-butterfly').lessons.find(l=>l.id.endsWith('-cause-v3'));
 assert.ok(cause.tasks[0].choices[cause.tasks[0].answer].label.includes('الْعَسَلَ'),'Bee activity assesses the central purpose, under its new progress ID');
 const listening=first.units.flatMap(u=>u.lessons).flatMap(l=>l.tasks).filter(t=>t.listen).length;assert.ok(listening>=150,'Many listening tasks: '+listening);
 for(const f of first.foundations)for(const s of f.steps)assert.ok(!/[\u064b-\u064d]/.test(s.scene?.value||''),'No tanween in early foundations: '+f.id);

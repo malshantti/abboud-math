@@ -1,33 +1,58 @@
 @extends('layouts.manage')
 @section('title', 'لوحة المعلومات')
 @section('content')
-<div class="head"><h1>لوحة المعلومات</h1>@can('manage-site')@include('partials.export-menu')@endcan</div>
 @php($subs = [
   'students' => $stats['families'] ? 'لدى '.$ar::num($stats['families']).' '.($stats['families'] === 1 ? 'وليّ أمر' : 'من أولياء الأمور') : 'لم يُضف وليّ أمر طالبًا بعد',
   'parents' => trim(($stats['parents'] - $stats['families'] > 0 ? $ar::num($stats['parents'] - $stats['families']).' بلا طلاب بعد' : '').(! empty($stats['test_accounts']) ? ' · لا تُحتسب '.$ar::num($stats['test_accounts']).' حسابات تجريبية' : ''), ' ·') ?: null,
+  'subs_active' => $stats['subs_expiring'] ? $ar::num($stats['subs_expiring']).' تنتهي خلال ٧ أيام' : null,
+  'active_week' => $stats['students'] ? 'من أصل '.$ar::num($stats['students']).' طالبًا' : null,
 ])
-<p class="live-link"><a class="btn ghost small" href="{{ route('manage.live') }}">@include('partials.admin-icon',['name'=>'activity'])من المتصل الآن؟ وإحصائيات اليوم</a></p>
-<div class="stats">
-  @foreach ([['parents','أولياء الأمور','users',''],['students','الطلاب','students','t-sky'],['new_week','حسابات جديدة هذا الأسبوع','plus',''],['active_week','طلاب نشطون هذا الأسبوع','activity','t-sky'],['trials','في فترة تجريبية','clock','t-sun'],['subs_active','اشتراكات فعّالة','check',''],['subs_pending','طلبات بانتظار الدفع','card','t-o'],['staff','المشرفون والمعلّمون','shield','t-grey'],['disabled','حسابات معطّلة','lock','t-red'],['drafts','مسودات المحتوى','book','t-grey']] as [$k,$label,$icon,$tone])
-  <div class="stat {{ $tone }}" data-stat="{{ $k }}"><div class="ic">@include('partials.admin-icon',['name'=>$icon])</div><div class="txt"><b>{{ $ar::html($stats[$k]) }}</b><span>{{ $label }}</span>@if (! empty($subs[$k]))<small>{{ $subs[$k] }}</small>@endif</div></div>
-  @endforeach
+<div class="head dash-head">
+  <div><h1>لوحة المعلومات</h1><p class="dash-date">{{ $ar::num(now()->timezone(config('app.display_timezone', 'Asia/Gaza'))->format('d/m/Y')) }}</p></div>
+  <div class="row"><a class="btn ghost small" href="{{ route('manage.live') }}">@include('partials.admin-icon',['name'=>'online'])المتصلون الآن</a>@can('manage-site')@include('partials.export-menu')@endcan</div>
 </div>
+
 @can('manage-site')
-@if (count($audit['ids']))
-<div class="note" role="note">@include('partials.admin-icon',['name'=>'alert'])<p>يوجد {{ $ar::num(count($audit['ids'])) }} {{ count($audit['ids']) === 1 ? 'سجلّ طالب غير محسوب' : 'من سجلّات الطلاب غير المحسوبة' }} في العدد أعلاه (طلاب حسابات الإدارة التجريبيون، أو مكرّرون، أو قدامى أُنشئوا من الموقع).
-<a href="{{ route('manage.students', ['owner' => 'review']) }}">مراجعتها</a></p></div>
-@endif
+{{-- What needs the admin today comes first; each row links straight to the place to act. --}}
+@php($todo = array_filter([
+  ['n' => $stats['subs_pending'], 'label' => 'طلبات اشتراك بانتظار الدفع', 'hint' => 'فعّلها بعد وصول المبلغ عبر واتساب', 'href' => route('manage.subscriptions').'#pending', 'icon' => 'wallet', 'tone' => 't-o'],
+  ['n' => $stats['subs_expiring'], 'label' => 'اشتراكات تنتهي خلال ٧ أيام', 'hint' => 'ذكّر العائلات بالتجديد', 'href' => route('manage.subscriptions', ['status' => 'expiring']), 'icon' => 'clock', 'tone' => 't-sun'],
+  ['n' => count($audit['ids']), 'label' => 'سجلّات طلاب غير محسوبة', 'hint' => 'تجريبية أو مكرّرة أو قديمة: مراجعتها', 'href' => route('manage.students', ['owner' => 'review']), 'icon' => 'alert', 'tone' => 't-red'],
+], fn ($t) => $t['n'] > 0))
+<section class="card inbox" aria-labelledby="inbox-title">
+  <div class="inbox-head"><h2 id="inbox-title">@include('partials.admin-icon',['name'=>'alert'])ينتظرك اليوم</h2></div>
+  @forelse ($todo as $t)
+  <a class="todo-item {{ $t['tone'] }}" href="{{ $t['href'] }}"><span class="ic">@include('partials.admin-icon',['name'=>$t['icon']])</span><span class="txt"><span>{{ $t['label'] }}</span><small>{{ $t['hint'] }}</small></span><b>{{ $ar::html($t['n']) }}</b>@include('partials.admin-icon',['name'=>'arrow'])</a>
+  @empty
+  <p class="todo-ok">@include('partials.admin-icon',['name'=>'check'])لا شيء ينتظرك الآن: لا طلبات دفع، ولا اشتراكات على وشك الانتهاء.</p>
+  @endforelse
+</section>
 @endcan
+
+<section class="card kpi" aria-label="أرقام الموقع">
+  <div class="kpi-cells">
+  @foreach ([['parents','أولياء الأمور'],['students','الطلاب'],['active_week','طلاب نشطون هذا الأسبوع'],['subs_active','اشتراكات فعّالة']] as [$k,$label])
+  <div class="stat" data-stat="{{ $k }}"><div class="txt"><b>{{ $ar::html($stats[$k]) }}</b><span>{{ $label }}</span>@if (! empty($subs[$k]))<small>{{ $subs[$k] }}</small>@endif</div></div>
+  @endforeach
+  </div>
+  <ul class="minor" aria-label="أرقام أخرى">
+  @foreach ([['new_week','حسابات جديدة هذا الأسبوع'],['trials','في فترة تجريبية'],['staff','المشرفون والمعلّمون'],['disabled','حسابات معطّلة'],['drafts','مسودات المحتوى']] as [$k,$label])
+    <li data-stat="{{ $k }}"><b>{{ $ar::html($stats[$k]) }}</b><span>{{ $label }}</span></li>
+  @endforeach
+  </ul>
+</section>
+
 <div class="grid dash">
   <section class="card"><h2>@include('partials.admin-icon',['name'=>'students'])الطلاب حسب الصف</h2>
     @php($max = max(1, $byGrade->max() ?? 1))
     @foreach (\App\Models\Setting::gradeOptions() + [0 => 'غير محدد'] as $g => $label)
       @php($n = $byGrade[$g ?: null] ?? ($g === 0 ? ($byGrade[''] ?? 0) : 0))
-      <div class="meter"><div class="meter-row"><span>{{ $label }}</span><b>{{ $ar::html($n) }}</b></div><div class="bar-track"><div class="bar" style="width:{{ max(2, $n / $max * 100) }}%"></div></div></div>
+      @continue($g === 0 && ! $n)
+      <div class="meter"><div class="meter-row"><span>{{ $label }}</span><b>{{ $ar::html($n) }}</b></div><div class="bar-track"><div class="bar" style="width:{{ $n ? max(2, $n / $max * 100) : 0 }}%"></div></div></div>
     @endforeach
   </section>
   <section class="card"><h2>@include('partials.admin-icon',['name'=>'book'])طلاب لديهم تقدّم في كل مادة</h2>
-    <ul class="list">
+    <ul class="list cols">
     @foreach ($bySubject as [$g, $subj, $n])
       <li><span>{{ $subj }} — {{ $ar::grade($g) }}</span><span class="chip" style="margin-inline-start:auto">{{ $ar::html($n) }}</span></li>
     @endforeach
@@ -44,7 +69,7 @@
     @empty<li class="hint">لا طلبات معلّقة.</li>@endforelse
     </ul>
   </section>
-  <section class="card"><h2>@include('partials.admin-icon',['name'=>'activity'])آخر النشاط</h2>
+  <section class="card"><h2>@include('partials.admin-icon',['name'=>'list'])آخر النشاط</h2>
     @include('manage.partials.activity-list', ['entries' => $recent])
     <p class="more"><a href="{{ route('manage.activity') }}">السجلّ كاملًا</a></p>
   </section>
