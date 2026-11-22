@@ -13,31 +13,34 @@
 </div>
 
 @can('manage-site')
-{{-- What needs the admin today comes first; each tile links straight to the place to act. --}}
+{{-- What needs the admin today comes first; each row links straight to the place to act. --}}
 @php($todo = array_filter([
-  ['n' => $stats['subs_pending'], 'label' => 'طلبات اشتراك بانتظار الدفع', 'hint' => 'فعّلها بعد وصول المبلغ', 'href' => route('manage.subscriptions').'#pending', 'icon' => 'wallet', 'tone' => 't-o'],
+  ['n' => $stats['subs_pending'], 'label' => 'طلبات اشتراك بانتظار الدفع', 'hint' => 'فعّلها بعد وصول المبلغ عبر واتساب', 'href' => route('manage.subscriptions').'#pending', 'icon' => 'wallet', 'tone' => 't-o'],
   ['n' => $stats['subs_expiring'], 'label' => 'اشتراكات تنتهي خلال ٧ أيام', 'hint' => 'ذكّر العائلات بالتجديد', 'href' => route('manage.subscriptions', ['status' => 'expiring']), 'icon' => 'clock', 'tone' => 't-sun'],
   ['n' => count($audit['ids']), 'label' => 'سجلّات طلاب غير محسوبة', 'hint' => 'تجريبية أو مكرّرة أو قديمة: مراجعتها', 'href' => route('manage.students', ['owner' => 'review']), 'icon' => 'alert', 'tone' => 't-red'],
 ], fn ($t) => $t['n'] > 0))
-<section class="todo" aria-label="يحتاج إجراء">
+<section class="card inbox" aria-labelledby="inbox-title">
+  <div class="inbox-head"><h2 id="inbox-title">@include('partials.admin-icon',['name'=>'alert'])ينتظرك اليوم</h2></div>
   @forelse ($todo as $t)
-  <a class="todo-item {{ $t['tone'] }}" href="{{ $t['href'] }}"><span class="ic">@include('partials.admin-icon',['name'=>$t['icon']])</span><span class="txt"><b>{{ $ar::html($t['n']) }}</b><span>{{ $t['label'] }}</span><small>{{ $t['hint'] }}</small></span>@include('partials.admin-icon',['name'=>'arrow'])</a>
+  <a class="todo-item {{ $t['tone'] }}" href="{{ $t['href'] }}"><span class="ic">@include('partials.admin-icon',['name'=>$t['icon']])</span><span class="txt"><span>{{ $t['label'] }}</span><small>{{ $t['hint'] }}</small></span><b>{{ $ar::html($t['n']) }}</b>@include('partials.admin-icon',['name'=>'arrow'])</a>
   @empty
   <p class="todo-ok">@include('partials.admin-icon',['name'=>'check'])لا شيء ينتظرك الآن: لا طلبات دفع، ولا اشتراكات على وشك الانتهاء.</p>
   @endforelse
 </section>
 @endcan
 
-<div class="stats kpi">
-  @foreach ([['parents','أولياء الأمور','users',''],['students','الطلاب','students','t-sky'],['active_week','طلاب نشطون هذا الأسبوع','activity','t-sky'],['subs_active','اشتراكات فعّالة','check','']] as [$k,$label,$icon,$tone])
-  <div class="stat {{ $tone }}" data-stat="{{ $k }}"><div class="ic">@include('partials.admin-icon',['name'=>$icon])</div><div class="txt"><b>{{ $ar::html($stats[$k]) }}</b><span>{{ $label }}</span>@if (! empty($subs[$k]))<small>{{ $subs[$k] }}</small>@endif</div></div>
+<section class="card kpi" aria-label="أرقام الموقع">
+  <div class="kpi-cells">
+  @foreach ([['parents','أولياء الأمور'],['students','الطلاب'],['active_week','طلاب نشطون هذا الأسبوع'],['subs_active','اشتراكات فعّالة']] as [$k,$label])
+  <div class="stat" data-stat="{{ $k }}"><div class="txt"><b>{{ $ar::html($stats[$k]) }}</b><span>{{ $label }}</span>@if (! empty($subs[$k]))<small>{{ $subs[$k] }}</small>@endif</div></div>
   @endforeach
-</div>
-<ul class="minor" aria-label="أرقام أخرى">
+  </div>
+  <ul class="minor" aria-label="أرقام أخرى">
   @foreach ([['new_week','حسابات جديدة هذا الأسبوع'],['trials','في فترة تجريبية'],['staff','المشرفون والمعلّمون'],['disabled','حسابات معطّلة'],['drafts','مسودات المحتوى']] as [$k,$label])
-  <li data-stat="{{ $k }}"><b>{{ $ar::html($stats[$k]) }}</b><span>{{ $label }}</span></li>
+    <li data-stat="{{ $k }}"><b>{{ $ar::html($stats[$k]) }}</b><span>{{ $label }}</span></li>
   @endforeach
-</ul>
+  </ul>
+</section>
 
 <div class="grid dash">
   <section class="card"><h2>@include('partials.admin-icon',['name'=>'students'])الطلاب حسب الصف</h2>

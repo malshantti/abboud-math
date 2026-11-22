@@ -38,7 +38,7 @@
   <div class="field"><label for="mail_{{ $t }}_subject">العنوان</label><input id="mail_{{ $t }}_subject" name="mail_{{ $t }}_subject" value="{{ old('mail_'.$t.'_subject', $s['mail_'.$t.'_subject']) }}" maxlength="200"></div>
   <div class="field"><label for="mail_{{ $t }}_body">نص الرسالة</label><textarea id="mail_{{ $t }}_body" name="mail_{{ $t }}_body" maxlength="5000" data-default="{{ \App\Models\Setting::DEFAULTS['mail_'.$t.'_body'] }}">{{ old('mail_'.$t.'_body', $s['mail_'.$t.'_body']) }}</textarea></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="btn ghost small" type="button" data-preview="{{ $t }}">@include('partials.admin-icon',['name'=>'search'])معاينة</button><button class="btn ghost small" type="button" data-reset="{{ $t }}" data-subject="{{ \App\Models\Setting::DEFAULTS['mail_'.$t.'_subject'] }}">استعادة النص الأصلي</button></div>
-  <iframe class="mail-preview" id="pv-{{ $t }}" title="معاينة {{ $label }}" hidden style="width:100%;height:520px;border:2px solid var(--line,#e2e7d0);border-radius:14px;background:#f4f1e4"></iframe>
+  <iframe class="mail-preview" id="pv-{{ $t }}" title="معاينة {{ $label }}" hidden style="width:100%;height:520px;border:1px solid var(--line,#e2e7d0);border-radius:14px;background:#f4f1e4"></iframe>
   @if($t==='verify')<p class="hint">عند إيقافها، يُعدّ الحساب الجديد مفعّلًا وتصله رسالة الترحيب فورًا.</p>@elseif($t==='reset')<p class="hint">عند إيقافها، لا تُرسل روابط الاستعادة (يبقى التعيين اليدوي من صفحة المستخدم).</p>@else<p class="hint">تُرسل بعد تفعيل البريد.</p>@endif
 </section>
 @endforeach
