@@ -19,5 +19,6 @@ class DatabaseSeeder extends Seeder
         }
         DB::table('site_settings')->insertOrIgnore($rows);
         Cache::forget('site_settings');
+        Setting::forgetMemo();
     }
 }

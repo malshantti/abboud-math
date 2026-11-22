@@ -131,4 +131,23 @@ class ManageDashboardLayoutTest extends TestCase
         $p = Ar::progress('bustan_g6_math_v1', $json);
         $this->assertSame([2, 59, 3, 75, [90, 60]], [$p['done'], $p['total'], $p['pct'], $p['quiz_avg'], $p['quiz_last']]);
     }
+
+    public function test_settings_are_read_once_per_request_so_big_pages_stay_cheap(): void
+    {
+        config(['cache.default' => 'database']); // production cache store: every cache read is a query
+        $admin = $this->admin();
+        for ($i = 0; $i < 15; $i++) {
+            $u = User::factory()->create();
+            $s = $u->students()->create(['name' => 'طفل', 'grade' => 6]);
+            $u->subscriptions()->create(['student_id' => $s->id, 'code' => 'Q'.$i, 'plan' => 'g6-math', 'plan_name' => 'الرياضيات', 'days' => 30, 'status' => $i % 2 ? 'active' : 'pending'])->forceFill(['ends_at' => now()->addDays(3)])->save();
+        }
+        $this->actingAs($admin);
+        $count = 0;
+        \Illuminate\Support\Facades\DB::listen(function () use (&$count) { $count++; });
+        $this->get('/admin/manage/subscriptions')->assertOk();
+        $this->assertLessThan(40, $count, 'Subscriptions page must not query per row');
+        $count = 0;
+        $this->get('/admin/manage')->assertOk()->assertSee('اشتراكات تنتهي خلال ٧ أيام')->assertSee('طلبات اشتراك بانتظار الدفع');
+        $this->assertLessThan(40, $count);
+    }
 }

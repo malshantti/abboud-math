@@ -65,6 +65,7 @@ details pre{white-space:pre-wrap;word-break:break-all;max-height:260px;overflow:
 
 /* ---- admin3: readable zero, export menu, aligned stats, activity, facts, stacked tables ---- */
 .n{display:inline-flex;align-items:baseline;direction:ltr;unicode-bidi:isolate}
+.n,.n>span{font:inherit!important;color:inherit!important;margin:0!important} /* digits split around a drawn zero keep the number's own size (not the card label's) */
 .z0{font-style:normal;display:inline-block;flex:none;width:.32em;height:.32em;margin:0 .13em .2em;border-radius:.05em;transform:rotate(45deg);background:currentColor;line-height:0;overflow:hidden;text-indent:-9em}
 .dt{white-space:nowrap}
 .menu{position:relative}.menu>summary{list-style:none;display:inline-flex;align-items:center;gap:8px}.menu>summary::-webkit-details-marker{display:none}
@@ -105,7 +106,31 @@ details pre{white-space:pre-wrap;word-break:break-all;max-height:260px;overflow:
 .kv dt{color:var(--ink2);font-weight:700;min-width:8.5em}.kv dd{margin:0;font:800 16px/1.5 Baloo,Cairo,sans-serif;color:var(--ink)}.kv dd small{font:600 13px/1 Cairo,sans-serif;color:var(--muted)}.kv .none{font:600 14px/1.5 Cairo,sans-serif;color:var(--muted)}
 .kv .scores{display:flex;flex-wrap:wrap;gap:6px}
 .batch{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+/* ---- dashboard: what needs action first, then 4 main numbers, then the minor ones in one line ---- */
+.dash-head{align-items:flex-end}.dash-head .row{gap:10px}
+.dash-date{margin:2px 0 0;color:var(--muted);font:700 15px/1.4 Baloo,Cairo,sans-serif}
+.todo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;margin:0 0 18px}
+.todo-item{display:grid;grid-template-columns:48px minmax(0,1fr) 20px;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:2px solid var(--line);border-radius:20px;box-shadow:0 5px 0 var(--line);color:var(--ink);text-decoration:none;transition:transform .12s,box-shadow .12s,border-color .15s}
+.todo-item:hover{border-color:#d6d3bd;transform:translateY(-2px);box-shadow:0 7px 0 var(--line)}
+.todo-item .ic{display:grid;place-items:center;width:48px;height:48px;border-radius:14px}
+.todo-item.t-o{border-color:#f6cfae;box-shadow:0 5px 0 #f6cfae}.todo-item.t-o .ic{background:var(--ol);color:#9a4a0c}
+.todo-item.t-sun{border-color:#f0d98a;box-shadow:0 5px 0 #f0d98a}.todo-item.t-sun .ic{background:var(--yl);color:#7a5200}
+.todo-item.t-red{border-color:#f3c9c6;box-shadow:0 5px 0 #f3c9c6}.todo-item.t-red .ic{background:var(--red-bg);color:var(--red-d)}
+.todo-item .txt{display:flex;flex-direction:column;min-width:0}
+.todo-item .txt b{font:800 28px/1.15 Baloo,Cairo,sans-serif}.todo-item .txt span{font-weight:800;font-size:15.5px;line-height:1.45}
+.todo-item .txt small{color:var(--muted);font-weight:600;font-size:13.5px;line-height:1.5}
+.todo-item>.ico:last-child{color:var(--muted);width:20px;height:20px}
+.todo-ok{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:0;padding:12px 16px;background:var(--gl);border:2px solid #cfe3a8;border-radius:16px;color:var(--gd);font-weight:700}
+.stats.kpi{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.minor{list-style:none;display:flex;flex-wrap:wrap;gap:8px 10px;margin:14px 0 0;padding:0}
+.minor li{display:inline-flex;align-items:baseline;gap:8px;padding:6px 14px;background:#fff;border:2px solid var(--line);border-radius:999px;font-size:14.5px;color:var(--ink2);font-weight:700}
+.minor li b{font:800 17px/1.3 Baloo,Cairo,sans-serif;color:var(--ink)}
+.list.cols{columns:2 230px;column-gap:28px}.list.cols li{break-inside:avoid}
 @media (max-width:640px){
+ .dash-head{flex-wrap:wrap!important}
+ .todo{gap:10px}.todo-item{grid-template-columns:40px minmax(0,1fr) 18px;gap:10px;padding:12px}.todo-item .ic{width:40px;height:40px;border-radius:12px}.todo-item .txt b{font-size:24px}
+ .stats.kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .minor li{font-size:13.5px;padding:5px 12px}
  .head{flex-wrap:nowrap}.head h1{min-width:0}
  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
  .stat{grid-template-columns:40px minmax(0,1fr);gap:10px;padding:12px;border-radius:18px;align-items:center;min-height:86px}

@@ -1,4 +1,10 @@
 @php($__p = [
+  'school' => '<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/><circle cx="12" cy="10.5" r="1.5"/>',
+  'online' => '<circle cx="12" cy="12" r="2.5"/><path d="M7.8 7.8a6 6 0 000 8.4"/><path d="M16.2 7.8a6 6 0 010 8.4"/><path d="M5 5a10 10 0 000 14"/><path d="M19 5a10 10 0 010 14"/>',
+  'funnel' => '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/>',
+  'list' => '<path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4.5 6h.01"/><path d="M4.5 12h.01"/><path d="M4.5 18h.01"/>',
+  'layers' => '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+  'arrow' => '<path d="M15 6l-6 6 6 6"/>',
   'image' => '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
   'mail' => '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/>',
   'send' => '<path d="M21 3 10 14"/><path d="m21 3-7 18-4-7-7-4z"/>',

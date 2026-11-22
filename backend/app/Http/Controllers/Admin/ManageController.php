@@ -49,6 +49,7 @@ class ManageController extends Controller
             'trials' => User::real()->where('trial_ends_at', '>', now())->count(),
             'subs_active' => Subscription::where('status', 'active')->where('ends_at', '>', now())->count(),
             'subs_pending' => Subscription::where('status', 'pending')->count(),
+            'subs_expiring' => Subscription::where('status', 'active')->whereBetween('ends_at', [now(), now()->addDays(7)])->count(),
             'disabled' => User::whereNotNull('disabled_at')->count(),
             'drafts' => Schema::hasTable('authoring_documents') ? AuthoringDocument::query()->count() : 0,
         ];

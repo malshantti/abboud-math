@@ -247,6 +247,15 @@ class LiveStats
     public static function summary(): array
     {
         $today = self::dayStart();
+        // Latest activity per account/student over the whole week, read once; each day keeps the ones whose
+        // latest activity falls inside it (same result as reading every day apart, without 8 full reads).
+        $week = self::dayStart(6);
+        $users = self::activeUsers($week);
+        $students = self::activeStudents($week);
+        $families = array_flip(self::familyIds(array_keys($users)));
+        $familyStudents = array_flip(self::familyStudentIds(array_keys($students)));
+        $inDay = fn (array $at, array $keep, Carbon $from, ?Carbon $to) => count(array_filter($at,
+            fn ($t, $id) => isset($keep[$id]) && $t->gte($from) && (! $to || $t->lt($to)), ARRAY_FILTER_USE_BOTH));
         $trend = [];
         for ($d = 6; $d >= 0; $d--) {
             $from = self::dayStart($d);
@@ -254,8 +263,8 @@ class LiveStats
             $trend[] = [
                 'day' => Ar::num($from->copy()->timezone(self::tz())->format('d/m')),
                 'signups' => self::signups($from, $to),
-                'accounts' => count(self::familyIds(array_keys(array_filter(self::activeUsers($from), fn ($t) => ! $to || $t->lt($to))))),
-                'students' => count(self::familyStudentIds(array_keys(array_filter(self::activeStudents($from), fn ($t) => ! $to || $t->lt($to))))),
+                'accounts' => $inDay($users, $families, $from, $to),
+                'students' => $inDay($students, $familyStudents, $from, $to),
                 'lessons' => self::eventCount('lesson_open', $from, $to),
                 'guests' => self::guests($from, $to),
             ];
@@ -263,8 +272,8 @@ class LiveStats
 
         return [
             'signups' => self::signups($today),
-            'accounts_today' => count(self::familyIds(array_keys(self::activeUsers($today)))),
-            'students_today' => count(self::familyStudentIds(array_keys(self::activeStudents($today)))),
+            'accounts_today' => $inDay($users, $families, $today, null),
+            'students_today' => $inDay($students, $familyStudents, $today, null),
             'lessons_opened' => self::eventCount('lesson_open', $today),
             'progress_saved' => self::progressSaved($today),
             'guests' => self::guests($today),
