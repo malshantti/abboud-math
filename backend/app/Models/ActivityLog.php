@@ -74,9 +74,64 @@ class ActivityLog extends Model
 
                 continue;
             }
-            $out[] = ['log' => $log, 'items' => $log->requestItems()];
+            // The same action repeated back to back (two exports, a double click) shows once with a count.
+            if ($prev && $log->action !== 'subscription.request' && $prev['log']->user_id === $log->user_id
+                && $prev['log']->action === $log->action && $prev['log']->subject === $log->subject && $prev['log']->details === $log->details
+                && $log->created_at && $prev['log']->created_at && $prev['log']->created_at->diffInMinutes($log->created_at, true) < 60) {
+                $out[array_key_last($out)]['count']++;
+
+                continue;
+            }
+            $out[] = ['log' => $log, 'items' => $log->requestItems(), 'count' => 1];
         }
 
         return $out;
+    }
+
+    /** Feed colour: red for removals, amber for money waiting, green for money in, sky for students, grey for sign-ins. */
+    public function tone(): string
+    {
+        return match (true) {
+            str_ends_with($this->action, '.delete') || in_array($this->action, ['user.disable', 'subscription.cancel'], true) => 'red',
+            $this->action === 'subscription.request' => 'amber',
+            $this->action === 'subscription.activate' => 'green',
+            str_starts_with($this->action, 'student.') || str_starts_with($this->action, 'class.') || $this->action === 'progress.import' => 'sky',
+            in_array($this->action, ['register', 'login', 'logout', 'password.reset', 'email.verify'], true) => 'grey',
+            default => 'olive',
+        };
+    }
+
+    public function icon(): string
+    {
+        return match (true) {
+            str_ends_with($this->action, '.delete') => 'trash',
+            str_starts_with($this->action, 'subscription.') => 'card',
+            str_starts_with($this->action, 'student.') || $this->action === 'progress.import' => 'students',
+            str_starts_with($this->action, 'class.') => 'school',
+            $this->action === 'register' => 'plus',
+            in_array($this->action, ['login', 'logout'], true) => 'logout',
+            in_array($this->action, ['password.reset', 'user.password', 'user.disable', 'user.enable'], true) => 'lock',
+            in_array($this->action, ['email.verify', 'user.verify', 'mail.settings', 'mail.test'], true) => 'mail',
+            $this->action === 'export' => 'download',
+            str_starts_with($this->action, 'media.') => 'image',
+            str_starts_with($this->action, 'question.') => 'quiz',
+            $this->action === 'seo.settings' => 'globe',
+            str_starts_with($this->action, 'user.') => 'users',
+            default => 'settings',
+        };
+    }
+
+    /** Short object of the action («عمرو», «الطلاب»), without the actor's own email. */
+    public function object(): string
+    {
+        if ($this->action === 'export') {
+            return ['users' => 'المستخدمون', 'students' => 'الطلاب', 'progress' => 'التقدّم', 'subscriptions' => 'الاشتراكات'][$this->subject] ?? (string) $this->subject;
+        }
+        if (str_starts_with($this->action, 'subscription.') && $this->details) {
+            return (string) $this->details; // the subject name; the code is the entry's tooltip
+        }
+        $subject = $this->subject === $this->user?->email ? null : $this->subject;
+
+        return trim(implode(' — ', array_filter([$subject, $this->details], fn ($v) => $v !== null && $v !== '')));
     }
 }

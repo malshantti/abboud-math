@@ -100,12 +100,38 @@ class ManageDashboardLayoutTest extends TestCase
         $this->assertCount(1, $subs->pluck('batch')->unique()->filter());
         $this->assertSame(1, ActivityLog::where('action', 'subscription.request')->count());
         $page = $this->actingAs($admin)->get('/admin/manage')->assertOk();
-        $page->assertSee('4 مواد في طلب واحد')->assertSee('class="act-mail"', false);
+        // The email stays out of the dashboard feed (it is the name's tooltip), so long addresses cannot stretch the card.
+        $page->assertSee('4 مواد في طلب واحد')->assertSee('title="a-very-long-parent-address-for-testing@example-family-domain.test"', false)
+            ->assertDontSee('>a-very-long-parent-address-for-testing@example-family-domain.test<', false);
         $this->assertSame(1, substr_count($page->getContent(), '>طلب اشتراك<'));
         $this->actingAs($admin)->get('/admin/manage/subscriptions?q='.$subs[0]->batch)->assertOk()->assertSee($subs[3]->code);
         // Activation still per subject.
         $this->post('/admin/manage/subscriptions/'.$subs[0]->id.'/activate')->assertRedirect();
         $this->assertSame(['active', 'pending', 'pending', 'pending'], $u->subscriptions()->orderBy('id')->pluck('status')->all());
+    }
+
+    public function test_activity_feed_is_one_line_per_entry_with_day_headings_and_repeats_collapsed(): void
+    {
+        $admin = $this->admin();
+        $parent = User::factory()->create(['name' => 'جهاد', 'email' => 'parent@example.test']);
+        foreach (['register' => 'parent@example.test', 'student.create' => 'عمرو'] as $action => $subject) {
+            (new ActivityLog)->forceFill(['user_id' => $parent->id, 'action' => $action, 'subject' => $subject, 'created_at' => now()->subDays(3)])->save();
+        }
+        foreach ([1, 2] as $i) {
+            ActivityLog::create(['user_id' => $admin->id, 'action' => 'export', 'subject' => 'students']);
+        }
+
+        $html = $this->actingAs($admin)->get('/admin/manage')->assertOk()->getContent();
+        $this->assertSame(1, substr_count($html, '<span class="ev-what">تصدير بيانات</span>'), 'Back-to-back exports collapse');
+        $this->assertStringContainsString('×2', $html);
+        $this->assertStringContainsString('<span class="ev-obj">الطلاب</span>', $html, 'Export type is in Arabic');
+        $this->assertStringContainsString('<span class="ev-obj">عمرو</span>', $html);
+        $this->assertStringNotContainsString('<span class="ev-obj">parent@example.test</span>', $html, 'Own email is not repeated as the object');
+        $this->assertMatchesRegularExpression('/<li class="feed-day">اليوم<\/li>.*تصدير بيانات.*<li class="feed-day">[^<]+<\/li>.*إضافة طالب/s', $html);
+        $this->assertStringContainsString('class="ev t-sky"', $html);
+        $this->assertStringContainsString('href="'.route('manage.user', $parent).'"', $html);
+        // The full log keeps the email and IP for each entry.
+        $this->get('/admin/manage/activity')->assertOk()->assertSee('class="ev-meta"', false)->assertSee('parent@example.test');
     }
 
     public function test_legacy_per_subject_logs_are_grouped(): void
