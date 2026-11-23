@@ -26,7 +26,8 @@ class SubscriptionBoard
         'cancelled' => ['ملغى', 'bad'],
     ];
 
-    public const FILTERS = ['pending' => 'بانتظار الدفع', 'active' => 'فعّال', 'trial' => 'تجربة', 'expiring' => 'ينتهي خلال ٧ أيام', 'expired' => 'منتهي', 'cancelled' => 'ملغى', 'problems' => 'فيها ملاحظات'];
+    /** «تحتاج إجراء» is the default view: a pending payment, a subscription ending within 7 days, or a problem to fix. */
+    public const FILTERS = ['action' => 'تحتاج إجراء', 'all' => 'الكل', 'pending' => 'بانتظار الدفع', 'active' => 'فعّال', 'trial' => 'تجربة', 'expiring' => 'ينتهي خلال 7 أيام', 'expired' => 'منتهي', 'cancelled' => 'ملغى', 'problems' => 'فيها ملاحظات'];
 
     public static function planLabel(string $plan, ?string $fallback = null): string
     {
@@ -201,6 +202,8 @@ class SubscriptionBoard
         if (($st = $f['status'] ?? '') !== '') {
             $ok = match ($st) {
                 'expiring' => $fam->expiring,
+                'action' => $fam->pending || $fam->expiring || count($fam->problems) > 0,
+                'all' => true,
                 'problems' => count($fam->problems) > 0,
                 default => in_array($st, $fam->states, true),
             };

@@ -62,12 +62,22 @@ class ManageController extends Controller
             ->sortBy(fn ($v) => [$v[0], array_search($v[1], $order, true)])
             ->map(fn ($v, $key) => [$v[0], $v[1], (int) $counts[$key]])->values()->all();
 
+        // One definition of «this week» (the last 7 days in the site's timezone) for every weekly number on the page.
+        $charts = rescue(fn () => \App\Support\DashboardCharts::all(), null, true);
+        if ($charts) {
+            $stats['new_week'] = array_sum(array_column($charts['week'], 'signups'));
+            $stats['active_week'] = array_sum(array_column($charts['week'], 'students'));
+            $stats['requests_week'] = array_sum(array_column($charts['week'], 'requests'));
+        }
+        $requests = \App\Support\SubscriptionBoard::pendingRequests();
+
         return view('manage.dashboard', [
             'stats' => $stats, 'byGrade' => $byGrade, 'bySubject' => $bySubject,
             'audit' => $audit,
+            // Charts never block the dashboard: a failure leaves them out.
+            'charts' => $charts,
+            'requests' => $requests->take(5), 'requestsCount' => $requests->count(),
             'recent' => array_slice(ActivityLog::grouped(ActivityLog::with('user')->latest('id')->take(30)->get()), 0, 8),
-            'pending' => Subscription::with('user')->where('status', 'pending')->latest('id')->take(40)->get()
-                ->groupBy(fn ($s) => $s->batch ?? ($s->user_id.'@'.$s->created_at?->format('YmdHi')))->take(5),
         ]);
     }
 
@@ -156,7 +166,7 @@ class ManageController extends Controller
 
             return back()->with('status', 'أُرسل رابط إعادة التعيين إلى بريد المستخدم.');
         }
-        $data = $request->validate(['password' => ['required', 'string', PasswordRule::min(8), 'max:72']], ['password.min' => 'كلمة المرور ٨ محارف على الأقل.', 'password.required' => 'أدخل كلمة المرور الجديدة.']);
+        $data = $request->validate(['password' => ['required', 'string', PasswordRule::min(8), 'max:72']], ['password.min' => 'كلمة المرور 8 محارف على الأقل.', 'password.required' => 'أدخل كلمة المرور الجديدة.']);
         $user->password = $data['password'];
         $user->save();
         ActivityLog::record('user.password', $user->email, 'تعيين يدوي');
@@ -257,7 +267,10 @@ class ManageController extends Controller
     public function subscriptions(Request $request): View
     {
         Subscription::sweep();
-        $f = ['status' => array_key_exists($st = (string) $request->query('status'), \App\Support\SubscriptionBoard::FILTERS) ? $st : '', 'grade' => (int) $request->query('grade'), 'q' => trim((string) $request->query('q'))];
+        // No status chosen: «تحتاج إجراء», unless the admin is searching or picked a grade (then every family).
+        $st = (string) $request->query('status');
+        $st = array_key_exists($st, \App\Support\SubscriptionBoard::FILTERS) ? $st : ($request->filled('q') || $request->filled('grade') ? 'all' : 'action');
+        $f = ['status' => $st, 'grade' => (int) $request->query('grade'), 'q' => trim((string) $request->query('q'))];
         $families = \App\Support\SubscriptionBoard::families($f);
         $page = max(1, (int) $request->query('page', 1));
         $paged = new \Illuminate\Pagination\LengthAwarePaginator($families->forPage($page, 20)->values(), $families->count(), 20, $page, ['path' => $request->url(), 'query' => $request->query()]);
@@ -286,6 +299,11 @@ class ManageController extends Controller
     /** Activation notice to the family. Never throws (MailCenter::send logs failures). */
     public static function activationMail(Subscription $subscription): void
     {
+        if (Ar::latinDigits()) { // the family's email keeps Arabic-Indic digits
+            Ar::forFamilies(fn () => self::activationMail($subscription));
+
+            return;
+        }
         try {
             $u = $subscription->user;
             if ($u && ! $u->isStaff()) {

@@ -9,4 +9,5 @@
 .admin-nav .nav-item[aria-current=page]{background:#eef4e2;color:#3f6510;font-weight:700;box-shadow:none}
 .admin-nav .nav-item[aria-current=page]:before{content:"";position:absolute;inset-block:8px;inset-inline-start:-12px;width:3px;border-radius:3px 0 0 3px;background:#5f8f1f}
 .admin-nav .nav-item[aria-current=page] .ico{color:#5f8f1f}
+.admin-nav .nav-badge{margin-inline-start:auto;min-width:22px;height:22px;padding:0 7px;display:inline-grid;place-items:center;border-radius:999px;background:#e9a800;color:#2b2100;font:600 12px/1 Plex,Cairo,Tahoma,sans-serif;font-variant-numeric:tabular-nums}
 </style>

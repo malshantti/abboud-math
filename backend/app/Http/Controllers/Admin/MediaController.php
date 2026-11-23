@@ -64,7 +64,7 @@ class MediaController extends Controller
     public function upload(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate(['file' => ['required', 'file', 'max:16384', 'mimes:'.implode(',', Lib::UPLOAD)]],
-            ['file.mimes' => 'الأنواع المسموحة: صور PNG/JPG/WebP/GIF وأصوات MP3/OGG/WAV/M4A.', 'file.max' => 'الحد الأقصى ١٦ ميغابايت.']);
+            ['file.mimes' => 'الأنواع المسموحة: صور PNG/JPG/WebP/GIF وأصوات MP3/OGG/WAV/M4A.', 'file.max' => 'الحد الأقصى 16 ميغابايت.']);
         $rel = Lib::store($request->file('file'));
         ActivityLog::record('media.upload', $rel);
 
@@ -76,7 +76,7 @@ class MediaController extends Controller
     public function replace(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate(['path' => ['required', 'string'], 'file' => ['required', 'file', 'max:16384', 'mimes:'.implode(',', Lib::UPLOAD)]],
-            ['file.mimes' => 'الأنواع المسموحة: صور PNG/JPG/WebP/GIF وأصوات MP3/OGG/WAV/M4A.', 'file.max' => 'الحد الأقصى ١٦ ميغابايت.']);
+            ['file.mimes' => 'الأنواع المسموحة: صور PNG/JPG/WebP/GIF وأصوات MP3/OGG/WAV/M4A.', 'file.max' => 'الحد الأقصى 16 ميغابايت.']);
         $rel = Lib::safe($request->input('path'));
         abort_unless($rel, 404);
         $new = $request->file('file');

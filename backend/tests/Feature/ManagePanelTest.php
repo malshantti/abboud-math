@@ -74,7 +74,7 @@ class ManagePanelTest extends TestCase
         $p = User::factory()->count(3)->create();
         $p[0]->students()->create(['name' => 'أ', 'grade' => 6]);
         $p[1]->students()->create(['name' => 'ب', 'grade' => 6]);
-        $this->actingAs($admin)->get('/admin/manage')->assertOk()->assertSeeInOrder(['٣', 'أولياء الأمور', '٢', 'الطلاب'], false);
+        $this->actingAs($admin)->get('/admin/manage')->assertOk()->assertSeeInOrder(['3', 'أولياء الأمور', '2', 'الطلاب'], false);
     }
 
     public function test_admin_manages_users(): void
@@ -146,7 +146,7 @@ class ManagePanelTest extends TestCase
         $s->progress()->create(['key' => 'bustan_g6_math_v1', 'value' => '{"points":42,"done":[1,2,3]}', 'client_updated_at' => 1700000000000]);
         $s->progress()->create(['key' => 'bustan_g1_arabic_v1', 'value' => '{}', 'client_updated_at' => 1700000000000]);
         $this->actingAs($admin)->get("/admin/manage/students/{$s->id}")->assertOk()
-            ->assertSeeInOrder(['الصف الأول', 'العربية', 'الصف السادس', 'الرياضيات', '٤٢', '٣']);
+            ->assertSeeInOrder(['الصف الأول', 'العربية', 'الصف السادس', 'الرياضيات', '42', '3']);
     }
 
     public function test_bulk_actions(): void

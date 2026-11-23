@@ -46,7 +46,7 @@ class SubscriptionBoardTest extends TestCase
 
         $r = $this->actingAs($admin)->get('/admin/manage/subscriptions')->assertOk();
         $r->assertSee('طلبات بانتظار التفعيل')->assertSee('عائلة خالد')->assertSee('عقل')->assertSee('الرياضيات')
-            ->assertSee('R-TEST01')->assertSee('١٦ شيكل')->assertSee('صف لا يطابق الطفل')->assertSee('مكرر')
+            ->assertSee('R-TEST01')->assertSee('16 شيكل')->assertSee('صف لا يطابق الطفل')->assertSee('مكرر')
             ->assertSee('غير مربوط بطفل')->assertSee('بانتظار الدفع')->assertSee('فعّال')->assertSee('تجربة')->assertSee('باقي');
         $r->assertDontSee('ولي الأمر')->assertDontSee('وليّ الأمر')->assertDontSee('>g6-math<', false);
 

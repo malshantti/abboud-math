@@ -38,12 +38,12 @@ class ManageDashboardLayoutTest extends TestCase
         $audit = StudentAudit::summary();
         $this->assertSame([2, 1, 1], [$audit['staff'], $audit['duplicate'], $audit['legacy']]);
         $page = $this->actingAs($admin)->get('/admin/manage')->assertOk();
-        $page->assertSee('data-stat="parents"', false)->assertSee('لدى ١ وليّ أمر')->assertSee('مراجعتها');
+        $page->assertSee('data-stat="parents"', false)->assertSee('لدى 1 وليّ أمر')->assertSee('مراجعتها');
         $html = $page->getContent();
         preg_match('/data-stat="students".*?<b>(.*?)<\/b>/s', $html, $m);
-        $this->assertSame('١', strip_tags($m[1]), 'Duplicate excluded');
+        $this->assertSame('1', strip_tags($m[1]), 'Duplicate excluded');
         preg_match('/data-stat="parents".*?<b>(.*?)<\/b>/s', $html, $m);
-        $this->assertSame('١', strip_tags($m[1]), 'Admin with legacy role is not a parent');
+        $this->assertSame('1', strip_tags($m[1]), 'Admin with legacy role is not a parent');
         $this->actingAs($admin)->get('/admin/manage/students?owner=review')->assertOk()->assertSee('تجربة')->assertSee('قديم');
     }
 
@@ -62,8 +62,8 @@ class ManageDashboardLayoutTest extends TestCase
         $html = $this->actingAs($admin)->get('/admin/manage')->assertOk()->getContent();
         preg_match_all('/<div class="meter-row"><span>(.*?)<\/span><b>(.*?)<\/b>/s', $html, $m);
         $grades = array_combine($m[1], array_map('strip_tags', $m[2]));
-        $this->assertSame('٠', $grades['الصف الرابع'], 'Staff test student is not in the grade chart');
-        $this->assertSame(['١', '١'], [$grades['الصف الأول'], $grades['الصف السادس']]);
+        $this->assertSame('0', $grades['الصف الرابع'], 'Staff test student is not in the grade chart');
+        $this->assertSame(['1', '1'], [$grades['الصف الأول'], $grades['الصف السادس']]);
         $this->assertStringNotContainsString('الرياضيات — الصف الرابع', $html);
         $this->assertMatchesRegularExpression('/العربية — الصف الأول.*الرياضيات — الصف السادس.*العلوم — الصف السادس/s', $html);
 
@@ -77,7 +77,7 @@ class ManageDashboardLayoutTest extends TestCase
         $page = $this->actingAs($this->admin())->get('/admin/manage')->assertOk();
         $this->assertSame(1, substr_count($page->getContent(), '<details class="menu">'));
         $this->assertStringNotContainsString('تصدير المستخدمين', $page->getContent());
-        $page->assertSee('<i class="z0">٠</i>', false);
+        $page->assertDontSee('class="z0"', false)->assertSee('<b>0</b>', false); // admin panel: Western digits, a plain 0
         $this->assertSame('<span class="n" dir="ltr"><i class="z0">٠</i></span>', (string) Ar::html(0));
         $this->assertSame('<span class="n" dir="ltr"><span>١</span><i class="z0">٠</i></span>', (string) Ar::html(10));
     }
@@ -100,7 +100,7 @@ class ManageDashboardLayoutTest extends TestCase
         $this->assertCount(1, $subs->pluck('batch')->unique()->filter());
         $this->assertSame(1, ActivityLog::where('action', 'subscription.request')->count());
         $page = $this->actingAs($admin)->get('/admin/manage')->assertOk();
-        $page->assertSee('٤ مواد في طلب واحد')->assertSee('class="act-mail"', false);
+        $page->assertSee('4 مواد في طلب واحد')->assertSee('class="act-mail"', false);
         $this->assertSame(1, substr_count($page->getContent(), '>طلب اشتراك<'));
         $this->actingAs($admin)->get('/admin/manage/subscriptions?q='.$subs[0]->batch)->assertOk()->assertSee($subs[3]->code);
         // Activation still per subject.
@@ -127,7 +127,7 @@ class ManageDashboardLayoutTest extends TestCase
         $s->progress()->create(['key' => 'bustan_g6_math_v1', 'value' => $json, 'client_updated_at' => 1761000000000]);
         $page = $this->actingAs($admin)->get("/admin/manage/students/{$s->id}")->assertOk();
         $page->assertDontSee('حجم البيانات')->assertSee('الدروس المنجزة')->assertSee('role="progressbar"', false)
-            ->assertSeeInOrder(['النقاط', '٩', 'أيام متتالية', '١'], false)->assertSee('متوسط الاختبارات')->assertSee('٧٥')->assertSee('<details>', false)->assertSee('class="facts"', false);
+            ->assertSeeInOrder(['النقاط', '9', 'أيام متتالية', '1'], false)->assertSee('متوسط الاختبارات')->assertSee('75')->assertSee('<details>', false)->assertSee('class="facts"', false);
         $p = Ar::progress('bustan_g6_math_v1', $json);
         $this->assertSame([2, 59, 3, 75, [90, 60]], [$p['done'], $p['total'], $p['pct'], $p['quiz_avg'], $p['quiz_last']]);
     }
@@ -147,7 +147,7 @@ class ManageDashboardLayoutTest extends TestCase
         $this->get('/admin/manage/subscriptions')->assertOk();
         $this->assertLessThan(40, $count, 'Subscriptions page must not query per row');
         $count = 0;
-        $this->get('/admin/manage')->assertOk()->assertSee('اشتراكات تنتهي خلال ٧ أيام')->assertSee('طلبات اشتراك بانتظار الدفع');
+        $this->get('/admin/manage')->assertOk()->assertSee('اشتراكات تنتهي خلال 7 أيام')->assertSee('طلبات اشتراك بانتظار الدفع');
         $this->assertLessThan(40, $count);
     }
 }

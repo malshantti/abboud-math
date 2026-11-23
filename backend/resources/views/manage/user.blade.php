@@ -41,7 +41,7 @@
 <section class="card"><h2>@include('partials.admin-icon',['name'=>'card'])الوصول والاشتراكات</h2>
   <p>الحالة: <b>{{ ['staff'=>'فريق الموقع','open'=>'مفتوح للجميع','trial'=>'فترة تجريبية','paid'=>'مشترك','expired'=>'منتهٍ'][$access['kind']] }}</b>
   @if($user->trial_ends_at) — نهاية التجربة: {{ $ar::when($user->trial_ends_at) }}@endif</p>
-  <form method="post" action="{{ route('manage.user.trial', $user) }}" class="row">@csrf<div><label for="days">مدّ الفترة التجريبية (أيام من الآن، ٠ لإنهائها)</label><input id="days" name="days" type="number" min="0" max="365" value="3" style="max-width:140px"></div><button class="btn small" type="submit" style="align-self:end">تطبيق</button></form>
+  <form method="post" action="{{ route('manage.user.trial', $user) }}" class="row">@csrf<div><label for="days">مدّ الفترة التجريبية (أيام من الآن، 0 لإنهائها)</label><input id="days" name="days" type="number" min="0" max="365" value="3" style="max-width:140px"></div><button class="btn small" type="submit" style="align-self:end">تطبيق</button></form>
   <form method="post" action="{{ route('manage.user.grant', $user) }}" class="row" style="margin-top:12px">@csrf
     <div style="flex:1"><label for="plan">تفعيل مادة يدويًا</label><select id="plan" name="plan">@foreach ($plans as $p)<option value="{{ $p['code'] }}">{{ $p['name'] }}</option>@endforeach</select></div>
     <div><label for="gdays">الأيام</label><input id="gdays" name="days" type="number" min="1" max="1000" placeholder="افتراضي" style="max-width:110px"></div>

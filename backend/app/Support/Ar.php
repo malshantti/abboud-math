@@ -4,8 +4,37 @@ namespace App\Support;
 
 class Ar
 {
+    /** Western digits (0–9) instead of Arabic-Indic: on for the admin panel's own pages (LatinDigits middleware). */
+    private static bool $latin = false;
+
+    public static function useLatinDigits(bool $on = true): void
+    {
+        self::$latin = $on;
+    }
+
+    public static function latinDigits(): bool
+    {
+        return self::$latin;
+    }
+
+    /** Runs $fn with Arabic-Indic digits: anything sent to families (emails, messages) keeps them even when built in an admin request. */
+    public static function forFamilies(callable $fn): mixed
+    {
+        $was = self::$latin;
+        self::$latin = false;
+        try {
+            return $fn();
+        } finally {
+            self::$latin = $was;
+        }
+    }
+
     public static function num(mixed $value): string
     {
+        if (self::$latin) {
+            return (string) $value;
+        }
+
         return strtr((string) $value, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩', ',' => '٬', '.' => '٫']);
     }
 
@@ -46,6 +75,15 @@ class Ar
         }
 
         return self::num($n).' '.$w;
+    }
+
+    /** One money format everywhere in the admin: "25 شيكل" (ILS, NIS and ₪ are the same shekel). */
+    public static function money(mixed $amount, ?string $currency = null): string
+    {
+        $c = trim((string) ($currency ?? (\App\Models\Setting::get('currency') ?: 'شيكل')));
+        $c = in_array(mb_strtoupper($c), ['ILS', 'NIS', '₪', 'شيكل', 'شيقل'], true) ? 'شيكل' : $c;
+
+        return static::num((int) $amount).' '.$c;
     }
 
     public static function date($date, bool $time = true, ?string $tz = null): string

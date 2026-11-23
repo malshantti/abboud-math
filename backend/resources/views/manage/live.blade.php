@@ -17,23 +17,23 @@
   @endforeach
 </div>
 <div class="grid dash">
-  <section class="card" aria-live="polite"><h2>@include('partials.admin-icon',['name'=>'activity'])المتصلون الآن <small class="muted">(آخر {{ $ar::num(\App\Support\LiveStats::ONLINE_MINUTES) }} دقائق · يتحدّث كل ٣٠ ثانية · آخر تحديث <span id="live-checked">{{ $online['checked'] }}</span>)</small></h2>
+  <section class="card" aria-live="polite"><h2>@include('partials.admin-icon',['name'=>'activity'])المتصلون الآن <small class="muted">(آخر {{ $ar::num(\App\Support\LiveStats::ONLINE_MINUTES) }} دقائق · يتحدّث كل 30 ثانية · آخر تحديث <span id="live-checked">{{ $online['checked'] }}</span>)</small></h2>
     <ul class="people" id="online-list">@include('manage.partials.live-people', ['people' => $online['people'], 'empty' => 'لا أحد متصل الآن.'])</ul>
   </section>
   <section class="card"><h2>@include('partials.admin-icon',['name'=>'clock'])آخر من دخل اليوم <small class="muted">(بتوقيت غزة، الأحدث أولًا)</small></h2>
     <ul class="people">@include('manage.partials.live-people', ['people' => $today, 'empty' => 'لم يدخل أحد اليوم بعد.'])</ul>
   </section>
-  <section class="card" style="grid-column:1/-1"><h2>@include('partials.admin-icon',['name'=>'activity'])آخر ٧ أيام</h2>
+  <section class="card" style="grid-column:1/-1"><h2>@include('partials.admin-icon',['name'=>'activity'])آخر 7 أيام</h2>
     <table class="trend"><thead><tr><th>اليوم</th><th>حسابات جديدة</th><th>حسابات نشطة</th><th>طلاب نشطون</th><th>مواد فُتحت</th><th>زوّار بلا حساب</th></tr></thead><tbody>
     @foreach ($stats['trend'] as $d)<tr><td>{{ $d['day'] }}</td><td>{{ $ar::html($d['signups']) }}</td><td>{{ $ar::html($d['accounts']) }}</td><td>{{ $ar::html($d['students']) }}</td><td>{{ $ar::html($d['lessons']) }}</td><td>{{ $ar::html($d['guests']) }}</td></tr>@endforeach
     </tbody></table>
-    <p class="muted">لا تُحتسب حسابات الإدارة والعرض والتجربة (١، ٦٠، ٦٧) في الأرقام، وتظهر في القوائم بعلامة «غير محسوب». «متصل الآن» تقديري: آخر طلب من الحساب أو مزامنة تقدّم أو حدث على الموقع خلال آخر ٥ دقائق.</p>
+    <p class="muted">لا تُحتسب حسابات الإدارة والعرض والتجربة (1، 60، 67) في الأرقام، وتظهر في القوائم بعلامة «غير محسوب». «متصل الآن» تقديري: آخر طلب من الحساب أو مزامنة تقدّم أو حدث على الموقع خلال آخر 5 دقائق.</p>
   </section>
 </div>
 <script>
 (function(){
   var url = @json(route('manage.live.online'));
-  var num = function(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]});};
+  var num = function(n){return String(n);}; // admin panel: Western digits
   var esc = function(s){var d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;};
   function row(p){
     var kids = (p.students||[]).map(function(k){return '<span class="pill kid'+(k.active?' on':'')+'">'+esc(k.name)+' · '+esc(k.grade)+'</span>';}).join('');
