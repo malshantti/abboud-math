@@ -1,4 +1,12 @@
+{{-- One row per family: online ones first (green dot, «متصل الآن»), the rest with their last time today. Mirrored by row() in live.blade.php. --}}
 @forelse ($people as $p)
-<li @if($p['excluded']) class="flag" @endif><span class="live-dot" aria-hidden="true"></span><b class="who">{{ $p['name'] }}</b>@if($p['excluded'])<span class="chip">غير محسوب</span>@endif @if($p['new_today'])<span class="chip warn">جديد اليوم</span>@endif @if($p['source'])<span class="chip">{{ $p['source'] }}</span>@endif @if($p['last'])<span class="muted">{{ $p['last'] }}</span>@endif<span class="t">{{ $p['time'] }} · {{ $p['ago'] }}</span>
-@if(count($p['students']))<div class="kids">@foreach($p['students'] as $k)<span class="pill kid @if($k['active']) on @endif">{{ $k['name'] }} · {{ $k['grade'] }}</span>@endforeach</div>@endif</li>
+@php($on = in_array($p['id'], $onlineIds ?? [], true))
+<li class="pp{{ $on ? ' on' : '' }}{{ $p['excluded'] ? ' flag' : '' }}" data-id="{{ $p['id'] }}">
+  <span class="pp-dot" aria-hidden="true"></span>
+  <div class="pp-main">
+    <p class="pp-line"><b class="who">{{ $p['name'] }}</b>@if ($p['excluded'])<span class="tag">غير محسوب</span>@endif @if ($p['new_today'])<span class="tag new">جديد اليوم</span>@endif @if ($p['source'] || $p['last'])<span class="pp-meta">{{ implode(' · ', array_filter([$p['source'] ? 'من '.$p['source'] : null, $p['last']])) }}</span>@endif</p>
+    @if (count($p['students']))<p class="pp-kids">@foreach ($p['students'] as $k)<span class="kid{{ $k['active'] ? ' on' : '' }}">{{ $k['name'] }} <small>{{ $k['grade'] }}</small></span>@endforeach</p>@endif
+  </div>
+  <span class="pp-time">@if ($on)<b>متصل الآن</b>@else{{ $p['time'] }}<small>{{ $p['ago'] }}</small>@endif</span>
+</li>
 @empty<li class="hint">{{ $empty }}</li>@endforelse
