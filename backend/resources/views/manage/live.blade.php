@@ -15,7 +15,7 @@
 .nums b{font:600 28px/1.15 Plex,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
 .nums span{color:var(--muted);font-size:13px;line-height:1.4}
 .nums .z b{color:#b9c2b5}
-.now .nums>div:first-child{background:#eaf6ec}.now .nums>div:first-child b{color:#1d7a3a}
+.now .nums>div:first-child:not(.z){background:#eaf6ec}.now .nums>div:first-child:not(.z) b{color:#1d7a3a}
 .today .nums{--n:6}
 @media (max-width:1100px){.today .nums{--n:3}}
 @media (max-width:420px){.nums b{font-size:24px}}

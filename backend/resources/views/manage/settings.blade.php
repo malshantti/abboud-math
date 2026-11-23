@@ -133,6 +133,58 @@
  .sbar{bottom:8px;padding:8px 10px;gap:8px;flex-wrap:nowrap}.sbar .st{font-size:13.5px;line-height:1.45}.sbar .btn{min-width:0;min-height:48px;padding:8px 14px;font-size:16px;flex:none}.sbar #undo{padding:6px 10px;font-size:14px}
  .sbar.dirty{flex-wrap:wrap}.sbar.dirty .st{flex-basis:100%}.sbar.dirty .btn{flex:1}
 }
+
+/* ---- settings v2: one line per subject on phones, quieter type, collapsible tools ---- */
+.sc-nav button,.sc-nav a{font:500 14.5px/1.35 Plex,sans-serif}
+.sc-nav button[aria-selected=true]{font-weight:600}
+.sc-nav a small{font:500 11.5px/1 Plex,sans-serif}
+.sc-nav hr{border-top:1px solid var(--line2)}
+.panel>header .pi{width:44px;height:44px;border-radius:12px}.panel>header .pi .ico{width:22px;height:22px}
+.panel>header h2{font:600 22px/1.3 Plex,sans-serif}
+.panel>header p{font-weight:400;font-size:14px}
+.card h3{font:600 16px/1.4 Plex,sans-serif}
+.card>.sub{font-weight:400;font-size:14px}
+.field label{font:500 14px/1.4 Plex,sans-serif;color:var(--ink2)}
+.sw{border-bottom:1px solid var(--line2);padding:12px 0}
+.sw b{font:600 15px/1.4 Plex,sans-serif}.sw small{font-weight:400;font-size:13px}
+.stack{gap:14px}
+details.tool{padding:0}
+details.tool>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 18px}
+details.tool>summary::-webkit-details-marker{display:none}
+details.tool>summary h3{margin:0;flex:1}
+details.tool>summary:after{content:"";width:9px;height:9px;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg);transition:transform .15s;margin-inline-end:4px}
+details.tool[open]>summary:after{transform:rotate(-135deg)}
+details.tool>:not(summary){margin-inline:18px}
+details.tool[open]{padding-bottom:16px}
+.gh{padding:10px 18px;background:#f7f9f3;border-bottom:1px solid var(--line)}
+.gh h3{font:600 16px/1.4 Plex,sans-serif}
+.gh .chip{font:500 12px/1.7 Plex,sans-serif}
+.gh .tools input{font-weight:600;min-height:38px;width:84px}
+.gh .tools .btn{min-height:38px}
+.phead{font:500 12.5px/1.4 Plex,sans-serif;border-bottom:1px solid var(--line);padding:8px 18px}
+.prow{border-bottom:1px solid var(--line2);padding:8px 18px}
+.prow .pname b{font:500 15px/1.4 Plex,sans-serif}
+.prow .pname small{font-weight:400;font-size:12px}
+.prow input{min-height:40px;font:600 15px/1 Plex,sans-serif}
+.prow.off .pname b{color:var(--muted)}
+.prow.off input{color:var(--muted)}
+.unit span{font:500 13px/1 Plex,sans-serif;color:var(--muted)}
+.sbar .st{font-weight:500}
+@media (max-width:640px){
+ .phead{display:grid;grid-template-columns:minmax(0,1fr) 78px 62px 50px;gap:8px;padding:8px 12px}
+ .phead span:nth-child(n+2){text-align:center}
+ .prow{grid-template-columns:minmax(0,1fr) 78px 62px 50px;gap:8px;padding:6px 12px}
+ .prow .pname{grid-column:auto;display:flex;align-items:center;gap:6px}
+ .prow .pname>span{min-width:0}
+ .prow .pname .ibtn{width:34px;height:34px;flex:none}
+ .prow label.l{display:none}
+ .prow .unit span{display:none}
+ .prow .unit input{border-radius:10px!important;padding:0 4px}
+ .prow .act{grid-column:auto;border-top:0;padding-top:0;justify-content:flex-end}
+ .prow .act:before{content:none}
+ .gh{padding:10px 12px}.gh .tools{width:100%}
+ details.tool>summary{padding:12px 14px}details.tool>:not(summary){margin-inline:14px}
+}
 </style>
 
 @if (session('status'))<div class="toast" id="toast" role="status">@include('partials.admin-icon',['name'=>'check']){{ $ar::num(session('status')) }}</div>@endif
@@ -157,8 +209,8 @@
 <section class="panel" id="p-prices" role="tabpanel" aria-labelledby="t-prices" @if($tab!=='prices') hidden @endif>
   <header><span class="pi">@include('partials.admin-icon',['name'=>'tag'])</span><div><h2>الأسعار والمواد</h2><p>سعر كل مادة في كل صف بعملة «{{ $s['currency'] }}»، ومدة الاشتراك بالأيام، وإتاحتها للاشتراك.</p></div></header>
   <div class="stack">
-  <div class="card">
-    <h3>@include('partials.admin-icon',['name'=>'copy'])إجراءات جماعية</h3>
+  <details class="card tool">
+    <summary><h3>@include('partials.admin-icon',['name'=>'copy'])نسخ أسعار صف إلى صف آخر</h3></summary>
     <p class="sub">انسخ أسعار صف إلى صف آخر بحسب اسم المادة. تُطبَّق التغييرات في الجدول، ولا تُحفظ قبل الضغط على «حفظ الإعدادات».</p>
     <div class="addu">
       <div class="field"><label for="cp-from">انسخ من</label><select id="cp-from">@foreach ($byGrade as $g => $_)<option value="{{ $g }}">{{ $ar::grade($g) }}</option>@endforeach</select></div>
@@ -166,7 +218,7 @@
       <div class="field"><label class="check" for="cp-days" style="margin:0 0 10px;display:flex;flex-direction:row;font-weight:700"><input type="checkbox" id="cp-days" checked style="margin:0"><span>مع مدة الاشتراك</span></label><button type="button" class="btn ghost small" id="cp-go" style="width:100%">@include('partials.admin-icon',['name'=>'copy'])انسخ الأسعار</button></div>
     </div>
     <p class="hint" id="cp-msg" role="status" aria-live="polite"></p>
-  </div>
+  </details>
 
   <div id="grades">
   @foreach ($byGrade as $g => $group)
@@ -175,7 +227,7 @@
         <div class="tools"><label class="sr" for="bulk-{{ $g }}" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">سعر موحّد لـ{{ $ar::grade($g) }}</label>
           <input id="bulk-{{ $g }}" inputmode="numeric" data-num placeholder="السعر" aria-label="سعر موحّد لـ{{ $ar::grade($g) }}">
           <button type="button" class="btn ghost small" data-bulk="{{ $g }}">طبّق على الصف كله</button></div></div>
-      <div class="phead" aria-hidden="true"><span>المادة</span><span>السعر</span><span>المدة بالأيام</span><span style="text-align:end">متاحة</span></div>
+      <div class="phead" aria-hidden="true"><span>المادة</span><span>السعر ({{ $s['currency'] }})</span><span>المدة (يوم)</span><span style="text-align:end">متاحة</span></div>
       @foreach ($group as $p)
         @php($c = $p['code'])
         @php($act = old('_sent') ? (bool) old("prices.$c.active") : $p['active'])
@@ -191,8 +243,8 @@
   @endforeach
   </div>
 
-  <div class="card">
-    <h3>@include('partials.admin-icon',['name'=>'plus'])إضافة مادة أو صف من المنهاج</h3>
+  <details class="card tool" @if($errors->has('extra')) open @endif>
+    <summary><h3>@include('partials.admin-icon',['name'=>'plus'])إضافة مادة أو صف من المنهاج</h3></summary>
     <p class="sub">أضف أي مادة لأي صف من الصف الأول إلى الصف الثاني عشر. تُضاف المادة غير متاحة للاشتراك حتى يُرفع محتواها إلى الموقع في المجلد <span dir="ltr">g{رقم الصف}/{رمز المادة}</span>، ثم تفعّلها من مفتاح «متاحة». يظهر الصف الجديد لأولياء الأمور عند إضافة الطلاب.</p>
     <div class="addu">
       <div class="field"><label for="nu-grade">الصف</label><select id="nu-grade">@foreach ($ar::GRADE_WORDS as $g => $l)<option value="{{ $g }}">{{ $l }}</option>@endforeach</select></div>
@@ -201,7 +253,7 @@
       <div class="field"><button type="button" class="btn small" id="nu-add" style="width:100%">@include('partials.admin-icon',['name'=>'plus'])أضف المادة</button></div>
     </div>
     <p class="hint" id="nu-msg" role="status" aria-live="polite"></p>{!! $err('extra') !!}
-  </div>
+  </details>
   </div>
 </section>
 
