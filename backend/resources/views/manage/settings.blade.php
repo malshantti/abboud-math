@@ -12,7 +12,7 @@
     'learning' => ['المواد والتحفيز', 'star', 'إخفاء المواد والشارات والنقاط'],
     'maintenance' => ['وضع الصيانة', 'wrench', 'إيقاف موقع الطلاب مؤقتًا'],
   ];
-  $fieldTab = ['prices'=>'prices','extra'=>'prices','trial_days'=>'trial','gating_enabled'=>'trial','grace_days'=>'trial','reminder_days'=>'trial','max_pending'=>'trial','pending_expire_days'=>'trial','auto_expire'=>'trial',
+  $fieldTab = ['prices'=>'prices','extra'=>'prices','trial_days'=>'trial','gating_enabled'=>'trial','payments_enabled'=>'payment','free_now_banner'=>'payment','free_now_message'=>'payment','grace_days'=>'trial','reminder_days'=>'trial','max_pending'=>'trial','pending_expire_days'=>'trial','auto_expire'=>'trial',
     'whatsapp_number'=>'payment','whatsapp_template'=>'payment','currency'=>'payment','payment_instructions'=>'payment',
     'site_name'=>'identity','tagline'=>'identity','hero'=>'identity','announcement'=>'identity','faq'=>'identity',
     'max_students'=>'accounts','session_minutes'=>'accounts','voice_volume'=>'voice','facebook_url'=>'contact','instagram_url'=>'contact','contact_email'=>'contact','footer_text'=>'contact','maintenance_message'=>'maintenance','hidden'=>'learning','points_multiplier'=>'learning'];
@@ -185,6 +185,12 @@ details.tool[open]{padding-bottom:16px}
  .gh{padding:10px 12px}.gh .tools{width:100%}
  details.tool>summary{padding:12px 14px}details.tool>:not(summary){margin-inline:14px}
 }
+
+/* payments switch: the «free now» texts show only while payments are off */
+.pay-switch:has(#payments_enabled:checked) .free-now{display:none}
+.pay-switch:not(:has(#payments_enabled:checked)){border-color:#bfe0a4;background:linear-gradient(#f4fbec,#fff 70px)}
+.free-now{border-top:1px solid var(--line2);margin-top:4px;padding-top:12px}
+.free-badge{display:flex;align-items:center;gap:8px;margin:0 0 4px;color:var(--gd);font:600 14px/1.5 Plex,sans-serif}.free-badge .ico{width:18px;height:18px;color:var(--sun)}
 </style>
 
 @if (session('status'))<div class="toast" id="toast" role="status">@include('partials.admin-icon',['name'=>'check']){{ $ar::num(session('status')) }}</div>@endif
@@ -290,6 +296,14 @@ details.tool[open]{padding-bottom:16px}
 <section class="panel" id="p-payment" role="tabpanel" aria-labelledby="t-payment" @if($tab!=='payment') hidden @endif>
   <header><span class="pi">@include('partials.admin-icon',['name'=>'wallet'])</span><div><h2>الدفع وواتساب</h2><p>يرسل الأهل طلبه برسالة واتساب جاهزة، ثم تفعّل المواد من «الاشتراكات».</p></div></header>
   <div class="stack">
+  <div class="card pay-switch" id="pay-switch">
+    <label class="sw" style="padding-top:0"><span><b>تفعيل الدفع</b><small>عند الإيقاف يصبح الموقع مجانيًا بالكامل الآن: تُفتح كل المواد لكل الحسابات دون اشتراك أو تجربة، وتظهر رسالة «مجاني الآن» في الصفحة الرئيسية والتسجيل وحساب الأهل وصفحات الدروس، ويتوقف استقبال طلبات الاشتراك وتذكيرات انتهاء التجربة. الاشتراكات الحالية تبقى محفوظة كما هي.</small></span><span class="tg"><input type="checkbox" name="payments_enabled" value="1" id="payments_enabled" @checked($on('payments_enabled'))><i></i></span></label>
+    <div class="free-now" id="free-now">
+      <p class="free-badge">@include('partials.admin-icon',['name'=>'star'])<span>الدفع متوقف: البستان مجاني الآن لكل العائلات</span></p>
+      <div class="field"><label for="free_now_banner">الشريط أعلى الصفحة الرئيسية</label><input id="free_now_banner" name="free_now_banner" maxlength="200" value="{{ $v('free_now_banner') }}" placeholder="{{ \App\Models\Setting::DEFAULTS['free_now_banner'] }}" class="@error('free_now_banner') is-bad @enderror"><p class="hint">سطر واحد قصير، يظهر أعلى الصفحة الرئيسية وفي حساب الأهل. اتركه فارغًا لاستخدام النص المقترح.</p>{!! $err('free_now_banner') !!}</div>
+      <div class="field"><label for="free_now_message">رسالة «مجاني الآن»</label><textarea id="free_now_message" name="free_now_message" rows="4" maxlength="800" placeholder="{{ \App\Models\Setting::DEFAULTS['free_now_message'] }}" class="@error('free_now_message') is-bad @enderror">{{ $v('free_now_message') }}</textarea><p class="hint">تظهر في صفحة التسجيل وفي الأسئلة الشائعة. اتركها فارغة لاستخدام النص المقترح.</p>{!! $err('free_now_message') !!}</div>
+    </div>
+  </div>
   <div class="card"><div class="fg">
     <div class="field"><label for="whatsapp_number">رقم واتساب لاستقبال الطلبات</label><input id="whatsapp_number" name="whatsapp_number" dir="ltr" inputmode="tel" value="{{ $v('whatsapp_number') }}" placeholder="970599000000" class="@error('whatsapp_number') is-bad @enderror"><p class="hint">بالصيغة الدولية دون علامة + أو أصفار بادئة.</p>{!! $err('whatsapp_number') !!}</div>
     <div class="field"><label for="currency">العملة</label><input id="currency" name="currency" value="{{ $v('currency') }}" maxlength="10" class="@error('currency') is-bad @enderror"><p class="hint">تظهر بجانب كل سعر، مثل «شيكل».</p>{!! $err('currency') !!}</div>

@@ -43,7 +43,7 @@ class Access
     }
 
     /**
-     * kind: staff | open (gating off) | trial (all subjects) | paid (only listed subjects) | expired.
+     * kind: staff | free (payments off) | open (gating off) | trial (all subjects) | paid (only listed subjects) | expired.
      * subjects: null = every subject; otherwise the allowed codes.
      */
     public static function state(User $user): array
@@ -51,6 +51,10 @@ class Access
         if ($user->role === 'school') {
             // School accounts: the school licence opens every subject (phase 1; no family payments involved).
             return ['access' => true, 'kind' => 'school', 'ends_at' => null, 'subjects' => null];
+        }
+        if (! $user->isStaff() && ! Setting::paymentsOn()) {
+            // Payments switched off: the site is free for now, every subject for every family.
+            return ['access' => true, 'kind' => 'free', 'ends_at' => null, 'subjects' => null];
         }
         if ($user->isStaff() || ! Setting::flag('gating_enabled')) {
             return ['access' => true, 'kind' => $user->isStaff() ? 'staff' : 'open', 'ends_at' => null, 'subjects' => null];

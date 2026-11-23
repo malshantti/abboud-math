@@ -147,17 +147,19 @@
     <img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="96" height="126">
     <div class="txt">
       <h1>أهلًا {{ $user->name }}</h1>
+      @php($freeNow = \App\Models\Setting::freeNow())
       @switch($access['kind'])
+        @case('free')<p class="free-now"><span class="chip">🌱 مجاني الآن</span> {{ $freeNow['banner'] ?? 'البستان مجاني بالكامل الآن' }}. كل مواد صف طفلك مفتوحة الآن، فقط ابدأ التعلّم.</p>@break
         @case('trial')<p><span class="chip warn">{{ \App\Models\Setting::freeMonthEnds() ? 'الشهر المجاني' : 'فترة تجريبية' }}</span> كل المواد متاحة حتى {{ $ar::date($access['ends_at']) }}.</p>@break
         @case('paid')<p><span class="chip">مشترك</span> المواد المفعّلة: {{ collect($access['subjects'])->map(fn($c)=>$ar::subject($c))->join('، ') }}.</p>@break
         @case('expired')@if(\App\Models\Setting::freeMonthEnds())<p><span class="chip warn">الشهر المجاني</span> البستان مجاني حتى {{ \App\Models\Setting::freeMonth()['until_ar'] }}. <a href="{{ route('account.subscribe') }}">اشترك مجانًا لمدة شهر</a> لتفعيل جميع مواد الصف.</p>@else<p><span class="chip bad">انتهت الفترة التجريبية</span> اشترك في المادة التي يحتاجها طفلك لمتابعة الدروس.</p>@endif @break
         @default<p><span class="chip">وصول كامل</span></p>
       @endswitch
-      @foreach ($expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
+      @foreach ($freeNow ? [] : $expiring as $e)<p class="renew" role="status"><span class="chip warn">{{ $e['grace'] ? 'فترة سماح' : 'يقترب الانتهاء' }}</span> {{ $e['name'] }}: {{ $e['grace'] ? 'انتهى في' : 'ينتهي في' }} {{ $ar::date($e['ends_at'], false) }}. <a href="{{ route('account.subscribe') }}">جدّد الاشتراك</a></p>@endforeach
     </div>
     <div class="row">
       @if ($siteUrl && $user->students->isEmpty())<a class="btn sun" href="{{ $siteUrl }}/login.html?sync=1">ابدأ التعلّم على هذا الجهاز</a>@endif
-      <a class="btn ghost" href="{{ route('account.subscribe') }}" data-tour="subscribe">الاشتراك والمواد</a>
+      @unless ($freeNow)<a class="btn ghost" href="{{ route('account.subscribe') }}" data-tour="subscribe">الاشتراك والمواد</a>@endunless
     </div>
   </section>
   <section class="card" id="reminders" data-tour="settings">

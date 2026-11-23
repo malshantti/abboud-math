@@ -159,8 +159,11 @@ class HomeController extends Controller
         return ($id ? $students->firstWhere('id', (int) $id) : null) ?? $students->first();
     }
 
-    public function subscribe(Request $request): View
+    public function subscribe(Request $request): View|RedirectResponse
     {
+        if (Setting::freeNow()) {
+            return redirect()->route('account.home'); // free for now: nothing to subscribe to
+        }
         $user = $request->user()->load('students');
         $student = $this->pickStudent($request, $user, $request->query('student', old('student_id')));
         \App\Support\Funnel::log('subscribe_view', ['student_id' => $student?->id, 'meta' => ['pending' => $user->subscriptions()->where('status', 'pending')->count()]]);
@@ -178,6 +181,9 @@ class HomeController extends Controller
     /** Free-month promo: one tap activates every subject of the child's grade, recorded as normal active rows (gateway free_promo, price 0). */
     public function freeMonth(Request $request): RedirectResponse
     {
+        if (Setting::freeNow()) {
+            return redirect()->route('account.home');
+        }
         $ends = Setting::freeMonthEnds();
         $user = $request->user();
         $student = $user->students()->findOrFail((int) $request->validate(['student_id' => ['required', 'integer']])['student_id']);
@@ -223,6 +229,9 @@ class HomeController extends Controller
 
     public function requestSubscription(Request $request): RedirectResponse
     {
+        if (Setting::freeNow()) {
+            return redirect()->route('account.home'); // payments are off: no new requests
+        }
         \App\Models\Subscription::sweep();
         $plans = Setting::plans(true);
         $data = $request->validate([
