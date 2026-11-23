@@ -363,6 +363,23 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;min-height:18px;ac
 .matrix td.na{color:#c3c9bc}
 @media (max-width:900px){.req{grid-template-columns:minmax(0,1fr) auto;margin-inline-start:0}.req-subj{grid-column:1/-1;grid-row:2}.req-acts{grid-column:1/-1}}
 @media (max-width:640px){.kpi .stat .chart{max-width:none}.req-head{padding-inline:16px}}
+/* Activity feed: day headings, one line per entry, colour by kind, time at the end */
+.feed{list-style:none;margin:0;padding:0}
+.feed-day{position:sticky;top:0;z-index:1;margin:14px 0 2px;padding:4px 0;background:var(--surface);color:var(--muted);font:600 12.5px/1.4 Plex,sans-serif;letter-spacing:.2px}
+.feed-day:first-child{margin-top:0}
+.ev{--ev:var(--muted);--ev-bg:#eef2e8;display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line2)}
+.feed .ev:last-child,.ev:has(+ .feed-day){border-bottom:0}
+.ev-ic{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--ev-bg);color:var(--ev)}.ev-ic .ico{width:17px;height:17px}
+.ev.t-sky{--ev:var(--bd);--ev-bg:var(--sky)}.ev.t-green{--ev:var(--gd);--ev-bg:var(--gl)}.ev.t-amber{--ev:#7a5200;--ev-bg:var(--yl)}.ev.t-red{--ev:var(--red-d);--ev-bg:var(--red-bg)}.ev.t-olive{--ev:var(--olive2);--ev-bg:#eef2e8}
+.ev-body{min-width:0;display:grid;gap:4px;padding-top:5px}
+.ev-line{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font-size:14.5px;line-height:1.5;color:var(--ink2)}
+.ev-line .who{font-weight:600;color:var(--ink);text-decoration:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}a.who:hover{color:var(--gd);text-decoration:underline}
+.ev-what{color:var(--muted)}
+.ev-obj{font-weight:600;color:var(--ink);overflow-wrap:anywhere;unicode-bidi:isolate}.ev-obj:before{content:"·";margin-inline-end:6px;color:var(--muted);font-weight:400}
+.ev-n{font:600 12px/1.6 Plex,sans-serif;padding:0 7px;border-radius:999px;background:#eef2e8;color:var(--ink2)}
+.ev-meta{color:var(--muted);font-size:12.5px;text-align:right;unicode-bidi:plaintext;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev .act-items{gap:5px}.ev .act-items small{font-weight:500;font-size:12.5px}.ev .pill{background:#f2f4ed;color:var(--ink2)}
+.ev-time{padding-top:6px;color:var(--muted);font:500 12.5px/1.5 Plex,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
