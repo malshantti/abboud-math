@@ -214,7 +214,7 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;min-height:18px;ac
 .side{background:var(--olive);color:var(--olive-ink);border-inline-end:0;padding:20px 26px 16px 14px;gap:12px}
 .side{background-color:var(--olive);background-image:var(--stitch-v);background-size:14px 24px;background-position:right 4px top 6px;background-repeat:repeat-y;scrollbar-width:thin;scrollbar-color:#46644b transparent}
 .side .logo{border-bottom:1px solid rgba(255,255,255,.10);padding:2px 10px 16px}
-.side .logo img{height:40px;filter:brightness(0) invert(1);opacity:.96}
+.side .logo img{height:40px}
 .side .logo small{font:500 12.5px/1.4 Plex,sans-serif;color:var(--olive-mute)}
 .side .admin-nav .nav-group{color:#86a07f;font:500 12px/1.4 Plex,sans-serif;margin:18px 12px 6px}
 .side .admin-nav .nav-group:first-child{margin-top:2px}
@@ -230,7 +230,6 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;min-height:18px;ac
 .me .btn.ghost{background:transparent;color:#e7efdf;border-color:rgba(255,255,255,.22)}.me .btn.ghost:hover{background:rgba(255,255,255,.08);color:#fff}
 .top{background:var(--olive);border-bottom:0;padding-bottom:16px}
 .top:after{content:"";position:absolute;inset-inline:0;bottom:0;height:12px;background:var(--stitch-h) right top/24px 12px repeat-x;opacity:.4}
-.top img{filter:brightness(0) invert(1)}
 .top .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}
 .scrim{background:rgba(15,26,18,.5)}
 .main{padding:30px clamp(16px,3vw,44px) 60px}
@@ -380,16 +379,23 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;min-height:18px;ac
 .ev-meta{color:var(--muted);font-size:12.5px;text-align:right;unicode-bidi:plaintext;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ev .act-items{gap:5px}.ev .act-items small{font-weight:500;font-size:12.5px}.ev .pill{background:#f2f4ed;color:var(--ink2)}
 .ev-time{padding-top:6px;color:var(--muted);font:500 12.5px/1.5 Plex,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Brand: the mascot keeps its colours on the olive bars; the name is live white text (no inverted wordmark) */
+.brand{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;text-decoration:none}
+.brand img,.side .logo .brand img,.top .brand img{flex:none;width:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));opacity:1}
+.side .logo .brand img{height:44px}.top .brand img{height:38px}
+.brand b{font:700 20px/1.2 Plex,sans-serif;color:#fff;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .brand b{font-size:18px}
+.side .logo small{margin-top:6px;padding-inline-start:44px}
 </style>
 </head>
 <body>
 <header class="top">
-  <a href="{{ route('manage.dashboard') }}"><img src="{{ asset('ui/logo-horizontal.webp') }}" alt="{{ \App\Models\Setting::get('site_name') }}" width="119" height="38"></a>
+  <a class="brand" href="{{ route('manage.dashboard') }}"><img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="30" height="38"><b>{{ \App\Models\Setting::get('site_name') }}</b></a>
   <button class="btn ghost small" type="button" id="nav-toggle" aria-controls="side" aria-expanded="false">@include('partials.admin-icon',['name'=>'menu'])<span>القائمة</span></button>
 </header>
 <div class="shell">
   <aside class="side" id="side">
-    <a class="logo" href="{{ route('manage.dashboard') }}"><img src="{{ asset('ui/logo-horizontal.webp') }}" alt="{{ \App\Models\Setting::get('site_name') }}" width="144" height="46"><small>لوحة الإدارة</small></a>
+    <a class="logo" href="{{ route('manage.dashboard') }}"><span class="brand"><img src="{{ asset('ui/logo-mascot.webp') }}" alt="" width="34" height="44"><b>{{ \App\Models\Setting::get('site_name') }}</b></span><small>لوحة الإدارة</small></a>
     @include('partials.admin-nav')
     <form class="me" method="post" action="{{ route('logout') }}">@csrf<b>{{ auth()->user()->name }}</b><span>{{ \App\Models\User::ROLES[auth()->user()->isAdminRole() ? 'admin' : auth()->user()->role] }}</span><button class="btn ghost small" type="submit">@include('partials.admin-icon',['name'=>'logout'])تسجيل الخروج</button></form>
   </aside>
