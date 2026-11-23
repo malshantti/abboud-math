@@ -72,6 +72,26 @@ class ManageDashboardLayoutTest extends TestCase
         $this->get('/admin/manage')->assertOk()->assertSee('مراجعتها');
     }
 
+    public function test_students_list_has_owner_tabs_with_counts_and_rows_link_to_the_student(): void
+    {
+        $admin = $this->admin();
+        $parent = User::factory()->create(['name' => 'وليّ', 'email' => 'family@example.test']);
+        $kid = $parent->students()->create(['name' => 'سندس', 'grade' => 6]);
+        $school = User::factory()->create(['name' => 'مدرسة', 'email' => 'sc@school.example.test']);
+        $school->forceFill(['role' => 'school'])->save();
+        $school->students()->create(['name' => 'طالب مدرسة', 'grade' => 4]);
+
+        $html = $this->actingAs($admin)->get('/admin/manage/students')->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('/أولياء الأمور <small>1<\/small>/', $html);
+        $this->assertMatchesRegularExpression('/المدارس <small>1<\/small>/', $html);
+        $this->assertStringContainsString('href="'.route('manage.student', $kid).'"', $html);
+        $this->assertStringContainsString('family@example.test', $html);
+        $this->assertStringNotContainsString('sc@school.example.test', $html, 'School accounts show «حساب مدرسة», not their placeholder email');
+
+        $this->get('/admin/manage/students?owner=school')->assertOk()->assertSee('طالب مدرسة')->assertDontSee('سندس');
+        $this->get('/admin/manage/students?owner=parents')->assertOk()->assertSee('سندس')->assertDontSee('طالب مدرسة');
+    }
+
     public function test_export_buttons_are_one_menu_and_zero_is_readable(): void
     {
         $page = $this->actingAs($this->admin())->get('/admin/manage')->assertOk();

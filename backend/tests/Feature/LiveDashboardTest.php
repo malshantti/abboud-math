@@ -46,6 +46,21 @@ class LiveDashboardTest extends TestCase
         $this->assertArrayNotHasKey('email', $json['people'][0]);
     }
 
+    public function test_each_family_is_listed_once_with_online_ones_first(): void
+    {
+        $admin = $this->admin();
+        $earlier = User::factory()->create(['name' => 'عائلة الصباح']);
+        $earlier->forceFill(['active_device_seen_at' => now()->subMinutes(30)])->save();
+        $on = User::factory()->create(['name' => 'عائلة متصلة']);
+        $on->forceFill(['active_device_seen_at' => now()->subMinute()])->save();
+
+        $html = $this->actingAs($admin)->get('/admin/manage/live')->assertOk()->getContent();
+        $this->assertSame(1, substr_count($html, '<b class="who">عائلة متصلة</b>'), 'Online family is not listed twice');
+        $this->assertMatchesRegularExpression('/<li class="pp on" data-id="'.$on->id.'">.*<li class="pp" data-id="'.$earlier->id.'">/s', $html);
+        $this->assertStringContainsString('<b>متصل الآن</b>', $html);
+        $this->assertStringNotContainsString('كل حسابات الأهل', $html, 'Site totals live on the dashboard, not here');
+    }
+
     public function test_parents_cannot_open_it(): void
     {
         $parent = User::factory()->create();

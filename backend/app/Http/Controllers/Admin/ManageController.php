@@ -221,13 +221,22 @@ class ManageController extends Controller
         if (array_key_exists((int) $request->query('grade'), Setting::gradeOptions())) {
             $q->where('grade', (int) $request->query('grade'));
         }
-        if ($request->query('owner') === 'parents') {
-            $q->whereHas('user', fn ($u) => $u->parents());
-        } elseif ($request->query('owner') === 'review') {
-            $q->whereIn('id', \App\Support\StudentAudit::reviewIds());
+        $base = clone $q; // search and grade only, for the tab counts
+        $owners = [
+            'parents' => fn ($w) => $w->whereHas('user', fn ($u) => $u->parents()),
+            'school' => fn ($w) => $w->whereHas('user', fn ($u) => $u->where('role', 'school')),
+            'review' => fn ($w) => $w->whereIn('id', \App\Support\StudentAudit::cachedSummary()['ids']),
+        ];
+        $owner = array_key_exists($o = (string) $request->query('owner'), $owners) ? $o : '';
+        if ($owner) {
+            $owners[$owner]($q);
         }
+        // Tab counts only for admins: teachers see their own classes and no owner split.
+        $counts = $request->user()->can('manage-site')
+            ? ['' => (clone $base)->count()] + array_map(fn ($f) => tap(clone $base, $f)->count(), $owners)
+            : null;
 
-        return view('manage.students', ['students' => $q->latest('id')->paginate(25)->withQueryString()]);
+        return view('manage.students', ['students' => $q->latest('id')->paginate(25)->withQueryString(), 'owner' => $owner, 'counts' => $counts]);
     }
 
     public function student(Request $request, Student $student): View
