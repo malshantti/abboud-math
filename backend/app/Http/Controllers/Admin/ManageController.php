@@ -370,6 +370,7 @@ class ManageController extends Controller
         'prices' => 'الأسعار', 'catalog_extra' => 'الصفوف والمواد المضافة',
         'trial_days' => 'مدة التجربة', 'gating_enabled' => 'قفل المواد بعد التجربة', 'grace_days' => 'أيام السماح', 'reminder_days' => 'أيام التذكير قبل الانتهاء',
         'max_pending' => 'الحد الأقصى للطلبات المعلّقة', 'auto_expire' => 'الإنهاء التلقائي', 'pending_expire_days' => 'مدة بقاء الطلب المعلّق',
+        'payments_enabled' => 'تفعيل الدفع', 'free_now_banner' => 'شريط «مجاني الآن»', 'free_now_message' => 'رسالة «مجاني الآن»',
         'whatsapp_number' => 'رقم واتساب', 'whatsapp_template' => 'نص رسالة واتساب', 'currency' => 'العملة', 'payment_instructions' => 'تعليمات الدفع',
         'site_name' => 'اسم الموقع', 'tagline' => 'الشعار', 'hero_title' => 'عنوان الواجهة', 'hero_title_mark' => 'السطر المميّز في العنوان', 'hero_subtitle' => 'وصف الواجهة',
         'hero_badge' => 'شارة الواجهة', 'announcement' => 'نص الإعلان', 'announcement_active' => 'إظهار الإعلان', 'announcement_color' => 'لون الإعلان',
@@ -381,7 +382,7 @@ class ManageController extends Controller
         'subjects_hidden' => 'المواد المخفية', 'badges_enabled' => 'إظهار الشارات', 'push_enabled' => 'تذكير يومي بالإشعارات', 'points_multiplier' => 'مضاعف النقاط',
     ];
 
-    private const FLAGS = ['gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on', 'badges_enabled', 'push_enabled'];
+    private const FLAGS = ['payments_enabled', 'gating_enabled', 'auto_expire', 'announcement_active', 'registration_open', 'single_device', 'voice_enabled', 'voice_autoplay', 'maintenance_on', 'badges_enabled', 'push_enabled'];
 
     public function updateSettings(Request $request): RedirectResponse
     {
@@ -394,6 +395,7 @@ class ManageController extends Controller
             'trial_days' => $int(0, 90), 'grace_days' => $int(0, 60), 'reminder_days' => $int(0, 60), 'max_pending' => $int(1, 50), 'pending_expire_days' => $int(0, 365),
             'whatsapp_number' => ['nullable', 'string', 'max:20', 'regex:/^\+?[0-9 ]{8,20}$/'], 'whatsapp_template' => $text(2000, true),
             'currency' => $text(10, true), 'payment_instructions' => $text(1000),
+            'free_now_banner' => $text(200), 'free_now_message' => $text(800),
             'site_name' => $text(80, true), 'tagline' => $text(160), 'hero_title' => $text(80, true), 'hero_title_mark' => $text(80), 'hero_subtitle' => $text(400, true),
             'hero_badge' => $text(80), 'announcement' => $text(500), 'announcement_color' => ['required', Rule::in(array_keys(Setting::ANNOUNCEMENT_COLORS))],
             'announcement_link' => $url, 'announcement_from' => ['nullable', 'date'], 'announcement_to' => ['nullable', 'date', 'after:announcement_from'],
@@ -474,6 +476,7 @@ class ManageController extends Controller
             'max_pending' => (int) $data['max_pending'], 'pending_expire_days' => (int) $data['pending_expire_days'],
             'whatsapp_number' => preg_replace('/\D+/', '', (string) $data['whatsapp_number']), 'whatsapp_template' => str_replace("\r\n", "\n", trim($data['whatsapp_template'])),
             'currency' => trim($data['currency']), 'payment_instructions' => str_replace("\r\n", "\n", trim((string) $data['payment_instructions'])),
+            'free_now_banner' => trim((string) $data['free_now_banner']), 'free_now_message' => str_replace("\r\n", "\n", trim((string) $data['free_now_message'])),
             'site_name' => trim($data['site_name']), 'tagline' => trim((string) $data['tagline']), 'hero_title' => trim($data['hero_title']),
             'hero_title_mark' => trim((string) $data['hero_title_mark']), 'hero_subtitle' => trim($data['hero_subtitle']), 'hero_badge' => trim((string) $data['hero_badge']),
             'announcement' => trim((string) $data['announcement']), 'announcement_color' => $data['announcement_color'], 'announcement_link' => trim((string) $data['announcement_link']),

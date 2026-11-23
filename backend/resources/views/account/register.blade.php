@@ -14,9 +14,10 @@
 <main class="auth">
   <section class="card">
     @php($fmi = \App\Models\Setting::freeMonth())
-    <h1>@if($fmi)أنشئ حسابك – البستان مجاني بالكامل حتى {{ $fmi['until_ar'] }}@elseأنشئ حسابك المجاني – {{ $ar::num(\App\Models\Setting::get('trial_days')) }} أيام بكل المواد@endif</h1>
+    @php($fn = \App\Models\Setting::freeNow())
+    <h1>@if($fn)أنشئ حسابك — البستان مجاني بالكامل الآن 🌱@elseif($fmi)أنشئ حسابك – البستان مجاني بالكامل حتى {{ $fmi['until_ar'] }}@elseأنشئ حسابك المجاني – {{ $ar::num(\App\Models\Setting::get('trial_days')) }} أيام بكل المواد@endif</h1>
     @if ($open)
-    <p class="lead">خطوة واحدة: اسمك ورقم جوالك وصف طفلك. لا يلزم أي دفع.</p>
+    <p class="lead">@if($fn){{ $fn['message'] }}@elseخطوة واحدة: اسمك ورقم جوالك وصف طفلك. لا يلزم أي دفع.@endif</p>
     @if (session('status'))<p class="alert {{ request()->boolean('email') ? 'warn' : 'ok' }}" role="status">{{ session('status') }}</p>@endif
     @php($other = collect($errors->getMessages())->except(['name', 'email', 'password', 'phone', 'grade'])->flatten())
     @if ($other->isNotEmpty())<div class="alert err" role="alert"><ul>@foreach ($other as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif

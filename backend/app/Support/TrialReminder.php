@@ -11,6 +11,9 @@ class TrialReminder
     public static function run(int $hours = 24): array
     {
         $out = ['candidates' => 0, 'emailed' => 0, 'pushed' => 0];
+        if (! \App\Models\Setting::paymentsOn()) {
+            return $out; // payments are off: nothing ends, so no «your trial ends soon» messages
+        }
         $users = User::parents()->whereNotNull('trial_ends_at')
             ->where('trial_ends_at', '>', now())->where('trial_ends_at', '<=', now()->addHours(max(1, $hours)))
             ->whereDoesntHave('subscriptions', fn ($q) => $q->where('status', 'active')->where('ends_at', '>', now()))

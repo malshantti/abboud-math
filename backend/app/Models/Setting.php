@@ -25,6 +25,22 @@ class Setting extends Model
         'announcement' => '',
         'announcement_active' => '0',
         'trial_days' => '3',
+        // Payments switch: off = the whole site is free for now (every account opens every subject, no subscribe flow).
+        'payments_enabled' => '1',
+        'free_now_banner' => 'بستان التعلّم مجاني بالكامل الآن 🌱 كل المواد لكل الصفوف، بلا اشتراك ولا دفع',
+        'free_now_message' => 'لأن تعلّم أطفالنا لا ينتظر، فتحنا البستان مجانًا للجميع في هذه الفترة. كل الدروس والمواد لكل الصفوف متاحة لطفلك الآن، بلا اشتراك ولا دفع ولا بطاقة. أنشئ حسابًا، أضف طفلك، وابدأ فورًا.',
+        'mail_welcome_open_body' => "مرحبًا {name}،
+
+يسعدنا انضمامك إلى {site} 🌱
+
+لأن تعلّم أطفالنا لا ينتظر، البستان مجاني بالكامل في هذه الفترة: كل الدروس والمواد لكل الصفوف مفتوحة لطفلك الآن، بلا اشتراك ولا دفع.
+
+أضف طفلك من حسابك وابدأ التعلّم مباشرة.
+
+للدعم الفني عبر واتساب: {whatsapp_local}
+
+مع خالص التقدير،
+فريق بستان التعلّم",
         'whatsapp_number' => '972592945557',
         'currency' => 'شيكل',
         // One subject per line: gradeSubject|price|days  (e.g. g6-math|20|30). Unit = one subject in one grade.
@@ -317,7 +333,7 @@ class Setting extends Model
             ];
         }
 
-        return ['free_month' => static::freeMonth()] + [
+        return ['free_month' => static::freeMonth(), 'free_now' => static::freeNow()] + [
             'currency' => static::get('currency'), 'trial_days' => static::int('trial_days', 0, 365),
             'whatsapp' => preg_replace('/\D+/', '', static::get('whatsapp_number')),
             'payment_instructions' => static::get('payment_instructions'),
@@ -378,7 +394,14 @@ class Setting extends Model
         $fill = fn (string $t) => strtr($t, ['{days}' => static::daysText($days), '{trial_days}' => static::daysText(static::int('trial_days', 0, 365))]);
 
         $faq = array_map(fn ($i) => ['q' => $fill((string) $i['q']), 'a' => $fill((string) $i['a'])], static::faq());
-        if ($fmi = static::freeMonth()) {
+        $fn = static::freeNow();
+        if ($fn) {
+            // Free for now: drop the answers about trial days, prices and paying; one warm answer instead.
+            $faq = array_values(array_filter($faq, fn ($i) => ! preg_match('/مجاني|تجرب|اشترا?ك|دفع|سعر|أسعار|يُخصم/u', $i['q'].' '.$i['a'])));
+            array_unshift($faq, ['q' => 'هل البستان مجاني الآن؟', 'a' => 'نعم، مجاني بالكامل. '.$fn['message']]);
+        }
+        $fmi = static::freeMonth();
+        if ($fmi) {
             // During the free month: no «الأيام المجانية» answers; one clear answer about the free month instead.
             $faq = array_values(array_filter($faq, fn ($i) => ! preg_match('/مجاني|تجرب/u', $i['q'].' '.$i['a'])));
             array_unshift($faq, ['q' => 'هل البستان مجاني الآن؟', 'a' => 'نعم. بستان التعلّم مجاني بالكامل حتى '.$fmi['until_ar'].'. أضف طفلك واضغط «اشترك مجانًا لمدة شهر» فتُفعَّل جميع مواد صفّه بضغطة واحدة، دون أي دفع.']);
@@ -388,8 +411,8 @@ class Setting extends Model
         return [
             'site_name' => static::get('site_name'), 'tagline' => static::get('tagline'),
             'registration_open' => static::flag('registration_open'),
-            'announcement' => $fmi ? $fmi['banner'] : ($live ? static::get('announcement') : ''),
-            'announcement_link' => $fmi ? 'https://bustankids.com/admin-api/account/register' : ($live ? static::get('announcement_link') : ''),
+            'announcement' => $fn ? $fn['banner'] : ($fmi ? $fmi['banner'] : ($live ? static::get('announcement') : '')),
+            'announcement_link' => $fn || $fmi ? 'https://bustankids.com/admin-api/account/register' : ($live ? static::get('announcement_link') : ''),
             'announcement_color' => ['bg' => $color['bg'], 'line' => $color['line'], 'ink' => $color['ink']],
             'hero' => ['title' => static::get('hero_title'), 'mark' => static::get('hero_title_mark'), 'subtitle' => static::get('hero_subtitle'), 'badge' => static::get('hero_badge')],
             'faq' => $faq,
@@ -397,7 +420,8 @@ class Setting extends Model
             'contact' => ['facebook' => static::get('facebook_url'), 'instagram' => static::get('instagram_url'), 'email' => static::get('contact_email'),
                 'whatsapp' => preg_replace('/\D+/', '', static::get('whatsapp_number')), 'footer' => static::get('footer_text')],
             'trial_days' => static::int('trial_days', 0, 365),
-            'free_month' => $fm = static::freeMonth(),
+            'free_month' => $fmi,
+            'free_now' => $fn,
             'rules' => static::learningRules(),
             'media' => (object) \App\Support\MediaLibrary::map(),
             'maintenance' => static::flag('maintenance_on') ? ['message' => static::get('maintenance_message')] : null,
@@ -439,6 +463,9 @@ class Setting extends Model
     /** End of the free-month promo (end of its last day) while it is running, else null. */
     public static function freeMonthEnds(): ?\Illuminate\Support\Carbon
     {
+        if (! static::paymentsOn()) {
+            return null; // the whole site is free: no dated free-month promo on top of it
+        }
         $d = trim((string) static::get('free_month_until'));
         if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
             return null;
@@ -446,5 +473,22 @@ class Setting extends Model
         $end = \Illuminate\Support\Carbon::parse($d, config('app.display_timezone', 'Asia/Gaza'))->endOfDay()->utc();
 
         return $end->isFuture() ? $end : null;
+    }
+
+    /** Payments switch (settings → الدفع وواتساب). Off = everything is free for now. */
+    public static function paymentsOn(): bool
+    {
+        return static::get('payments_enabled') !== '0';
+    }
+
+    /** «Free for now» texts while payments are off, else null: banner (one line) and message (a short paragraph). */
+    public static function freeNow(): ?array
+    {
+        if (static::paymentsOn()) {
+            return null;
+        }
+        $t = fn (string $k) => trim(static::get($k)) !== '' ? trim(static::get($k)) : static::DEFAULTS[$k];
+
+        return ['banner' => $t('free_now_banner'), 'message' => $t('free_now_message')];
     }
 }
