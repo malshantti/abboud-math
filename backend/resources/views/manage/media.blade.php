@@ -24,7 +24,7 @@
 <section class="card" style="margin-bottom:16px">
 <h2 style="margin-top:0">@include('partials.admin-icon',['name'=>'plus'])رفع ملف جديد</h2>
 <form method="post" action="{{ route('manage.media.upload') }}" enctype="multipart/form-data" class="md-bar">@csrf
-  <div><label for="up">صورة (PNG/JPG/WebP/GIF) أو صوت (MP3/OGG/WAV/M4A)، حتى ١٦ ميغابايت</label><input id="up" type="file" name="file" required accept="image/png,image/jpeg,image/webp,image/gif,audio/mpeg,audio/ogg,audio/wav,audio/mp4,.m4a"></div>
+  <div><label for="up">صورة (PNG/JPG/WebP/GIF) أو صوت (MP3/OGG/WAV/M4A)، حتى 16 ميغابايت</label><input id="up" type="file" name="file" required accept="image/png,image/jpeg,image/webp,image/gif,audio/mpeg,audio/ogg,audio/wav,audio/mp4,.m4a"></div>
   <button class="btn" type="submit">رفع</button>
 </form>
 <p class="hint" style="margin:0">تُحفظ الملفات المرفوعة في <code dir="ltr">media/u/</code>. انسخ رابطها لاستخدامه، أو اخترها مباشرة من زر «من مكتبة الوسائط» في منشئ المحتوى ومصمم الاختبارات.</p>
@@ -60,7 +60,7 @@ function card(i){const r=i.r?url(i.r):url(i.p);return '<button type="button" cla
 async function load(reset){if(reset){page=1;items=[];$('grid').innerHTML=''}
  const qs=new URLSearchParams({q:$('q').value,type:$('ty').value,folder:$('fo').value,page,per:60});
  const j=await (await fetch(L+'?'+qs,{headers:{Accept:'application/json'}})).json();site=j.site||site;items=items.concat(j.items);
- $('grid').insertAdjacentHTML('beforeend',j.items.map(card).join(''));$('cnt').textContent=j.total.toLocaleString('ar')+' ملفًا';$('more').hidden=items.length>=j.total}
+ $('grid').insertAdjacentHTML('beforeend',j.items.map(card).join(''));$('cnt').textContent=j.total.toLocaleString('en-US')+' ملفًا';$('more').hidden=items.length>=j.total}
 function media(i,p,label){return '<div class="md-prev"><div class="hint">'+label+'</div>'+(i.t==='image'?'<img src="'+esc(url(p))+'" alt="">':'<audio controls preload="none" src="'+esc(url(p))+'" style="width:100%"></audio>')+'</div>'}
 async function open(p){const i=items.find(x=>x.p===p);if(!i)return;$('pn').textContent=p;$('pu').value=url(i.r||p);$('rp').value=p;$('rsp').value=p;$('rs').hidden=!i.r;
  $('rf').accept=i.t==='image'?'image/png,image/jpeg,image/webp,image/gif':'audio/mpeg,audio/ogg,audio/wav,audio/mp4,.m4a';

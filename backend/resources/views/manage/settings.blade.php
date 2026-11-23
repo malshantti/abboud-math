@@ -390,7 +390,7 @@
 document.querySelectorAll('[data-show]').forEach(function(c){c.addEventListener('change',function(){var h=document.querySelector('[data-hide="'+c.dataset.show+'"]');if(h){h.checked=!c.checked;h.dispatchEvent(new Event('change',{bubbles:true}))}})});
 (function(){
 var f=document.getElementById('sf'),AR='٠١٢٣٤٥٦٧٨٩',GW=@json($ar::GRADE_WORDS),SUBJ=@json($subjectsList),CUR=@json($s['currency']);
-var ar=function(x){return String(x).replace(/[0-9]/g,function(d){return AR[d]})},en=function(x){return String(x).replace(/[٠-٩]/g,function(d){return AR.indexOf(d)}).replace(/[۰-۹]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)})};
+var ar=function(x){return String(x)},en=function(x){return String(x).replace(/[٠-٩]/g,function(d){return AR.indexOf(d)}).replace(/[۰-۹]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)})};
 // tabs
 var tabs=[].slice.call(document.querySelectorAll('[data-tab]'));
 function go(k,push){tabs.forEach(function(t){var on=t.dataset.tab===k;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;document.getElementById('p-'+t.dataset.tab).hidden=!on});

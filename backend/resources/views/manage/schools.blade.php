@@ -12,7 +12,7 @@
     <div class="field"><label for="sl">الرابط القصير (إنجليزي)</label><input id="sl" name="slug" dir="ltr" required maxlength="60" placeholder="alamal" value="{{ old('slug') }}"><p class="hint">تصبح صفحة الدخول: bustankids.com/s/<b>الرابط</b></p></div>
     <div class="field"><label for="m">اسم مدير المدرسة</label><input id="m" name="manager" required maxlength="80" value="{{ old('manager') }}"></div>
     <div class="field" style="display:flex;gap:14px"><label>اللون الأساسي <input type="color" name="color" value="#6f9e23" style="width:70px"></label><label>اللون الثاني <input type="color" name="color2" value="#ffc83d" style="width:70px"></label></div>
-    <div class="field"><label for="lg">الشعار (PNG/JPG/WebP، حتى ١ م.ب)</label><input id="lg" type="file" name="logo" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="field"><label for="lg">الشعار (PNG/JPG/WebP، حتى 1 م.ب)</label><input id="lg" type="file" name="logo" accept="image/png,image/jpeg,image/webp"></div>
     <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="is_test" value="1">مدرسة تجريبية (للاختبار)</label>
     <button class="btn" type="submit" style="margin-top:12px">إنشاء المدرسة وحساب المدير</button>
   </form>

@@ -49,10 +49,10 @@ class SettingsCenterTest extends TestCase
     public function test_settings_center_renders_every_section(): void
     {
         $r = $this->actingAs($this->admin())->get('/admin/manage/settings')->assertOk();
-        foreach (['الأسعار والمواد', 'التجربة والاشتراكات', 'الدفع وواتساب', 'الهوية والصفحة الرئيسية', 'الحسابات والأمان', 'الجولة الصوتية', 'التواصل والتذييل', 'وضع الصيانة', 'إعدادات البريد', 'الصف الثامن', 'طبّق على الصف كله', 'انسخ الأسعار', 'value="٢٠"'] as $t) {
+        foreach (['الأسعار والمواد', 'التجربة والاشتراكات', 'الدفع وواتساب', 'الهوية والصفحة الرئيسية', 'الحسابات والأمان', 'الجولة الصوتية', 'التواصل والتذييل', 'وضع الصيانة', 'إعدادات البريد', 'الصف الثامن', 'طبّق على الصف كله', 'انسخ الأسعار', 'value="20"'] as $t) {
             $r->assertSee($t, false);
         }
-        $r->assertSee(route('manage.mail'), false)->assertDontSee('value="20"', false);
+        $r->assertSee(route('manage.mail'), false)->assertDontSee('value="٢٠"', false); // admin panel: Western digits only
     }
 
     public function test_save_arabic_digits_toggles_and_logs_changes(): void

@@ -60,6 +60,9 @@ class MailCenter
     /** @return array{subject:string,paragraphs:list<string>,button:string,link:string,type:string,whatsapp:?string,site_url:string,logo:string,site:string} */
     public static function render(string $type, string $name, string $link, array $overrides = [], array $extra = []): array
     {
+        if (Ar::latinDigits()) { // the admin preview shows the email exactly as families receive it
+            return Ar::forFamilies(fn () => self::render($type, $name, $link, $overrides, $extra));
+        }
         $wa = self::whatsapp();
         $vars = [
             '{until}' => (string) ($extra['until'] ?? ''), '{subjects}' => (string) ($extra['subjects'] ?? ''), '{student}' => (string) ($extra['student'] ?? ''), '{gift_intro}' => (string) ($extra['gift_intro'] ?? ''), '{to_kids}' => (string) ($extra['to_kids'] ?? 'لطفلكم'), '{kid}' => (string) ($extra['kid'] ?? 'طفلكم'),
@@ -108,6 +111,9 @@ class MailCenter
     /** Send one email and log it. Never throws: a mail failure must not break registration or reset. */
     public static function send(string $type, User $user, string $link, bool $test = false, ?string $to = null, array $extra = []): MailLog
     {
+        if (Ar::latinDigits()) { // emails go to families: Arabic-Indic digits even when sent from the admin panel
+            return Ar::forFamilies(fn () => self::send($type, $user, $link, $test, $to, $extra));
+        }
         $to ??= $user->email;
         $data = self::render($type, $user->name, $link, [], $extra + ($test ? ['until' => Ar::date(now()->addDay()), 'subjects' => 'الرياضيات — الصف الأول', 'student' => 'سارة', 'gift_intro' => 'تقديرًا لثقتكم، فعّلنا لطفلكم شهرًا مجانيًا كاملًا على جميع مواد صفّه.'] : []));
         $log = ['user_id' => $test ? null : $user->id, 'to' => mb_substr($to, 0, 255), 'type' => $type, 'subject' => mb_substr($data['subject'], 0, 255), 'is_test' => $test];

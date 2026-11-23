@@ -23,8 +23,8 @@
   <h2 style="margin-top:0">{{ $r['label'] }} <small dir="ltr" style="font-weight:400;color:var(--muted);font-size:13px">/{{ $path }}{{ $path ? '/' : '' }}</small></h2>
   <div class="seo-row">
     <div>
-      <div class="field"><label for="t-{{ $loop->index }}">العنوان</label><input id="t-{{ $loop->index }}" name="seo[{{ $k }}][title]" value="{{ old('seo.'.$k.'.title', $o['title'] ?? '') }}" maxlength="120" placeholder="{{ $r['current']['title'] }}" data-t data-orig="{{ $r['current']['title'] }}"><p class="hint"><span class="cnt" data-ct></span> — الأفضل حتى ٦٠ حرفًا.</p></div>
-      <div class="field"><label for="d-{{ $loop->index }}">الوصف</label><textarea id="d-{{ $loop->index }}" name="seo[{{ $k }}][description]" maxlength="320" rows="3" placeholder="{{ $r['current']['description'] }}" data-d data-orig="{{ $r['current']['description'] }}">{{ old('seo.'.$k.'.description', $o['description'] ?? '') }}</textarea><p class="hint"><span class="cnt" data-cd></span> — الأفضل بين ٧٠ و١٦٠ حرفًا.</p></div>
+      <div class="field"><label for="t-{{ $loop->index }}">العنوان</label><input id="t-{{ $loop->index }}" name="seo[{{ $k }}][title]" value="{{ old('seo.'.$k.'.title', $o['title'] ?? '') }}" maxlength="120" placeholder="{{ $r['current']['title'] }}" data-t data-orig="{{ $r['current']['title'] }}"><p class="hint"><span class="cnt" data-ct></span> — الأفضل حتى 60 حرفًا.</p></div>
+      <div class="field"><label for="d-{{ $loop->index }}">الوصف</label><textarea id="d-{{ $loop->index }}" name="seo[{{ $k }}][description]" maxlength="320" rows="3" placeholder="{{ $r['current']['description'] }}" data-d data-orig="{{ $r['current']['description'] }}">{{ old('seo.'.$k.'.description', $o['description'] ?? '') }}</textarea><p class="hint"><span class="cnt" data-cd></span> — الأفضل بين 70 و160 حرفًا.</p></div>
     </div>
     <div><p class="hint" style="margin:0 0 6px">معاينة نتيجة جوجل</p><div class="serp"><div class="u">{{ $r['url'] }}</div><div class="t" data-pt></div><div class="d" data-pd></div></div></div>
   </div>
@@ -35,7 +35,7 @@
 <form method="post" action="{{ route('manage.seo.apply') }}" style="margin-top:12px">@csrf<button class="btn ghost small" type="submit">إعادة التطبيق على الملفات</button> <span class="hint">استخدمه إن نُشرت نسخة جديدة من الموقع فعادت العناوين القديمة.</span></form>
 <script>
 document.querySelectorAll('[data-seo]').forEach(function(c){var t=c.querySelector('[data-t]'),d=c.querySelector('[data-d]');
-function n(x){return String(x).replace(/\d/g,function(z){return '٠١٢٣٤٥٦٧٨٩'[z]})}
+function n(x){return String(x)} // admin panel: Western digits
 function up(){var tv=t.value.trim()||t.dataset.orig,dv=d.value.trim()||d.dataset.orig;c.querySelector('[data-pt]').textContent=tv;c.querySelector('[data-pd]').textContent=dv;
 var a=c.querySelector('[data-ct]'),b=c.querySelector('[data-cd]');a.textContent=n(tv.length)+' حرفًا';a.classList.toggle('over',tv.length>60);b.textContent=n(dv.length)+' حرفًا';b.classList.toggle('over',dv.length>160);}
 t.addEventListener('input',up);d.addEventListener('input',up);up();});

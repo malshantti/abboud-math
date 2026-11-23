@@ -11,7 +11,9 @@
   @can('manage-site')
   <a class="nav-item" href="{{ route('manage.schools') }}" @if(str_starts_with($r,'manage.schools')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'school'])<span>المدارس</span></a>
   <a class="nav-item" href="{{ route('manage.users') }}" @if(str_starts_with($r,'manage.user')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'users'])<span>المستخدمون</span></a>
-  <a class="nav-item" href="{{ route('manage.subscriptions') }}" @if(str_starts_with($r,'manage.subscription')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'card'])<span>الاشتراكات</span></a>
+  {{-- Payment requests waiting for the admin, counted per request (one WhatsApp request = one badge unit). --}}
+  @php($waiting = \App\Models\Subscription::where('status', 'pending')->get(['id', 'batch'])->map(fn ($s) => $s->batch ?: 'id'.$s->id)->unique()->count())
+  <a class="nav-item" href="{{ route('manage.subscriptions') }}" @if(str_starts_with($r,'manage.subscription')) aria-current="page" @endif>@include('partials.admin-icon',['name'=>'card'])<span>الاشتراكات</span>@if ($waiting)<span class="nav-badge" title="طلبات بانتظار الدفع">{{ \App\Support\Ar::num($waiting) }}<span class="sr"> طلب بانتظار الدفع</span></span>@endif</a>
   <a class="nav-item" href="{{ route('manage.settings') }}" @if($r==='manage.settings') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'tag'])<span>الأسعار والإعدادات</span></a>
   <a class="nav-item" href="{{ route('manage.mail') }}" @if($r==='manage.mail') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'mail'])<span>البريد الإلكتروني</span></a>
   <a class="nav-item" href="{{ route('manage.seo') }}" @if($r==='manage.seo') aria-current="page" @endif>@include('partials.admin-icon',['name'=>'search'])<span>عناوين جوجل (SEO)</span></a>
