@@ -57,7 +57,7 @@ function intro(p) {
   const ld = { '@context': 'https://schema.org', '@graph': [
     { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'بستان التعلّم', item: SITE }, { '@type': 'ListItem', position: 2, name: `${name} — ${gname}`, item: url }] },
     { '@type': 'Course', name: h1, description: lead, url, inLanguage: subj === 'english' ? ['ar', 'en'] : 'ar', educationalLevel: gname,
-      provider: { '@type': 'EducationalOrganization', name: 'بستان التعلّم', url: SITE },
+      provider: { '@type': 'EducationalOrganization', '@id': SITE + '#org', name: 'بستان التعلّم', url: SITE },
       syllabusSections: list.slice(0, 60).map(u => ({ '@type': 'Syllabus', name: u.t || u.l[0] })) }] };
   const lis = list.map(u => `<li><h3>${esc(u.t || u.l[0])}</h3>${u.l.length ? `<ul>${u.l.map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</li>`).join('\n');
   return `<!-- seo-intro:start -->
@@ -87,8 +87,13 @@ for (const p of pages) {
   let html = fs.readFileSync(file, 'utf8');
   const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || '';
   const cat = catalog.subjects.find(s => s.id === p.subj);
-  const first = title.split('—')[0].trim();
+  const first = title.split('—')[0].split(' لل')[0].trim();
   p.name = p.subj === 'science' && first && !/english/i.test(first) ? first : cat.name;
+  // العنوان: «<المادة> لل<الصف> — المنهاج الفلسطيني | بستان التعلّم» في title وog وtwitter.
+  const fullTitle = esc(`${p.name} لل${gradeName(p.grade).slice(2)} — المنهاج الفلسطيني | بستان التعلّم`);
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${fullTitle}</title>`)
+    .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${fullTitle}$2`)
+    .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${fullTitle}$2`);
   p.lead = ((html.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '').replace(/&quot;/g, '"');
   p.list = units(loadContent(p.dir));
   p.siblings = p.all.filter(s => s !== p.subj).map(s => ({ id: s, name: catalog.subjects.find(c => c.id === s).name }));
