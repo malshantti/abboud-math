@@ -31,7 +31,8 @@ function units(g) {
   if (g.G1_COURSE) u = g.G1_COURSE.units.map(x => ({ t: x.title, l: (x.lessons || []).map(T) }));
   else if (g.G3) u = g.G3.units.map(x => ({ t: x.t, l: (x.les || []).map(T) }));
   else if (g.CURR && g.CURR.semesters) u = g.CURR.semesters.flatMap(s => s.units.map(x => ({ t: x.title, l: (x.lessons || []).map(T) })));
-  else if ((g.ENC || g.EN_CONTENT || {}).units) u = (g.ENC || g.EN_CONTENT).units.map(x => ({ t: (x.n || x.number) ? `Unit ${x.n || x.number}: ${x.title}` : x.title, l: [] }));
+  else if ((g.ENC || g.EN_CONTENT || {}).units) u = (g.ENC || g.EN_CONTENT).units.map(x => ({ t: (x.n || x.number) ? `Unit ${x.n || x.number}: ${x.title}` : x.title,
+    l: [...(x.texts || []).map(T), ...(x.grammar || []).map(T)] }));
   else if (Array.isArray(g.UNITS)) u = g.UNITS.map(x => x.sec ? { t: (x.sec.read && x.sec.read.t) || '', l: Object.values(x.sec).map(s => s && s.t).filter(Boolean).slice(1) } : { t: x.t, l: (x.les || []).map(T) });
   if (!u) return [];
   // عناوين متكررة في أكثر من وحدتين (مثل «المفردات») لا تصف الدرس، فتُحذف.
@@ -45,13 +46,39 @@ function guard(rel, redirect) {
   const red = redirect ? `try{if(s.pending||localStorage.getItem('bustan_owner')!==s.id)location.replace('../../login.html?next='+encodeURIComponent('${rel}'+location.hash))}catch(e){}` : '';
   return `<!-- seo-guard:start -->
 <style>.seo-intro{display:none}html[data-guest] body>*{display:none!important}html[data-guest] body{display:block!important;margin:0;padding:0;background:#fbf9f0!important;min-height:0!important}html[data-guest] body>.seo-intro{display:block!important}
-.seo-intro{max-width:760px;margin:0 auto;padding:20px 16px 48px;color:#24331c;font:16px/1.75 Cairo,Baloo,G1Cairo,Tahoma,sans-serif;text-align:right}.seo-intro a{color:#507a12}.si-crumbs{font-size:14px;color:#5b6b5d}.si-top{display:flex;gap:14px;align-items:center;margin:14px 0 4px}.si-top img{flex:none}.seo-intro h1{font-size:clamp(24px,5vw,34px);line-height:1.35;margin:0}.si-lead{font-size:17px;margin:10px 0 18px}.si-cta{display:inline-block;background:#6f9e23;color:#fff!important;text-decoration:none;font-weight:700;padding:12px 26px;border-radius:999px;font-size:18px}.si-cta:hover{background:#507a12}.seo-intro h2{font-size:21px;margin:34px 0 12px}.si-units{list-style:none;padding:0;margin:0;display:grid;gap:10px}.si-units>li{background:#fff;border:1px solid #e8e6d6;border-radius:14px;padding:12px 16px}.si-units h3{font-size:17px;margin:0}.si-units ul{margin:6px 0 0;padding:0 20px 0 0;color:#3d4c35;font-size:15px}.si-subj{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.si-subj a{display:inline-block;border:1px solid #e8e6d6;background:#fff;border-radius:999px;padding:6px 14px;text-decoration:none}.si-foot{margin-top:30px;font-size:14px;color:#5b6b5d}</style>
+.seo-intro{max-width:760px;margin:0 auto;padding:20px 16px 48px;color:#24331c;font:16px/1.75 Cairo,Baloo,G1Cairo,Tahoma,sans-serif;text-align:right}.seo-intro a{color:#507a12}.si-crumbs{font-size:14px;color:#5b6b5d}.si-top{display:flex;gap:14px;align-items:center;margin:14px 0 4px}.si-top img{flex:none}.seo-intro h1{font-size:clamp(24px,5vw,34px);line-height:1.35;margin:0}.si-lead{font-size:17px;margin:10px 0 8px}.si-about{margin:0 0 18px;color:#3d4c35}.si-cta{display:inline-block;background:#6f9e23;color:#fff!important;text-decoration:none;font-weight:700;padding:12px 26px;border-radius:999px;font-size:18px}.si-cta:hover{background:#507a12}.seo-intro h2{font-size:21px;margin:34px 0 12px}.si-units{list-style:none;padding:0;margin:0;display:grid;gap:10px}.si-units>li{background:#fff;border:1px solid #e8e6d6;border-radius:14px;padding:12px 16px}.si-units h3{font-size:17px;margin:0}.si-units ul{margin:6px 0 0;padding:0 20px 0 0;color:#3d4c35;font-size:15px}.si-subj{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.si-subj a{display:inline-block;border:1px solid #e8e6d6;background:#fff;border-radius:999px;padding:6px 14px;text-decoration:none}.si-foot{margin-top:30px;font-size:14px;color:#5b6b5d}</style>
 <script>(function(){var d=document.documentElement,s=null;try{s=JSON.parse(localStorage.getItem('bustan_session')||'null')}catch(e){}if(!s){d.setAttribute('data-guest','');var k=function(n){if(n.tagName==='SCRIPT'&&(!n.type||/(java|ecma)script|module/i.test(n.type)))n.type='text/plain'};new MutationObserver(function(r){for(var i=0;i<r.length;i++)for(var j=0;j<r[i].addedNodes.length;j++)k(r[i].addedNodes[j])}).observe(d,{childList:true,subtree:true});return}d.setAttribute('data-member','');${red}})();</script>
 <!-- seo-guard:end -->`;
 }
 
+// فقرة تعريف لكل مادة: جملة حسب نوع المادة تذكر موضوعات من وحداتها الفعلية، ثم عدد الوحدات.
+const topicOf = u => {
+  const clean = s => String(s || '').replace(/^Unit \d+\s*[:—-]\s*/, '').replace(/^(الوحدة|الدرس|الدّرس|الدروس|الدّروس)[^:]*:\s*/, '')
+    .replace(/^(قراءة|استماع)\s*:\s*/, '').replace(/\s*—\s*الجزء (الأول|الثاني)$/, '').replace(/\s*\([\d٠-٩]+\)$/, '').trim();
+  let t = clean(u.t);
+  // وحدة بلا اسم خاص («الوحدة الأولى»، «الدروس 4–6») أو اسمها قائمة دروس: نأخذ أول درس فيها.
+  if (!t || /^(الوحدة|الدرس|الدروس|الدّروس)(\s|$)/.test(t) || t.includes('،')) t = clean(u.l[0]);
+  return t;
+};
+const joinAr = a => a.length < 2 ? (a[0] || '') : a.slice(0, -1).join('، ') + '، و' + a[a.length - 1];
+const unitsAr = n => n === 1 ? 'وحدة واحدة' : n === 2 ? 'وحدتين' : n <= 10 ? `${n} وحدات` : `${n} وحدة`;
+function about(p) {
+  const { subj, name, grade, list } = p, gl = 'لل' + gradeName(grade).slice(2);
+  const picks = [...new Set(list.filter(u => !/revision|مراجعة|تهيئة|التهيئة/i.test(u.t)).map(topicOf).filter(t => t && t.length <= 60))];
+  const step = Math.max(1, Math.floor(picks.length / 3)), topics = joinAr([0, step, step * 2].map(i => picks[i]).filter((t, i, a) => t && a.indexOf(t) === i).map(t => `«${t}»`));
+  const s1 = {
+    math: `في ${name} ${gl} يتعلّم طفلك موضوعات الكتاب مثل ${topics}. يشرح كل درس الفكرة خطوة بخطوة، ثم يتدرّب الطفل عليها بأسئلة تفاعلية.`,
+    arabic: `في ${name} ${gl} يتدرّب طفلك على دروس الكتاب ومنها ${topics}، قراءةً وفهمًا ومفرداتٍ وتدريبات.`,
+    english: `في ${name} ${gl} يتعلّم طفلك كلمات وجملًا من وحدات كتاب English for Palestine، مثل ${topics}، ثم يجيب عن أسئلة قصيرة تثبّت ما تعلّمه.`,
+    science: `في ${name} ${gl} يستكشف طفلك موضوعات مثل ${topics}، بشرح مبسّط وأسئلة تفاعلية مرتبطة بالكتاب.`,
+    life: `في ${name} ${gl} يتعرّف طفلك إلى موضوعات مثل ${topics}، بصور وأنشطة قصيرة تناسب عمره.`,
+  }[subj] || `في ${name} ${gl} يتعلّم طفلك موضوعات مثل ${topics}.`;
+  return topics ? `${s1} تسير الدروس بترتيب الكتاب المدرسي في ${unitsAr(list.length)}، ويتابع وليّ الأمر تقدّم طفله من تقرير التعلّم.` : '';
+}
+
 function intro(p) {
   const { grade, subj, rel, name, lead, list, siblings } = p;
+  const aboutText = about(p);
   const url = SITE + rel, gname = gradeName(grade), h1 = `${name} لل${gname.slice(2)} — المنهاج الفلسطيني`;
   const next = '../../login.html?next=' + encodeURIComponent(rel);
   const ld = { '@context': 'https://schema.org', '@graph': [
@@ -65,10 +92,10 @@ function intro(p) {
 <nav class="si-crumbs" aria-label="مسار الصفحة"><a href="../../">بستان التعلّم</a> › ${esc(gname)} › ${esc(name)}</nav>
 <div class="si-top"><img src="../../assets/brand/logo-mascot-sm.webp" width="44" height="58" alt="زيتون، رفيق بستان التعلّم"><h1 id="si-h1">${esc(h1)}</h1></div>
 <p class="si-lead">${esc(lead)}</p>
-<a class="si-cta" href="${next}">ابدأ التعلّم</a>
+${aboutText ? `<p class="si-about">${esc(aboutText)}</p>\n` : ''}<a class="si-cta" href="${next}">ابدأ التعلّم</a>
 ${list.length ? `<h2>وحدات الكتاب ودروسه</h2>\n<ol class="si-units">\n${lis}\n</ol>` : ''}
 ${siblings.length ? `<h2>مواد ${esc(gname)} الأخرى</h2>\n<ul class="si-subj">${siblings.map(s => `<li><a href="../${s.id}/">${esc(s.name)}</a></li>`).join('')}</ul>` : ''}
-<p class="si-foot">دروس تفاعلية بالصوت مطابقة لترتيب كتاب ${esc(name)} ل${esc(gname.slice(2))} في المنهاج الفلسطيني، مع زيتون الذي يشجّع طفلك، وتقرير تقدّم لوليّ الأمر. <a href="../../">كل الصفوف والمواد</a></p>
+<p class="si-foot">دروس تفاعلية مطابقة لترتيب كتاب ${esc(name)} ل${esc(gname.slice(2))} في المنهاج الفلسطيني، مع زيتون الذي يشجّع طفلك، وتقرير تقدّم لوليّ الأمر. <a href="../../">كل الصفوف والمواد</a></p>
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>
 </section>
 <!-- seo-intro:end -->`;
