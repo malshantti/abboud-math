@@ -42,3 +42,4 @@
 .g1-card,.g1-unit,.g1-lab,.g1-lesson{background:#fff;border-bottom-width:4px;border-radius:22px}
 .g1-card,.g1-unit,.g1-lab{box-shadow:none}
 .g1-node,.g1-switch,.g1-close{border-bottom-width:4px}
+.g1-choice.g1-crossed,.g1-choice.g1-crossed:disabled{opacity:.45;text-decoration:line-through;border-style:dashed;cursor:not-allowed}.g1-retry-note{color:var(--accent);font-weight:700}
