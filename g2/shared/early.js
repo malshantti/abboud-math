@@ -4,7 +4,7 @@
   const ar=value=>String(value??'').replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const shown=value=>esc(ar(value));
-  const direction=value=>/[\u0621-\u064a\u066e-\u06d3]/.test(String(value).replace(/[٠-٩۰-۹]/g,''))?'rtl':'ltr';
+  const direction=value=>/^\s*[<>=]\s*$/.test(String(value))||/[ء-يٮ-ۓ٠-٩]/.test(String(value))?'rtl':'ltr'; // الرياضيات من اليمين كالكتاب
   function normalize(raw,ids) {
     let input;try{input=typeof raw==='string'?JSON.parse(raw):raw;}catch(_){input=null;}
     const out={version:1,completed:{},rounds:0,last:null};

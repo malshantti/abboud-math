@@ -159,7 +159,9 @@ for(const subject of ['math','arabic','english','life']){
 // Rendering is bounded and text is escaped, including malformed descriptors.
 for(let count=0;count<=20;count++){const html=A.scene({type:'count',count,icon:'apple'});equal((html.match(/class="g1-art-object"/g)||[]).length,count,'Exact visual count '+count);ok(html.includes('role="img"')&&html.includes('aria-label='),'Count accessible name');}
 equal((A.scene({type:'count',count:999,icon:'apple'}).match(/g1-art-object/g)||[]).length,20,'Defensive count cap');
-for(const value of ['٢ + ؟ = ٥','12 - 2 = ?','٣ ، ٤ ، ٥','Hello'])ok(A.scene({type:'symbol',value}).includes('dir="ltr"'),'Symbols maintain LTR: '+value);
+// Math is written right-to-left like the Palestinian book (e.g. «١٠ = ☐ × ٥», math part 2 p62); Latin text stays LTR.
+for(const value of ['٢ + ؟ = ٥','12 - 2 = ?','٣ ، ٤ ، ٥','٥٢ ؟ ٥٨'])ok(A.scene({type:'symbol',value}).includes('dir="rtl"'),'Math symbols read right-to-left: '+value);
+for(const value of ['Hello','a A','A B C D'])ok(A.scene({type:'symbol',value}).includes('dir="ltr"'),'Latin symbols maintain LTR: '+value);
 for(const value of ['ب','بَا','هذا كتاب'])ok(A.scene({type:'symbol',value}).includes('dir="rtl"'),'Arabic letters maintain RTL');
 const hostile='<img src=x onerror="alert(1)">';const escaped=A.scene({type:'symbol',value:hostile,caption:hostile});ok(!escaped.includes('<img')&&escaped.includes('&lt;img'),'Symbol and caption HTML escaping');
 ok(A.scene({type:'items',icons:['eye','ear']}).includes('aria-label="عين، أذن"'),'Items describe actual illustrations');ok(A.scene({type:'shape',value:'triangle'}).includes('aria-label="مثلث"'),'Shape accessible name');ok(!A.icon('__proto__').includes('[object'),'Unknown icon cannot access prototype');ok(!A.scene({type:'shape',value:'constructor',color:'__proto__'}).includes('[object'),'Shape keys cannot access prototype');
