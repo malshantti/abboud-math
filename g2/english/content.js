@@ -83,15 +83,15 @@
       complete('أكمل: She ... reading.','likes','like','نقول She likes reading.')
     ])]),
     unit(11,'Transport',2,10,[words('en2-u11-words','p2',10,['plane','طائرة','plane'],['train','قطار','train'])]),
-    unit(12,'Let’s find out!',2,16,[words('en2-u12-words','p2',16,['pencil','قلم رصاص','pencil'],['book','كتاب','book']),language('en2-u12-place','p2',16,'أفهم مكان القلم',[
+    unit(12,'Let’s find out!',2,16,[words('en2-u12-words','p2',16,['pen','قلم حبر','pen'],['flag','علم','flag']),language('en2-u12-place','p2',16,'أفهم مكان القلم',[
       {text:'The pencil is on the desk. تعني: قلم الرصاص على الطاولة الدراسية.'},
       {text:'The pencil is under the desk. تعني: قلم الرصاص تحت الطاولة الدراسية.'}
     ],[
       complete('أقرأ: The pencil is on the desk. أين قلم الرصاص؟','على الطاولة الدراسية.','تحت الطاولة الدراسية.','on تعني على.'),
       complete('أكمل بمعنى تحت: The pencil is ... the desk.','under','on','under تعني تحت.')
     ])]),
-    unit(13,'Let’s go shopping!',2,22,[words('en2-u13-words','p2',22,['shoes','حذاء','shoes'],['shirt','قميص','shirt'])]),
-    unit(14,'Revision',2,28,[words('en2-u14-review','p2',28,['train','قطار','train'],['pencil','قلم رصاص','pencil'])]),
+    unit(13,'Let’s go shopping!',2,22,[words('en2-u13-words','p2',22,['socks','جوارب','socks'],['shirt','قميص','shirt'])]),
+    unit(14,'Revision',2,28,[words('en2-u14-review','p2',28,['train','قطار','train'],['pen','قلم حبر','pen'])]),
     unit(15,'Guess who?',2,34,[language('en2-u15-describe','p2',34,'أقرأ وصفًا قصيرًا',[
       {text:'He has short hair. تعني: له شعر قصير.'},
       {text:'She has long hair. تعني: لها شعر طويل.'}
@@ -348,12 +348,12 @@
   family.steps[0]={text:'This is my grandfather. هذا جدي. This is my grandmother. هذه جدتي. الإطار الأزرق المسمى أنا للولد الذي نتحدث عن أسرته؛ والإطار الأخضر للجدة.',scene:familyScene('grandmother')};
   family.steps[1]={text:'He has blonde hair and green eyes. له شعر أشقر وعينان خضراوان. ألاحظ ألوان الشخصية.',scene:personScene({role:'boy',hair:'short',hairColor:'blonde',eyeColor:'green'})};
   family.tasks[0].scene=familyScene('grandmother');family.tasks[0].prompt='ألاحظ شجرة الأسرة. كيف أعرّف بالشخص داخل الإطار الأخضر؟';
-  family.tasks[1].scene=personScene({role:'boy',hair:'short',hairColor:'blonde',eyeColor:'green'});family.tasks[1].prompt='ألاحظ الشخصية. ما لون شعرها؟';
+  family.tasks[1].scene=personScene({role:'boy',hair:'short',hairColor:'blonde',eyeColor:'green'});family.tasks[1].prompt='ألاحظ الشخصية. ما لون شعره؟';
   family.tasks[2].scene=personScene({role:'girl',hair:'long',hairColor:'brown',eyeColor:'brown'});family.tasks[2].prompt='ألاحظ الشخصية. ما لون عينيها؟';
   const height=lessonById('en2-u15-height-talk');
   height.steps[0]={text:'He’s tall. هو طويل. أقارن مستوى الرأس بعلامات القياس الثابتة.',scene:personScene({role:'boy',height:'tall'})};
   height.steps[1]={text:'He’s short. هو قصير. أستعمل علامات القياس نفسها، ولا أصف شخصًا لإغاظته.',scene:personScene({role:'boy',height:'short'})};
-  height.tasks[0]={...question('أقارن الشخصية بعلامات القياس. أي وصف يناسبها؟','He’s short.','He’s tall.','هذه الشخصية أقصر عند استعمال علامات القياس نفسها.',personScene({role:'boy',height:'short'}))};
+  height.tasks[0]={...question('أقارن الشخصية بعلامات القياس. أي وصف يناسبه؟','He’s short.','He’s tall.','هذه الشخصية أقصر عند استعمال علامات القياس نفسها.',personScene({role:'boy',height:'short'}))};
   height.tasks[1]={...question('ألاحظ الشخصية. ما لون الشعر؟','أسود.','أشقر.','black تعني أسود.',personScene({role:'boy',hairColor:'black',eyeColor:'brown'}))};
   const safe=lessonById('en2-u6-safe-actions');
   safe.steps[0]={text:'Clap. تعني: صفق. Jump. تعني: اقفز. أفهم الحركة بالمشاهدة؛ تنفيذها اختياري في مكان آمن مع شخص كبير.',scene:personScene({pose:'clap'})};
@@ -386,7 +386,7 @@
     L.guidedPractice=[{title:'أكتب الشكلين',text:'أفتح الصفحة '+indic(page)+' من الجزء الأول مع الكبير. ألاحظ نموذج الحرف الصغير والكبير وأرقام مسارهما في الكتاب، ثم أتتبعهما وأنسخهما على ورقة. لا يصحح الموقع جودة خطي أو اتجاهه.'}];
   }
   for(let n=1;n<=10;n+=2){
-    const values=[n,n+1],L=supplement(1,'book-number-review-'+n,'أراجع أسماء الأعداد',values.map(value=>({text:'أعدّ '+indic(value)+' عناصر، وأقرأ اسم العدد: '+numberWords[value]+'.',scene:{type:'count',icon:'ball',count:value}})),values.map(value=>question('أعدّ الكرات وأختار اسم العدد بالإنجليزية.',numberWords[value],numberWords[value===10?9:value+1],numberWords[value]+' هو اسم العدد '+indic(value)+'.',{type:'count',icon:'ball',count:value})));
+    const values=[n,n+1],L=supplement(1,'book-number-review-'+n,'أراجع أسماء الأعداد',values.map(value=>({text:'أعدّ الكرات: '+(value===1?'كرة واحدة':value===2?'كرتان':indic(value)+' كرات')+'، وأقرأ اسم العدد: '+numberWords[value]+'.',scene:{type:'count',icon:'ball',count:value}})),values.map(value=>question('أعدّ الكرات وأختار اسم العدد بالإنجليزية.',numberWords[value],numberWords[value===10?9:value+1],numberWords[value]+' هو اسم العدد '+indic(value)+'.',{type:'count',icon:'ball',count:value})));
     L.references=[{book:'p1',page:4,pdfPage:4},{book:'p1',page:5,pdfPage:5}];L.referenceKind='verified-pages';L.referenceLabel='مراجعة مساندة للأعداد من واحد إلى عشرة؛ الصفحات المتحققة:';
   }
   const name=supplement(1,'book-friend-profile','أقرأ اسم الصديق والصديقة',[
@@ -432,11 +432,11 @@
     question('ألاحظ الأدوات وأكمل: The eraser is ... the ruler and the pen.','between','under','الممحاة بين المسطرة وقلم الحبر.',{type:'symbol',value:'ألاحظ الأدوات الثلاث.',deskItems:'ruler-eraser-pen'})
   ]);desk.references=[{book:'p2',page:19,pdfPage:19},{book:'p2',page:20,pdfPage:20},{book:'p2',page:21,pdfPage:21}];desk.referenceKind='verified-pages';desk.referenceLabel='نشاط أصلي لعلاقات الأدوات؛ الصفحات المتحققة:';
   const looks=supplement(15,'book-eye-hair-colours','ألاحظ لون الشعر والعينين',[
-    {text:'He has brown hair and blue eyes. له شعر بني وعينان زرقاوان.',scene:personScene({role:'boy',hairColor:'brown',eyeColor:'blue'})},
-    {text:'She has red hair and brown eyes. لها شعر أحمر وعينان بنيتان.',scene:personScene({role:'girl',hair:'long',hairColor:'red',eyeColor:'brown'})}
+    {text:'He has brown hair and green eyes. له شعر بني وعينان خضراوان.',scene:personScene({role:'boy',hairColor:'brown',eyeColor:'green'})},
+    {text:'She has blonde hair and brown eyes. لها شعر أشقر وعينان بنيتان.',scene:personScene({role:'girl',hair:'long',hairColor:'blonde',eyeColor:'brown'})}
   ],[
-    question('ألاحظ الشخصية. ما لون عينيها؟','Blue.','Green.','العينان زرقاوان: blue eyes.',personScene({role:'boy',hairColor:'brown',eyeColor:'blue'})),
-    question('ألاحظ الشخصية. ما لون شعرها؟','Red.','Black.','الشعر أحمر: red hair.',personScene({role:'girl',hair:'long',hairColor:'red',eyeColor:'brown'}))
+    question('ألاحظ الشخصية. ما لون عينيه؟','Green.','Brown.','العينان خضراوان: green eyes.',personScene({role:'boy',hairColor:'brown',eyeColor:'green'})),
+    question('ألاحظ الشخصية. ما لون شعرها؟','Brown.','Black.','الشعر بني: brown hair.',personScene({role:'girl',hair:'long',hairColor:'brown',eyeColor:'brown'}))
   ]);looks.references=[{book:'p2',page:37,pdfPage:37},{book:'p2',page:39,pdfPage:39}];looks.referenceKind='verified-pages';
   const speed=supplement(11,'book-speed-words','أفهم وصف السرعة',[
     'fast تعني سريعًا، وslow تعني بطيئًا. very fast تعني سريعًا جدًا، وvery slow تعني بطيئًا جدًا.',
