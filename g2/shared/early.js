@@ -4,7 +4,7 @@
   const ar=value=>String(value??'').replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const shown=value=>esc(ar(value));
-  const direction=value=>/[\u0621-\u064a\u066e-\u06d3]/.test(String(value).replace(/[٠-٩۰-۹]/g,''))?'rtl':'ltr';
+  const direction=value=>/^\s*[<>=]\s*$/.test(String(value))||/[ء-يٮ-ۓ٠-٩]/.test(String(value))?'rtl':'ltr'; // الرياضيات من اليمين كالكتاب
   function normalize(raw,ids) {
     let input;try{input=typeof raw==='string'?JSON.parse(raw):raw;}catch(_){input=null;}
     const out={version:1,completed:{},rounds:0,last:null};
@@ -99,13 +99,13 @@
   }
   function closeSession(){serial++;session=null;const dialog=query('#g1-lesson-dialog');if(dialog?.open)dialog.close();}
   function begin(lesson,adventure=false) {
-    const trigger=document.activeElement;closeSession();session={trigger,token:serial,lesson,adventure,index:0,attempts:0,answered:false,busy:false};
+    const trigger=document.activeElement;closeSession();session={trigger,token:serial,lesson:{...lesson,tasks:[...(lesson.tasks||[])]},adventure,index:0,attempts:0,answered:false,busy:false};
     const dialog=query('#g1-lesson-dialog');dialog.showModal();dialog.addEventListener('cancel',()=>{serial++;session=null;},{once:true});drawStage();
   }
   function drawStage() {
     if(!session)return;const {lesson,adventure,index}=session,steps=adventure?[]:lesson.steps,taskIndex=index-steps.length,task=lesson.tasks[taskIndex],step=steps[index],total=steps.length+lesson.tasks.length;
     const choiceOrder=task?task.choices.map((choice,i)=>({choice,i,sort:Math.random()})).sort((a,b)=>a.sort-b.sort):[];
-    query('#g1-lesson-dialog').innerHTML='<header class="g1-modal-head"><div><span class="g1-kicker">'+(adventure?'مغامرة صغيرة':'نفهم ثم نجرّب')+'</span><h2 id="g1-activity-title">'+shown(lesson.title)+'</h2></div>'+button(icon('close'),'close','g1-close','aria-label="إغلاق التدريب"')+'</header><div class="g1-progress" role="progressbar" aria-label="خطوات النشاط" aria-valuemin="0" aria-valuemax="'+total+'" aria-valuenow="'+index+'"><span class="g1-progress-fill" style="width:'+Math.round(index/total*100)+'%"></span></div><div class="g1-modal-body"><p class="g1-caption">الخطوة '+ar(index+1)+' من '+ar(total)+'</p><section class="g1-stage">'+(task?'<h3 class="g1-step-text">'+shown(task.prompt)+'</h3>'+scene(task.scene)+'<div class="g1-choices">'+choiceOrder.map(({choice,i})=>button((choice.scene?scene(choice.scene):'')+'<bdi dir="'+direction(choice.label)+'">'+shown(choice.label)+'</bdi>','answer','g1-choice','data-answer="'+i+'"')).join('')+'</div><p class="g1-feedback" role="status" data-activity-feedback></p>'+button('نكمل '+icon('arrow'),'next','g1-primary','hidden'):'<p class="g1-step-text">'+shown(step.text)+'</p>'+scene(step.scene)+button('هَيّا نجرّب '+icon('arrow'),'next'))+'</section>'+(!adventure?reference(lesson):'')+'</div>';
+    query('#g1-lesson-dialog').innerHTML='<header class="g1-modal-head"><div><span class="g1-kicker">'+(adventure?'مغامرة صغيرة':'نفهم ثم نجرّب')+'</span><h2 id="g1-activity-title">'+shown(lesson.title)+'</h2></div>'+button(icon('close'),'close','g1-close','aria-label="إغلاق التدريب"')+'</header><div class="g1-progress" role="progressbar" aria-label="خطوات النشاط" aria-valuemin="0" aria-valuemax="'+total+'" aria-valuenow="'+index+'"><span class="g1-progress-fill" style="width:'+Math.round(index/total*100)+'%"></span></div><div class="g1-modal-body"><p class="g1-caption">الخطوة '+ar(index+1)+' من '+ar(total)+'</p><section class="g1-stage">'+(task?(task.retry?'<p class="g1-caption g1-retry-note">نعود إلى سؤال أخطأنا فيه.</p>':'')+'<h3 class="g1-step-text">'+shown(task.prompt)+'</h3>'+scene(task.scene)+'<div class="g1-choices">'+choiceOrder.map(({choice,i})=>button((choice.scene?scene(choice.scene):'')+'<bdi dir="'+direction(choice.label)+'">'+shown(choice.label)+'</bdi>','answer','g1-choice','data-answer="'+i+'"')).join('')+'</div><p class="g1-feedback" role="status" data-activity-feedback></p>'+button('نكمل '+icon('arrow'),'next','g1-primary','hidden'):'<p class="g1-step-text">'+shown(step.text)+'</p>'+scene(step.scene)+button('هَيّا نجرّب '+icon('arrow'),'next'))+'</section>'+(!adventure?reference(lesson):'')+'</div>';
     const heading=query('.g1-step-text');heading.tabIndex=-1;heading.focus({preventScroll:true});query('#g1-lesson-dialog').scrollTop=0;
   }
   async function finish() {
@@ -117,11 +117,18 @@
     if(!ok){current.busy=false;query('.g1-modal-body').innerHTML='<p class="g1-notice" role="alert">تعذّر حفظ الخطوة. تأكّد من ملف الطالب والمساحة المتاحة، ثم أعد المحاولة.</p>'+button('أحاول حفظ الخطوة','retry-save');return;}
     state=next;query('#g1-lesson-dialog').innerHTML='<div class="g1-finish"><img src="../../assets/img/av-celebrate.webp" width="170" height="170" alt="زيتون يحتفل بخطوتك"><h2 id="g1-activity-title">أحسنت، أتممت الخطوة!</h2><p>فهمنا الفكرة وجرّبناها معًا.</p>'+button('العودة إلى رحلتي '+icon('arrow'),'finish')+'</div>';query('[data-action="finish"]').focus();
   }
-  function nextStage(){if(!session||session.busy)return;const steps=session.adventure?[]:session.lesson.steps;if(session.index>=steps.length&&!session.answered)return;session.index++;session.answered=false;if(session.index>=steps.length+session.lesson.tasks.length)finish();else drawStage();}
+  function nextStage(){if(!session||session.busy)return;const steps=session.adventure?[]:session.lesson.steps;if(session.index>=steps.length&&!session.answered)return;session.index++;session.answered=false;session.misses=0;if(session.index>=steps.length+session.lesson.tasks.length)finish();else drawStage();}
   // تسجيل الإجابة في تقرير الأهل (report-log.js)
   function logAnswer(index,ok,task){try{const R=window.BUSTAN_REPORT;if(!R||!R.record)return;const b=query('[data-answer="'+index+'"]')||document.activeElement;if(!b)return;const txt=x=>String(x==null?'':x).replace(/<[^>]*>/g,' ');const good=task.choices&&task.choices[task.answer];R.record(b,ok,{l:txt(session.lesson.title),q:txt(task.prompt),c:ok?'':txt(good&&(good.label||good.aria))})}catch(e){}}
   function answer(index){if(!session||session.answered||session.busy)return;const offset=session.adventure?0:session.lesson.steps.length,task=session.lesson.tasks[session.index-offset];if(!task||!Number.isInteger(index)||index<0||index>=task.choices.length)return;session.attempts++;const feedback=query('[data-activity-feedback]');
-    if(index!==task.answer){logAnswer(index,false,task);feedback.className='g1-feedback g1-retry';feedback.textContent='لِننظر مرة أخرى. جرّب اختيارًا آخر.';query('[data-answer="'+index+'"]').setAttribute('aria-pressed','false');return;}
+    if(index!==task.answer){logAnswer(index,false,task);session.misses=(session.misses||0)+1;
+      // الخطأ الأول: نشطب الخيار ونعطي تلميحًا، ونعيد السؤال مرة في آخر النشاط. الخطأ الثاني: نشرح ثم يختار الطفل.
+      const wrong=query('[data-answer="'+index+'"]');wrong.disabled=true;wrong.setAttribute('aria-pressed','false');wrong.classList.add('g1-crossed');
+      const hint=task.hint||session.lesson.hint||'';
+      if(!task.retry&&!session.requeued?.has(task)){(session.requeued||(session.requeued=new Set())).add(task);session.lesson.tasks.push({...task,retry:true});}
+      feedback.className='g1-feedback g1-retry';
+      feedback.textContent=session.misses>=2?'لا بأس، نتعلّم معًا: '+ar(task.explain)+' اختر الآن الجواب المناسب.':'لِننظر مرة أخرى. '+(hint?'تلميح: '+ar(hint):'جرّب اختيارًا آخر.')+' سنعود إلى هذا السؤال في آخر النشاط.';
+      return;}
     session.answered=true;logAnswer(index,true,task);feedback.className='g1-feedback g1-success';feedback.textContent='أحسنت! '+ar(task.explain);app.querySelectorAll('[data-answer]').forEach(choice=>{choice.disabled=true;choice.classList.toggle('g1-selected',Number(choice.dataset.answer)===index);});query('[data-action="next"]').hidden=false;query('[data-action="next"]').focus({preventScroll:true});
   }
   app.addEventListener('click',event=>{

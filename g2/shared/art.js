@@ -248,7 +248,8 @@
     }
     if (d.type === 'symbol') {
       const value = String(d.value ?? '').slice(0,120);
-      const direction = /[\u0621-\u063a\u0641-\u064a\u066e-\u06d3]/.test(value.replace(/[\u064b-\u065f\u0670]/g,'')) ? 'rtl' : 'ltr';
+      // \u0627\u0644\u0643\u062a\u0627\u0628 \u0627\u0644\u0641\u0644\u0633\u0637\u064a\u0646\u064a \u064a\u0643\u062a\u0628 \u0627\u0644\u0639\u0645\u0644\u064a\u0627\u062a \u0648\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0627\u062a \u0645\u0646 \u0627\u0644\u064a\u0645\u064a\u0646: \u00ab\u0661\u0660 = \u2610 \u00d7 \u0665\u00bb. \u0627\u0644\u0623\u0631\u0642\u0627\u0645 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u062a\u0639\u0646\u064a \u062a\u0639\u0628\u064a\u0631\u064b\u0627 \u0631\u064a\u0627\u0636\u064a\u064b\u0627 \u064a\u064f\u0642\u0631\u0623 \u0645\u0646 \u0627\u0644\u064a\u0645\u064a\u0646.
+      const direction = /[\u0621-\u063a\u0641-\u064a\u066e-\u06d3\u0660-\u0669]/.test(indic(value).replace(/[\u064b-\u065f\u0670]/g,'')) ? 'rtl' : 'ltr';
       return `<div class="g1-art-symbol"><bdi dir="${direction}" style="${direction==='ltr'?'unicode-bidi:isolate-override':''}">${escape(indic(value))}</bdi>${d.caption ? `<span>${escape(indic(String(d.caption).slice(0,300)))}</span>` : ''}</div>`;
     }
     return `<div class="g1-art-items" role="img" aria-label="نبتة"><span class="g1-art-item">${icon('seed')}</span></div>`;
